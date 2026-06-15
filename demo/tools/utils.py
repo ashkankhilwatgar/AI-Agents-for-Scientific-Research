@@ -58,10 +58,6 @@ def extract_json_from_response(raw: str) -> str:
 
 
 def parse_json_response(raw: str) -> dict:
-    """
-    Extracts and parses JSON from model response.
-    Handles thinking blocks and markdown fences.
-    """
     text = extract_json_from_response(raw)
 
     if text.startswith("```"):
@@ -77,4 +73,14 @@ def parse_json_response(raw: str) -> dict:
             "feedback": "Judge agent received empty response from model"
         }
 
-    return json.loads(text)
+    # extract just the JSON object, ignoring any text before or after
+    start = text.find("{")
+    end = text.rfind("}") + 1
+    if start == -1 or end == 0:
+        return {
+            "pass": False,
+            "error_type": "reasoning",
+            "feedback": "Judge agent could not find JSON object in model response"
+        }
+
+    return json.loads(text[start:end])
