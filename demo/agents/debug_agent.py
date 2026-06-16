@@ -2,6 +2,7 @@ import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from agents.task_agent import run_task
+from tools.utils import parse_json_response
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -10,7 +11,8 @@ def call_ollama(prompt: str) -> str:
     payload = {
         "model": MODELS["debug"],
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "keep_alive": -1
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
     response.raise_for_status()
@@ -53,7 +55,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
         if clean.startswith("json"):
             clean = clean[4:]
 
-    return json.loads(clean.strip())
+    return parse_json_response(clean)
 
 
 def run_debug(task: dict, retry_count: int = 0) -> dict:
@@ -92,81 +94,81 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
         "error": f"Debug agent exceeded retry limit ({RETRY_LIMIT}) without resolving technical error"
     }
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # -------------------------------------------------------------------------
-    # TEST 1: Clean task output — Debug agent should pass it through
-    # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 1: Clean output — expect pass=true")
-    print("="*60)
+#     # -------------------------------------------------------------------------
+#     # TEST 1: Clean task output — Debug agent should pass it through
+#     # -------------------------------------------------------------------------
+#     print("\n" + "="*60)
+#     print("TEST 1: Clean output — expect pass=true")
+#     print("="*60)
 
-    clean_task = {
-        "criterion": "PM2",
-        "variant": "NM_000020.3:c.557G>T",
-        "disease": "HHT"
-    }
+#     clean_task = {
+#         "criterion": "PM2",
+#         "variant": "NM_000020.3:c.557G>T",
+#         "disease": "HHT"
+#     }
 
-    result = run_debug(clean_task)
-    print(json.dumps(result, indent=2))
+#     result = run_debug(clean_task)
+#     print(json.dumps(result, indent=2))
 
-    # -------------------------------------------------------------------------
-    # TEST 2: Nonexistent variant — tool should fail, Debug agent should retry
-    # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 2: Nonexistent variant — expect retry loop")
-    print("="*60)
+#     # -------------------------------------------------------------------------
+#     # TEST 2: Nonexistent variant — tool should fail, Debug agent should retry
+#     # -------------------------------------------------------------------------
+#     print("\n" + "="*60)
+#     print("TEST 2: Nonexistent variant — expect retry loop")
+#     print("="*60)
 
-    bad_variant_task = {
-        "criterion": "PM2",
-        "variant": "NM_000000.0:c.9999Z>Q",
-        "disease": "HHT"
-    }
+#     bad_variant_task = {
+#         "criterion": "PM2",
+#         "variant": "NM_000000.0:c.9999Z>Q",
+#         "disease": "HHT"
+#     }
 
-    result = run_debug(bad_variant_task)
-    print(json.dumps(result, indent=2))
+#     result = run_debug(bad_variant_task)
+#     print(json.dumps(result, indent=2))
 
-    # -------------------------------------------------------------------------
-    # TEST 3: Injected error output — simulate Task agent returning status=error
-    # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 3: Injected error output — expect pass=false and feedback")
-    print("="*60)
+#     # -------------------------------------------------------------------------
+#     # TEST 3: Injected error output — simulate Task agent returning status=error
+#     # -------------------------------------------------------------------------
+#     print("\n" + "="*60)
+#     print("TEST 3: Injected error output — expect pass=false and feedback")
+#     print("="*60)
 
-    from agents.debug_agent import check_technical
+#     from agents.debug_agent import check_technical
 
-    injected_error_output = {
-        "criterion": "PM2",
-        "evidence": None,
-        "reasoning": None,
-        "applies": None,
-        "tool_used": "gnomad",
-        "tool_input": "12-51914005-G-T",
-        "disease": "HHT",
-        "status": "error",
-        "error": "Variant not found"
-    }
+#     injected_error_output = {
+#         "criterion": "PM2",
+#         "evidence": None,
+#         "reasoning": None,
+#         "applies": None,
+#         "tool_used": "gnomad",
+#         "tool_input": "12-51914005-G-T",
+#         "disease": "HHT",
+#         "status": "error",
+#         "error": "Variant not found"
+#     }
 
-    result = check_technical(injected_error_output)
-    print(json.dumps(result, indent=2))
+#     result = check_technical(injected_error_output)
+#     print(json.dumps(result, indent=2))
 
-    # -------------------------------------------------------------------------
-    # TEST 4: Injected clean output — simulate Task agent returning complete
-    # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 4: Injected clean output — expect pass=true")
-    print("="*60)
+#     # -------------------------------------------------------------------------
+#     # TEST 4: Injected clean output — simulate Task agent returning complete
+#     # -------------------------------------------------------------------------
+#     print("\n" + "="*60)
+#     print("TEST 4: Injected clean output — expect pass=true")
+#     print("="*60)
 
-    injected_clean_output = {
-        "criterion": "PM2",
-        "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-        "reasoning": "AF is extremely low, supports PM2",
-        "applies": True,
-        "tool_used": "gnomad",
-        "tool_input": "12-51914005-G-T",
-        "disease": "HHT",
-        "status": "complete"
-    }
+#     injected_clean_output = {
+#         "criterion": "PM2",
+#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
+#         "reasoning": "AF is extremely low, supports PM2",
+#         "applies": True,
+#         "tool_used": "gnomad",
+#         "tool_input": "12-51914005-G-T",
+#         "disease": "HHT",
+#         "status": "complete"
+#     }
 
-    result = check_technical(injected_clean_output)
-    print(json.dumps(result, indent=2))
+#     result = check_technical(injected_clean_output)
+#     print(json.dumps(result, indent=2))

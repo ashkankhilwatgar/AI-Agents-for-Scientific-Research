@@ -1,8 +1,8 @@
 MODELS = {
-    "plan":  "deepseek-r1:70b",
-    "task":  "qwen2.5:72b",
+    "plan":  "deepseek-r1:32b",
+    "task":  "qwen2.5:14b",
     "debug": "qwen2.5:7b",
-    "judge": "deepseek-r1:70b",
+    "judge": "deepseek-r1:32b",
     "check": "qwen2.5:7b",
 }
 

@@ -3,21 +3,16 @@ import json
 from config import MODELS, OLLAMA_BASE_URL
 from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
-from tools.utils import hgvs_to_gnomad_format
+from tools.utils import hgvs_to_gnomad_format, parse_json_response
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
-
-TASK = {
-    "criterion": "PM2",
-    "variant": "NM_000020.3:c.557G>T",
-    "disease": "HHT"
-}
 
 def call_ollama(prompt: str) -> str:
     payload = {
         "model": MODELS["task"],
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "keep_alive": -1
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
     response.raise_for_status()
@@ -42,7 +37,8 @@ Respond ONLY with a JSON object in this exact format, no explanation:
 
     raw = call_ollama(prompt)
     # ... parsing logic ...
-    return json.loads(raw.strip())
+    
+    return parse_json_response(raw)
 
 
 def run_tool(tool_decision: dict, variant: str) -> dict:
@@ -97,19 +93,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
 
     raw = call_ollama(prompt)
 
-    clean = raw.strip()
-    if clean.startswith("```"):
-        clean = clean.split("```")[1]
-        if clean.startswith("json"):
-            clean = clean[4:]
-
-
-    output = json.loads(clean.strip())
-
-    if isinstance(output.get("applies"), str):
-        output["applies"] = output["applies"].strip().lower() == "true"
-
-    return output
+    return parse_json_response(raw)
 
 def run_task(task: dict, feedback: str = None, variant:str = "NM_000020.3:c.557G>T") -> dict:
     """
@@ -144,12 +128,8 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
         raw = call_ollama(prompt)
-        clean = raw.strip()
-        if clean.startswith("```"):
-            clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
-        tool_decision = json.loads(clean.strip())
+        
+        tool_decision = parse_json_response(raw)
     else:
         tool_decision = select_tool(criterion, variant)
 
