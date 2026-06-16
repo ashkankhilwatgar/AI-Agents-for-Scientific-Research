@@ -135,106 +135,106 @@ def run_check(task_output: dict) -> dict:
     return corrected
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     # -------------------------------------------------------------------------
-#     # TEST 1: Clean output — should pass with no fixes
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 1: Clean output — expect pass, no fixes")
-#     print("="*60)
+    # -------------------------------------------------------------------------
+    # TEST 1: Clean output — should pass with no fixes
+    # -------------------------------------------------------------------------
+    print("\n" + "="*60)
+    print("TEST 1: Clean output — expect pass, no fixes")
+    print("="*60)
 
-#     clean_output = {
-#         "criterion": "PM2",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "reasoning": "AF is extremely low (<0.001), supports PM2",
-#         "applies": True,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete"
-#     }
+    clean_output = {
+        "criterion": "PM2",
+        "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
+        "reasoning": "AF is extremely low (<0.001), supports PM2",
+        "applies": True,
+        "tool_used": "gnomad",
+        "tool_input": "12-51914005-G-T",
+        "disease": "HHT",
+        "status": "complete"
+    }
 
-#     result = run_check(clean_output)
-#     print(json.dumps(result, indent=2))
+    result = run_check(clean_output)
+    print(json.dumps(result, indent=2))
 
-#     # -------------------------------------------------------------------------
-#     # TEST 2: applies is string — should be coerced to boolean
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 2: applies as string — expect fix applied")
-#     print("="*60)
+    # -------------------------------------------------------------------------
+    # TEST 2: applies is string — should be coerced to boolean
+    # -------------------------------------------------------------------------
+    print("\n" + "="*60)
+    print("TEST 2: applies as string — expect fix applied")
+    print("="*60)
 
-#     string_applies_output = {
-#         "criterion": "PM2",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "reasoning": "AF is extremely low (<0.001), supports PM2",
-#         "applies": "true",
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete"
-#     }
+    string_applies_output = {
+        "criterion": "PM2",
+        "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
+        "reasoning": "AF is extremely low (<0.001), supports PM2",
+        "applies": "true",
+        "tool_used": "gnomad",
+        "tool_input": "12-51914005-G-T",
+        "disease": "HHT",
+        "status": "complete"
+    }
 
-#     result = run_check(string_applies_output)
-#     print(json.dumps(result, indent=2))
+    result = run_check(string_applies_output)
+    print(json.dumps(result, indent=2))
 
-#     # -------------------------------------------------------------------------
-#     # TEST 3: Missing fields — should be added as None
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 3: Missing fields — expect fields added as None")
-#     print("="*60)
+    # -------------------------------------------------------------------------
+    # TEST 3: Missing fields — should be added as None
+    # -------------------------------------------------------------------------
+    print("\n" + "="*60)
+    print("TEST 3: Missing fields — expect fields added as None")
+    print("="*60)
 
-#     missing_fields_output = {
-#         "criterion": "PM2",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "applies": True,
-#         "status": "complete"
-#     }
+    missing_fields_output = {
+        "criterion": "PM2",
+        "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
+        "applies": True,
+        "status": "complete"
+    }
 
-#     result = run_check(missing_fields_output)
-#     print(json.dumps(result, indent=2))
+    result = run_check(missing_fields_output)
+    print(json.dumps(result, indent=2))
 
-#     # -------------------------------------------------------------------------
-#     # TEST 4: Empty string fields — should be set to None
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 4: Empty string fields — expect None")
-#     print("="*60)
+    # -------------------------------------------------------------------------
+    # TEST 4: Empty string fields — should be set to None
+    # -------------------------------------------------------------------------
+    print("\n" + "="*60)
+    print("TEST 4: Empty string fields — expect None")
+    print("="*60)
 
-#     empty_fields_output = {
-#         "criterion": "PM2",
-#         "evidence": "",
-#         "reasoning": "",
-#         "applies": True,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete"
-#     }
+    empty_fields_output = {
+        "criterion": "PM2",
+        "evidence": "",
+        "reasoning": "",
+        "applies": True,
+        "tool_used": "gnomad",
+        "tool_input": "12-51914005-G-T",
+        "disease": "HHT",
+        "status": "complete"
+    }
 
-#     result = run_check(empty_fields_output)
-#     print(json.dumps(result, indent=2))
+    result = run_check(empty_fields_output)
+    print(json.dumps(result, indent=2))
 
-#     # -------------------------------------------------------------------------
-#     # TEST 5: Error field present on complete output — should be removed
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 5: Spurious error field — expect removal")
-#     print("="*60)
+    # -------------------------------------------------------------------------
+    # TEST 5: Error field present on complete output — should be removed
+    # -------------------------------------------------------------------------
+    print("\n" + "="*60)
+    print("TEST 5: Spurious error field — expect removal")
+    print("="*60)
 
-#     spurious_error_output = {
-#         "criterion": "PM2",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "reasoning": "AF is extremely low (<0.001), supports PM2",
-#         "applies": True,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete",
-#         "error": ""
-#     }
+    spurious_error_output = {
+        "criterion": "PM2",
+        "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
+        "reasoning": "AF is extremely low (<0.001), supports PM2",
+        "applies": True,
+        "tool_used": "gnomad",
+        "tool_input": "12-51914005-G-T",
+        "disease": "HHT",
+        "status": "complete",
+        "error": ""
+    }
 
-#     result = run_check(spurious_error_output)
-#     print(json.dumps(result, indent=2))
+    result = run_check(spurious_error_output)
+    print(json.dumps(result, indent=2))

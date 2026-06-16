@@ -7,9 +7,6 @@ from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
 
-# ─────────────────────────────────────────────
-# CRITERIA TO EVALUATE (expand as RAG grows)
-# ─────────────────────────────────────────────
 CRITERIA = ["PM2"]
 
 
