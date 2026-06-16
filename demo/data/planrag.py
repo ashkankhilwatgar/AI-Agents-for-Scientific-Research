@@ -59,10 +59,11 @@ PLANRAG_DB = {
         ),
         "threshold": "Popmax FAF < 0.0001 (absent or extremely rare in gnomAD)",
         "instructions": (
-            "Query gnomAD for the variant's Popmax Filtering Allele Frequency (FAF). "
-            "PM2_Supporting applies if the variant is absent from gnomAD or has Popmax FAF < 0.0001. "
-            "Do not use raw allele frequency — use Popmax/Grpmax FAF specifically. "
-            "If gnomAD returns no entry for the variant, PM2_Supporting applies."
+
+            "Query gnomAD for the allele frequency of the variant. "
+            "PM2 applies if the variant is absent or has allele frequency < 0.001"
+            "(AF < 0.001) in population databases. "
+            "Use the gnomad tool with the variant in gnomAD format."
         ),
         "hht_modification": "Downgraded from PM2_Moderate to PM2_Supporting; use Popmax/Grpmax FAF",
         "strength_override": "supporting",
@@ -225,6 +226,7 @@ PLANRAG_DB = {
             "is 2 or more stars (criteria provided by multiple submitters, expert panel, or practice guideline). "
             "1-star or 0-star ClinVar entries do not satisfy PP5. "
             "Record the ClinVar review status stars and the reported classification."
+            
         ),
         "hht_modification": None,
         "strength_override": None,

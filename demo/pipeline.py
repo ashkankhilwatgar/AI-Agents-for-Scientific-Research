@@ -7,7 +7,7 @@ from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
 
-CRITERIA = ["PM2"]
+CRITERIA = ["PM2_SUPPORTING"]
 
 
 def run_pipeline(variant: str, disease: str) -> list[dict]:
