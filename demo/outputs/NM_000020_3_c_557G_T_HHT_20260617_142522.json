@@ -1,0 +1,17 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_142522",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD exome allele count (AC) for the variant NM_000020.3:c.557G>T is 1 and the allele frequency (AF) is approximately 6.842e-07.",
+      "reasoning": "The very low allele count and extremely rare allele frequency indicate that this variant is not common in the population, which supports evidence for PM2 criterion by suggesting it may occur at a lower frequency than expected based on the minor allele frequency threshold.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "{\"variantId\": \"12-51914005-G-T\"}",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

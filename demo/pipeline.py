@@ -1,3 +1,5 @@
+import time
+print(f"[{time.strftime('%H:%M:%S')}] pipeline.py starting")
 import argparse
 import json
 import os
@@ -6,8 +8,9 @@ from agents.plan_agent import run_plan
 from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
+print(f"[{time.strftime('%H:%M:%S')}] imports complete")
 
-CRITERIA = ["PM2_SUPPORTING", "PP3"]
+CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4"]
 
 
 def run_pipeline(variant: str, disease: str) -> list[dict]:

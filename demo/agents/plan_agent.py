@@ -2,7 +2,7 @@ import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL
 from data.planrag import query
-from tools.utils import extract_json_from_response
+from tools.utils import parse_json_response
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -12,7 +12,11 @@ def call_ollama(prompt: str) -> str:
         "model": MODELS["plan"],
         "prompt": prompt,
         "stream": False,
-        "keep_alive": -1
+        "keep_alive": -1,
+        "options": {
+            "temperature": 0,
+            "num_predict": 512
+        }
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
     response.raise_for_status()
@@ -22,7 +26,8 @@ def call_ollama(prompt: str) -> str:
 def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dict]:
     """
     For each criterion, retrieves the PlanRAG entry and asks the LLM
-    to confirm and structure the task.
+    to produce a one-sentence instruction summary for the Task agent.
+    All other task fields are set deterministically from the RAG entry.
     Returns a list of task dicts ready for the Task agent.
     """
     tasks = []
@@ -34,44 +39,44 @@ def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dic
             print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
             continue
 
+        if rag_entry.get("excluded"):
+            print(f"PLAN AGENT: {criterion} is excluded — {rag_entry.get('reason')}, skipping")
+            continue
+
+        if rag_entry.get("deferred"):
+            print(f"PLAN AGENT: {criterion} is deferred (not automatable), skipping")
+            continue
+
         prompt = f"""You are a variant classification assistant.
 
-You are planning a classification task for the following variant and disease:
 Variant: {variant}
 Disease: {disease}
 Criterion: {criterion}
+Tool: {rag_entry['tool']}
+Threshold: {rag_entry['threshold']}
 
-Here are the instructions for evaluating this criterion:
-{json.dumps(rag_entry, indent=2)}
-
-Based on these instructions, produce a single task dict for this criterion.
+Write one sentence describing what the Task agent should do to evaluate this criterion.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "criterion": "{criterion}",
-    "variant": "{variant}",
-    "disease": "{disease}",
-    "tool": "{rag_entry['tool']}",
-    "instructions": "<one sentence summarizing what the Task agent should do>"
+    "instructions": "<one sentence>"
 }}"""
 
         raw = call_ollama(prompt)
-        text = extract_json_from_response(raw)
+        result = parse_json_response(raw)
 
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        text = text.strip()
+        instructions = result.get("instructions", rag_entry["instructions"])
 
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start == -1 or end == 0:
-            print(f"PLAN AGENT: Could not parse task for {criterion}, skipping")
-            continue
+        task = {
+            "criterion": criterion,
+            "variant": variant,
+            "disease": disease,
+            "tool": rag_entry["tool"],
+            "instructions": instructions,
+        }
 
-        task = json.loads(text[start:end])
         tasks.append(task)
+        print(f"PLAN AGENT: Task created for {criterion}")
 
     return tasks
 
@@ -91,6 +96,6 @@ def run_plan(variant: str, disease: str, criteria: list[str]) -> list[dict]:
 #     tasks = run_plan(
 #         variant="NM_000020.3:c.557G>T",
 #         disease="HHT",
-#         criteria=["PM2"]
+#         criteria=["PM2_SUPPORTING", "PP3"]
 #     )
 #     print(json.dumps(tasks, indent=2))

@@ -12,11 +12,41 @@ def call_ollama(prompt: str) -> str:
         "model": MODELS["debug"],
         "prompt": prompt,
         "stream": False,
-        "keep_alive": -1
+        "keep_alive": -1,
+        "options": {
+            "temperature": 0,
+            "num_predict": 512
+        }
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
     response.raise_for_status()
     return response.json()["response"]
+
+
+def print_task_summary(task_output: dict) -> None:
+    """
+    Prints a short summary of the Task agent's verdict and reasoning.
+    Coerces applies to boolean before display so string "true"/"false"
+    from the model renders correctly rather than as UNDETERMINED.
+    """
+    criterion = task_output.get("criterion", "Unknown")
+    reasoning = task_output.get("reasoning", "No reasoning provided")
+
+    applies_raw = task_output.get("applies")
+    if isinstance(applies_raw, str):
+        applies = applies_raw.strip().lower() == "true"
+    else:
+        applies = applies_raw
+
+    if applies is True:
+        verdict = "APPLIES"
+    elif applies is False:
+        verdict = "DOES NOT APPLY"
+    else:
+        verdict = "UNDETERMINED"
+
+    print(f"TASK AGENT: {criterion} → {verdict}")
+    print(f"           {reasoning}")
 
 
 def check_technical(task_output: dict) -> dict:
@@ -48,14 +78,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
 }}"""
 
     raw = call_ollama(prompt)
-
-    clean = raw.strip()
-    if clean.startswith("```"):
-        clean = clean.split("```")[1]
-        if clean.startswith("json"):
-            clean = clean[4:]
-
-    return parse_json_response(clean)
+    return parse_json_response(raw)
 
 
 def run_debug(task: dict, retry_count: int = 0) -> dict:
@@ -64,24 +87,27 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
     Runs the Task agent, checks output, retries if technical error found.
     Returns the validated task output or a failure dict if retry limit hit.
     """
-    # run the task agent fresh on first attempt
     task_output = run_task(task)
+    print_task_summary(task_output)
 
     while retry_count < RETRY_LIMIT:
         result = check_technical(task_output)
 
         if result["pass"]:
-            # no technical errors, pass output forward to Judge agent
             return task_output
 
-        # technical error found — retry Task agent with feedback
         print(f"DEBUG AGENT: Technical error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
         print(f"Feedback: {result['feedback']}")
 
-        retry_count += 1
         task_output = run_task(task, feedback=result["feedback"])
+        print_task_summary(task_output)
+        retry_count += 1
 
-    # retry limit hit
+    # check the final retry output before giving up
+    result = check_technical(task_output)
+    if result["pass"]:
+        return task_output
+
     return {
         "criterion": task.get("criterion"),
         "evidence": None,
@@ -94,6 +120,7 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
         "error": f"Debug agent exceeded retry limit ({RETRY_LIMIT}) without resolving technical error"
     }
 
+
 # if __name__ == "__main__":
 
 #     # -------------------------------------------------------------------------
@@ -104,9 +131,10 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
 #     print("="*60)
 
 #     clean_task = {
-#         "criterion": "PM2",
+#         "criterion": "PM2_SUPPORTING",
 #         "variant": "NM_000020.3:c.557G>T",
-#         "disease": "HHT"
+#         "disease": "HHT",
+#         "tool": "gnomad"
 #     }
 
 #     result = run_debug(clean_task)
@@ -120,55 +148,11 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
 #     print("="*60)
 
 #     bad_variant_task = {
-#         "criterion": "PM2",
+#         "criterion": "PM2_SUPPORTING",
 #         "variant": "NM_000000.0:c.9999Z>Q",
-#         "disease": "HHT"
+#         "disease": "HHT",
+#         "tool": "gnomad"
 #     }
 
 #     result = run_debug(bad_variant_task)
-#     print(json.dumps(result, indent=2))
-
-#     # -------------------------------------------------------------------------
-#     # TEST 3: Injected error output — simulate Task agent returning status=error
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 3: Injected error output — expect pass=false and feedback")
-#     print("="*60)
-
-#     from agents.debug_agent import check_technical
-
-#     injected_error_output = {
-#         "criterion": "PM2",
-#         "evidence": None,
-#         "reasoning": None,
-#         "applies": None,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "error",
-#         "error": "Variant not found"
-#     }
-
-#     result = check_technical(injected_error_output)
-#     print(json.dumps(result, indent=2))
-
-#     # -------------------------------------------------------------------------
-#     # TEST 4: Injected clean output — simulate Task agent returning complete
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 4: Injected clean output — expect pass=true")
-#     print("="*60)
-
-#     injected_clean_output = {
-#         "criterion": "PM2",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "reasoning": "AF is extremely low, supports PM2",
-#         "applies": True,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete"
-#     }
-
-#     result = check_technical(injected_clean_output)
 #     print(json.dumps(result, indent=2))

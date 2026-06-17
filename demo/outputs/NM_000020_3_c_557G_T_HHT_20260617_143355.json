@@ -1,0 +1,17 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_143355",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant 12-51914005-G-T has an allele count of 1 and an allele frequency of 6.84e-7 in gnomAD exome data.",
+      "reasoning": "The variant is extremely rare, with very low observed allele frequency, which aligns with PM2_SUPPORTING as it supports the clinical interpretation that the variant is likely pathogenic when supported by a medically relevant database or a reputable gene-disease association resource such as OMIM and HHT specific literature.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

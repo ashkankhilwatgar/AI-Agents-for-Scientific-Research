@@ -14,7 +14,11 @@ def call_ollama(prompt: str) -> str:
         "model": MODELS["task"],
         "prompt": prompt,
         "stream": False,
-        "keep_alive": -1
+        "keep_alive": -1,
+        "options": {
+            "temperature": 0,
+            "num_predict": 1024
+        }
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
     response.raise_for_status()
@@ -55,32 +59,40 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_tool(tool_decision: dict, variant: str) -> dict:
+def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
+    """
+    Runs the selected tool and returns (result, actual_input_used).
+    actual_input_used is the exact string passed to the API after any format conversion.
+    """
     tool = tool_decision["tool"]
-    # input is always the original variant — never trust the LLM for this
     input_value = variant
 
     print(f"DEBUG - tool: {tool}, input: {input_value}")
 
     if tool == "clinvar":
-        return search_clinvar(input_value)
+        return search_clinvar(input_value), input_value
+
     elif tool == "gnomad":
         if input_value.startswith("NM_") or "c." in input_value or "p." in input_value:
-            input_value = hgvs_to_gnomad_format(input_value)
-            if isinstance(input_value, dict) and "error" in input_value:
-                return input_value
-        return query_gnomad(input_value)
+            converted = hgvs_to_gnomad_format(input_value)
+            if isinstance(converted, dict) and "error" in converted:
+                return converted, input_value
+            input_value = converted
+        return query_gnomad(input_value), input_value
+
     elif tool == "revel_spliceai":
         if input_value.startswith("NM_") or "c." in input_value or "p." in input_value:
-            gnomad = hgvs_to_gnomad_format(input_value)
-            if isinstance(gnomad, dict) and "error" in gnomad:
-                return gnomad
-            input_value = gnomad
-        return query_revel_spliceai(input_value)
+            converted = hgvs_to_gnomad_format(input_value)
+            if isinstance(converted, dict) and "error" in converted:
+                return converted, input_value
+            input_value = converted
+        return query_revel_spliceai(input_value), input_value
+
     elif tool == "spliceai":
-        return query_spliceai(input_value)
+        return query_spliceai(input_value), input_value
+
     else:
-        return {"error": f"Unknown tool: {tool}"}
+        return {"error": f"Unknown tool: {tool}"}, input_value
 
 
 def interpret_evidence(
@@ -88,11 +100,13 @@ def interpret_evidence(
     variant: str,
     disease: str,
     tool_used: str,
+    tool_input: str,
     evidence: dict,
     feedback: str = None
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
+    tool_input is the exact string passed to the API — set by code, not inferred by the LLM.
     If feedback is provided (retry path), it is injected so the LLM knows
     exactly what it got wrong in the previous attempt.
     """
@@ -118,19 +132,27 @@ Based on this evidence, determine whether criterion {criterion} applies.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "criterion": "<ACMG criterion>",
+    "criterion": "{criterion}",
     "evidence": "<concise summary of raw evidence>",
     "reasoning": "<how evidence maps to criterion>",
     "applies": "<true | false>",
-    "tool_used": "<clinvar | gnomad | revel_spliceai | spliceai>",
-    "tool_input": "<exact input passed to the tool>",
-    "disease": "<disease name>",
+    "tool_used": "{tool_used}",
+    "tool_input": "{tool_input}",
+    "disease": "{disease}",
     "status": "<complete | error>",
     "error": "<error message if status is error, omit otherwise>"
 }}"""
 
     raw = call_ollama(prompt)
-    return parse_json_response(raw)
+    result = parse_json_response(raw)
+
+    # enforce tool_used, tool_input, criterion, disease — never trust the LLM to set these correctly
+    result["tool_used"] = tool_used
+    result["tool_input"] = tool_input
+    result["criterion"] = criterion
+    result["disease"] = disease
+
+    return result
 
 
 def run_task(task: dict, feedback: str = None) -> dict:
@@ -168,7 +190,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "error": tool_decision["error"]
         }
 
-    evidence = run_tool(tool_decision, variant)
+    evidence, actual_input = run_tool(tool_decision, variant)
 
     if "error" in evidence:
         return {
@@ -177,7 +199,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "reasoning": None,
             "applies": None,
             "tool_used": tool_decision["tool"],
-            "tool_input": variant,
+            "tool_input": actual_input,
             "disease": disease,
             "status": "error",
             "error": evidence["error"]
@@ -185,7 +207,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
 
     return interpret_evidence(
         criterion, variant, disease,
-        tool_decision["tool"], evidence,
+        tool_decision["tool"], actual_input, evidence,
         feedback=feedback
     )
 

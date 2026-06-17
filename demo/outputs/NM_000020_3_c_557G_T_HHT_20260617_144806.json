@@ -1,0 +1,27 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_144806",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD exome allele count (AC) for the variant: 1; gnomAD exome allele number (AN): 1461514; Allele frequency (AF): 0.000000684",
+      "reasoning": "The variant has an extremely low allele frequency in a large population database, supporting the pathogenicity criterion PM2.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915 (above threshold of 0.644 for missense variants), SpliceAI analysis failed due to timeout.",
+      "reasoning": "The REVEL score is above the threshold, indicating a deleterious effect on protein function, which supports PP3 criterion despite issues with SpliceAI.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}
