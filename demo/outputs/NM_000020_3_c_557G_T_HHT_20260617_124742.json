@@ -1,0 +1,49 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_124742",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.557G>T has an allele count of 1 in exomes and a frequency of 6.842219780310007e-07.",
+      "reasoning": "PM2_SUPPORTING requires evidence that the variant is rare in population databases, which is supported by the very low allele frequency reported from gnomAD.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "{\"variantId\": \"12-51914005-G-T\"}",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "ClinVar record for NM_000020.3:c.557G>T does not provide sufficient information.",
+      "reasoning": "The ClinVar evidence lacks specific details that would indicate a deleterious mutation in an individual with a severe phenotype and no interpretation submitted by ClinVar submitters other than the submitter's laboratory. The raw data from ClinVar is insufficient to confirm PM5 criterion application.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP4_MODERATE",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    }
+  ]
+}

@@ -268,11 +268,12 @@ PLANRAG_DB = {
         ),
         "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
         "instructions": (
-            "Search ClinVar for variants at the same amino acid residue as the query variant (different substitution). "
-            "Filter to entries that have been classified Likely Pathogenic or Pathogenic by the HHT VCEP "
-            "(check submitter and classification origin — only HHT VCEP-classified variants qualify). "
-            "Apply strength: "
-            "PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
+            "primary_source: ClinGen Evidence Repository (https://erepo.clinicalgenome.org); "
+            "fallback_source: ClinVar entries with submitter = 'ClinGen Hereditary Hemorrhagic Telangiectasia VCEP'; "
+            "search_strategy: Find variants at same amino acid residue, different substitution; "
+            "filter: Only count variants classified LP or P by HHT VCEP; "
+            "note: These are pipeline-level decisions, not from CSpec GN135 v1.1.0; "
+            "Apply strength: PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
             "PM5_Moderate if 1 different missense change at same codon is LP/P per HHT VCEP rules. "
             "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
             "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed."

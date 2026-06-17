@@ -1,0 +1,27 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_112047",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD exome allele count (AC) for the variant NM_000020.3:c.557G>T is 1 out of a total number of alleles (AN) 1461514, resulting in an allele frequency (AF) of approximately 6.8e-07.",
+      "reasoning": "The variant has an extremely low frequency according to gnomAD exome data, which aligns with the PM2 criterion support that indicates a rare or private variation within a gene associated with a disorder.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "Record for NM_000020.3:c.557G>T in ClinVar does not contain expected data.",
+      "reasoning": "The evidence retrieved from ClinVar is empty, which means there is no information to confirm the pathogenicity of this variant as per PM5 criteria (repeatedly confirmed in literature or by multiple reputable clinical genetics laboratories).",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

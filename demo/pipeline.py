@@ -7,7 +7,7 @@ from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
 
-CRITERIA = ["PM2_SUPPORTING"]
+CRITERIA = ["PM2_SUPPORTING", "PP3"]
 
 
 def run_pipeline(variant: str, disease: str) -> list[dict]:
@@ -24,6 +24,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
 
     # ── PLAN AGENT ────────────────────────────
     tasks = run_plan(variant, disease, CRITERIA)
+    print(tasks)
 
     if not tasks:
         print("PIPELINE: Plan agent returned no tasks. Exiting.")

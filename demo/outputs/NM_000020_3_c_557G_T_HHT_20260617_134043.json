@@ -1,0 +1,28 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260617_134043",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "AF=6.842219780310007e-07 in gnomAD exome",
+      "reasoning": "The allele frequency is very low, suggesting the variant is rare and likely not benign.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    }
+  ]
+}
