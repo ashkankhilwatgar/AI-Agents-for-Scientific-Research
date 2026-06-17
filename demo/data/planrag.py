@@ -397,7 +397,7 @@ PLANRAG_DB = {
         "tool": "gnomad",
         "description": (
             "Allele frequency is greater than expected for the disorder. "
-            "HHT VCEP defines two strength levels using Popmax FAF (bottlenecked populations included): "
+            "HHT VCEP defines two strength levels using Popmax FAF (bottlenecked populations included):(e.g. Ashkenazi Jewish). The HHT VCEP does not exclude these from the frequency threshold calculation"
             "Strong — Popmax FAF >0.2% to <1% (i.e. >0.002 and <0.01), OR variant meets BS1_Supporting AND has >=2 homozygotes; "
             "Supporting — Popmax FAF >0.08% to 0.2% (i.e. >0.0008 and <=0.002). "
             "If BS1 or BS1_Supporting applies, PP4_Moderate cannot also be applied."
