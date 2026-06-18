@@ -1,29 +1,33 @@
 import requests
 import json
-from config import MODELS, OLLAMA_BASE_URL
+# from config import MODELS, OLLAMA_BASE_URL
 from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
+from .llm import invoke_llm
+from typing import Optional
 
-OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 
-def call_ollama(prompt: str) -> str:
-    payload = {
-        "model": MODELS["task"],
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": -1,
-        "options": {
-            "temperature": 0,
-            "num_predict": 1024
-        }
-    }
-    response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-    response.raise_for_status()
-    return response.json()["response"]
+# def call_ollama(prompt: str) -> str:
+#     payload = {
+#         "model": MODELS["task"],
+#         "prompt": prompt,
+#         "stream": False,
+#         "keep_alive": -1,
+#         "options": {
+#             "temperature": 0,
+#             "num_predict": 1024
+#         }
+#     }
+#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
+#     response.raise_for_status()
+#     return response.json()["response"]
 
+def call_task_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+    return invoke_llm("task_agent", prompt)
 
 def select_tool(criterion: str, variant: str, feedback: str = None) -> dict:
     """
@@ -54,8 +58,9 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     "tool": "<clinvar | gnomad | revel_spliceai | spliceai>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
+    raw = call_task_agent(prompt)
 
-    raw = call_ollama(prompt)
+    # raw = call_ollama(prompt)
     return parse_json_response(raw)
 
 
@@ -142,8 +147,9 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     "status": "<complete | error>",
     "error": "<error message if status is error, omit otherwise>"
 }}"""
+    raw = call_task_agent(prompt)
 
-    raw = call_ollama(prompt)
+    # raw = call_ollama(prompt)
     result = parse_json_response(raw)
 
     # enforce tool_used, tool_input, criterion, disease — never trust the LLM to set these correctly

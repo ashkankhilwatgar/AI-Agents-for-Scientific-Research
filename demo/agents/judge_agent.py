@@ -1,28 +1,33 @@
 import requests
 import json
-from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
+# from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
+from config import RETRY_LIMIT
 from agents.task_agent import run_task
 from tools.utils import parse_json_response
 from data.planrag import query
+from .llm import invoke_llm
+from typing import Optional
 
-OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 
-def call_ollama(prompt: str) -> str:
-    payload = {
-        "model": MODELS["judge"],
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": -1,
-        "options": {
-            "temperature": 0,
-            "num_predict": 2048
-        }
-    }
-    response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-    response.raise_for_status()
-    return response.json()["response"]
+# def call_ollama(prompt: str) -> str:
+#     payload = {
+#         "model": MODELS["judge"],
+#         "prompt": prompt,
+#         "stream": False,
+#         "keep_alive": -1,
+#         "options": {
+#             "temperature": 0,
+#             "num_predict": 2048
+#         }
+#     }
+#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
+#     response.raise_for_status()
+#     return response.json()["response"]
 
+def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+    return invoke_llm("judge_agent", prompt)
 
 def check_reasoning(task_output: dict, rag_entry: dict = None) -> dict:
     """
@@ -60,8 +65,9 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     "error_type": "reasoning",
     "feedback": "<if pass is false: specific instruction for the Task agent to fix the error. If pass is true: null>"
 }}"""
+    raw = call_judge_agent(prompt)
 
-    raw = call_ollama(prompt)
+    # raw = call_ollama(prompt)
     return parse_json_response(raw)
 
 

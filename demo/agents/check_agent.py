@@ -1,8 +1,9 @@
 import json
-from config import MODELS, OLLAMA_BASE_URL
+# from config import MODELS, OLLAMA_BASE_URL
 import requests
-
-OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+from typing import Optional
+from .llm import invoke_llm
+# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 REQUIRED_FIELDS = [
     "criterion",
@@ -15,17 +16,21 @@ REQUIRED_FIELDS = [
     "status"
 ]
 
-def call_ollama(prompt: str) -> str:
-    payload = {
-        "model": MODELS["check"],
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": -1
-    }
-    response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-    response.raise_for_status()
-    return response.json()["response"]
+# def call_ollama(prompt: str) -> str:
+#     payload = {
+#         "model": MODELS["check"],
+#         "prompt": prompt,
+#         "stream": False,
+#         "keep_alive": -1
+#     }
+#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
+#     response.raise_for_status()
+#     return response.json()["response"]
 
+
+
+def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+    return invoke_llm("judge_agent", prompt)
 
 def fix_formatting(task_output: dict) -> dict:
     """

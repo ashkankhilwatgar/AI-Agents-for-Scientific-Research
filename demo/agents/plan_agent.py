@@ -1,26 +1,33 @@
 import requests
 import json
-from config import MODELS, OLLAMA_BASE_URL
+# from config import MODELS, OLLAMA_BASE_URL
 from data.planrag import query
 from tools.utils import parse_json_response
+from .llm import invoke_llm
+from typing import Optional
 
-OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 
-def call_ollama(prompt: str) -> str:
-    payload = {
-        "model": MODELS["plan"],
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": -1,
-        "options": {
-            "temperature": 0,
-            "num_predict": 512
-        }
-    }
-    response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-    response.raise_for_status()
-    return response.json()["response"]
+# def call_ollama(prompt: str) -> str:
+#     payload = {
+#         "model": MODELS["plan"],
+#         "prompt": prompt,
+#         "stream": False,
+#         "keep_alive": -1,
+#         "options": {
+#             "temperature": 0,
+#             "num_predict": 512
+#         }
+#     }
+#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
+#     response.raise_for_status()
+#     return response.json()["response"]
+
+
+def call_plan_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+    return invoke_llm("plan_agent", prompt)
+    
 
 
 def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dict]:
@@ -61,8 +68,9 @@ Respond ONLY with a JSON object in this exact format, no explanation:
 {{
     "instructions": "<one sentence>"
 }}"""
+        raw = call_plan_agent(prompt)
 
-        raw = call_ollama(prompt)
+        # raw = call_ollama(prompt)
         result = parse_json_response(raw)
 
         instructions = result.get("instructions", rag_entry["instructions"])
