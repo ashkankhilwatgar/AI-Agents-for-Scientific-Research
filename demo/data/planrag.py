@@ -315,6 +315,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "revel_spliceai",
+        "variant_types": ["missense", "synonymous", "intronic"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
             "HHT VCEP specifies thresholds at Supporting strength only: "
@@ -503,6 +504,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "revel_spliceai",
+        "variant_types": ["missense", "synonymous", "intronic"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene product. "
             "HHT VCEP thresholds at Supporting strength only: "
@@ -555,6 +557,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "spliceai",
+        "variant_types": ["synonymous", "intronic"],
         "description": (
             "Synonymous or intronic variant with no predicted splice impact. "
             "HHT VCEP threshold: SpliceAI <=0.1 at Supporting strength. "
