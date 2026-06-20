@@ -5,6 +5,7 @@ from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
+from data.planrag import query
 from .llm import invoke_llm
 from typing import Optional
 
@@ -107,14 +108,26 @@ def interpret_evidence(
     tool_used: str,
     tool_input: str,
     evidence: dict,
+    rag_entry: dict = None,
     feedback: str = None
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
     tool_input is the exact string passed to the API — set by code, not inferred by the LLM.
+    rag_entry is injected as ground-truth rules so the LLM applies the correct thresholds.
     If feedback is provided (retry path), it is injected so the LLM knows
     exactly what it got wrong in the previous attempt.
     """
+    rag_context = ""
+    if rag_entry:
+        rag_context = f"""
+Classification rules for {criterion} (use these as ground truth):
+- Threshold: {rag_entry.get('threshold', 'N/A')}
+- Instructions: {rag_entry.get('instructions', 'N/A')}
+
+Apply these rules exactly when setting the applies field.
+"""
+
     feedback_block = ""
     if feedback:
         feedback_block = f"""
@@ -132,7 +145,7 @@ Criterion: {criterion}
 Tool used: {tool_used}
 Evidence retrieved:
 {json.dumps(evidence, indent=2)}
-{feedback_block}
+{rag_context}{feedback_block}
 Based on this evidence, determine whether criterion {criterion} applies.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
@@ -170,10 +183,17 @@ def run_task(task: dict, feedback: str = None) -> dict:
 
     Retry (feedback is not None): LLM re-selects the tool using the feedback,
     and interpret_evidence() receives the feedback so it knows what to correct.
+
+    rag_entry is queried once per task and passed into interpret_evidence() as
+    ground-truth rules, so the LLM applies the correct thresholds on the first attempt.
     """
     criterion = task["criterion"]
     variant = task["variant"]
     disease = task["disease"]
+
+    rag_entry = query(criterion)
+    if rag_entry is None:
+        print(f"TASK AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
 
     if feedback:
         # retry path — LLM re-selects tool with correction context
@@ -214,6 +234,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
     return interpret_evidence(
         criterion, variant, disease,
         tool_decision["tool"], actual_input, evidence,
+        rag_entry=rag_entry,
         feedback=feedback
     )
 

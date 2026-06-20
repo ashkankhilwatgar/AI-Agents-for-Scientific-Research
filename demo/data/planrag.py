@@ -89,14 +89,31 @@ PLANRAG_DB = {
         ),
         "threshold": "Same amino acid change in ClinVar as Pathogenic with >=2 stars and no conflicting interpretations",
         "instructions": (
-            "Search ClinVar for variants producing the same amino acid change as the query variant "
-            "(regardless of nucleotide change). "
-            "PS1 applies if: (1) a ClinVar entry exists with the same amino acid change, "
-            "(2) the ClinVar classification is Pathogenic or Likely Pathogenic, "
-            "(3) the review status is >=2 stars, AND "
-            "(4) there are no conflicting interpretations. "
-            "Also check whether the query variant might impact splicing — if so, PS1 may not be appropriate. "
-            "PS1 applies at Strong strength only (no other strength levels defined by HHT VCEP)."
+            "Search ClinVar for variants at the same amino acid position producing the same amino acid change\n"
+            "as the query variant, regardless of nucleotide change.\n"
+            "\n"
+            "STEP 1: Does a ClinVar entry exist with the same amino acid change?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is the ClinVar classification Pathogenic or Likely Pathogenic?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Is the ClinVar review status 2 stars or higher?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 4.\n"
+            "\n"
+            "STEP 4: Are there any conflicting interpretations in ClinVar?\n"
+            "  - YES → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - NO  → continue to Step 5.\n"
+            "\n"
+            "STEP 5: Could the query variant affect splicing rather than the amino acid change?\n"
+            "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
+            "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
+            "\n"
+            "ALL five steps must pass for PS1 to apply. Failing any single step means applies=false.\n"
+            "Record the ClinVar variant ID, classification, star rating, and amino acid change in evidence."
         ),
         "hht_modification": "No modification — use as in original ACMG; Strong strength only",
         "strength_override": "strong",
@@ -154,15 +171,25 @@ PLANRAG_DB = {
         ),
         "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
         "instructions": (
-            "Search PubMed for case reports of this variant in HHT patients. "
-            "Count unrelated probands with phenotype consistent with HHT. "
-            "Apply strength based on proband count: "
-            "PS4_Strong if >=4 probands; PS4_Moderate if 2-3 probands; PS4_Supporting if 1 proband. "
-            "PRECONDITION: variant must also meet PM2_Supporting — if not, PS4 does not apply. "
-            "EXCLUSION: do not count probands who meet PP4_Moderate (these are counted only for PP4_Moderate). "
-            "Each proband must have phenotype consistent with HHT per the HHT phenotype document. "
-            "Exclude duplicate reports of the same patient across papers. "
-            "Record proband count, references, and strength level applied."
+            "Search PubMed and ClinVar for case reports of this variant in HHT patients.\n"
+            "\n"
+            "STEP 1: Does the variant meet PM2_Supporting (absent or very rare in gnomAD)?\n"
+            "  - NO  → PS4 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Count unrelated probands with phenotype consistent with HHT.\n"
+            "  Rules for counting:\n"
+            "    - Each proband must have phenotype consistent with HHT.\n"
+            "    - Exclude duplicate reports of the same patient across papers.\n"
+            "    - Do NOT count probands who qualify for PP4_Moderate — those are counted only under PP4_Moderate.\n"
+            "\n"
+            "STEP 3: Apply strength based on proband count:\n"
+            "  - Count >= 4 → PS4_Strong applies. Set applies=true, strength=strong.\n"
+            "  - Count = 2 or 3 → PS4_Moderate applies. Set applies=true, strength=moderate.\n"
+            "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
+            "  - Count = 0 → PS4 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record proband count, references, and strength level in evidence."
         ),
         "hht_modification": "Proband-based counting (4+ Strong / 2-3 Moderate / 1 Supporting); requires PM2_Supporting; PP4_Moderate probands excluded from count",
         "strength_override": None,
@@ -214,15 +241,22 @@ PLANRAG_DB = {
         ),
         "threshold": "<6 total alleles in gnomAD OR <0.00004 (0.004%) in any gnomAD subpopulation",
         "instructions": (
-            "Query gnomAD for the variant. "
-            "Retrieve: (1) total allele count (AC) across all gnomAD populations; "
-            "(2) allele frequency in each gnomAD subpopulation. "
-            "PM2_Supporting applies if EITHER: "
-            "(a) total allele count in gnomAD is <6, OR "
-            "(b) allele frequency in any gnomAD subpopulation is <0.00004 (0.004%). "
-            "If the variant is absent from gnomAD, PM2_Supporting applies. "
-            "Do NOT use Popmax FAF here — PM2 uses raw allele count and subpopulation frequency. "
-            "Record which condition triggered PM2 in the evidence field."
+            "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
+            "Do NOT use Popmax FAF for this criterion — PM2 uses raw AC and subpopulation AF only.\n"
+            "\n"
+            "STEP 1: Is the variant absent from gnomAD entirely?\n"
+            "  - YES → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is total allele count (AC) across all gnomAD populations less than 6?\n"
+            "  - AC < 6  → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - AC >= 6 → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Is allele frequency in ANY single gnomAD subpopulation less than 0.00004?\n"
+            "  - ANY subpopulation AF < 0.00004 → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - ALL subpopulation AFs >= 0.00004 → PM2_Supporting does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record in evidence: which step triggered the decision and the exact values used."
         ),
         "hht_modification": "Supporting strength only; threshold: <6 total alleles in gnomAD OR <0.00004 in any subpopulation",
         "strength_override": "supporting",
@@ -240,12 +274,19 @@ PLANRAG_DB = {
         ),
         "threshold": "VEP consequence = inframe_insertion, inframe_deletion, or stop_lost; not in repeat region",
         "instructions": (
-            "Use VEP to annotate the variant. "
-            "PM4_Moderate applies if the variant is: "
-            "(a) an in-frame insertion in a non-repeat region, OR "
-            "(b) an in-frame deletion in a non-repeat region, OR "
-            "(c) a stop-loss variant. "
-            "If the in-frame indel overlaps a repeat region, PM4 does not apply."
+            "Use VEP to annotate the variant consequence.\n"
+            "\n"
+            "STEP 1: What is the VEP consequence?\n"
+            "  - inframe_insertion → continue to Step 2.\n"
+            "  - inframe_deletion  → continue to Step 2.\n"
+            "  - stop_lost         → PM4_Moderate APPLIES. Set applies=true. Stop.\n"
+            "  - anything else     → PM4 does NOT apply. Set applies=false. Stop.\n"
+            "\n"
+            "STEP 2 (in-frame indels only): Does the variant overlap a repeat region?\n"
+            "  - YES → PM4 does NOT apply. Set applies=false.\n"
+            "  - NO  → PM4_Moderate APPLIES. Set applies=true.\n"
+            "\n"
+            "Record VEP consequence and repeat region status in evidence."
         ),
         "hht_modification": "No modification — use as in original ACMG",
         "strength_override": "moderate",
@@ -315,6 +356,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "revel_spliceai",
+        "variant_types": ["missense", "synonymous", "intronic"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
             "HHT VCEP specifies thresholds at Supporting strength only: "
@@ -323,13 +365,24 @@ PLANRAG_DB = {
         ),
         "threshold": "Missense: REVEL >=0.644 OR SpliceAI >=0.2 | Synonymous/intronic: SpliceAI >=0.2",
         "instructions": (
-            "Determine variant type (missense / synonymous / intronic). "
-            "For missense variants: fetch REVEL score AND SpliceAI scores. "
-            "PP3 applies if REVEL >=0.644 OR any SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >=0.2. "
-            "For synonymous or intronic variants: fetch SpliceAI only. "
-            "PP3 applies if any SpliceAI delta score >=0.2. "
-            "PP3 can be used only once in any evaluation of a variant. "
-            "Record exact scores retrieved and which threshold triggered."
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "PP3 can be used only once per variant evaluation.\n"
+            "\n"
+            "BRANCH A — Missense variant:\n"
+            "  STEP 1: Is REVEL score >= 0.644?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record REVEL score as trigger.\n"
+            "    - NO  → continue to Step 2.\n"
+            "  STEP 2: Is ANY SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record which score triggered.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
+            "\n"
+            "BRANCH B — Synonymous or intronic variant:\n"
+            "  STEP 1: Is ANY SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Record which score triggered.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
+            "\n"
+            "IMPORTANT: For missense, REVEL and SpliceAI are independent triggers — either one alone is sufficient (OR logic).\n"
+            "Record exact scores and which threshold triggered in the evidence field."
         ),
         "hht_modification": "Supporting strength only; thresholds: REVEL >=0.644 (missense); SpliceAI >=0.2 (any variant type)",
         "strength_override": "supporting",
@@ -379,12 +432,17 @@ PLANRAG_DB = {
         ),
         "threshold": "Popmax FAF >= 0.01 (1%) in gnomAD",
         "instructions": (
-            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF). "
-            "BA1 applies if Popmax FAF >= 0.01 (1%). "
-            "This is a stand-alone benign criterion — if it applies, variant is classified Benign "
-            "regardless of all other evidence. "
-            "If BA1 applies, PP4_Moderate cannot also be applied. "
-            "Flag BA1 to the Scoring agent immediately — remaining criteria can be skipped."
+            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF95, popmax field).\n"
+            "\n"
+            "STEP 1: Is Popmax FAF greater than or equal to 0.01 (i.e. >= 1%)?\n"
+            "  - Popmax FAF >= 0.01 → BA1 APPLIES. Set applies=true.\n"
+            "    This is stand-alone benign — variant is classified Benign regardless of all other evidence.\n"
+            "    PP4_Moderate cannot be applied if BA1 applies.\n"
+            "  - Popmax FAF < 0.01  → BA1 does NOT apply. Set applies=false.\n"
+            "  - Variant absent from gnomAD (popmax_faf = 0 or null) → BA1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "IMPORTANT: BA1 applies only when Popmax FAF is HIGH (>= 1%). A low frequency means BA1 does NOT apply.\n"
+            "Record exact Popmax FAF value in evidence."
         ),
         "hht_modification": "Popmax FAF >=0.01 (1%) in gnomAD; blocks PP4_Moderate",
         "strength_override": "stand_alone",
@@ -405,13 +463,30 @@ PLANRAG_DB = {
         ),
         "threshold": "BS1_Strong: Popmax FAF >0.002 and <0.01 (OR BS1_Supporting + >=2 homozygotes); BS1_Supporting: Popmax FAF >0.0008 and <=0.002",
         "instructions": (
-            "Query gnomAD for the Popmax FAF and homozygote count. "
-            "Apply strength: "
-            "BS1_Strong if Popmax FAF >0.002 (0.2%) and <0.01 (1%), OR if variant meets BS1_Supporting AND has >=2 homozygotes; "
-            "BS1_Supporting if Popmax FAF >0.0008 (0.08%) and <=0.002 (0.2%). "
-            "If BA1 already applies (Popmax FAF >=0.01), do not apply BS1. "
-            "If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied. "
-            "Record exact Popmax FAF, homozygote count, and strength level."
+            "Query gnomAD for Popmax FAF (faf95 popmax field) and total homozygote count (ac_hom).\n"
+            "Bottlenecked populations (e.g. Ashkenazi Jewish) are included — do not exclude them.\n"
+            "\n"
+            "STEP 1: Does BA1 already apply (Popmax FAF >= 0.01)?\n"
+            "  - YES → do NOT apply BS1. BA1 supersedes it. Set applies=false. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Check for BS1_Strong via the homozygote route.\n"
+            "  Is Popmax FAF > 0.0008 AND <= 0.002 (i.e. BS1_Supporting range) AND homozygote count >= 2?\n"
+            "  - YES → BS1_Strong APPLIES via homozygote route. Set applies=true, strength=strong. Stop.\n"
+            "  - NO  → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Check for BS1_Strong via the FAF route.\n"
+            "  Is Popmax FAF > 0.002 AND < 0.01?\n"
+            "  - YES → BS1_Strong APPLIES. Set applies=true, strength=strong. Stop.\n"
+            "  - NO  → continue to Step 4.\n"
+            "\n"
+            "STEP 4: Check for BS1_Supporting.\n"
+            "  Is Popmax FAF > 0.0008 AND <= 0.002?\n"
+            "  - YES → BS1_Supporting APPLIES. Set applies=true, strength=supporting. Stop.\n"
+            "  - NO  → BS1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "NOTE: If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied.\n"
+            "Record exact Popmax FAF, homozygote count, and which strength level triggered."
         ),
         "hht_modification": "Two strength levels (Strong: >0.2-<1% OR BS1_Sup + 2 homozygotes; Supporting: >0.08-0.2%); Popmax FAF including bottlenecked populations; blocks PP4_Moderate",
         "strength_override": None,
@@ -503,6 +578,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "revel_spliceai",
+        "variant_types": ["missense", "synonymous", "intronic"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene product. "
             "HHT VCEP thresholds at Supporting strength only: "
@@ -512,13 +588,24 @@ PLANRAG_DB = {
         ),
         "threshold": "Missense: REVEL <=0.15 AND SpliceAI <=0.1 | Synonymous/intronic: SpliceAI <=0.1",
         "instructions": (
-            "Determine variant type (missense / synonymous / intronic). "
-            "For missense variants: fetch BOTH REVEL and SpliceAI scores. "
-            "BP4 applies ONLY if REVEL <=0.15 AND all SpliceAI delta scores <=0.1. "
-            "If either condition fails, BP4 does not apply. "
-            "For synonymous or intronic variants: fetch SpliceAI only. "
-            "BP4 applies if all SpliceAI delta scores <=0.1. "
-            "Note whether BP7 also applies — these can be combined per HHT VCEP rules."
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP4 can be used only once per variant evaluation.\n"
+            "\n"
+            "BRANCH A — Missense variant (BOTH conditions must be true — AND logic):\n"
+            "  STEP 1: Is REVEL score <= 0.15?\n"
+            "    - NO  → BP4 does NOT apply. Set applies=false. Stop.\n"
+            "    - YES → continue to Step 2.\n"
+            "  STEP 2: Are ALL four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL) <= 0.1?\n"
+            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false. Stop.\n"
+            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
+            "\n"
+            "BRANCH B — Synonymous or intronic variant (SpliceAI only):\n"
+            "  STEP 1: Are ALL four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL) <= 0.1?\n"
+            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false.\n"
+            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
+            "\n"
+            "IMPORTANT: For missense, failing EITHER condition means BP4 does NOT apply (AND logic, not OR).\n"
+            "Record exact REVEL and SpliceAI scores in evidence."
         ),
         "hht_modification": "Missense requires BOTH REVEL <=0.15 AND SpliceAI <=0.1 (not OR); synonymous/intronic uses SpliceAI <=0.1 only",
         "strength_override": "supporting",
@@ -555,6 +642,7 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "fully_automatable",
         "tool": "spliceai",
+        "variant_types": ["synonymous", "intronic"],
         "description": (
             "Synonymous or intronic variant with no predicted splice impact. "
             "HHT VCEP threshold: SpliceAI <=0.1 at Supporting strength. "
@@ -565,12 +653,19 @@ PLANRAG_DB = {
         ),
         "threshold": "Synonymous or intronic variant AND SpliceAI <=0.1",
         "instructions": (
-            "BP7 applies to synonymous or intronic variants only. "
-            "Fetch SpliceAI delta scores. "
-            "BP7 applies if all SpliceAI delta scores <=0.1. "
-            "If the variant is at the last nucleotide of an exon OR is a deep intronic variant in a known "
-            "splicing hotspot, flag for manual review — SpliceAI can miss real splice effects in these regions. "
-            "Note whether BP4 also applies — HHT VCEP allows combining BP4 + BP7."
+            "Fetch all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP7 applies to synonymous or intronic variants only — not missense.\n"
+            "\n"
+            "STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "  - YES (all four <= 0.1) → BP7 APPLIES. Set applies=true.\n"
+            "  - NO  (any score > 0.1) → BP7 does NOT apply. Set applies=false.\n"
+            "\n"
+            "CAUTION: Even if BP7 applies, flag the following for manual review:\n"
+            "  - Variant at the last nucleotide of an exon\n"
+            "  - Deep intronic variant in a known splicing hotspot (e.g. ACVRL1 intron 9 CT-rich region)\n"
+            "  SpliceAI can miss real splice effects in these regions.\n"
+            "\n"
+            "Record all four SpliceAI scores in evidence."
         ),
         "hht_modification": "Supporting strength; SpliceAI <=0.1; flag last-exon-nucleotide and deep intronic hotspot variants for manual review even if SpliceAI is low",
         "strength_override": "supporting",

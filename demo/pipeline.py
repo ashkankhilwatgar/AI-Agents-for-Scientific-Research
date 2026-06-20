@@ -1,5 +1,3 @@
-import time
-print(f"[{time.strftime('%H:%M:%S')}] pipeline.py starting")
 import argparse
 import json
 import os
@@ -8,9 +6,44 @@ from agents.plan_agent import run_plan
 from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
-print(f"[{time.strftime('%H:%M:%S')}] imports complete")
+from tools.utils import get_variant_type
+from data.planrag import query
 
-CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4"]
+CRITERIA = ["BS1", "BA1"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
+
+
+def filter_criteria_by_variant_type(criteria: list[str], variant_type: str) -> list[str]:
+    """
+    Removes criteria that explicitly restrict which variant types they apply to
+    when the variant type doesn't match.
+
+    A criterion with no variant_types field in planrag passes through unchanged.
+    A criterion with variant_types = [...] is only kept if variant_type is in that list.
+    """
+    filtered = []
+    skipped = []
+
+    for criterion in criteria:
+        entry = query(criterion)
+        if entry is None or entry.get("excluded") or entry.get("deferred"):
+            filtered.append(criterion)  # let plan_agent handle excluded/deferred
+            continue
+
+        allowed_types = entry.get("variant_types")
+        if allowed_types is None:
+            # no restriction — criterion applies to all variant types
+            filtered.append(criterion)
+        elif variant_type in allowed_types:
+            filtered.append(criterion)
+        else:
+            skipped.append((criterion, allowed_types))
+
+    if skipped:
+        print(f"PIPELINE: Skipped {len(skipped)} criterion/criteria — not applicable to {variant_type} variants:")
+        for criterion, allowed in skipped:
+            print(f"  - {criterion} (applies to: {allowed})")
+
+    return filtered
 
 
 def run_pipeline(variant: str, disease: str) -> list[dict]:
@@ -25,8 +58,25 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
     print(f"Disease:  {disease}")
     print("="*60)
 
+    # ── VARIANT TYPE DETECTION ─────────────────
+    print("\nPIPELINE: Detecting variant type via Ensembl VEP...")
+    vep_result = get_variant_type(variant)
+
+    if "error" in vep_result:
+        print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
+        print("PIPELINE: Proceeding without variant type filtering")
+        variant_type = None
+    else:
+        variant_type = vep_result["variant_type"]
+        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
+
+    # ── CRITERIA FILTERING ─────────────────────
+    active_criteria = CRITERIA
+    if variant_type is not None:
+        active_criteria = filter_criteria_by_variant_type(CRITERIA, variant_type)
+
     # ── PLAN AGENT ────────────────────────────
-    tasks = run_plan(variant, disease, CRITERIA)
+    tasks = run_plan(variant, disease, active_criteria)
     print(tasks)
 
     if not tasks:
@@ -37,6 +87,10 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
 
     for task in tasks:
         criterion = task.get("criterion")
+
+        # inject variant_type into task dict so downstream agents have it if needed
+        task["variant_type"] = variant_type
+
         print(f"\n{'─'*60}")
         print(f"PIPELINE: Processing criterion {criterion}")
         print(f"{'─'*60}")

@@ -1,0 +1,17 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260618_102023",
+  "results": [
+    {
+      "criterion": "BP4",
+      "evidence": "revel_score: 0.915, DS_AG: 0.0, DS_AL: 0.01, DS_DG: 0.0, DS_DL: 0.0",
+      "reasoning": "The REVEL score of 0.915 indicates a high likelihood that the variant is deleterious, but spliceAI scores (DS_AG, DS_AL, DS_DG, DS_DL) do not show significant impact on splicing.",
+      "applies": false,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

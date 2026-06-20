@@ -4,6 +4,88 @@ import json
 
 ENSEMBL_URL = "https://rest.ensembl.org"
 
+# Maps VEP most_severe_consequence to simplified variant type categories
+# used by the pipeline for criterion pre-filtering.
+CONSEQUENCE_MAP = {
+    "missense_variant":        "missense",
+    "synonymous_variant":      "synonymous",
+    "intron_variant":          "intronic",
+    "splice_donor_variant":    "splice_site",
+    "splice_acceptor_variant": "splice_site",
+    "splice_region_variant":   "splice_region",
+    "stop_gained":             "nonsense",
+    "frameshift_variant":      "frameshift",
+    "inframe_insertion":       "inframe_insertion",
+    "inframe_deletion":        "inframe_deletion",
+    "stop_lost":               "stop_lost",
+    "start_lost":              "start_lost",
+    "5_prime_UTR_variant":     "utr",
+    "3_prime_UTR_variant":     "utr",
+}
+
+
+def get_variant_type(variant: str) -> dict:
+    """
+    Calls Ensembl VEP to determine variant consequence type.
+    Accepts HGVS (NM_... format) or gnomAD format (chrom-pos-ref-alt).
+
+    Returns:
+        {
+            "variant_type": "<missense | synonymous | intronic | splice_site |
+                             splice_region | nonsense | frameshift |
+                             inframe_insertion | inframe_deletion |
+                             stop_lost | start_lost | utr | other>",
+            "raw_consequence": "<VEP most_severe_consequence string>"
+        }
+    or {"error": "<message>"} on failure.
+    """
+    is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
+
+    if is_hgvs:
+        encoded = quote(variant, safe="")
+        url = f"{ENSEMBL_URL}/vep/human/hgvs/{encoded}"
+        params = {}
+    else:
+        # gnomAD format: chrom-pos-ref-alt → VEP region: CHROM:POS-POS:1/ALT
+        parts = variant.split("-")
+        if len(parts) != 4:
+            return {"error": f"Unrecognised variant format for VEP lookup: {variant}"}
+        chrom, pos, ref, alt = parts
+        region = f"{chrom}:{pos}-{pos}:1/{alt}"
+        encoded = quote(region, safe=":/-")
+        url = f"{ENSEMBL_URL}/vep/human/region/{encoded}"
+        params = {}
+
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            headers={"Content-Type": "application/json"},
+            timeout=15
+        )
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Ensembl VEP request failed: {e}"}
+
+    if response.status_code != 200:
+        return {"error": f"Ensembl VEP returned {response.status_code}: {response.text}"}
+
+    data = response.json()
+
+    if not data or not isinstance(data, list):
+        return {"error": "Ensembl VEP returned empty or unexpected response"}
+
+    raw_consequence = data[0].get("most_severe_consequence", "")
+
+    if not raw_consequence:
+        return {"error": "VEP response missing most_severe_consequence field"}
+
+    variant_type = CONSEQUENCE_MAP.get(raw_consequence, "other")
+
+    return {
+        "variant_type": variant_type,
+        "raw_consequence": raw_consequence,
+    }
+
 def hgvs_to_gnomad_format(hgvs: str) -> str:
     """
     Converts HGVS to gnomAD format (chrom-pos-ref-alt) using Ensembl Variant Recoder.
