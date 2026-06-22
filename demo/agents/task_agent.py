@@ -5,7 +5,7 @@ from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
-from tools.vep import annotate_variant, _check_repeat_region
+from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
 from data.planrag import query
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -62,7 +62,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
+def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple[dict, str]:
     """
     Runs the selected tool and returns (result, actual_input_used).
     actual_input_used is the exact string passed to the API after any format conversion.
@@ -94,7 +94,16 @@ def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
     elif tool == "spliceai":
         return query_spliceai(input_value), input_value
     elif tool == "vep":
-        return annotate_variant(input_value), input_value
+        vep_result = annotate_variant(input_value)
+        if "error" in vep_result:
+            return vep_result, input_value
+        codon_position = vep_result.get("codon_position")
+        critical_regions = (rag_entry or {}).get("critical_regions")
+        if codon_position is not None and critical_regions is not None:
+            pm1_check = check_pm1_critical_region(codon_position, critical_regions)
+            vep_result["in_critical_region"] = pm1_check["in_critical_region"]
+            vep_result["pm1_region_name"] = pm1_check["region_name"]
+        return vep_result, input_value
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
 
@@ -214,7 +223,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "error": tool_decision["error"]
         }
 
-    evidence, actual_input = run_tool(tool_decision, variant)
+    evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry)
 
     if "error" in evidence:
         return {

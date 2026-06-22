@@ -150,3 +150,40 @@ def annotate_variant(variant: str) -> dict:
             continue
 
     return {"error": f"Variant annotation API failed after {MAX_RETRIES} retries: {last_error}"}
+
+
+def check_pm1_critical_region(codon_position: int, critical_regions: dict) -> dict:
+    """
+    Deterministic check: is the given protein position within any PM1
+    critical region defined in the RAG entry for this gene?
+
+    critical_regions is the 'critical_regions' field from the planrag entry:
+        {
+            "ranges":   [{"start": int, "end": int, "name": str}, ...],
+            "discrete": [{"positions": [int, ...], "name": str}, ...]
+        }
+
+    Returns:
+        {
+            "in_critical_region": bool,
+            "region_name": str | None
+        }
+    """
+    for region in critical_regions.get("ranges", []):
+        if region["start"] <= codon_position <= region["end"]:
+            return {
+                "in_critical_region": True,
+                "region_name": region["name"],
+            }
+
+    for region in critical_regions.get("discrete", []):
+        if codon_position in region["positions"]:
+            return {
+                "in_critical_region": True,
+                "region_name": f"{region['name']} (position {codon_position})",
+            }
+
+    return {
+        "in_critical_region": False,
+        "region_name": None,
+    }

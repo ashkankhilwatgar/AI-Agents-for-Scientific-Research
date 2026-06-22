@@ -9,8 +9,8 @@ from agents.check_agent import run_check
 from tools.utils import get_variant_type
 from data.planrag import query
 
-CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
-
+CRITERIA = ["PM1"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
+#"PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4"
 
 def filter_criteria_by_variant_type(criteria: list[str], variant_type: str) -> list[str]:
     """

@@ -217,7 +217,20 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "moderate",
         "automation": "fully_automatable",
-        "tool": "uniprot",
+        "tool": "vep",
+        "critical_regions": {
+            "ranges": [
+                {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
+                {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
+                {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
+                {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
+                {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
+            ],
+            "discrete": [
+                {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
+                "name": "BMP10 interaction cluster"},
+            ],
+        },
         "description": (
             "Variant located in a critical residue of ACVRL1. "
             "HHT VCEP defines specific critical residues based on functional and structural data: "
