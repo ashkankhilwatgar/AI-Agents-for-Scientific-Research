@@ -1,8 +1,10 @@
 import requests
 from urllib.parse import quote
+import time
 
 ENSEMBL_URL = "https://rest.ensembl.org"
 MAX_RETRIES = 3
+RETRY_DELAY = 2  # seconds between retries
 
 # Maps VEP most_severe_consequence to simplified variant type categories
 # used by the pipeline for criterion pre-filtering.
@@ -49,6 +51,11 @@ def _check_repeat_region(data: list) -> bool:
                 headers={"Content-Type": "application/json"},
                 timeout=15
             )
+
+            if r.status_code in (429, 500, 503):
+                last_error = f"HTTP {r.status_code}"
+                time.sleep(RETRY_DELAY)
+                continue
 
             if r.status_code != 200:
                 last_error = f"{r.status_code}: {r.text}"
@@ -106,6 +113,11 @@ def annotate_variant(variant: str) -> dict:
                 timeout=15,
                 params={"refseq": 1}
             )
+
+            if response.status_code in (429, 500, 503):
+                last_error = f"HTTP {response.status_code}"
+                time.sleep(RETRY_DELAY)
+                continue
 
             if response.status_code != 200:
                 last_error = f"{response.status_code}: {response.text}"

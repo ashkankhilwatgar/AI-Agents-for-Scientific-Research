@@ -79,51 +79,33 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "strong",
         "automation": "partially_automatable",
-        "tool": "clinvar",
+        "tool": "erepo",
         "description": (
             "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
             "HHT VCEP applies no modification — use as in original ACMG (Strong only). "
             "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "ClinVar fetch is automatable; LLM must assess whether the reference variant's pathogenicity "
-            "is well-established (>=2 stars, no conflicting interpretations)."
+            "Reference variant must be classified by the HHT VCEP specifically."
         ),
-        "threshold": "Same amino acid change in ClinVar as Pathogenic with >=2 stars and no conflicting interpretations",
+        "threshold": "Same amino acid change at same protein position, classified P/LP by HHT VCEP",
         "instructions": (
-            "Search ClinVar for variants producing the same amino acid change as the query variant "
-            "(regardless of nucleotide change). "
-            "PS1 applies if: (1) a ClinVar entry exists with the same amino acid change, "
-            "(2) the ClinVar classification is Pathogenic or Likely Pathogenic, "
-            "(3) the review status is >=2 stars, AND "
-            "(4) there are no conflicting interpretations. "
-            "Also check whether the query variant might impact splicing — if so, PS1 may not be appropriate. "
-            "PS1 applies at Strong strength only (no other strength levels defined by HHT VCEP)."
-            "Search ClinVar for variants at the same amino acid position producing the same amino acid change\n"
-            "as the query variant, regardless of nucleotide change.\n"
+            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
             "\n"
-            "STEP 1: Does a ClinVar entry exist with the same amino acid change?\n"
+            "STEP 1: Is there an entry with the same amino acid change as the query variant?\n"
+            "  (Same amino acid change = same ref AA, same position, same alt AA — but different nucleotide change.)\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 2.\n"
             "\n"
-            "STEP 2: Is the ClinVar classification Pathogenic or Likely Pathogenic?\n"
+            "STEP 2: Is that entry classified Pathogenic or Likely Pathogenic by the HHT VCEP?\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 3.\n"
             "\n"
-            "STEP 3: Is the ClinVar review status 2 stars or higher?\n"
-            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 4.\n"
-            "\n"
-            "STEP 4: Are there any conflicting interpretations in ClinVar?\n"
-            "  - YES → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - NO  → continue to Step 5.\n"
-            "\n"
-            "STEP 5: Could the query variant affect splicing rather than the amino acid change?\n"
+            "STEP 3: Could the query variant affect splicing rather than the amino acid change?\n"
             "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
             "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
             "\n"
-            "ALL five steps must pass for PS1 to apply. Failing any single step means applies=false.\n"
-            "Record the ClinVar variant ID, classification, star rating, and amino acid change in evidence."
+            "Record the matching HGVS, protein change, and HHT VCEP classification in evidence."
         ),
-        "hht_modification": "No modification — use as in original ACMG; Strong strength only",
+        "hht_modification": "No modification — use as in original ACMG; Strong strength only; reference must be HHT VCEP-classified",
         "strength_override": "strong",
     },
 
@@ -179,28 +161,16 @@ PLANRAG_DB = {
         ),
         "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
         "instructions": (
-            "Search PubMed for case reports of this variant in HHT patients. "
-            "Count unrelated probands with phenotype consistent with HHT. "
-            "Apply strength based on proband count: "
-            "PS4_Strong if >=4 probands; PS4_Moderate if 2-3 probands; PS4_Supporting if 1 proband. "
-            "PRECONDITION: variant must also meet PM2_Supporting — if not, PS4 does not apply. "
-            "EXCLUSION: do not count probands who meet PP4_Moderate (these are counted only for PP4_Moderate). "
-            "Each proband must have phenotype consistent with HHT per the HHT phenotype document. "
-            "Exclude duplicate reports of the same patient across papers. "
-            "Record proband count, references, and strength level applied."
-            "Search PubMed and ClinVar for case reports of this variant in HHT patients.\n"
+            "You are given PubMed search results for this variant in HHT patients. "
+            "PM2_Supporting has already been confirmed — do not re-check it.\n"
             "\n"
-            "STEP 1: Does the variant meet PM2_Supporting (absent or very rare in gnomAD)?\n"
-            "  - NO  → PS4 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Count unrelated probands with phenotype consistent with HHT.\n"
+            "STEP 1: Count unrelated probands with phenotype consistent with HHT.\n"
             "  Rules for counting:\n"
             "    - Each proband must have phenotype consistent with HHT.\n"
             "    - Exclude duplicate reports of the same patient across papers.\n"
             "    - Do NOT count probands who qualify for PP4_Moderate — those are counted only under PP4_Moderate.\n"
             "\n"
-            "STEP 3: Apply strength based on proband count:\n"
+            "STEP 2: Apply strength based on proband count:\n"
             "  - Count >= 4 → PS4_Strong applies. Set applies=true, strength=strong.\n"
             "  - Count = 2 or 3 → PS4_Moderate applies. Set applies=true, strength=moderate.\n"
             "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
@@ -342,27 +312,32 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "moderate",
         "automation": "partially_automatable",
-        "tool": "clinvar",
+        "tool": "erepo",
         "description": (
             "Novel missense at an amino acid residue where a different missense change has been determined "
             "to be likely pathogenic or pathogenic based on HHT VCEP rules. "
             "HHT VCEP defines two strength levels: "
             "Strong — >=2 different missense changes at same codon classified LP/P by HHT VCEP rules; "
             "Moderate — 1 different missense change at same codon classified LP/P by HHT VCEP rules. "
-            "Important: reference variants must be classified per HHT VCEP rules, not just any ClinVar submission. "
+            "Reference variants must be classified per HHT VCEP rules. "
             "Cannot combine PM5_Strong with PM1 (PM5_Moderate + PM1 IS allowed)."
         ),
         "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
         "instructions": (
-            "primary_source: ClinGen Evidence Repository (https://erepo.clinicalgenome.org); "
-            "fallback_source: ClinVar entries with submitter = 'ClinGen Hereditary Hemorrhagic Telangiectasia VCEP'; "
-            "search_strategy: Find variants at same amino acid residue, different substitution; "
-            "filter: Only count variants classified LP or P by HHT VCEP; "
-            "note: These are pipeline-level decisions, not from CSpec GN135 v1.1.0; "
-            "Apply strength: PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
-            "PM5_Moderate if 1 different missense change at same codon is LP/P per HHT VCEP rules. "
-            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed."
+            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
+            "\n"
+            "STEP 1: Count entries with a DIFFERENT amino acid change from the query variant\n"
+            "  that are classified Pathogenic or Likely Pathogenic by the HHT VCEP.\n"
+            "  - Exclude the query variant itself.\n"
+            "  - Only count missense changes (not splicing, nonsense, etc.).\n"
+            "\n"
+            "STEP 2: Apply strength based on count:\n"
+            "  - Count >= 2 → PM5_Strong applies. Set applies=true, strength=strong.\n"
+            "  - Count = 1  → PM5_Moderate applies. Set applies=true, strength=moderate.\n"
+            "  - Count = 0  → PM5 does NOT apply. Set applies=false.\n"
+            "\n"
+            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed.\n"
+            "Record matching HGVS entries, protein changes, classifications, and strength level in evidence."
         ),
         "hht_modification": "Two strength levels (Strong / Moderate) based on count of LP/P missense at same codon; reference must be HHT VCEP-classified; PM5_Strong cannot combine with PM1",
         "strength_override": None,

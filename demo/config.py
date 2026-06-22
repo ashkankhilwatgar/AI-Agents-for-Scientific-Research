@@ -1,3 +1,5 @@
+NCBI_API_KEY = "cfe8c362c0505fe8ea3f0f9893d80c3f8208"
+
 MODELS = {
     "plan":  "deepseek-r1:32b",
     "task":  "qwen2.5:14b",

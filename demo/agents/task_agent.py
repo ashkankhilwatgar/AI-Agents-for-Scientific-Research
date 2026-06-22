@@ -6,6 +6,8 @@ from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
 from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
+from tools.pubmed import search_pubmed
+from tools.erepo import search_erepo_by_position
 from data.planrag import query
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -50,11 +52,13 @@ You have access to the following tools:
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
-- vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1 and PM4.
+- vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1, PM1, and PM4.
+- pubmed: searches PubMed for case reports of the variant in HHT patients. Use for PS4.
+- erepo: queries the ClinGen Evidence Repository for HHT VCEP-classified variants at the same protein position. Use for PS1 and PM5.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
 
@@ -93,6 +97,42 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
 
     elif tool == "spliceai":
         return query_spliceai(input_value), input_value
+
+    elif tool == "erepo":
+        vep_result = annotate_variant(input_value)
+        if "error" in vep_result:
+            return vep_result, input_value
+        codon_position = vep_result.get("codon_position")
+        if codon_position is None:
+            return {"error": "VEP did not return a protein position — cannot search ERepo"}, input_value
+        result = search_erepo_by_position("ACVRL1", codon_position)
+        # Remove the query variant itself from results — PS1/PM5 require other variants
+        # at the same position. Match on the cdna change (e.g. "c.557G>T").
+        query_cdna = input_value.split(":")[-1] if ":" in input_value else None
+        if query_cdna and "classifications" in result:
+            before = len(result["classifications"])
+            result["classifications"] = [
+                c for c in result["classifications"]
+                if query_cdna not in c.get("hgvs", "")
+            ]
+            after = len(result["classifications"])
+            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
+        else:
+            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+        return result, f"ACVRL1 position {codon_position}"
+
+    elif tool == "pubmed":
+        # VEP first to get protein position — papers use p.notation, not HGVS
+        vep_result = annotate_variant(input_value)
+        codon_position = vep_result.get("codon_position") if "error" not in vep_result else None
+        if codon_position is not None:
+            pubmed_query = f"ACVRL1 position {codon_position} HHT"
+        else:
+            pubmed_query = input_value
+        result = search_pubmed(pubmed_query)
+        print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+        return result, pubmed_query
+
     elif tool == "vep":
         vep_result = annotate_variant(input_value)
         if "error" in vep_result:
