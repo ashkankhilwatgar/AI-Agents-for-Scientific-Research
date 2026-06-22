@@ -283,8 +283,8 @@ PLANRAG_DB = {
             "  - anything else     → PM4 does NOT apply. Set applies=false. Stop.\n"
             "\n"
             "STEP 2 (in-frame indels only): Does the variant overlap a repeat region?\n"
-            "  - YES → PM4 does NOT apply. Set applies=false.\n"
-            "  - NO  → PM4_Moderate APPLIES. Set applies=true.\n"
+            "  - true → PM4 does NOT apply. Set applies=false.\n"
+            "  - false → PM4_Moderate APPLIES. Set applies=true.\n"
             "\n"
             "Record VEP consequence and repeat region status in evidence."
         ),

@@ -1,6 +1,7 @@
 import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL
+from tools.vep import annotate_variant
 from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
@@ -8,6 +9,7 @@ from tools.computational import query_revel_spliceai, query_spliceai
 from data.planrag import query
 from .llm import invoke_llm
 from typing import Optional
+
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -53,10 +55,11 @@ You have access to the following tools:
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
+- vep: fetches variant consequence, repeat regions, and codon position. Use for PVS1 and PM4.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
     raw = call_task_agent(prompt)
@@ -96,6 +99,9 @@ def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
 
     elif tool == "spliceai":
         return query_spliceai(input_value), input_value
+    
+    elif tool == "vep":
+        return annotate_variant(input_value), input_value
 
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
