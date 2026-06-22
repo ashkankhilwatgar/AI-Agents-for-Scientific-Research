@@ -1,0 +1,27 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260622_102225",
+  "results": [
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.0, homozygote count: 0",
+      "reasoning": "Popmax FAF is 0.0 and there are no homozygotes, which does not meet the criteria for BS1_Strong or BS1_Supporting.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF: 0.0 (frequency in gnomAD exome dataset)",
+      "reasoning": "The Popmax FAF value for the variant NM_000020.3:c.557G>T is less than 0.01, indicating a low frequency of occurrence.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
+from tools.vep import annotate_variant, _check_repeat_region
 from data.planrag import query
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -49,10 +50,11 @@ You have access to the following tools:
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
+- vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1 and PM4.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
 
@@ -91,7 +93,8 @@ def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
 
     elif tool == "spliceai":
         return query_spliceai(input_value), input_value
-
+    elif tool == "vep":
+        return annotate_variant(input_value), input_value
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
 
@@ -144,16 +147,17 @@ Evidence retrieved:
 Based on this evidence, determine whether criterion {criterion} applies.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
+IMPORTANT: "applies" must be an unquoted JSON boolean (true or false), not a string. Do not wrap it in quotes.
+NOTE: Only include the "error" field if status is "error". Omit it entirely when status is "complete".
 {{
     "criterion": "{criterion}",
     "evidence": "<concise summary of raw evidence>",
     "reasoning": "<how evidence maps to criterion>",
-    "applies": "<true | false>",
+    "applies": <true | false>,
     "tool_used": "{tool_used}",
     "tool_input": "{tool_input}",
     "disease": "{disease}",
-    "status": "<complete | error>",
-    "error": "<error message if status is error, omit otherwise>"
+    "status": "<complete | error>"
 }}"""
 
     raw = call_ollama(prompt)
