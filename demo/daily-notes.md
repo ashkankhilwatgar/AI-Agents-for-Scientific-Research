@@ -20,3 +20,8 @@ What I plan to work on over the next two days:
 python3.14 demo/pipeline.py --variant "NM_000020.3:c.557G>T" --disease "HHT"
 ```
 
+
+
+
+6/22/26:
+Implemented tools for PM1 (uses VEP, expanded VEP to get information for PM1), PS4, PS1, PM5. At the end of the day, the pipeline ran into trouble while calling APIs, it seemed all APIs were down (Ensemble for annotation, Gnomad for PM2_Supporting)

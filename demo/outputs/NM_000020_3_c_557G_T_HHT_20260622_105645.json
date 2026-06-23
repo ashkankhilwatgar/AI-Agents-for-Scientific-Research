@@ -1,0 +1,27 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260622_105645",
+  "results": [
+    {
+      "criterion": "PVS1",
+      "evidence": "missense_variant at codon 186",
+      "reasoning": "The variant is a missense mutation and does not meet the criteria for nonsense or frameshift mutations that would predict NMD. The codon position (186) is outside the critical regions defined by PVS1.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "missense_variant at codon position 186",
+      "reasoning": "The VEP consequence is missense_variant which does not meet the threshold for PM4 (inframe_insertion, inframe_deletion, or stop_lost). Therefore, PM4 does NOT apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

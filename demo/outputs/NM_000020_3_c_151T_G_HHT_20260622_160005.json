@@ -1,0 +1,18 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260622_160005",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    }
+  ]
+}

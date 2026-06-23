@@ -1,0 +1,77 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260622_112205",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Total allele count (AC) across all gnomAD populations: 1. Allele frequency in NFE subpopulation: 6.842219780310007e-07.",
+      "reasoning": "Step 1: Variant is not absent from gnomAD entirely. Step 2: Total allele count (AC) across all populations is less than 6. Therefore, PM2_SUPPORTING applies based on AC < 6.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "{\"revel_score\": 0.915, \"DS_AG\": 0.0, \"DS_AL\": 0.01, \"DS_DG\": 0.0, \"DS_DL\": 0.0}",
+      "reasoning": "REVEL score is >= 0.644 (0.915 > 0.644). SpliceAI scores are all below threshold.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915; SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "The REVEL score is >0.15 (0.915), which means BP4 does not apply regardless of SpliceAI scores.",
+      "applies": false,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF: 0.0 (frequency in gnomAD exome dataset)",
+      "reasoning": "The Popmax FAF value for the variant NM_000020.3:c.557G>T is less than 0.01, therefore criterion BA1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.0, homozygote count: 0",
+      "reasoning": "Popmax FAF is 0.0 and there are no homozygotes, which does not meet the criteria for BS1_Strong or BS1_Supporting.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_000020.3:c.557G>T is a missense variant at codon 186.",
+      "reasoning": "The variant does not meet the criteria for PVS1 as it is neither a nonsense nor frameshift mutation, and it does not affect splice sites or involve deletions/duplications that would trigger NMD. The codon position (186) is outside the critical regions defined by the ACVRL1 PVS1 Decision Tree.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "variant_consequence: missense_variant; codon_position: 186",
+      "reasoning": "The VEP consequence is 'missense_variant', which does not meet the threshold for PM4 (inframe_insertion, inframe_deletion, or stop_lost). Therefore, PM4 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

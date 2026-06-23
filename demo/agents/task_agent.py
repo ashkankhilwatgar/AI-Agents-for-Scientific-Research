@@ -6,6 +6,9 @@ from tools.clinvar import search_clinvar
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
+from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
+from tools.pubmed import search_pubmed
+from tools.erepo import search_erepo_by_position
 from data.planrag import query
 from .llm import invoke_llm
 from typing import Optional
@@ -55,11 +58,13 @@ You have access to the following tools:
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
-- vep: fetches variant consequence, repeat regions, and codon position. Use for PVS1 and PM4.
+- vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1, PM1, and PM4.
+- pubmed: searches PubMed for case reports of the variant in HHT patients. Use for PS4.
+- erepo: queries the ClinGen Evidence Repository for HHT VCEP-classified variants at the same protein position. Use for PS1 and PM5.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
     raw = call_task_agent(prompt)
@@ -68,7 +73,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
+def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple[dict, str]:
     """
     Runs the selected tool and returns (result, actual_input_used).
     actual_input_used is the exact string passed to the API after any format conversion.
@@ -99,10 +104,53 @@ def run_tool(tool_decision: dict, variant: str) -> tuple[dict, str]:
 
     elif tool == "spliceai":
         return query_spliceai(input_value), input_value
-    
-    elif tool == "vep":
-        return annotate_variant(input_value), input_value
 
+    elif tool == "erepo":
+        vep_result = annotate_variant(input_value)
+        if "error" in vep_result:
+            return vep_result, input_value
+        codon_position = vep_result.get("codon_position")
+        if codon_position is None:
+            return {"error": "VEP did not return a protein position — cannot search ERepo"}, input_value
+        result = search_erepo_by_position("ACVRL1", codon_position)
+        # Remove the query variant itself from results — PS1/PM5 require other variants
+        # at the same position. Match on the cdna change (e.g. "c.557G>T").
+        query_cdna = input_value.split(":")[-1] if ":" in input_value else None
+        if query_cdna and "classifications" in result:
+            before = len(result["classifications"])
+            result["classifications"] = [
+                c for c in result["classifications"]
+                if query_cdna not in c.get("hgvs", "")
+            ]
+            after = len(result["classifications"])
+            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
+        else:
+            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+        return result, f"ACVRL1 position {codon_position}"
+
+    elif tool == "pubmed":
+        # VEP first to get protein position — papers use p.notation, not HGVS
+        vep_result = annotate_variant(input_value)
+        codon_position = vep_result.get("codon_position") if "error" not in vep_result else None
+        if codon_position is not None:
+            pubmed_query = f"ACVRL1 position {codon_position} HHT"
+        else:
+            pubmed_query = input_value
+        result = search_pubmed(pubmed_query)
+        print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+        return result, pubmed_query
+
+    elif tool == "vep":
+        vep_result = annotate_variant(input_value)
+        if "error" in vep_result:
+            return vep_result, input_value
+        codon_position = vep_result.get("codon_position")
+        critical_regions = (rag_entry or {}).get("critical_regions")
+        if codon_position is not None and critical_regions is not None:
+            pm1_check = check_pm1_critical_region(codon_position, critical_regions)
+            vep_result["in_critical_region"] = pm1_check["in_critical_region"]
+            vep_result["pm1_region_name"] = pm1_check["region_name"]
+        return vep_result, input_value
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
 
@@ -155,16 +203,17 @@ Evidence retrieved:
 Based on this evidence, determine whether criterion {criterion} applies.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
+IMPORTANT: "applies" must be an unquoted JSON boolean (true or false), not a string. Do not wrap it in quotes.
+NOTE: Only include the "error" field if status is "error". Omit it entirely when status is "complete".
 {{
     "criterion": "{criterion}",
     "evidence": "<concise summary of raw evidence>",
     "reasoning": "<how evidence maps to criterion>",
-    "applies": "<true | false>",
+    "applies": <true | false>,
     "tool_used": "{tool_used}",
     "tool_input": "{tool_input}",
     "disease": "{disease}",
-    "status": "<complete | error>",
-    "error": "<error message if status is error, omit otherwise>"
+    "status": "<complete | error>"
 }}"""
     raw = call_task_agent(prompt)
 
@@ -222,7 +271,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "error": tool_decision["error"]
         }
 
-    evidence, actual_input = run_tool(tool_decision, variant)
+    evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry)
 
     if "error" in evidence:
         return {

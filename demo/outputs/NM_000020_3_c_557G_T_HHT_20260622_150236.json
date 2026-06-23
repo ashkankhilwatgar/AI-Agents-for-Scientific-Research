@@ -1,0 +1,27 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260622_150236",
+  "results": [
+    {
+      "criterion": "PS1",
+      "evidence": "NM_000020.3(ACVRL1):c.557G>T (p.Ser186Ile), Likely Pathogenic by HHT VCEP",
+      "reasoning": "Step 1: Found an entry with the same amino acid change p.Ser186Ile classified as Likely Pathogenic by HHT VCEP. Step 2: The classification is Likely Pathogenic, which meets the threshold. Step 3: No evidence that this variant affects splicing.",
+      "applies": true,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000020.3(ACVRL1):c.557G>T (p.Ser186Ile) classified as Likely Pathogenic.",
+      "reasoning": "No other missense variants at the same codon position with a different amino acid change and classified as Pathogenic or Likely Pathogenic by HHT VCEP rules were found, excluding the query variant itself. Therefore, PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260622_135947",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Total allele count (AC) is 1, which is less than 6. Allele frequency in the NFE subpopulation is 0.0000475839, and no other subpopulations have an AC greater than zero.",
+      "reasoning": "Step 2: Total allele count across all gnomAD populations (AC) is less than 6, which satisfies PM2_SUPPORTING criterion.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915, SpliceAI DS_AG: 0.0, DS_AL: 0.01, DS_DG: 0.0, DS_DL: 0.0",
+      "reasoning": "The variant is a missense variant. REVEL score (0.915) >= 0.644, so PP3 applies.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915, SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "The REVEL score is 0.915 which is greater than the threshold of 0.15 for missense variants. Therefore, BP4 does not apply.",
+      "applies": false,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.0 for the variant NM_000020.3:c.557G>T in gnomAD.",
+      "reasoning": "The Popmax Filtering Allele Frequency (FAF) value is less than 0.01, therefore BA1 does not apply according to ACMG criteria.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.0, homozygote count: 0",
+      "reasoning": "No population has a Popmax FAF > 0.0008 or >=2 homozygotes.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

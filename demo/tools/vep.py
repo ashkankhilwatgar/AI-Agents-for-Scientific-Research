@@ -1,8 +1,10 @@
 import requests
 from urllib.parse import quote
+import time
 
 ENSEMBL_URL = "https://rest.ensembl.org"
 MAX_RETRIES = 3
+RETRY_DELAY = 2  # seconds between retries
 
 # Maps VEP most_severe_consequence to simplified variant type categories
 # used by the pipeline for criterion pre-filtering.
@@ -24,32 +26,36 @@ CONSEQUENCE_MAP = {
 }
 
 
-def _check_repeat_region(data: dict) -> bool:
+def _check_repeat_region(data: list) -> bool:
     """
-    check whether variant overlaps repeat region using
-    Emsembl overlap api
+    Checks whether the variant overlaps a repeat region using the Ensembl overlap API.
+    Returns True if a repeat is found, False if not.
+    Raises RuntimeError on API failure after all retries.
     """
-    if data and isinstance(data, list):
-        first_transcript = data[0]
-    else:
-        first_transcript = {}
-    
-    chrom = first_transcript.get("seq_region_name")
-    start = first_transcript.get("start")
-    end = first_transcript.get("end")
+    first_hit = data[0] if data and isinstance(data, list) else {}
+
+    chrom = first_hit.get("seq_region_name")
+    start = first_hit.get("start")
+    end = first_hit.get("end")
 
     if not chrom or not start or not end:
-        raise ValueError("Missing oordinates for repeat-region check")
-    
-    server = "https://rest.ensembl.org"
+        raise RuntimeError("Missing coordinates for repeat-region check")
+
     ext = f"/overlap/region/human/{chrom}:{start}-{end}?feature=repeat"
+    last_error = "No attempts completed"
 
     for _ in range(MAX_RETRIES):
-        try: 
+        try:
             r = requests.get(
-                server + ext,
-                headers={"Content-Type": "application/json"}
+                ENSEMBL_URL + ext,
+                headers={"Content-Type": "application/json"},
+                timeout=15
             )
+
+            if r.status_code in (429, 500, 503):
+                last_error = f"HTTP {r.status_code}"
+                time.sleep(RETRY_DELAY)
+                continue
 
             if r.status_code != 200:
                 last_error = f"{r.status_code}: {r.text}"
@@ -58,29 +64,30 @@ def _check_repeat_region(data: dict) -> bool:
             repeat_hits = r.json()
 
             if not isinstance(repeat_hits, list):
-                raise RuntimeError("Unexpected API response format")
-            
-            return len(repeat_hits) > 0                
+                raise RuntimeError("Unexpected API response format from repeat-region endpoint")
+
+            return len(repeat_hits) > 0
 
         except requests.RequestException as e:
+            last_error = str(e)
             continue
-    
-    raise RuntimeError(f"Repeat-region api failed: {last_error}")
-        
+
+    raise RuntimeError(f"Repeat-region API failed after {MAX_RETRIES} retries: {last_error}")
 
 
-
-
-def annotate_variant(variant: str) -> dict[str, str]:
+def annotate_variant(variant: str) -> dict:
     """
-    Calls Ensembl VEP to determine variant consequence type.
-    Returns:
-        dict with:
-            - variant_consequence
-            - codon_position
-            - overlaps_repeat_region (only for indels)
-        OR:
-            {"error": "..."}
+    Calls Ensembl VEP to annotate a variant for use by PVS1 and PM4.
+
+    Accepts HGVS (NM_... format) or gnomAD format (chrom-pos-ref-alt).
+
+    Returns a dict with:
+        - variant_consequence: VEP consequence term (e.g. "missense_variant")
+        - codon_position: protein position (int), or None if non-coding
+        - overlaps_repeat_region: bool (only present for inframe indels)
+        - repeat_region_note: str (only present if repeat check failed gracefully)
+
+    Returns {"error": "..."} on unrecoverable failure — never raises.
     """
     is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
 
@@ -88,7 +95,6 @@ def annotate_variant(variant: str) -> dict[str, str]:
         encoded = quote(variant, safe="")
         url = f"{ENSEMBL_URL}/vep/human/hgvs/{encoded}"
     else:
-        # gnomAD format: chrom-pos-ref-alt → VEP region: CHROM:POS-POS:1/ALT
         parts = variant.split("-")
         if len(parts) != 4:
             return {"error": f"Unrecognised variant format for VEP lookup: {variant}"}
@@ -97,20 +103,21 @@ def annotate_variant(variant: str) -> dict[str, str]:
         encoded = quote(region, safe=":/-")
         url = f"{ENSEMBL_URL}/vep/human/region/{encoded}"
 
-    response = None
-    last_error = None
+    last_error = "No attempts completed"
 
-    for _ in range(MAX_RETRIES):    
+    for _ in range(MAX_RETRIES):
         try:
             response = requests.get(
                 url,
-                # params=params,
                 headers={"Content-Type": "application/json"},
                 timeout=15,
-                params = {
-                    "refseq": 1
-                }
+                params={"refseq": 1}
             )
+
+            if response.status_code in (429, 500, 503):
+                last_error = f"HTTP {response.status_code}"
+                time.sleep(RETRY_DELAY)
+                continue
 
             if response.status_code != 200:
                 last_error = f"{response.status_code}: {response.text}"
@@ -118,24 +125,77 @@ def annotate_variant(variant: str) -> dict[str, str]:
 
             data = response.json()
 
-            result = None
-
-            if data and isinstance(data, list):
-                result = {
-                    "variant_consequence": data[0]["transcript_consequences"][0]["consequence_terms"][0],
-                    "codon_position": data[0]["transcript_consequences"][0]["protein_start"]
-                }
-                indel_variants = ["inframe_deletion", "inframe_insertion"]
-                if result.get("variant_consequence") in indel_variants:
-                    repeat = _check_repeat_region(data)
-                    result.update({
-                        "overlaps_repeat_region": repeat
-                    })
-                return result
-      
-            if not result:
+            if not data or not isinstance(data, list):
+                last_error = "VEP returned empty or non-list response"
                 continue
 
+            transcript_consequences = data[0].get("transcript_consequences")
+            if not transcript_consequences:
+                last_error = "VEP response missing transcript_consequences"
+                continue
+
+            tc = transcript_consequences[0]
+            consequence_terms = tc.get("consequence_terms")
+            if not consequence_terms:
+                last_error = "VEP transcript_consequences missing consequence_terms"
+                continue
+
+            result = {
+                "variant_consequence": consequence_terms[0],
+                "codon_position": tc.get("protein_start"),  # None for non-coding
+            }
+
+            # repeat region check — only for in-frame indels (required for PM4)
+            indel_consequences = {"inframe_deletion", "inframe_insertion"}
+            if result["variant_consequence"] in indel_consequences:
+                try:
+                    result["overlaps_repeat_region"] = _check_repeat_region(data)
+                except RuntimeError as e:
+                    # degrade gracefully — PM4 LLM reasoning will note the gap
+                    result["overlaps_repeat_region"] = None
+                    result["repeat_region_note"] = f"Repeat region check failed: {e}"
+
+            return result
+
         except requests.RequestException as e:
+            last_error = str(e)
             continue
-    raise ValueError(f"Variant annotation api failed: {last_error}")
+
+    return {"error": f"Variant annotation API failed after {MAX_RETRIES} retries: {last_error}"}
+
+
+def check_pm1_critical_region(codon_position: int, critical_regions: dict) -> dict:
+    """
+    Deterministic check: is the given protein position within any PM1
+    critical region defined in the RAG entry for this gene?
+
+    critical_regions is the 'critical_regions' field from the planrag entry:
+        {
+            "ranges":   [{"start": int, "end": int, "name": str}, ...],
+            "discrete": [{"positions": [int, ...], "name": str}, ...]
+        }
+
+    Returns:
+        {
+            "in_critical_region": bool,
+            "region_name": str | None
+        }
+    """
+    for region in critical_regions.get("ranges", []):
+        if region["start"] <= codon_position <= region["end"]:
+            return {
+                "in_critical_region": True,
+                "region_name": region["name"],
+            }
+
+    for region in critical_regions.get("discrete", []):
+        if codon_position in region["positions"]:
+            return {
+                "in_critical_region": True,
+                "region_name": f"{region['name']} (position {codon_position})",
+            }
+
+    return {
+        "in_critical_region": False,
+        "region_name": None,
+    }

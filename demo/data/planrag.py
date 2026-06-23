@@ -79,43 +79,33 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "strong",
         "automation": "partially_automatable",
-        "tool": "clinvar",
+        "tool": "erepo",
         "description": (
             "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
             "HHT VCEP applies no modification — use as in original ACMG (Strong only). "
             "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "ClinVar fetch is automatable; LLM must assess whether the reference variant's pathogenicity "
-            "is well-established (>=2 stars, no conflicting interpretations)."
+            "Reference variant must be classified by the HHT VCEP specifically."
         ),
-        "threshold": "Same amino acid change in ClinVar as Pathogenic with >=2 stars and no conflicting interpretations",
+        "threshold": "Same amino acid change at same protein position, classified P/LP by HHT VCEP",
         "instructions": (
-            "Search ClinVar for variants at the same amino acid position producing the same amino acid change\n"
-            "as the query variant, regardless of nucleotide change.\n"
+            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
             "\n"
-            "STEP 1: Does a ClinVar entry exist with the same amino acid change?\n"
+            "STEP 1: Is there an entry with the same amino acid change as the query variant?\n"
+            "  (Same amino acid change = same ref AA, same position, same alt AA — but different nucleotide change.)\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 2.\n"
             "\n"
-            "STEP 2: Is the ClinVar classification Pathogenic or Likely Pathogenic?\n"
+            "STEP 2: Is that entry classified Pathogenic or Likely Pathogenic by the HHT VCEP?\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 3.\n"
             "\n"
-            "STEP 3: Is the ClinVar review status 2 stars or higher?\n"
-            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 4.\n"
-            "\n"
-            "STEP 4: Are there any conflicting interpretations in ClinVar?\n"
-            "  - YES → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - NO  → continue to Step 5.\n"
-            "\n"
-            "STEP 5: Could the query variant affect splicing rather than the amino acid change?\n"
+            "STEP 3: Could the query variant affect splicing rather than the amino acid change?\n"
             "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
             "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
             "\n"
-            "ALL five steps must pass for PS1 to apply. Failing any single step means applies=false.\n"
-            "Record the ClinVar variant ID, classification, star rating, and amino acid change in evidence."
+            "Record the matching HGVS, protein change, and HHT VCEP classification in evidence."
         ),
-        "hht_modification": "No modification — use as in original ACMG; Strong strength only",
+        "hht_modification": "No modification — use as in original ACMG; Strong strength only; reference must be HHT VCEP-classified",
         "strength_override": "strong",
     },
 
@@ -171,19 +161,16 @@ PLANRAG_DB = {
         ),
         "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
         "instructions": (
-            "Search PubMed and ClinVar for case reports of this variant in HHT patients.\n"
+            "You are given PubMed search results for this variant in HHT patients. "
+            "PM2_Supporting has already been confirmed — do not re-check it.\n"
             "\n"
-            "STEP 1: Does the variant meet PM2_Supporting (absent or very rare in gnomAD)?\n"
-            "  - NO  → PS4 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Count unrelated probands with phenotype consistent with HHT.\n"
+            "STEP 1: Count unrelated probands with phenotype consistent with HHT.\n"
             "  Rules for counting:\n"
             "    - Each proband must have phenotype consistent with HHT.\n"
             "    - Exclude duplicate reports of the same patient across papers.\n"
             "    - Do NOT count probands who qualify for PP4_Moderate — those are counted only under PP4_Moderate.\n"
             "\n"
-            "STEP 3: Apply strength based on proband count:\n"
+            "STEP 2: Apply strength based on proband count:\n"
             "  - Count >= 4 → PS4_Strong applies. Set applies=true, strength=strong.\n"
             "  - Count = 2 or 3 → PS4_Moderate applies. Set applies=true, strength=moderate.\n"
             "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
@@ -200,7 +187,20 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "moderate",
         "automation": "fully_automatable",
-        "tool": "uniprot",
+        "tool": "vep",
+        "critical_regions": {
+            "ranges": [
+                {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
+                {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
+                {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
+                {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
+                {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
+            ],
+            "discrete": [
+                {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
+                "name": "BMP10 interaction cluster"},
+            ],
+        },
         "description": (
             "Variant located in a critical residue of ACVRL1. "
             "HHT VCEP defines specific critical residues based on functional and structural data: "
@@ -241,6 +241,15 @@ PLANRAG_DB = {
         ),
         "threshold": "<6 total alleles in gnomAD OR <0.00004 (0.004%) in any gnomAD subpopulation",
         "instructions": (
+            "Query gnomAD for the variant. "
+            "Retrieve: (1) total allele count (AC) across all gnomAD populations; "
+            "(2) allele frequency in each gnomAD subpopulation. "
+            "PM2_Supporting applies if EITHER: "
+            "(a) total allele count in gnomAD is <6, OR "
+            "(b) allele frequency in any gnomAD subpopulation is <0.00004 (0.004%). "
+            "If the variant is absent from gnomAD, PM2_Supporting applies. "
+            "Do NOT use Popmax FAF here — PM2 uses raw allele count and subpopulation frequency. "
+            "Record which condition triggered PM2 in the evidence field."
             "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
             "Do NOT use Popmax FAF for this criterion — PM2 uses raw AC and subpopulation AF only.\n"
             "\n"
@@ -274,6 +283,12 @@ PLANRAG_DB = {
         ),
         "threshold": "VEP consequence = inframe_insertion, inframe_deletion, or stop_lost; not in repeat region",
         "instructions": (
+            "Use VEP to annotate the variant. "
+            "PM4_Moderate applies if the variant is: "
+            "(a) an in-frame insertion in a non-repeat region, OR "
+            "(b) an in-frame deletion in a non-repeat region, OR "
+            "(c) a stop-loss variant. "
+            "If the in-frame indel overlaps a repeat region, PM4 does not apply."
             "Use VEP to annotate the variant consequence.\n"
             "\n"
             "STEP 1: What is the VEP consequence?\n"
@@ -297,27 +312,32 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "moderate",
         "automation": "partially_automatable",
-        "tool": "clinvar",
+        "tool": "erepo",
         "description": (
             "Novel missense at an amino acid residue where a different missense change has been determined "
             "to be likely pathogenic or pathogenic based on HHT VCEP rules. "
             "HHT VCEP defines two strength levels: "
             "Strong — >=2 different missense changes at same codon classified LP/P by HHT VCEP rules; "
             "Moderate — 1 different missense change at same codon classified LP/P by HHT VCEP rules. "
-            "Important: reference variants must be classified per HHT VCEP rules, not just any ClinVar submission. "
+            "Reference variants must be classified per HHT VCEP rules. "
             "Cannot combine PM5_Strong with PM1 (PM5_Moderate + PM1 IS allowed)."
         ),
         "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
         "instructions": (
-            "primary_source: ClinGen Evidence Repository (https://erepo.clinicalgenome.org); "
-            "fallback_source: ClinVar entries with submitter = 'ClinGen Hereditary Hemorrhagic Telangiectasia VCEP'; "
-            "search_strategy: Find variants at same amino acid residue, different substitution; "
-            "filter: Only count variants classified LP or P by HHT VCEP; "
-            "note: These are pipeline-level decisions, not from CSpec GN135 v1.1.0; "
-            "Apply strength: PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
-            "PM5_Moderate if 1 different missense change at same codon is LP/P per HHT VCEP rules. "
-            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed."
+            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
+            "\n"
+            "STEP 1: Count entries with a DIFFERENT amino acid change from the query variant\n"
+            "  that are classified Pathogenic or Likely Pathogenic by the HHT VCEP.\n"
+            "  - Exclude the query variant itself.\n"
+            "  - Only count missense changes (not splicing, nonsense, etc.).\n"
+            "\n"
+            "STEP 2: Apply strength based on count:\n"
+            "  - Count >= 2 → PM5_Strong applies. Set applies=true, strength=strong.\n"
+            "  - Count = 1  → PM5_Moderate applies. Set applies=true, strength=moderate.\n"
+            "  - Count = 0  → PM5 does NOT apply. Set applies=false.\n"
+            "\n"
+            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed.\n"
+            "Record matching HGVS entries, protein changes, classifications, and strength level in evidence."
         ),
         "hht_modification": "Two strength levels (Strong / Moderate) based on count of LP/P missense at same codon; reference must be HHT VCEP-classified; PM5_Strong cannot combine with PM1",
         "strength_override": None,
@@ -365,6 +385,13 @@ PLANRAG_DB = {
         ),
         "threshold": "Missense: REVEL >=0.644 OR SpliceAI >=0.2 | Synonymous/intronic: SpliceAI >=0.2",
         "instructions": (
+            "Determine variant type (missense / synonymous / intronic). "
+            "For missense variants: fetch REVEL score AND SpliceAI scores. "
+            "PP3 applies if REVEL >=0.644 OR any SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >=0.2. "
+            "For synonymous or intronic variants: fetch SpliceAI only. "
+            "PP3 applies if any SpliceAI delta score >=0.2. "
+            "PP3 can be used only once in any evaluation of a variant. "
+            "Record exact scores retrieved and which threshold triggered."
             "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
             "PP3 can be used only once per variant evaluation.\n"
             "\n"
@@ -432,6 +459,12 @@ PLANRAG_DB = {
         ),
         "threshold": "Popmax FAF >= 0.01 (1%) in gnomAD",
         "instructions": (
+            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF). "
+            "BA1 applies if Popmax FAF >= 0.01 (1%). "
+            "This is a stand-alone benign criterion — if it applies, variant is classified Benign "
+            "regardless of all other evidence. "
+            "If BA1 applies, PP4_Moderate cannot also be applied. "
+            "Flag BA1 to the Scoring agent immediately — remaining criteria can be skipped."
             "Query gnomAD for the Popmax Filtering Allele Frequency (FAF95, popmax field).\n"
             "\n"
             "STEP 1: Is Popmax FAF greater than or equal to 0.01 (i.e. >= 1%)?\n"
@@ -463,6 +496,13 @@ PLANRAG_DB = {
         ),
         "threshold": "BS1_Strong: Popmax FAF >0.002 and <0.01 (OR BS1_Supporting + >=2 homozygotes); BS1_Supporting: Popmax FAF >0.0008 and <=0.002",
         "instructions": (
+            "Query gnomAD for the Popmax FAF and homozygote count. "
+            "Apply strength: "
+            "BS1_Strong if Popmax FAF >0.002 (0.2%) and <0.01 (1%), OR if variant meets BS1_Supporting AND has >=2 homozygotes; "
+            "BS1_Supporting if Popmax FAF >0.0008 (0.08%) and <=0.002 (0.2%). "
+            "If BA1 already applies (Popmax FAF >=0.01), do not apply BS1. "
+            "If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied. "
+            "Record exact Popmax FAF, homozygote count, and strength level."
             "Query gnomAD for Popmax FAF (faf95 popmax field) and total homozygote count (ac_hom).\n"
             "Bottlenecked populations (e.g. Ashkenazi Jewish) are included — do not exclude them.\n"
             "\n"
@@ -588,6 +628,13 @@ PLANRAG_DB = {
         ),
         "threshold": "Missense: REVEL <=0.15 AND SpliceAI <=0.1 | Synonymous/intronic: SpliceAI <=0.1",
         "instructions": (
+            "Determine variant type (missense / synonymous / intronic). "
+            "For missense variants: fetch BOTH REVEL and SpliceAI scores. "
+            "BP4 applies ONLY if REVEL <=0.15 AND all SpliceAI delta scores <=0.1. "
+            "If either condition fails, BP4 does not apply. "
+            "For synonymous or intronic variants: fetch SpliceAI only. "
+            "BP4 applies if all SpliceAI delta scores <=0.1. "
+            "Note whether BP7 also applies — these can be combined per HHT VCEP rules."
             "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
             "BP4 can be used only once per variant evaluation.\n"
             "\n"
@@ -653,6 +700,12 @@ PLANRAG_DB = {
         ),
         "threshold": "Synonymous or intronic variant AND SpliceAI <=0.1",
         "instructions": (
+            "BP7 applies to synonymous or intronic variants only. "
+            "Fetch SpliceAI delta scores. "
+            "BP7 applies if all SpliceAI delta scores <=0.1. "
+            "If the variant is at the last nucleotide of an exon OR is a deep intronic variant in a known "
+            "splicing hotspot, flag for manual review — SpliceAI can miss real splice effects in these regions. "
+            "Note whether BP4 also applies — HHT VCEP allows combining BP4 + BP7."
             "Fetch all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
             "BP7 applies to synonymous or intronic variants only — not missense.\n"
             "\n"
@@ -727,4 +780,3 @@ def get_automatable_criteria() -> list[str]:
 
 def get_deferred_criteria() -> list[str]:
     """Criteria that cannot be automated."""
-    return [k for k, v in PLANRAG_DB.items() if v.get("deferred", False)]
