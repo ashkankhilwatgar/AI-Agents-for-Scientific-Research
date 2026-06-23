@@ -1,7 +1,7 @@
 import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL
-from tools.clinvar import search_clinvar
+from tools.clinvar import search_clinvar, search_clinvar_for_codon, search_clinvar_for_variant_ps4
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
@@ -48,7 +48,7 @@ Use this feedback to select the correct tool.
 Your task is to evaluate criterion {criterion} for variant {variant}.
 {feedback_block}
 You have access to the following tools:
-- clinvar: searches ClinVar for existing variant classifications.
+- clinvar: searches ClinVar for variant classifications and proband counts. Use for PS4 (queries HHT VCEP submission for proband count, falls back to PubMed).
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
@@ -77,7 +77,39 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
     print(f"DEBUG - tool: {tool}, input: {input_value}")
 
     if tool == "clinvar":
-        return search_clinvar(input_value), input_value
+        criterion = (rag_entry or {}).get("criterion", "")
+        if criterion == "PS4":
+            # PS4: ClinVar VCEP SCV first (contains proband count), PubMed fallback
+            cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
+            print(f"DEBUG - PS4: querying ClinVar VCEP SCV for {input_value}")
+            clinvar_ps4 = search_clinvar_for_variant_ps4(input_value)
+
+            if "error" in clinvar_ps4:
+                print(f"DEBUG - ClinVar PS4 lookup error: {clinvar_ps4['error']}, falling back to PubMed")
+            elif clinvar_ps4.get("found") and clinvar_ps4.get("proband_count", 0) > 0:
+                print(f"DEBUG - ClinVar PS4: {clinvar_ps4['proband_count']} proband(s) in HHT VCEP SCV")
+                return clinvar_ps4, f"ClinVar VCEP SCV for {input_value}"
+            else:
+                print(f"DEBUG - ClinVar PS4: no proband count in SCV, falling back to PubMed")
+
+            # PubMed fallback with protein + nucleotide notation
+            vep_result = annotate_variant(input_value)
+            if "error" not in vep_result:
+                protein_change   = vep_result.get("protein_change")
+                protein_change_1 = vep_result.get("protein_change_1letter")
+                if protein_change and protein_change_1:
+                    pubmed_query = f"ACVRL1 ({cdna_change} OR {protein_change} OR {protein_change_1}) HHT"
+                elif protein_change:
+                    pubmed_query = f"ACVRL1 ({cdna_change} OR {protein_change}) HHT"
+                else:
+                    pubmed_query = f"ACVRL1 {cdna_change} HHT"
+            else:
+                pubmed_query = f"ACVRL1 {cdna_change} HHT"
+            result = search_pubmed(pubmed_query)
+            print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+            return result, pubmed_query
+        else:
+            return search_clinvar(input_value), input_value
 
     elif tool == "gnomad":
         if input_value.startswith("NM_") or "c." in input_value or "p." in input_value:
@@ -119,16 +151,39 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
             print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
         else:
             print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+
+        # ClinVar fallback — if ERepo has no other variants at this codon,
+        # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
+        if not result.get("classifications"):
+            ref_aa = vep_result.get("amino_acid_ref")
+            if ref_aa:
+                print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
+                clinvar_result = search_clinvar_for_codon(
+                    "ACVRL1", codon_position, ref_aa, query_cdna
+                )
+                if "error" not in clinvar_result:
+                    print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
+                    result = clinvar_result
+                else:
+                    print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+
         return result, f"ACVRL1 position {codon_position}"
 
     elif tool == "pubmed":
-        # VEP first to get protein position — papers use p.notation, not HGVS
+        # Generic PubMed search — PS4 now routes through the clinvar branch instead
+        cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
         vep_result = annotate_variant(input_value)
-        codon_position = vep_result.get("codon_position") if "error" not in vep_result else None
-        if codon_position is not None:
-            pubmed_query = f"ACVRL1 position {codon_position} HHT"
+        if "error" not in vep_result:
+            protein_change   = vep_result.get("protein_change")
+            protein_change_1 = vep_result.get("protein_change_1letter")
+            if protein_change and protein_change_1:
+                pubmed_query = f"ACVRL1 ({cdna_change} OR {protein_change} OR {protein_change_1}) HHT"
+            elif protein_change:
+                pubmed_query = f"ACVRL1 ({cdna_change} OR {protein_change}) HHT"
+            else:
+                pubmed_query = f"ACVRL1 {cdna_change} HHT"
         else:
-            pubmed_query = input_value
+            pubmed_query = f"ACVRL1 {cdna_change} HHT"
         result = search_pubmed(pubmed_query)
         print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
         return result, pubmed_query

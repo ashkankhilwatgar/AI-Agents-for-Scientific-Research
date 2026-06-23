@@ -1,0 +1,49 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260623_111802",
+  "results": [
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.917, SpliceAI DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.09, DS_DL: 0.0",
+      "reasoning": "REVEL score >= 0.644 (0.917 > 0.644), so PP3 applies.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "ClinVar record for NM_000020.3:c.151T>G does not contain relevant information.",
+      "reasoning": "The ClinVar evidence provided is insufficient to determine if there are any other LP/P missense variants at the same codon as per HHT VCEP rules, hence PM5 cannot be applied based on this evidence alone.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    }
+  ]
+}

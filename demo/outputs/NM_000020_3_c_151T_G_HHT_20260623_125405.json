@@ -1,0 +1,48 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260623_125405",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and allele frequency in any subpopulation is less than 0.00004.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Step 2 & 3 are not applicable as the variant is likely rare or novel with no evidence of existence in gnomAD, satisfying PM2_SUPPORTING criterion.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "clinvar evidence for ACVRL1 c.153C>G (p.Cys51Trp), c.152G>T (p.Cys51Phe), and c.151T>A (p.Cys51Ser) are classified as Likely Pathogenic, while c.152G>A (p.Cys51Tyr) is classified as Pathogenic.",
+      "reasoning": "There are 3 different missense changes at the same codon position (Cys51) that are classified as LP/P by HHT VCEP rules: p.Cys51Trp, p.Cys51Phe, and p.Cys51Ser. This meets the PM5_Strong threshold.",
+      "applies": true,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 51",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.917, SpliceAI DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.09, DS_DL: 0.0",
+      "reasoning": "REVEL score >= 0.644 (0.917 > 0.644), so PP3 applies.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

@@ -72,6 +72,15 @@ def query_gnomad(variant: str, dataset: str = "gnomad_r4") -> dict:
             data = response.json()
 
             if "errors" in data:
+                messages = [e.get("message", "") for e in data["errors"]]
+                if any("not found" in m.lower() for m in messages):
+                    return {
+                        "found": False,
+                        "message": "Variant not found in gnomAD (likely rare or novel)",
+                        "total_ac": 0,
+                        "popmax_faf": 0.0,
+                        "ac_hom": 0,
+                    }
                 return {"error": data["errors"]}
 
             variant_data = data["data"]["variant"]

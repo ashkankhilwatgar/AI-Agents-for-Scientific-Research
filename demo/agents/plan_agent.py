@@ -78,6 +78,9 @@ Respond ONLY with a JSON object in this exact format, no explanation:
         tasks.append(task)
         print(f"PLAN AGENT: Task created for {criterion}")
 
+    # Sort by phase so dependencies are always evaluated before dependents
+    tasks.sort(key=lambda t: (query(t["criterion"]) or {}).get("phase", 99))
+
     return tasks
 
 

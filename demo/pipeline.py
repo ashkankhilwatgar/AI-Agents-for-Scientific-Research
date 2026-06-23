@@ -84,12 +84,39 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         return []
 
     results = []
+    results_dict = {}  # criterion → completed result, for dependency checking
 
     for task in tasks:
         criterion = task.get("criterion")
 
         # inject variant_type into task dict so downstream agents have it if needed
         task["variant_type"] = variant_type
+
+        # ── PRECONDITION CHECK ────────────────────
+        rag_entry = query(criterion)
+        requires_applied = (rag_entry or {}).get("requires_applied", [])
+        skipped_reason = None
+
+        for dep in requires_applied:
+            dep_key = dep.upper().replace("-", "_").replace(" ", "_")
+            dep_result = results_dict.get(dep_key)
+            if dep_result is None:
+                skipped_reason = f"{dep} has not been evaluated (dependency ordering error)"
+                break
+            if not dep_result.get("applies"):
+                skipped_reason = f"{dep} did not apply — {criterion} requires it"
+                break
+
+        if skipped_reason:
+            print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
+            skipped_entry = {
+                "criterion": criterion,
+                "status": "skipped",
+                "reason": skipped_reason,
+            }
+            results.append(skipped_entry)
+            results_dict[criterion.upper().replace("-", "_")] = skipped_entry
+            continue
 
         print(f"\n{'─'*60}")
         print(f"PIPELINE: Processing criterion {criterion}")
@@ -102,6 +129,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         if debug_output.get("status") == "error":
             print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
             results.append(debug_output)
+            results_dict[criterion.upper().replace("-", "_")] = debug_output
             continue
 
         # ── JUDGE AGENT ───────────────────────
@@ -111,6 +139,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         if judge_output.get("status") == "error":
             print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
             results.append(judge_output)
+            results_dict[criterion.upper().replace("-", "_")] = judge_output
             continue
 
         # ── CHECK AGENT ───────────────────────
@@ -118,6 +147,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         final_output = run_check(judge_output)
 
         results.append(final_output)
+        results_dict[criterion.upper().replace("-", "_")] = final_output
         print(f"\nPIPELINE: {criterion} complete")
 
     return results
@@ -142,10 +172,15 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
     applied = []
     not_applied = []
     failed = []
+    skipped = []
 
     for result in results:
         criterion = result.get("criterion", "Unknown")
         status = result.get("status")
+
+        if status == "skipped":
+            skipped.append(result)
+            continue
 
         if status == "error":
             failed.append(result)
@@ -174,6 +209,13 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
         print(f"\n  ✗ {r['criterion']}")
         print(f"    Evidence : {r.get('evidence')}")
         print(f"    Reasoning: {r.get('reasoning')}")
+
+    # ── SKIPPED CRITERIA ──────────────────────
+    if skipped:
+        print(f"\nSKIPPED CRITERIA ({len(skipped)}):")
+        for r in skipped:
+            print(f"\n  – {r['criterion']}")
+            print(f"    Reason: {r.get('reason')}")
 
     # ── FAILED CRITERIA ───────────────────────
     if failed:

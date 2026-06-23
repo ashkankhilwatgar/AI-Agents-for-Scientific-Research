@@ -6,6 +6,15 @@ ENSEMBL_URL = "https://rest.ensembl.org"
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds between retries
 
+# Single-letter to three-letter amino acid code conversion
+AA_1TO3 = {
+    'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe',
+    'G': 'Gly', 'H': 'His', 'I': 'Ile', 'K': 'Lys', 'L': 'Leu',
+    'M': 'Met', 'N': 'Asn', 'P': 'Pro', 'Q': 'Gln', 'R': 'Arg',
+    'S': 'Ser', 'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr',
+    '*': 'Ter',
+}
+
 # Maps VEP most_severe_consequence to simplified variant type categories
 # used by the pipeline for criterion pre-filtering.
 CONSEQUENCE_MAP = {
@@ -144,6 +153,18 @@ def annotate_variant(variant: str) -> dict:
                 "variant_consequence": consequence_terms[0],
                 "codon_position": tc.get("protein_start"),  # None for non-coding
             }
+
+            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly)
+            aa_raw = tc.get("amino_acids", "")
+            if "/" in aa_raw:
+                ref_1, alt_1 = aa_raw.split("/", 1)
+                ref_3 = AA_1TO3.get(ref_1.strip(), ref_1.strip())
+                alt_3 = AA_1TO3.get(alt_1.strip(), alt_1.strip())
+                result["amino_acid_ref"] = ref_3   # e.g. "Cys"
+                result["amino_acid_alt"] = alt_3   # e.g. "Gly"
+                if result["codon_position"]:
+                    result["protein_change"] = f"p.{ref_3}{result['codon_position']}{alt_3}"  # e.g. "p.Cys51Gly"
+                    result["protein_change_1letter"] = f"p.{ref_1.strip()}{result['codon_position']}{alt_1.strip()}"  # e.g. "p.C51G"
 
             # repeat region check — only for in-frame indels (required for PM4)
             indel_consequences = {"inframe_deletion", "inframe_insertion"}

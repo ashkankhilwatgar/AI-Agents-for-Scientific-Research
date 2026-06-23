@@ -1,0 +1,37 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260623_105849",
+  "results": [
+    {
+      "criterion": "PS4",
+      "evidence": "No articles found for ACVRL1 c.151T>G in HHT patients.",
+      "reasoning": "The search did not yield any probands with the variant NM_000020.3:c.151T>G and phenotype consistent with HHT, thus PS4 does not apply according to ACMG criteria.",
+      "applies": false,
+      "tool_used": "pubmed",
+      "tool_input": "ACVRL1 position 51 HHT",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.917, DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.09, DS_DL: 0.0",
+      "reasoning": "Missense variant with REVEL >= 0.644 (REVEL score is 0.917). PP3 applies based on REVEL threshold.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000020.3:c.151T>G, no other LP/P missense variants at the same codon position.",
+      "reasoning": "No different amino acid changes classified as Pathogenic or Likely Pathogenic by HHT VCEP rules were found at the same protein position (position 51) excluding the query variant itself. Therefore, PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 51",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}
