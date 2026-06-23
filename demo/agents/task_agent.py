@@ -239,6 +239,17 @@ A previous interpretation of this evidence was rejected with the following feedb
 Correct this specific error in your response.
 """
 
+    # applied_strength guidance — variable-strength criteria must set this explicitly.
+    # Fixed-strength criteria are enforced in code below, so we tell the LLM to omit them.
+    variable_strength_criteria = {"PVS1", "PS3", "PS4", "PM5", "PP1"}
+    if criterion in variable_strength_criteria:
+        strength_note = (
+            '\n"applied_strength": "<very_strong | strong | moderate | supporting>  '
+            '← set based on the strength level that applies per the instructions above",'
+        )
+    else:
+        strength_note = '\n"applied_strength": null,  ← will be set automatically, leave null'
+
     prompt = f"""You are a variant classification assistant applying ACMG criteria.
 
 Variant: {variant}
@@ -257,7 +268,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     "criterion": "{criterion}",
     "evidence": "<concise summary of raw evidence>",
     "reasoning": "<how evidence maps to criterion>",
-    "applies": <true | false>,
+    "applies": <true | false>,{strength_note}
     "tool_used": "{tool_used}",
     "tool_input": "{tool_input}",
     "disease": "{disease}",
@@ -272,6 +283,34 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     result["tool_input"] = tool_input
     result["criterion"] = criterion
     result["disease"] = disease
+
+    # enforce applied_strength for fixed-strength criteria
+    # variable-strength criteria (PVS1, PS3, PS4, PM5, PP1) set their own applied_strength
+    _FIXED_STRENGTH: dict[str, str] = {
+        "PM2_SUPPORTING": "supporting",
+        "PP3":            "supporting",
+        "PP4_MODERATE":   "moderate",
+        "PM1":            "moderate",
+        "PM4":            "moderate",
+        "PS1":            "strong",
+        "PS2":            "strong",
+        "BA1":            "benign_stand_alone",
+        "BS1":            "benign_strong",
+        "BS1_SUPPORTING": "benign_supporting",
+        "BS3_SUPPORTING": "benign_supporting",
+        "BS4":            "benign_strong",
+        "BP2":            "benign_supporting",
+        "BP4":            "benign_supporting",
+        "BP5":            "benign_supporting",
+        "BP7":            "benign_supporting",
+    }
+    fixed = _FIXED_STRENGTH.get(criterion)
+    if fixed:
+        result["applied_strength"] = fixed
+    elif "applied_strength" not in result or result.get("applied_strength") is None:
+        # variable-strength criterion but LLM didn't set it — default to criterion's base strength
+        base = (rag_entry or {}).get("strength")
+        result["applied_strength"] = base
 
     return result
 

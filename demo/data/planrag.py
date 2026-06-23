@@ -732,6 +732,118 @@ PLANRAG_DB = {
         "strength_override": "supporting",
         "deferred": True,
     },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # SCORING — HHT VCEP combining criteria rules (CSpec GN135 v1.1.0)
+    # Source: https://cspec.genome.network/cspec/ui/svi/doc/GN135#rules-combinations-panel-1576018580
+    #
+    # Each applied criterion maps to a strength bucket.
+    # Fixed-strength criteria always land in the same bucket (enforced in task_agent.py).
+    # Variable-strength criteria (PVS1, PS3, PS4, PM5, PP1) land in the bucket
+    # corresponding to their applied_strength field.
+    #
+    # Bucket → contribution to rule counts:
+    #   "very_strong"       → vs  (pathogenic)
+    #   "strong"            → s   (pathogenic)
+    #   "moderate"          → m   (pathogenic)
+    #   "supporting"        → sup (pathogenic)
+    #   "benign_stand_alone"→ ba  (benign — auto-Benign, evaluated first)
+    #   "benign_strong"     → bs  (benign)
+    #   "benign_supporting" → bsup(benign)
+    #
+    # Incompatibility rule: PM1 + PM5_Strong → downgrade PM5 to moderate before bucketing.
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "SCORING": {
+        "criterion": "SCORING",
+
+        # Maps criterion key → its fixed bucket (enforced in task_agent.py for these;
+        # listed here as the single source of truth for the scoring module too).
+        # Variable-strength criteria are NOT listed here — they use applied_strength.
+        "fixed_strengths": {
+            "PM2_SUPPORTING": "supporting",
+            "PP3":            "supporting",
+            "PP4_MODERATE":   "moderate",
+            "PM1":            "moderate",
+            "PM4":            "moderate",
+            "PS1":            "strong",
+            "PS2":            "strong",   # excluded in HHT VCEP but kept for completeness
+            "BA1":            "benign_stand_alone",
+            "BS1":            "benign_strong",
+            "BS1_SUPPORTING": "benign_supporting",
+            "BS3_SUPPORTING": "benign_supporting",
+            "BS4":            "benign_strong",
+            "BP2":            "benign_supporting",
+            "BP4":            "benign_supporting",
+            "BP5":            "benign_supporting",
+            "BP7":            "benign_supporting",
+        },
+
+        # Variable-strength criteria: applied_strength string → bucket.
+        # Used for PVS1, PS3, PS4, PM5, PP1 — and any other criterion
+        # where the LLM sets applied_strength at runtime.
+        "variable_strength_map": {
+            "very_strong": "very_strong",
+            "strong":      "strong",
+            "moderate":    "moderate",
+            "supporting":  "supporting",
+        },
+
+        # Incompatible combinations — handled before bucketing.
+        # Format: list of {"criteria": [...], "action": "...", "target": "...", "new_strength": "..."}
+        "incompatible_combinations": [
+            {
+                "criteria":   ["PM1", "PM5"],
+                "condition":  "PM5 applied_strength == strong",
+                "action":     "downgrade",
+                "target":     "PM5",
+                "new_strength": "moderate",
+                "note": "PM1 and PM5_Strong cannot be combined — PM5 is downgraded to Moderate",
+            },
+        ],
+
+        # ── PATHOGENIC combining rules ─────────────────────────────────────────
+        # Each rule specifies minimum counts that must be satisfied simultaneously.
+        # Keys: vs (very strong), s (strong), m (moderate), sup (supporting).
+        # Missing keys default to 0 (i.e. no requirement on that bucket).
+        # Rules are checked in order — first match wins.
+        "pathogenic_rules": [
+            {"vs": 1, "s": 1,                     "label": "PVS1 + ≥1 Strong"},
+            {"vs": 1, "m": 2,                     "label": "PVS1 + ≥2 Moderate"},
+            {"vs": 1, "m": 1, "sup": 1,           "label": "PVS1 + 1 Moderate + 1 Supporting"},
+            {"vs": 1, "sup": 2,                   "label": "PVS1 + ≥2 Supporting"},
+            {"s": 2,                               "label": "≥2 Strong"},
+            {"s": 1, "m": 3,                       "label": "1 Strong + ≥3 Moderate"},
+            {"s": 1, "m": 2, "sup": 2,            "label": "1 Strong + 2 Moderate + ≥2 Supporting"},
+            {"s": 1, "m": 1, "sup": 4,            "label": "1 Strong + 1 Moderate + ≥4 Supporting"},
+        ],
+
+        # ── LIKELY PATHOGENIC combining rules ─────────────────────────────────
+        "likely_pathogenic_rules": [
+            {"vs": 1, "m": 1,                     "label": "PVS1 + 1 Moderate"},
+            {"vs": 1, "sup": 1,                   "label": "PVS1 + 1 Supporting"},
+            {"s": 1, "m": 2,                       "label": "1 Strong + 2 Moderate"},
+            {"s": 1, "m": 1,                       "label": "1 Strong + 1 Moderate"},
+            {"s": 1, "sup": 2,                    "label": "1 Strong + ≥2 Supporting"},
+            {"m": 3,                               "label": "≥3 Moderate"},
+            {"m": 2, "sup": 2,                    "label": "2 Moderate + ≥2 Supporting"},
+            {"m": 1, "sup": 4,                    "label": "1 Moderate + ≥4 Supporting"},
+        ],
+
+        # ── BENIGN combining rules (checked before pathogenic) ─────────────────
+        # Keys: ba (stand-alone), bs (strong), bsup (supporting).
+        "benign_rules": [
+            {"ba": 1,          "label": "BA1 stand-alone"},
+            {"bs": 2,          "label": "≥2 Strong benign"},
+        ],
+
+        # ── LIKELY BENIGN combining rules ──────────────────────────────────────
+        "likely_benign_rules": [
+            {"bs": 1, "bsup": 1, "label": "1 Strong + 1 Supporting benign"},
+            {"bs": 1,            "label": "1 Strong benign"},
+            {"bsup": 2,          "label": "≥2 Supporting benign"},
+        ],
+    },
 }
 
 
