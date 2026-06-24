@@ -21,3 +21,7 @@ python3.14 demo/pipeline.py \
 ```
 where max-concurrency controls how many agents are running in parallel with each other
 
+
+6/24/26
+Finish (I guess) implementing the functional evidence tool that checks PS3/BS3. I have not integrate the tools into the pipeline so currently the pipeline **cannot** check PS3/BS3! Still working on parallelizing the pipeline. 
+
