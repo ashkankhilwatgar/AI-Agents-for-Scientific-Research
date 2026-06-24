@@ -51,6 +51,16 @@ Reasoning errors include:
   (e.g. concluding PP3 does not apply when the REVEL score meets the threshold)
 - The applies field contradicts the evidence and reasoning
 
+The following are NOT reasoning errors — do not flag these:
+- PS4 evidence mentioning "alternate molecular basis", "alternate explanation", or BP5 language.
+  The same patient can appear in both PS4 (proband count) and BP5 (alternate explanation) contexts.
+  If the task agent found a proband count and correctly applied PS4, do not reject it on the grounds
+  that the evidence also mentions an alternate molecular explanation — that is a separate criterion (BP5)
+  and does not invalidate the PS4 finding.
+- A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
+  is valid if the proband count supports it.
+- Evidence showing a variant is absent from a database — absence is valid evidence.
+
 Task output:
 {json.dumps(task_output, indent=2)}
 

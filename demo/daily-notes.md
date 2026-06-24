@@ -22,7 +22,13 @@ python3.14 demo/pipeline.py \
 where max-concurrency controls how many agents are running in parallel with each other
 
 
-6/24/26
+6/24/26 Ashkan
 python3.12 -m pipeline --variant "NM_001114753.3:c.1701del" --disease "HHT"
 python3.12 -m pipeline --variant "NM_000020.3:c.151T>G" --disease "HHT"
+
+Created a gene database in preparation for incorporating more VCEPs
+Created another tool for PS4 called LOVD. A lot of data is just missing, and PS4 is falsely not being applied because the data does not exist in VEP or clinvar.
+Removed a redundant reasoning by plan agent, this cuts down pipeline time by 50% I think.
+Changed the API lookup for clinvar and VEP so that frameshift and other sorts of variants can be detected.
+Created a method that filters out criterion based on what sort of variant exists. 
 

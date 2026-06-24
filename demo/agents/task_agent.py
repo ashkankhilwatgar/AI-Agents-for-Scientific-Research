@@ -60,7 +60,7 @@ You have access to the following tools:
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
 
@@ -110,19 +110,25 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
                         proband_count = 1
                         print(f"DEBUG - ERepo PS4: proband_count inferred as 1 from VCEP {classification} classification")
 
-                return {
-                    "found": True,
-                    "proband_count": proband_count,
-                    "source": "ClinGen ERepo",
-                    "classification": classification,
-                    "evidence_notes": erepo_ps4.get("evidence_notes"),
-                    "proband_count_note": (
-                        "Proband count inferred from VCEP classification (≥1 required for P/LP); "
-                        "not explicitly stated in evidence notes."
-                        if proband_count == 1 and not erepo_ps4.get("proband_count")
-                        else None
-                    ),
-                }, f"ERepo for {input_value}"
+                # Only return ERepo as a PS4 source if we have usable proband data.
+                # If classification is VUS (or other non-P/LP) and no explicit proband count,
+                # ERepo has no useful PS4 evidence — fall through to LOVD.
+                if proband_count and proband_count > 0:
+                    return {
+                        "found": True,
+                        "proband_count": proband_count,
+                        "source": "ClinGen ERepo",
+                        "classification": classification,
+                        "evidence_notes": erepo_ps4.get("evidence_notes"),
+                        "proband_count_note": (
+                            "Proband count inferred from VCEP classification (≥1 required for P/LP); "
+                            "not explicitly stated in evidence notes."
+                            if proband_count == 1 and not erepo_ps4.get("proband_count")
+                            else None
+                        ),
+                    }, f"ERepo for {input_value}"
+                else:
+                    print(f"DEBUG - ERepo PS4: classification '{classification}' with no proband count — falling through to LOVD")
             else:
                 print(f"DEBUG - ERepo PS4: variant not found, trying LOVD")
 
@@ -300,11 +306,18 @@ Correct this specific error in your response.
 
     # applied_strength guidance — variable-strength criteria must set this explicitly.
     # Fixed-strength criteria are enforced in code below, so we tell the LLM to omit them.
+    # BS1 is benign but has two strength levels (benign_strong / benign_supporting).
     variable_strength_criteria = {"PVS1", "PS3", "PS4", "PM5", "PP1"}
+    variable_benign_strength_criteria = {"BS1"}
     if criterion in variable_strength_criteria:
         strength_note = (
             '\n"applied_strength": "<very_strong | strong | moderate | supporting>  '
             '← set based on the strength level that applies per the instructions above",'
+        )
+    elif criterion in variable_benign_strength_criteria:
+        strength_note = (
+            '\n"applied_strength": "<benign_strong | benign_supporting>  '
+            '← set to benign_strong (FAF >0.2-<1% or Supporting+2hom) or benign_supporting (FAF >0.08-0.2%)",'
         )
     else:
         strength_note = '\n"applied_strength": null,  ← will be set automatically, leave null'
@@ -345,6 +358,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
 
     # enforce applied_strength for fixed-strength criteria
     # variable-strength criteria (PVS1, PS3, PS4, PM5, PP1) set their own applied_strength
+    # BS1 is benign variable-strength — two levels (benign_strong / benign_supporting)
     _FIXED_STRENGTH: dict[str, str] = {
         "PM2_SUPPORTING": "supporting",
         "PP3":            "supporting",
@@ -354,8 +368,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
         "PS1":            "strong",
         "PS2":            "strong",
         "BA1":            "benign_stand_alone",
-        "BS1":            "benign_strong",
-        "BS1_SUPPORTING": "benign_supporting",
+        # BS1 is intentionally absent — treated as variable benign strength below
         "BS3_SUPPORTING": "benign_supporting",
         "BS4":            "benign_strong",
         "BP2":            "benign_supporting",
@@ -372,6 +385,10 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
         fixed = _FIXED_STRENGTH.get(criterion)
         if fixed:
             result["applied_strength"] = fixed
+        elif criterion in variable_benign_strength_criteria:
+            # BS1: validate LLM chose a valid benign strength; default to benign_strong
+            if result.get("applied_strength") not in ("benign_strong", "benign_supporting"):
+                result["applied_strength"] = "benign_strong"
         elif "applied_strength" not in result or result.get("applied_strength") is None:
             # variable-strength criterion but LLM didn't set it — default to criterion's base strength
             base = (rag_entry or {}).get("strength")

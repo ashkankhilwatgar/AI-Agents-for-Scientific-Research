@@ -10,7 +10,7 @@ from tools.utils import get_variant_type
 from tools.scoring import classify
 from data.planrag import query
 
-CRITERIA = ["PM2_SUPPORTING", "BP4", "PS4"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
+CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
 #"PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"
 
 def filter_criteria_by_variant_type(criteria: list[str], variant_type: str) -> list[str]:
@@ -96,6 +96,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         # ── PRECONDITION CHECK ────────────────────
         rag_entry = query(criterion)
         requires_applied = (rag_entry or {}).get("requires_applied", [])
+        blocked_by      = (rag_entry or {}).get("blocked_by", [])
         skipped_reason = None
 
         for dep in requires_applied:
@@ -107,6 +108,14 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
             if not dep_result.get("applies"):
                 skipped_reason = f"{dep} did not apply — {criterion} requires it"
                 break
+
+        if not skipped_reason:
+            for blocker in blocked_by:
+                blocker_key = blocker.upper().replace("-", "_").replace(" ", "_")
+                blocker_result = results_dict.get(blocker_key)
+                if blocker_result and blocker_result.get("applies") is True:
+                    skipped_reason = f"{blocker} applied — {criterion} is excluded when {blocker} applies"
+                    break
 
         if skipped_reason:
             print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")

@@ -163,19 +163,20 @@ PLANRAG_DB = {
             "\n"
             "STEP 2: Check for BS1_Strong via the homozygote route.\n"
             "  Is Popmax FAF > 0.0008 AND <= 0.002 (i.e. BS1_Supporting range) AND homozygote count >= 2?\n"
-            "  - YES → BS1_Strong APPLIES via homozygote route. Set applies=true, strength=strong. Stop.\n"
+            "  - YES → BS1_Strong APPLIES via homozygote route. Set applies=true, applied_strength=benign_strong. Stop.\n"
             "  - NO  → continue to Step 3.\n"
             "\n"
             "STEP 3: Check for BS1_Strong via the FAF route.\n"
             "  Is Popmax FAF > 0.002 AND < 0.01?\n"
-            "  - YES → BS1_Strong APPLIES. Set applies=true, strength=strong. Stop.\n"
+            "  - YES → BS1_Strong APPLIES. Set applies=true, applied_strength=benign_strong. Stop.\n"
             "  - NO  → continue to Step 4.\n"
             "\n"
             "STEP 4: Check for BS1_Supporting.\n"
             "  Is Popmax FAF > 0.0008 AND <= 0.002?\n"
-            "  - YES → BS1_Supporting APPLIES. Set applies=true, strength=supporting. Stop.\n"
+            "  - YES → BS1_Supporting APPLIES. Set applies=true, applied_strength=benign_supporting. Stop.\n"
             "  - NO  → BS1 does NOT apply. Set applies=false.\n"
             "\n"
+            "IMPORTANT: Set applied_strength to exactly 'benign_strong' or 'benign_supporting' (not 'strong' or 'supporting').\n"
             "NOTE: If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied.\n"
             "Record exact Popmax FAF, homozygote count, and which strength level triggered."
         ),
@@ -379,7 +380,7 @@ PLANRAG_DB = {
         "phase": 3,
         "depends_on": [],
         "blocks": ["PS3_for_splice_variants"],
-        "variant_types": ["frameshift", "nonsense", "splice_site", "splice_region", "start_lost"],
+        "variant_types": ["frameshift", "nonsense", "splice_site", "start_lost"],
         "strength_override": None,
 
         "gene_data": {
@@ -617,6 +618,7 @@ PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
+        "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
         "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
@@ -690,6 +692,7 @@ PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
+        "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
         "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene product. "
@@ -957,8 +960,8 @@ PLANRAG_DB = {
             "PS1":            "strong",
             "PS2":            "strong",   # excluded in HHT VCEP but kept for completeness
             "BA1":            "benign_stand_alone",
-            "BS1":            "benign_strong",
-            "BS1_SUPPORTING": "benign_supporting",
+            # BS1 is NOT here — it has two strength levels (benign_strong / benign_supporting)
+            # and is treated as a variable-strength criterion (see variable_strength_map below).
             "BS3_SUPPORTING": "benign_supporting",
             "BS4":            "benign_strong",
             "BP2":            "benign_supporting",
@@ -968,13 +971,16 @@ PLANRAG_DB = {
         },
 
         # Variable-strength criteria: applied_strength string → bucket.
-        # Used for PVS1, PS3, PS4, PM5, PP1 — and any other criterion
-        # where the LLM sets applied_strength at runtime.
+        # Used for PVS1, PS3, PS4, PM5, PP1 (pathogenic variable-strength) and
+        # BS1 (benign variable-strength: benign_strong or benign_supporting).
         "variable_strength_map": {
-            "very_strong": "very_strong",
-            "strong":      "strong",
-            "moderate":    "moderate",
-            "supporting":  "supporting",
+            "very_strong":       "very_strong",
+            "strong":            "strong",
+            "moderate":          "moderate",
+            "supporting":        "supporting",
+            # Benign variable-strength buckets (used by BS1)
+            "benign_strong":     "benign_strong",
+            "benign_supporting": "benign_supporting",
         },
 
         # Incompatible combinations — handled before bucketing.
