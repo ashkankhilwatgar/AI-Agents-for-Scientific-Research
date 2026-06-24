@@ -1428,20 +1428,22 @@ def analyze_variant(
         variant_label,
         pdf_dir=pdf_path if download_pdfs else None,
     )
-    print(f"   Extracted {len(experiments)} experiments")
 
-    # 6. Integrate evidence using LLM
-    print("\nStep 6: Integrating evidence and making PS3/BS3 call...")
-    assessment = integrate_evidence(experiments, variant_label)
+    return {"experiments": [asdict(e) for e in experiments]}
+    # print(f"   Extracted {len(experiments)} experiments")
 
-    # # 7. Output report
-    # print_report(vi, candidate_papers, functional_papers, experiments, assessment)
+    # # 6. Integrate evidence using LLM
+    # print("\nStep 6: Integrating evidence and making PS3/BS3 call...")
+    # assessment = integrate_evidence(experiments, variant_label)
 
-    # Return everything as a dict
-    return {
-        "variant_info": asdict(vi),
-        "candidate_papers": [asdict(p) for p in candidate_papers],
-        "functional_papers": [asdict(fp) for fp in functional_papers],
-        "experiments": [asdict(e) for e in experiments],
-        "assessment": asdict(assessment),
-    }
+    # # # 7. Output report
+    # # print_report(vi, candidate_papers, functional_papers, experiments, assessment)
+
+    # # Return everything as a dict
+    # return {
+    #     "variant_info": asdict(vi),
+    #     "candidate_papers": [asdict(p) for p in candidate_papers],
+    #     "functional_papers": [asdict(fp) for fp in functional_papers],
+    #     "experiments": [asdict(e) for e in experiments],
+    #     "assessment": asdict(assessment),
+    # }
