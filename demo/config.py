@@ -46,6 +46,7 @@ JUDGE_AGENT_TEMPERATURE = float(os.getenv("JUDGE_AGENT_TEMPERATURE", 0))
 RETRY_LIMIT = int(os.getenv("RETRY_LIMIT", 2))
 
 NCBI_API_KEY= os.getenv("NCBI_API_KEY")
+NCBI_EMAIL = os.getenv("NCBI_EMAIL")
 
 # =============================================================================
 # Safeguard against missing api keys & base urls
