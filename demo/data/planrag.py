@@ -1,6 +1,12 @@
-# PlanRAG database — HHT VCEP criteria for ACVRL1
-# Source of truth: ClinGen CSpec Registry GN135 v1.1.0 (released 3/20/2024)
-# https://cspec.genome.network/cspec/ui/svi/doc/GN135
+# PlanRAG database — HHT VCEP criteria for ACVRL1 and ENG
+# Sources of truth:
+#   GN135 v1.1.0 (released 3/20/2024) — ACVRL1/HHT
+#     https://cspec.genome.network/cspec/ui/svi/doc/GN135
+#   GN136 v1.1.0 (released 3/20/2024) — ENG/HHT
+#     https://cspec.genome.network/cspec/ui/svi/doc/GN136
+#
+# Gene-specific branches exist for PM1 and PVS1 only.
+# All other criteria are identical between ACVRL1 and ENG.
 #
 # EXECUTION ORDER:
 #   Phase 1: PM2_Supporting, BA1, BS1 (gnomAD — no dependencies, others depend on these)
@@ -16,11 +22,47 @@
 #
 # Coverage notes:
 #   - PP5 and BP6 are NOT applicable per HHT VCEP (SVI Review Committee recommendation)
-#   - PP2 is NOT applicable for ACVRL1 (Z-score 2.45)
+#   - PP2 is NOT applicable for either ACVRL1 (Z-score 2.45) or ENG (Z-score 2.81)
 #   - BP1 is NOT applicable for HHT (missense variants common in HHT genes)
 #   - BP3 is NOT applicable per HHT VCEP
 #   - BP2 IS applicable per HHT VCEP (confirmed in trans)
-#   - BP5 IS applicable per HHT VCEP (P/LP ENG variant in same patient)
+#   - BP5 IS applicable per HHT VCEP; gene-specific: references the other HHT gene
+
+# ──────────────────────────────────────────────────────────────────────────────
+# GENE REGISTRY — transcript → gene symbol mapping + metadata
+# ──────────────────────────────────────────────────────────────────────────────
+
+GENE_DB = {
+    "ACVRL1": {
+        "gene_symbol":    "ACVRL1",
+        "transcripts":    ["NM_000020"],        # NM_000020.x (any version)
+        "protein_length": 503,                  # aa
+        "total_exons":    10,
+        "cspec_id":       "GN135",
+    },
+    "ENG": {
+        "gene_symbol":    "ENG",
+        "transcripts":    ["NM_001114753", "NM_000118", "NM_001278138"],   # NM_001114753.x, NM_000118.x, NM_001278138.x
+        "protein_length": 658,                  # aa
+        "total_exons":    15,
+        "cspec_id":       "GN136",
+    },
+}
+
+
+def get_gene_from_transcript(transcript_id: str) -> str | None:
+    """
+    Maps a transcript accession (NM_...) to a GENE_DB gene symbol.
+    Strips version numbers (e.g. NM_001114753.3 → NM_001114753).
+    Returns None if the transcript is not in GENE_DB.
+    """
+    bare = transcript_id.split(".")[0]
+    for gene_symbol, info in GENE_DB.items():
+        for t in info["transcripts"]:
+            if bare == t:
+                return gene_symbol
+    return None
+
 
 PLANRAG_DB = {
 
@@ -223,6 +265,12 @@ PLANRAG_DB = {
         "deferred": True,
     },
 
+    # ── PM1: gene-specific critical residues ─────────────────────────────────
+    # gene_data branches are merged into the returned entry by query(criterion, gene=...).
+    # Shared fields (criterion, phase, tool, etc.) are at the top level.
+    # Gene-specific fields (critical_regions, description, threshold, instructions) live in gene_data.
+    # Default (no gene specified) → ACVRL1 branch for backward compatibility.
+
     "PM1": {
         "criterion": "PM1",
         "acmg_category": "Pathogenic",
@@ -232,49 +280,95 @@ PLANRAG_DB = {
         "phase": 2,
         "depends_on": [],
         "blocks": ["PM5_Strong"],
-        "critical_regions": {
-            "ranges": [
-                {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
-                {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
-                {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
-                {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
-                {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
-            ],
-            "discrete": [
-                {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
-                 "name": "BMP10 interaction cluster"},
-            ],
-        },
-        "description": (
-            "Variant located in a critical residue of ACVRL1. "
-            "HHT VCEP defines specific critical residues based on functional and structural data: "
-            "glycine-rich loop (G209-V216), phosphate anchor (K229), C-helix E pairing the phosphate anchor (E242), "
-            "catalytic loop (R329-N335), metal-binding loop (D348-L351), and the BMP10 interaction cluster "
-            "(His40, Val54, Val56, Arg57, Glu58, Glu59, His66, Asn71, Leu72, His73, Glu75, Leu76, Arg78, Gly79, "
-            "Arg80, Thr82, Glu83, Phe84, Val85, His87). "
-            "PM1 applies only at Moderate strength. "
-            "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
-        ),
-        "threshold": "Variant residue is in: G209-V216 OR K229 OR E242 OR R329-N335 OR D348-L351 OR BMP10 cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}",
-        "instructions": (
-            "Determine the protein position of the variant on ACVRL1 (NM_000020.3). "
-            "PM1_Moderate applies if the residue is in ANY of these critical regions: "
-            "(1) glycine-rich loop: positions 209-216 inclusive; "
-            "(2) phosphate anchor: position 229; "
-            "(3) C-helix E pairing the phosphate anchor: position 242; "
-            "(4) catalytic loop: positions 329-335 inclusive; "
-            "(5) metal-binding loop: positions 348-351 inclusive; "
-            "(6) BMP10 interaction cluster: positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87. "
-            "This is a hardcoded residue list — no UniProt lookup needed, no LLM judgment needed. "
-            "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
-        ),
-        "hht_modification": "Hardcoded critical residue list per CSpec GN135 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
+        "variant_types": ["missense"],
         "strength_override": "moderate",
+
+        "gene_data": {
+            "ACVRL1": {
+                "critical_regions": {
+                    "ranges": [
+                        {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
+                        {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
+                        {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
+                        {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
+                        {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
+                    ],
+                    "discrete": [
+                        {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
+                         "name": "BMP10 interaction cluster"},
+                    ],
+                },
+                "description": (
+                    "Variant located in a critical residue of ACVRL1. "
+                    "HHT VCEP defines specific critical residues based on functional and structural data: "
+                    "glycine-rich loop (G209-V216), phosphate anchor (K229), C-helix E pairing the phosphate anchor (E242), "
+                    "catalytic loop (R329-N335), metal-binding loop (D348-L351), and the BMP10 interaction cluster "
+                    "(His40, Val54, Val56, Arg57, Glu58, Glu59, His66, Asn71, Leu72, His73, Glu75, Leu76, Arg78, Gly79, "
+                    "Arg80, Thr82, Glu83, Phe84, Val85, His87). "
+                    "PM1 applies only at Moderate strength. "
+                    "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
+                ),
+                "threshold": "Variant residue is in: G209-V216 OR K229 OR E242 OR R329-N335 OR D348-L351 OR BMP10 cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}",
+                "instructions": (
+                    "Determine the protein position of the variant on ACVRL1 (NM_000020.3). "
+                    "PM1_Moderate applies if the residue is in ANY of these critical regions: "
+                    "(1) glycine-rich loop: positions 209-216 inclusive; "
+                    "(2) phosphate anchor: position 229; "
+                    "(3) C-helix E pairing the phosphate anchor: position 242; "
+                    "(4) catalytic loop: positions 329-335 inclusive; "
+                    "(5) metal-binding loop: positions 348-351 inclusive; "
+                    "(6) BMP10 interaction cluster: positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87. "
+                    "This is a hardcoded residue list — no UniProt lookup needed, no LLM judgment needed. "
+                    "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
+                ),
+                "hht_modification": "Hardcoded critical residue list per CSpec GN135 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
+            },
+
+            "ENG": {
+                "critical_regions": {
+                    "ranges": [],
+                    "discrete": [
+                        {"positions": [278, 282],
+                         "name": "BMP9 binding sites (PMIDs 28564608, 25312062)"},
+                        {"positions": [207, 363, 382, 412, 549],
+                         "name": "cysteine residues classified LP/P by HHT VCEP"},
+                        {"positions": [350, 394],
+                         "name": "cysteine residues critical to ENG function (disulfide bonds)"},
+                    ],
+                },
+                "description": (
+                    "Variant located in a critical residue of ENG (endoglin). "
+                    "HHT VCEP defines specific critical residues for ENG based on structural and functional data: "
+                    "BMP9 binding sites (Tyr278, Thr282), "
+                    "cysteine residues classified LP/P by HHT VCEP (Cys207, Cys363, Cys382, Cys412, Cys549), "
+                    "and cysteine residues critical to ENG function via disulfide bonds (Cys350, Cys394). "
+                    "PM1 applies only at Moderate strength. "
+                    "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
+                ),
+                "threshold": "Variant residue is in: BMP9 binding sites {278, 282} OR LP/P-classified cysteines {207, 363, 382, 412, 549} OR disulfide-bond cysteines {350, 394}",
+                "instructions": (
+                    "Determine the protein position of the variant on ENG (NM_001114753.3). "
+                    "PM1_Moderate applies if the residue is in ANY of these critical positions: "
+                    "(1) BMP9 binding sites: positions 278, 282; "
+                    "(2) cysteine residues classified LP/P by HHT VCEP: positions 207, 363, 382, 412, 549; "
+                    "(3) cysteine residues critical to ENG function (disulfide bonds): positions 350, 394. "
+                    "This is a hardcoded residue list per CSpec GN136 — no UniProt lookup needed, no LLM judgment needed. "
+                    "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
+                ),
+                "hht_modification": "Hardcoded critical residue list per CSpec GN136 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
+            },
+        },
     },
 
     # ══════════════════════════════════════════════════════════════════════════
     # PHASE 3 — depends on Phase 2 results
     # ══════════════════════════════════════════════════════════════════════════
+
+    # ── PVS1: gene-specific decision tree boundaries ──────────────────────────
+    # Shared fields are at the top level.
+    # Gene-specific fields (nmd_boundary, critical_region_boundary, description,
+    # threshold, instructions) live in gene_data.
+    # Default (no gene specified) → ACVRL1 branch for backward compatibility.
 
     "PVS1": {
         "criterion": "PVS1",
@@ -285,53 +379,121 @@ PLANRAG_DB = {
         "phase": 3,
         "depends_on": [],
         "blocks": ["PS3_for_splice_variants"],
-        "description": (
-            "Null variant in ACVRL1 evaluated by the HHT VCEP PVS1 decision tree. "
-            "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
-            "and codon position. Key codon thresholds: codon 442 (NMD boundary), codon 490 (critical region boundary)."
-        ),
-        "threshold": "Codon 442 (NMD boundary); Codon 490 (critical region boundary)",
-        "instructions": (
-            "Use VEP to determine variant consequence and protein codon position. "
-            "Then apply the ACVRL1 PVS1 Decision Tree (CSpec GN135 v1.1.0):\n"
-            "\n"
-            "NONSENSE OR FRAMESHIFT:\n"
-            "  - Predicted to undergo NMD (codon <=442) → PVS1 (Very Strong)\n"
-            "  - Not predicted to undergo NMD (codon >442):\n"
-            "      * Truncated/altered region critical to protein function (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "\n"
-            "GT-AG +/-1,2 SPLICE SITES:\n"
-            "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=442) → PVS1\n"
-            "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >442):\n"
-            "      * Truncated/altered region critical (codon <=490, see also PM1 regions) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "  - Exon skipping or cryptic splice preserves reading frame:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "\n"
-            "DELETION (single exon to full gene):\n"
-            "  - Full gene deletion → PVS1\n"
-            "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
-            "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "  - Single/multi-exon deletion preserves reading frame:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "\n"
-            "DUPLICATION (>=1 exon, fully within gene):\n"
-            "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
-            "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
-            "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
-            "  - Proven NOT in tandem → N/A\n"
-            "\n"
-            "INITIATION CODON:\n"
-            "  - No known alternative start codon in other transcripts → PVS1_Moderate (ACVRL1)\n"
-            "\n"
-            "Record the variant type, codon position, NMD prediction, and final strength."
-        ),
-        "hht_modification": "Decision tree with codon 442 NMD boundary and codon 490 critical region boundary; initiation codon variants are PVS1_Moderate for ACVRL1",
+        "variant_types": ["frameshift", "nonsense", "splice_site", "splice_region", "start_lost"],
         "strength_override": None,
+
+        "gene_data": {
+            "ACVRL1": {
+                "nmd_boundary":             442,   # codons <= this → NMD predicted
+                "critical_region_boundary": 490,   # codons <= this → truncated region critical
+                "description": (
+                    "Null variant in ACVRL1 evaluated by the HHT VCEP PVS1 decision tree. "
+                    "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
+                    "and codon position. Key codon thresholds: codon 442 (NMD boundary), codon 490 (critical region boundary)."
+                ),
+                "threshold": "ACVRL1: Codon 442 (NMD boundary); Codon 490 (critical region boundary); protein length 503 aa",
+                "instructions": (
+                    "Use VEP to determine variant consequence and protein codon position. "
+                    "Then apply the ACVRL1 PVS1 Decision Tree (CSpec GN135 v1.1.0):\n"
+                    "\n"
+                    "NONSENSE OR FRAMESHIFT:\n"
+                    "  - Predicted to undergo NMD (codon <=442) → PVS1 (Very Strong)\n"
+                    "  - Not predicted to undergo NMD (codon >442):\n"
+                    "      * Truncated/altered region critical to protein function (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "GT-AG +/-1,2 SPLICE SITES:\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=442) → PVS1\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >442):\n"
+                    "      * Truncated/altered region critical (codon <=490, see also PM1 regions) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Exon skipping or cryptic splice preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "DELETION (single exon to full gene):\n"
+                    "  - Full gene deletion → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Single/multi-exon deletion preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "\n"
+                    "DUPLICATION (>=1 exon, fully within gene):\n"
+                    "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
+                    "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
+                    "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
+                    "  - Proven NOT in tandem → N/A\n"
+                    "\n"
+                    "INITIATION CODON:\n"
+                    "  - No known alternative start codon in other transcripts → PVS1_Moderate (ACVRL1)\n"
+                    "\n"
+                    "Record the variant type, codon position, NMD prediction, and final strength."
+                ),
+                "hht_modification": "Decision tree with codon 442 NMD boundary and codon 490 critical region boundary; initiation codon variants are PVS1_Moderate for ACVRL1",
+            },
+
+            "ENG": {
+                # ⚠ VERIFY: codon boundaries below are estimated from ENG gene structure.
+                # ENG protein = 658 aa, 15 exons. NMD boundary and critical region boundary
+                # must be confirmed against GN136 PDF (ClinGen HHT VCEP CSpec documentation).
+                # Estimated: NMD boundary ~codon 594 (last exon-exon junction, exon 14/15).
+                #            Critical region boundary ~codon 580 (start of exon 14 intracellular domain).
+                "nmd_boundary":             594,   # ⚠ VERIFY from GN136 PDF
+                "critical_region_boundary": 580,   # ⚠ VERIFY from GN136 PDF
+                "description": (
+                    "Null variant in ENG evaluated by the HHT VCEP PVS1 decision tree. "
+                    "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
+                    "and codon position. Key codon thresholds: codon 594 (NMD boundary, ⚠ verify), "
+                    "codon 580 (critical region boundary, ⚠ verify). "
+                    "ENG exon 13 frameshifts are predicted NMD per VCEP evidence."
+                ),
+                "threshold": "ENG: Codon 594 (NMD boundary, ⚠ verify); Codon 580 (critical region boundary, ⚠ verify); protein length 658 aa",
+                "instructions": (
+                    "Use VEP to determine variant consequence and protein codon position. "
+                    "Then apply the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0):\n"
+                    "NOTE: Codon boundary values below are estimated — verify against GN136 PDF before production use.\n"
+                    "\n"
+                    "NONSENSE OR FRAMESHIFT:\n"
+                    "  - Predicted to undergo NMD (codon <=594) → PVS1 (Very Strong)\n"
+                    "    Example: frameshift in exon 13/15 → NMD confirmed per HHT VCEP.\n"
+                    "  - Not predicted to undergo NMD (codon >594):\n"
+                    "      * Truncated/altered region critical to protein function (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "GT-AG +/-1,2 SPLICE SITES:\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=594) → PVS1\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >594):\n"
+                    "      * Truncated/altered region critical (codon <=580, see also PM1 regions) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Exon skipping or cryptic splice preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "DELETION (single exon to full gene):\n"
+                    "  - Full gene deletion → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Single/multi-exon deletion preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "\n"
+                    "DUPLICATION (>=1 exon, fully within gene):\n"
+                    "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
+                    "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
+                    "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
+                    "  - Proven NOT in tandem → N/A\n"
+                    "\n"
+                    "INITIATION CODON:\n"
+                    "  - No known alternative start codon in other ENG transcripts → PVS1_Moderate\n"
+                    "\n"
+                    "Record the variant type, codon position, NMD prediction, and final strength."
+                ),
+                "hht_modification": "Decision tree with codon 594 NMD boundary (⚠ verify) and codon 580 critical region boundary (⚠ verify); protein length 658 aa; 15 exons",
+            },
+        },
     },
 
     "PM5": {
@@ -342,6 +504,7 @@ PLANRAG_DB = {
         "tool": "erepo",
         "phase": 3,
         "depends_on": ["PM1"],
+        "variant_types": ["missense"],
         "description": (
             "Novel missense at an amino acid residue where a different missense change has been determined "
             "to be likely pathogenic or pathogenic based on HHT VCEP rules. "
@@ -417,6 +580,7 @@ PLANRAG_DB = {
         "tool": "clinvar",
         "phase": 4,
         "depends_on": [],
+        "variant_types": ["missense"],
         "description": (
             "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
             "HHT VCEP applies no modification — use as in original ACMG (Strong only). "
@@ -453,7 +617,7 @@ PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
-        "variant_types": ["missense", "synonymous", "intronic"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
             "HHT VCEP specifies thresholds at Supporting strength only: "
@@ -493,6 +657,7 @@ PLANRAG_DB = {
         "tool": "vep",
         "phase": 4,
         "depends_on": [],
+        "variant_types": ["inframe_insertion", "inframe_deletion", "stop_lost"],
         "description": (
             "Protein length changes due to in-frame deletions/insertions in a non-repeat region or stop-loss variants. "
             "HHT VCEP: no modification, use as applicable. Moderate strength only."
@@ -525,7 +690,7 @@ PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
-        "variant_types": ["missense", "synonymous", "intronic"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene product. "
             "HHT VCEP thresholds at Supporting strength only: "
@@ -709,6 +874,10 @@ PLANRAG_DB = {
         "deferred": True,
     },
 
+    # ── BP5: gene-specific — references the other HHT gene ───────────────────
+    # For an ACVRL1 variant: BP5 applies when a P/LP ENG variant is also found.
+    # For an ENG variant: BP5 applies when a P/LP ACVRL1 variant is also found.
+
     "BP5": {
         "criterion": "BP5",
         "acmg_category": "Benign",
@@ -717,24 +886,43 @@ PLANRAG_DB = {
         "tool": None,
         "phase": 4,
         "depends_on": [],
-        "description": (
-            "Variant found in a case with an alternate molecular basis for disease. "
-            "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
-            "(per HHT VCEP rules) is identified in ENG."
-        ),
-        "threshold": "Patient also carries a P/LP variant in ENG (per HHT VCEP rules)",
-        "instructions": (
-            "BP5 cannot be evaluated automatically. "
-            "Requires patient-level data showing co-occurrence of a P/LP ENG variant in the same patient. "
-            "Return applies=null, status=deferred, with explanation."
-        ),
-        "hht_modification": "Supporting strength only; specifically applies when a P/LP ENG variant (HHT VCEP rules) is found in the same patient",
         "strength_override": "supporting",
         "deferred": True,
+
+        "gene_data": {
+            "ACVRL1": {
+                "description": (
+                    "Variant found in a case with an alternate molecular basis for disease. "
+                    "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
+                    "(per HHT VCEP rules) is identified in ENG in the same patient."
+                ),
+                "threshold": "Patient also carries a P/LP variant in ENG (per HHT VCEP rules)",
+                "instructions": (
+                    "BP5 cannot be evaluated automatically. "
+                    "Requires patient-level data showing co-occurrence of a P/LP ENG variant in the same patient. "
+                    "Return applies=null, status=deferred, with explanation."
+                ),
+                "hht_modification": "Supporting strength only; specifically applies when a P/LP ENG variant (HHT VCEP rules) is found in the same patient",
+            },
+            "ENG": {
+                "description": (
+                    "Variant found in a case with an alternate molecular basis for disease. "
+                    "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
+                    "(per HHT VCEP rules) is identified in ACVRL1 in the same patient."
+                ),
+                "threshold": "Patient also carries a P/LP variant in ACVRL1 (per HHT VCEP rules)",
+                "instructions": (
+                    "BP5 cannot be evaluated automatically. "
+                    "Requires patient-level data showing co-occurrence of a P/LP ACVRL1 variant in the same patient. "
+                    "Return applies=null, status=deferred, with explanation."
+                ),
+                "hht_modification": "Supporting strength only; specifically applies when a P/LP ACVRL1 variant (HHT VCEP rules) is found in the same patient",
+            },
+        },
     },
 
     # ══════════════════════════════════════════════════════════════════════════
-    # SCORING — HHT VCEP combining criteria rules (CSpec GN135 v1.1.0)
+    # SCORING — HHT VCEP combining criteria rules (CSpec GN135/GN136 v1.1.0)
     # Source: https://cspec.genome.network/cspec/ui/svi/doc/GN135#rules-combinations-panel-1576018580
     #
     # Each applied criterion maps to a strength bucket.
@@ -848,14 +1036,14 @@ PLANRAG_DB = {
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# EXCLUDED CRITERIA — Not Applicable per HHT VCEP CSpec GN135 v1.1.0
+# EXCLUDED CRITERIA — Not Applicable per HHT VCEP CSpec GN135/GN136 v1.1.0
 # ──────────────────────────────────────────────────────────────────────────────
 
 EXCLUDED_CRITERIA = {
     "PS2": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed. Low-level mosaicism in parents has been observed.",
     "PM3": "Not Applicable per HHT VCEP — HHT is autosomal dominant; AR trans mechanism not relevant",
     "PM6": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed",
-    "PP2": "Not Applicable for ACVRL1 — gene missense Z-score is 2.45 (below threshold for PP2)",
+    "PP2": "Not Applicable for ACVRL1 or ENG — gene missense Z-scores are below threshold for PP2 (ACVRL1: 2.45; ENG: 2.81)",
     "PP5": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)",
     "BS2": "Not Applicable per HHT VCEP — full penetrance at an early age is not observed in HHT",
     "BP1": "Not Applicable per HHT VCEP — missense variants commonly seen in HHT genes",
@@ -864,29 +1052,55 @@ EXCLUDED_CRITERIA = {
 }
 
 
-def query(criterion: str) -> dict | None:
+def query(criterion: str, gene: str = None) -> dict | None:
     """
     Retrieve the PlanRAG entry for a given ACMG criterion.
-    Returns None if no entry exists.
-    Handles both exact keys (PM2_SUPPORTING) and display names (PM2_Supporting).
+
+    Parameters
+    ----------
+    criterion : str
+        Criterion key (e.g. "PM1", "PM2_SUPPORTING") or display name (e.g. "PM2_Supporting").
+    gene : str | None
+        Gene symbol (e.g. "ACVRL1", "ENG"). When provided and the entry has a
+        gene_data dict, the gene-specific sub-dict is merged into the returned entry.
+        When None, defaults to the first gene in gene_data (ACVRL1) for backward compatibility.
+
+    Returns
+    -------
+    dict | None
+        A shallow copy of the planrag entry with gene-specific fields merged in,
+        or None if the criterion is not found.
     """
     key = criterion.upper().replace("-", "_").replace(" ", "_")
 
+    entry = None
     if key in PLANRAG_DB:
-        return PLANRAG_DB[key]
+        entry = dict(PLANRAG_DB[key])
+    else:
+        for db_key, db_entry in PLANRAG_DB.items():
+            if (db_entry.get("criterion", "").upper().replace("_", "").replace(" ", "")
+                    == key.replace("_", "").replace(" ", "")):
+                entry = dict(db_entry)
+                break
 
-    for db_key, entry in PLANRAG_DB.items():
-        if entry["criterion"].upper().replace("_", "").replace(" ", "") == key.replace("_", "").replace(" ", ""):
-            return entry
+    if entry is None:
+        if key in EXCLUDED_CRITERIA:
+            return {
+                "criterion": criterion,
+                "excluded": True,
+                "reason": EXCLUDED_CRITERIA[key],
+            }
+        return None
 
-    if key in EXCLUDED_CRITERIA:
-        return {
-            "criterion": criterion,
-            "excluded": True,
-            "reason": EXCLUDED_CRITERIA[key],
-        }
+    # Merge gene-specific fields when gene_data is present.
+    # If gene is None or not found in gene_data, default to ACVRL1.
+    gene_data = entry.get("gene_data")
+    if gene_data is not None:
+        resolved_gene = gene if (gene and gene in gene_data) else next(iter(gene_data))
+        entry.update(gene_data[resolved_gene])
+        entry["resolved_gene"] = resolved_gene
 
-    return None
+    return entry
 
 
 def get_all_active_criteria() -> list[str]:

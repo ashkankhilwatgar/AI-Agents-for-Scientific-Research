@@ -58,14 +58,21 @@ def check_technical(task_output: dict) -> dict:
     """
     prompt = f"""You are a technical validator for a bioinformatics pipeline.
 
-You will be given the output of a variant classification task. Your job is to check 
+You will be given the output of a variant classification task. Your job is to check
 for technical errors only — not scientific reasoning.
 
 Technical errors include:
 - status is "error"
-- evidence is null or missing
-- tool call clearly failed (e.g. API error, variant not found)
-- output fields are missing or malformed
+- evidence is null or missing entirely
+- tool call clearly failed (e.g. API error message in evidence)
+- required output fields (criterion, applies, reasoning, tool_used, tool_input, disease, status) are absent
+
+The following are NOT technical errors — do not flag these:
+- applied_strength being null when applies is false (null is correct here)
+- revel_score being null for splice_region, splice_site, intronic, or synonymous variants (REVEL only scores missense variants)
+- codon_position being null for intronic or splice_region variants (VEP does not return protein position for non-coding variants)
+- A criterion not applying (applies: false) based on available evidence — this is a valid scientific conclusion, not a technical failure
+- Evidence showing a variant is absent from a database — absence is valid evidence
 
 Task output:
 {json.dumps(task_output, indent=2)}
@@ -81,16 +88,58 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
+_REQUIRED_FIELDS = {"criterion", "applies", "reasoning", "evidence",
+                    "tool_used", "tool_input", "disease", "status"}
+
+
+def _deterministic_check(task_output: dict) -> bool:
+    """
+    Fast structural check that runs before the LLM.
+    Returns True (pass) when the output is clearly valid:
+      - status is "complete"
+      - applies is a boolean
+      - all required fields are present (values may be null — null is valid)
+      - no top-level "error" key
+    Returns False only when there is a genuine structural problem.
+    The LLM check is only invoked when this returns False.
+    """
+    if task_output.get("status") == "error":
+        return False
+    if not isinstance(task_output.get("applies"), bool):
+        return False
+    if "error" in task_output:
+        return False
+    for field in _REQUIRED_FIELDS:
+        if field not in task_output:
+            return False
+    return True
+
+
 def run_debug(task: dict, retry_count: int = 0) -> dict:
     """
     Main entry point called by pipeline.py.
     Runs the Task agent, checks output, retries if technical error found.
+
+    Order of checks:
+      1. Deterministic structural check — fast, no LLM, no false positives.
+         Passes immediately when output is well-formed (applies is bool,
+         required fields present, status != error). Null field values are
+         always valid — null REVEL for splice variants, null codon_position
+         for intronic variants, null applied_strength when applies=False, etc.
+      2. LLM check — only runs when the deterministic check finds a genuine
+         structural problem (status=error, missing fields, non-boolean applies).
+
     Returns the validated task output or a failure dict if retry limit hit.
     """
     task_output = run_task(task)
     print_task_summary(task_output)
 
     while retry_count < RETRY_LIMIT:
+        # Fast path: structurally valid output skips LLM entirely
+        if _deterministic_check(task_output):
+            return task_output
+
+        # Slow path: genuine structural problem — ask LLM for specific feedback
         result = check_technical(task_output)
 
         if result["pass"]:
@@ -104,6 +153,9 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
         retry_count += 1
 
     # check the final retry output before giving up
+    if _deterministic_check(task_output):
+        return task_output
+
     result = check_technical(task_output)
     if result["pass"]:
         return task_output

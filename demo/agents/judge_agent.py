@@ -3,7 +3,7 @@ import json
 from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from agents.task_agent import run_task
 from tools.utils import parse_json_response
-from data.planrag import query
+from data.planrag import query, get_gene_from_transcript
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -72,7 +72,15 @@ def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
     Checks reasoning, retries Task agent only if reasoning error found.
     """
     criterion = task.get("criterion")
-    rag_entry = query(criterion)
+    variant = task.get("variant", "")
+
+    # Detect gene so gene-specific planrag rules (PVS1, PM1 boundaries) are
+    # used as ground truth when the judge evaluates the task agent's reasoning.
+    gene = None
+    if variant.startswith("NM_") and ":" in variant:
+        gene = get_gene_from_transcript(variant.split(":")[0])
+
+    rag_entry = query(criterion, gene=gene)
 
     if rag_entry is None:
         print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")

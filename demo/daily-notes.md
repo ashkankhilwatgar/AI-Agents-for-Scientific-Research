@@ -21,3 +21,8 @@ python3.14 demo/pipeline.py \
 ```
 where max-concurrency controls how many agents are running in parallel with each other
 
+
+6/24/26
+python3.12 -m pipeline --variant "NM_001114753.3:c.1701del" --disease "HHT"
+python3.12 -m pipeline --variant "NM_000020.3:c.151T>G" --disease "HHT"
+

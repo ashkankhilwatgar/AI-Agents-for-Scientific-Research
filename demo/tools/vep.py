@@ -143,7 +143,21 @@ def annotate_variant(variant: str) -> dict:
                 last_error = "VEP response missing transcript_consequences"
                 continue
 
-            tc = transcript_consequences[0]
+            # When the input is HGVS with a named transcript (e.g. NM_000020.3),
+            # find the consequence entry for that specific transcript.
+            # Falling back to [0] risks picking a consequence from a different
+            # overlapping transcript (e.g. a coding exon in another gene/isoform).
+            tc = None
+            if variant.startswith("NM_") and ":" in variant:
+                transcript_base = variant.split(":")[0].split(".")[0]  # e.g. "NM_000020"
+                tc = next(
+                    (t for t in transcript_consequences
+                     if t.get("transcript_id", "").startswith(transcript_base)),
+                    None
+                )
+            if tc is None:
+                tc = transcript_consequences[0]  # fallback for gnomAD format or no match
+
             consequence_terms = tc.get("consequence_terms")
             if not consequence_terms:
                 last_error = "VEP transcript_consequences missing consequence_terms"

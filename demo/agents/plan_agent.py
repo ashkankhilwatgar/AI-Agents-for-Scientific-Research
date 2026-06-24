@@ -1,7 +1,7 @@
 import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL
-from data.planrag import query
+from data.planrag import query, get_gene_from_transcript
 from tools.utils import parse_json_response
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -32,8 +32,15 @@ def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dic
     """
     tasks = []
 
+    # Detect gene from transcript so gene-specific planrag branches are used
+    gene = None
+    if variant.startswith("NM_") and ":" in variant:
+        gene = get_gene_from_transcript(variant.split(":")[0])
+    if gene:
+        print(f"PLAN AGENT: Detected gene {gene} from transcript")
+
     for criterion in criteria:
-        rag_entry = query(criterion)
+        rag_entry = query(criterion, gene=gene)
 
         if rag_entry is None:
             print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
@@ -79,7 +86,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
         print(f"PLAN AGENT: Task created for {criterion}")
 
     # Sort by phase so dependencies are always evaluated before dependents
-    tasks.sort(key=lambda t: (query(t["criterion"]) or {}).get("phase", 99))
+    tasks.sort(key=lambda t: (query(t["criterion"], gene=gene) or {}).get("phase", 99))
 
     return tasks
 

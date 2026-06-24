@@ -1,0 +1,74 @@
+{
+  "variant": "NM_000020.3:c.1377+4A>T",
+  "disease": "HHT",
+  "timestamp": "20260624_133956",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation allele frequency data available.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_Supporting applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 which is less than the threshold of 0.01. The variant is not present in gnomAD.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 and there are no homozygotes, which does not meet the criteria for BS1_Strong or BS1_Supporting.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    }
+  ]
+}
