@@ -17,6 +17,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from typing import Optional
 
+import threading
+_LLM_LOCK = threading.Lock()
+
 
 
 model_info = {
@@ -102,7 +105,8 @@ def invoke_llm(
     message = [HumanMessage(content=prompt)]
     if system_prompt:
         message.append(SystemMessage(content=system_prompt))
-    response = agent.invoke(message)
+    with _LLM_LOCK:
+        response = agent.invoke(message)
 
     return response.content
 

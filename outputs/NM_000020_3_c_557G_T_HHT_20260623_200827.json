@@ -1,0 +1,123 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260623_200827",
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant consequence is 'missense_variant' at codon position 186.",
+      "reasoning": "The ACVRL1 PVS1 Decision Tree provides specific criteria for nonsense, frameshift, GT-AG +/-1,2 splice sites, deletion, duplication, and initiation codon variants. A 'missense_variant' does not fall into any of these categories, and therefore PVS1 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "VEP consequence: missense_variant.",
+      "reasoning": "According to Step 1 of the PM4 classification rules, the VEP consequence 'missense_variant' does not match 'inframe_insertion', 'inframe_deletion', or 'stop_lost'. Therefore, PM4 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant is a missense variant at codon position 186. It is not in a critical region according to the tool.",
+      "reasoning": "The variant's protein position is 186. According to the classification rules for PM1, the critical regions are: G209-V216, K229, E242, R329-N335, D348-L351, or the BMP10 cluster (40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). Position 186 does not fall within any of these specified critical regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The erepo tool returned no HHT VCEP-classified variants at ACVRL1 codon position 186.",
+      "reasoning": "The query variant is NM_000020.3:c.557G>T, which results in p.Gly186Cys. Step 1 of the PS1 rules asks if there is an entry with the same amino acid change at the same protein position. The provided evidence shows an empty 'classifications' array for ACVRL1 codon position 186, meaning no HHT VCEP-classified variants were found at this position. Therefore, there is no entry matching p.Gly186Cys, and PS1 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "ERepo query for ACVRL1 codon 186 returned no HHT VCEP-classified variants.",
+      "reasoning": "The ERepo results show an empty list of classifications for ACVRL1 at codon position 186. This means there are 0 HHT VCEP-classified Pathogenic or Likely Pathogenic missense variants at this codon. According to the PM5 rules, a count of 0 means PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    }
+  ]
+}
