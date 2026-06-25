@@ -74,6 +74,19 @@ GENE_DB = {
             {"name": "ligand-binding domain (class A cysteine-rich repeats)", "start": 22,  "end": 292},
             {"name": "EGF-like domain (EGFA/EGFB/EGFC)",                      "start": 293, "end": 692},
         ],
+        },
+        "BRCA1": {
+        "gene_symbol":    "BRCA1",
+        "transcripts":    ["NM_007294"],
+        "protein_length": 1863,
+        "total_exons":    23,
+        "cspec_id":       None,
+        "lof_mechanism":  True,
+        "lof_mechanism_note": (
+            "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; "
+            "frameshift, nonsense, and canonical splice variants are well-established "
+            "pathogenic mechanisms."
+        ),
     },
 }
 

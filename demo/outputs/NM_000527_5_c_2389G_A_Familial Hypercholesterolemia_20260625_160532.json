@@ -1,0 +1,190 @@
+{
+  "variant": "NM_000527.5:c.2389G>A",
+  "disease": "Familial Hypercholesterolemia",
+  "timestamp": "20260625_160532",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 3,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2": "moderate",
+      "PS4": "supporting",
+      "PP3": "supporting",
+      "PP5": "supporting"
+    },
+    "applied_criteria": [
+      "PM2",
+      "PS4",
+      "PP3",
+      "PP5"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "Total allele count (AC) is 7, with the highest subpopulation frequency in East Asian (EAS) at 8.35e-06.",
+      "reasoning": "The variant is present in gnomAD and the maximum allele frequency across all populations is below the threshold of 0.0001. Therefore, PM2 applies based on Step 2 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 8.35e-06 in gnomAD exome data.",
+      "reasoning": "The Popmax FAF (8.35e-06) is less than the threshold of 0.05, so BA1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 8.35e-06 in gnomAD exome data.",
+      "reasoning": "The Popmax FAF (8.35e-06) does not exceed the threshold of 0.01 for BS1 criterion, hence it does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for NM_000527.5:c.2389G>A is 0 in gnomAD exome and genome datasets.",
+      "reasoning": "Since the variant is not observed as a homozygous state in healthy individuals from the general population, it does not meet the BS2 criterion for dominant or X-linked disorders.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Variant observed 1 time(s) in LOVD (Leiden Open Variation Database).",
+      "reasoning": "The variant was observed once, which maps to PS4_Supporting as per the instructions.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000527.5:c.2389G>A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_000527.5:c.2389G>A is a missense variant resulting in p.Val797Met, located at codon position 797 with no indication of being within a critical region.",
+      "reasoning": "'in_critical_region' is False indicating the variant is not in a critical functional domain or mutational hotspot. Therefore, PM1 does NOT apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000527.5:c.2389G>A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000527.5:c.2389G>A, codon position 797 in LDLR gene; no P/LP missense variants with different amino acid changes at the same codon found.",
+      "reasoning": "No qualifying P/LP-classified missense variants with a different amino acid change at the same codon were identified. Therefore, PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "LDLR position 797",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "NM_000527.5:c.2389G>A, codon position 797 in LDLR gene, no classifications from ClinVar.",
+      "reasoning": "No P/LP-classified entry exists with the same amino acid change at codon position 797 of the LDLR gene according to ClinVar data.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "LDLR position 797",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score not available, SpliceAI DS_DL=0.3200",
+      "reasoning": "Since the variant is missense and REVEL score is not available, we check SpliceAI scores. SpliceAI DS_DL >= 0.2 (0.3200), thus PP3 applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "NM_000527.5(LDLR):c.2389G>A (p.Val797Met), Pathogenic/Likely pathogenic, criteria provided, multiple submitters, no conflicts, star_rating 2, reputable_source true",
+      "reasoning": "The variant NM_000527.5:c.2389G>A is classified as Pathogenic/Likely pathogenic by ClinVar with a star rating of 2 and is considered reputable.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "NM_000527.5:c.2389G>A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score not available, SpliceAI scores: DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0900, DS_DL=0.3200",
+      "reasoning": "Missense variant with REVEL score unavailable and SpliceAI failing BP4 threshold (DS_DL > 0.1)",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "19-11128085-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "NM_000527.5(LDLR):c.2389G>A (p.Val797Met), Pathogenic/Likely pathogenic, criteria provided, multiple submitters, no conflicts, star_rating 2, reputable_source true",
+      "reasoning": "The variant NM_000527.5:c.2389G>A is classified as Pathogenic/Likely pathogenic by ClinVar with a star rating of 2 and is considered reputable. The classification does not include Benign or Likely benign, so BP6 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000527.5:c.2389G>A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP2",
+      "evidence": "mis_z=-0.0505, oe_lof=0.9501, oe_mis=1.0035",
+      "reasoning": "The gnomAD gene missense Z-score is -0.0505 which does not meet the threshold of 3.09 for PP2.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad_gene",
+      "tool_input": "LDLR",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP1",
+      "evidence": "pLI: 1.2540506695906319e-32, LOEUF (oe_lof_upper): 1.1218601836317932, oe_mis: 1.0034824207763506",
+      "reasoning": "LDLR is known to cause Familial Hypercholesterolemia primarily via LOF variants. However, the oe_mis value indicates that missense variants are relatively common in healthy individuals, suggesting they may also be a pathogenic mechanism. Therefore, BP1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad_gene",
+      "tool_input": "LDLR",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    }
+  ]
+}

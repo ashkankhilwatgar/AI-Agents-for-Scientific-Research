@@ -514,10 +514,13 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
         # but the generic ACMG_PLANRAG_DB PM1 entry is gene-agnostic.
         critical_regions = (rag_entry or {}).get("critical_regions")
         if critical_regions is None and gene and gene in GENE_DB:
-            critical_regions = GENE_DB[gene].get("pm1_critical_regions")
-            if critical_regions:
+            gene_regions = GENE_DB[gene].get("pm1_critical_regions")
+            if gene_regions:
+                # check_pm1_critical_region expects {"ranges": [...], "discrete": [...]}
+                # GENE_DB stores a flat list of range dicts — wrap it into that shape.
+                critical_regions = {"ranges": gene_regions, "discrete": []}
                 print(f"DEBUG - vep/PM1: using GENE_DB critical regions for {gene} "
-                      f"({len(critical_regions)} region(s))")
+                      f"({len(gene_regions)} region(s))")
 
         if codon_position is not None and critical_regions is not None:
             pm1_check = check_pm1_critical_region(codon_position, critical_regions)
