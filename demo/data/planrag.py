@@ -62,6 +62,18 @@ GENE_DB = {
         # LOF mechanism — used by PVS1 prerequisite check
         "lof_mechanism":       True,
         "lof_mechanism_note":  "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
+        # PM1 critical regions — used to determine if a missense codon is in a
+        # mutational hotspot or functional domain without benign variation.
+        # LDLR domain boundaries (NM_000527.5, signal peptide excluded from mature protein):
+        #   Ligand-binding domain (class A cysteine-rich repeats): aa 22-292
+        #   EGF-like domain (EGFA, EGFB, EGFC precursor): aa 293-692
+        #   O-linked sugar domain: aa 693-740  — not a mutational hotspot
+        #   Transmembrane domain: aa 741-764   — not evaluated by PM1 (membrane-spanning)
+        #   Cytoplasmic domain: aa 765-860      — not a mutational hotspot; FDNPVY signal ~801-806
+        "pm1_critical_regions": [
+            {"name": "ligand-binding domain (class A cysteine-rich repeats)", "start": 22,  "end": 292},
+            {"name": "EGF-like domain (EGFA/EGFB/EGFC)",                      "start": 293, "end": 692},
+        ],
     },
 }
 
@@ -1327,20 +1339,24 @@ ACMG_PLANRAG_DB = {
         "instructions": (
             "Use VEP to obtain the protein codon position of the variant.\n"
             "\n"
-            "STEP 1: Is the variant in a well-established critical functional domain of this gene?\n"
-            "  Assess using knowledge of the gene's protein structure:\n"
-            "  - Active sites or catalytic residues\n"
-            "  - Ligand-binding or substrate-binding domains\n"
-            "  - Known mutational hotspots (positions with multiple independent P/LP variants)\n"
-            "  - Well-characterized structural domains (kinase domain, RING finger, DNA-binding domain, etc.)\n"
-            "  - YES → continue to Step 2.\n"
-            "  - NO / uncertain → PM1 does NOT apply. Set applies=false. Stop.\n"
+            "CRITICAL — IF the evidence contains 'in_critical_region' (True or False), treat it as\n"
+            "authoritative ground truth computed from gene-specific domain boundaries. Do NOT override\n"
+            "it with your own recall of the protein structure.\n"
+            "\n"
+            "STEP 1: Is 'in_critical_region' present in the evidence?\n"
+            "  - YES and in_critical_region == False → PM1 does NOT apply. Set applies=false. Stop.\n"
+            "    Record pm1_region_name (or 'not in a critical region') and codon position in evidence.\n"
+            "  - YES and in_critical_region == True  → continue to Step 2.\n"
+            "  - NOT PRESENT → assess using LLM knowledge of the gene's protein structure:\n"
+            "      Active sites, catalytic residues, ligand-binding domains, known mutational hotspots,\n"
+            "      well-characterized structural domains (kinase, RING finger, DNA-binding, etc.).\n"
+            "      If uncertain → PM1 does NOT apply. Set applies=false. Stop.\n"
             "\n"
             "STEP 2: Is there known benign variation at this specific position or domain?\n"
             "  - YES (known benign variants at same codon) → PM1 does NOT apply. Set applies=false.\n"
             "  - NO  → PM1_Moderate APPLIES. Set applies=true.\n"
             "\n"
-            "Be conservative — only apply PM1 when domain membership is well-established. "
+            "Be conservative — only apply PM1 when domain membership is well-established.\n"
             "Record the domain name, codon position, and reasoning in evidence."
         ),
         "strength_override": "moderate",
@@ -1845,33 +1861,33 @@ ACMG_PLANRAG_DB = {
     },
 
     "PP2": {
-    "criterion": "PP2",
-    "acmg_category": "Pathogenic",
-    "strength": "supporting",
-    "automation": "fully_automatable",
-    "tool": "gnomad",
-    "phase": 4,
-    "depends_on": [],
-    "variant_types": ["missense"],
-    "description": (
-        "Missense variant in a gene that has a low rate of benign missense variation and in which "
-        "missense variants are a common mechanism of disease. ACMG 2015: Supporting strength. "
-        "Determined by gnomAD gene-level missense constraint Z-score. "
-        "Threshold: Z-score ≥ 3.09 (p < 0.001, one-tailed). Fully deterministic — no judgment needed."
-    ),
-    "threshold": "gnomAD gene missense Z-score ≥ 3.09",
-    "instructions": (
-        "Query gnomAD gene-level constraint for the gene symbol (not the variant).\n"
-        "Retrieve the missense Z-score from the gnomAD constraint table.\n"
-        "\n"
-        "STEP 1: Is the gene missense Z-score >= 3.09?\n"
-        "  - YES → PP2 APPLIES. Set applies=true, strength=supporting.\n"
-        "  - NO  → PP2 does NOT apply. Set applies=false.\n"
-        "\n"
-        "Record the exact Z-score and gene symbol in evidence."
-    ),
-    "strength_override": "supporting",
-},
+        "criterion": "PP2",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "gnomad_gene",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["missense"],
+        "description": (
+            "Missense variant in a gene that has a low rate of benign missense variation and in which "
+            "missense variants are a common mechanism of disease. ACMG 2015: Supporting strength. "
+            "Determined by gnomAD gene-level missense constraint Z-score. "
+            "Threshold: Z-score ≥ 3.09 (p < 0.001, one-tailed). Fully deterministic — no judgment needed."
+        ),
+        "threshold": "gnomAD gene missense Z-score ≥ 3.09",
+        "instructions": (
+            "CRITICAL: The evidence dict contains a '_computed' field with pre-verified verdicts.\n"
+            "Read '_computed.verdicts' directly — do NOT re-examine or recompute from raw values.\n"
+            "\n"
+            "STEP 1: Read _computed.verdicts. Is 'PP2 (threshold: mis_z >= 3.09): THRESHOLD MET'?\n"
+            "  - YES → PP2 APPLIES. Set applies=true, strength=supporting.\n"
+            "  - NO  → PP2 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record the exact Z-score and gene symbol in evidence."
+        ),
+        "strength_override": "supporting",
+    },
 
     "PP4": {
         "criterion": "PP4",

@@ -9,7 +9,7 @@ from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical
 from tools.pubmed import search_pubmed
 from tools.erepo import search_erepo_by_position, search_erepo_for_variant
 from tools.lovd import search_lovd_for_variant
-from data.planrag import query, get_gene_from_transcript
+from data.planrag import query, get_gene_from_transcript, GENE_DB
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -507,11 +507,23 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
         if "error" in vep_result:
             return vep_result, input_value
         codon_position = vep_result.get("codon_position")
+
+        # Prefer critical_regions from the planrag entry (HHT VCEP gene-specific regions).
+        # Fall back to GENE_DB pm1_critical_regions when the rag entry has none —
+        # this covers ACMG mode for genes like LDLR where domain boundaries are known
+        # but the generic ACMG_PLANRAG_DB PM1 entry is gene-agnostic.
         critical_regions = (rag_entry or {}).get("critical_regions")
+        if critical_regions is None and gene and gene in GENE_DB:
+            critical_regions = GENE_DB[gene].get("pm1_critical_regions")
+            if critical_regions:
+                print(f"DEBUG - vep/PM1: using GENE_DB critical regions for {gene} "
+                      f"({len(critical_regions)} region(s))")
+
         if codon_position is not None and critical_regions is not None:
             pm1_check = check_pm1_critical_region(codon_position, critical_regions)
             vep_result["in_critical_region"] = pm1_check["in_critical_region"]
             vep_result["pm1_region_name"] = pm1_check["region_name"]
+            print(f"DEBUG - vep/PM1: codon {codon_position} | in_critical_region={pm1_check['in_critical_region']} | region={pm1_check['region_name']}")
         return vep_result, input_value
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
