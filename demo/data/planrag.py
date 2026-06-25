@@ -22,7 +22,6 @@
 #
 # Coverage notes:
 #   - PP5 and BP6 are NOT applicable per HHT VCEP (SVI Review Committee recommendation)
-#   - PP2 is NOT applicable for either ACVRL1 (Z-score 2.45) or ENG (Z-score 2.81)
 #   - BP1 is NOT applicable for HHT (missense variants common in HHT genes)
 #   - BP3 is NOT applicable per HHT VCEP
 #   - BP2 IS applicable per HHT VCEP (confirmed in trans)
@@ -1066,7 +1065,6 @@ EXCLUDED_CRITERIA = {
     "PS2": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed. Low-level mosaicism in parents has been observed.",
     "PM3": "Not Applicable per HHT VCEP — HHT is autosomal dominant; AR trans mechanism not relevant",
     "PM6": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed",
-    "PP2": "Not Applicable for ACVRL1 or ENG — gene missense Z-scores are below threshold for PP2 (ACVRL1: 2.45; ENG: 2.81)",
     "PP5": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)",
     "BS2": "Not Applicable per HHT VCEP — full penetrance at an early age is not observed in HHT",
     "BP1": "Not Applicable per HHT VCEP — missense variants commonly seen in HHT genes",
@@ -1108,10 +1106,10 @@ def is_vcep_disease(disease: str) -> bool:
 #   Phase 4: PS1, PP3, PP5, BP3, BP4, BP6, BP7, PM4  (no dependencies)
 #
 # Deferred (require expert input or non-automatable data):
-#   PS2, PS3, PM3, PM6, PP1, PP2, PP4, BS3, BS4, BP1, BP2, BP5
+#   PS2, PS3, PM3, PM6, PP1, PP4, BS3, BS4, BP1, BP2, BP5
 #
 # Coverage notes:
-#   - PP2 and BP1 deferred until gnomAD gene-level constraint query is implemented
+#   - BP1 deferred until gnomAD gene-level constraint query is implemented
 #   - BS2 partially automatable for dominant/X-linked via gnomAD ac_hom
 #   - PM1 partially automatable via VEP codon position + LLM protein domain knowledge
 #   - PP5 and BP6 are now applicable (excluded in HHT VCEP)
@@ -1843,42 +1841,33 @@ ACMG_PLANRAG_DB = {
     },
 
     "PP2": {
-        "criterion": "PP2",
-        "acmg_category": "Pathogenic",
-        "strength": "supporting",
-        "automation": "partially_automatable",
-        "tool": "gnomad_gene",
-        "phase": 4,
-        "depends_on": [],
-        "variant_types": ["missense"],
-        "description": (
-            "Missense variant in a gene with a low rate of benign missense variation and where "
-            "missense variants are a common mechanism of disease. ACMG Supporting strength. "
-            "gnomAD gene-level missense Z-score threshold >= 3.09. "
-            "Also requires that missense variants are a known disease mechanism for the gene."
-        ),
-        "threshold": "Gene missense Z-score >= 3.09 (gnomAD) AND missense is a known disease mechanism",
-        "instructions": (
-            "Fetch gene-level constraint data from gnomAD for the gene of interest.\n"
-            "The evidence will contain 'mis_z', 'pLI', 'oe_lof_upper', 'oe_mis', and '_computed.verdicts'.\n"
-            "\n"
-            "IMPORTANT: Use the '_computed.verdicts' field directly — it contains the pre-verified "
-            "PP2 threshold determination. Do NOT recompute mis_z thresholds yourself.\n"
-            "\n"
-            "STEP 1: Read '_computed.pp2_threshold_met'.\n"
-            "  - FALSE (mis_z < 3.09) → PP2 does NOT apply. Set applies=false. Stop.\n"
-            "  - TRUE  (mis_z >= 3.09) → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Is missense a known disease mechanism for this gene?\n"
-            "  - Use your knowledge of the gene's pathogenic variant spectrum.\n"
-            "  - If missense variants are commonly pathogenic in this gene → PP2 APPLIES. Set applies=true.\n"
-            "  - If disease is primarily caused by truncating/LOF variants (missense rarely pathogenic) "
-            "→ PP2 does NOT apply. Set applies=false.\n"
-            "\n"
-            "Record mis_z score and disease mechanism assessment in evidence."
-        ),
-        "strength_override": "supporting",
-    },
+    "criterion": "PP2",
+    "acmg_category": "Pathogenic",
+    "strength": "supporting",
+    "automation": "fully_automatable",
+    "tool": "gnomad",
+    "phase": 4,
+    "depends_on": [],
+    "variant_types": ["missense"],
+    "description": (
+        "Missense variant in a gene that has a low rate of benign missense variation and in which "
+        "missense variants are a common mechanism of disease. ACMG 2015: Supporting strength. "
+        "Determined by gnomAD gene-level missense constraint Z-score. "
+        "Threshold: Z-score ≥ 3.09 (p < 0.001, one-tailed). Fully deterministic — no judgment needed."
+    ),
+    "threshold": "gnomAD gene missense Z-score ≥ 3.09",
+    "instructions": (
+        "Query gnomAD gene-level constraint for the gene symbol (not the variant).\n"
+        "Retrieve the missense Z-score from the gnomAD constraint table.\n"
+        "\n"
+        "STEP 1: Is the gene missense Z-score >= 3.09?\n"
+        "  - YES → PP2 APPLIES. Set applies=true, strength=supporting.\n"
+        "  - NO  → PP2 does NOT apply. Set applies=false.\n"
+        "\n"
+        "Record the exact Z-score and gene symbol in evidence."
+    ),
+    "strength_override": "supporting",
+},
 
     "PP4": {
         "criterion": "PP4",
