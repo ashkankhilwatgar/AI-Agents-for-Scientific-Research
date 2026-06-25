@@ -41,7 +41,7 @@ where max-concurrency controls how many agents are running in parallel with each
 
 6/24/26
 Simon: 
-Finish (I guess) implementing the functional evidence tool that checks PS3/BS3. I have not integrate the tools into the pipeline so currently the pipeline **cannot** check PS3/BS3! Still working on parallelizing the pipeline. 
+Working on implementing the functional evidence tool that checks PS3/BS3. I have not integrate the tools into the pipeline so currently the pipeline **cannot** check PS3/BS3! 
 
 
 6/24/26 Ashkan
@@ -53,4 +53,30 @@ Created another tool for PS4 called LOVD. A lot of data is just missing, and PS4
 Removed a redundant reasoning by plan agent, this cuts down pipeline time by 50% I think.
 Changed the API lookup for clinvar and VEP so that frameshift and other sorts of variants can be detected.
 Created a method that filters out criterion based on what sort of variant exists. 
+
+
+6/25/26 Simon
+Finish integrating the tool that check Bs3/PS3. Current the tool will fetch relevant literatures from pubmed and scan their abstract to find available functional evidence. The pipeline also supports download pdf to the project folder and then use llm to read the pdf, which enables more accurate functional_evidence retrieval. However, because that is too complicated for us right now, I only enable evidence retieval from abstract. But if we want we can add pdf retrieval at any time. I have also updated the planrag to reflect the fact that we can actually automate BS3/PS3. 
+
+For the current variant that we are testing: 
+```bash
+python3.14 demo/pipeline.py --variant "NM_000020.3:c.557G>T" --disease "HHT"
+```
+The functional evidence tool cannot check BS3/PS3 because literature retrieval requires rsid and this variant does not have a rsid. Currently this tool will return an empty output when the variant does not have an rsid and the prompt in the planrag will instruct our models to "classify BS3&PS3 as not applied when the tool's output is empty". This is also how other tools tha only check automatable codes do: set all the codes that are not automatable to not applied. However, we can change this behavior later.
+
+I reimplement the llm wrappers because they are needed for the functional_evidence tool. Here are the documentations for the new llm wrapper.
+  - **You don't need to do anything at all**. If there is no bug (because I didn't experiment with the new llm wrapper on ollama servers), you can just run the pipeline using our previous bash command python3.14 demo/pipeline.py --variant "NM_000020.3:c.557G>T" --disease "HHT".
+
+If you want to use an external api, such as glm5.2 or gpt5.5, you can just go to config.py and change the model providers and model names in **MODELS**. Supported providers and models are (not exhaustive):
+    - {"provider": "openai", "models": ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-4.1", "gpt-4.1-mini", "gpt-4o", "gpt-4o-mini"]}
+    - {"provider": "google_genai", "models": ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-3.1-pro", "gemini-3.1-flash"]}
+    - {"provider": "z.ai", "models": ["glm-5.2"]}  # In case you want to use z.ai models
+
+Note that, however, if you want to use external models you must cp .env.example .env and replace whatever api key correspond to your model provider with your owns.
+
+Again, if you just want to use the ollama models we don't need to do anything.
+
+Tomorrow I will come back to implementing parallel agent architecture.
+
+
 

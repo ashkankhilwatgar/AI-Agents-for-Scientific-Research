@@ -5,6 +5,8 @@ from data.planrag import query
 from tools.utils import parse_json_response
 from .llm import invoke_llm
 from typing import Optional
+from config import MODELS
+from data.planrag import get_gene_from_transcript
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -25,8 +27,16 @@ from typing import Optional
 #     return response.json()["response"]
 
 
-def call_plan_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-    return invoke_llm("plan_agent", prompt)
+# def call_plan_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+#     return invoke_llm("plan_agent", prompt)
+
+def call_plan_agent(prompt: str) -> str:
+    response = invoke_llm(
+        model=MODELS["plan"]["model"],
+        provider=MODELS["plan"]["provider"],
+        human_messsage=prompt
+    )
+    return response
     
 
 

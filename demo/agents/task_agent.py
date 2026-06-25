@@ -13,6 +13,7 @@ from tools.lovd import search_lovd_for_variant
 from data.planrag import query, get_gene_from_transcript
 from .llm import invoke_llm
 from typing import Optional
+from config import MODELS
 
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -33,8 +34,16 @@ from typing import Optional
 #     response.raise_for_status()
 #     return response.json()["response"]
 
-def call_task_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-    return invoke_llm("task_agent", prompt)
+# def call_task_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+#     return invoke_llm("task_agent", prompt)
+
+def call_task_agent(prompt: str) -> str:
+    response = invoke_llm(
+        model=MODELS["task"]["model"],
+        provider=MODELS["task"]["provider"],
+        human_messsage=prompt
+    )
+    return response
 
 def select_tool(criterion: str, variant: str, feedback: str = None) -> dict:
     """
@@ -63,10 +72,11 @@ You have access to the following tools:
 - pubmed: searches PubMed for case reports of the variant in HHT patients. Use for PS4.
 - erepo: queries the ClinGen Evidence Repository for HHT VCEP-classified variants at the same protein position. Use for PS1 and PM5.
 - lovd: queries the Leiden Open Variation Database for variant observations across labs. Use for PS4 when ClinVar and ERepo have no proband data.
+- functional_evidence: queries the functional evidence tool for functional experiments & functional assays. Use for PS3 and BS3.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo | lovd | functional_evidence> ",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
     raw = call_task_agent(prompt)
@@ -271,6 +281,15 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
             vep_result["in_critical_region"] = pm1_check["in_critical_region"]
             vep_result["pm1_region_name"] = pm1_check["region_name"]
         return vep_result, input_value
+    
+    elif tool == "functional_evidence":
+        from tools.functional_evidence import analyze_variant
+        result = analyze_variant(variant=variant)
+        return result, input_value
+        # if result:
+        #     return result, input_value
+        # return {"error": f"Tool failed: {tool}"}, input_value
+
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
 

@@ -535,8 +535,8 @@ PLANRAG_DB = {
         "criterion": "PS3",
         "acmg_category": "Pathogenic",
         "strength": "strong",
-        "automation": "not_automatable",
-        "tool": None,
+        "automation": "automatable",
+        "tool": "functional_evidence",
         "phase": 3,
         "depends_on": ["PVS1"],
         "description": (
@@ -553,20 +553,48 @@ PLANRAG_DB = {
         ),
         "threshold": None,
         "instructions": (
-            "PS3 cannot be evaluated automatically. "
-            "Requires reading published functional assay papers and assessing assay type and quality. "
-            "Strength levels per HHT VCEP: "
-            "STRONG — mRNA splicing assays only (and not for splice variants already meeting PVS1); "
-            "MODERATE — multiple concordant assays from the Supporting list; "
-            "SUPPORTING — single assay from: protein expression, intracellular signaling (BMP9/TGF-beta), "
-            "binding, subcellular localization, morphology, or somatic 2nd-hit (PMID: 31630786). "
-            "Note for protein expression assays: decreased expression is acceptable Supporting evidence only "
-            "if experiment was not done in a single assay AND densitometry of WB reflects the conclusion. "
-            "Return applies=null, status=deferred, with explanation that manual literature review is required."
+        "Evaluate PS3 for HHT using the provided functional experiment dictionaries.\n"
+        "Use the `evaluation` field as the primary experiment-level judgment.\n"
+        "Use other fields only to sanity-check assay type, effect direction, quality, and strength.\n"
+        "\n"
+        "STEP 1: Group experiments by `evaluation`.\n"
+        "  - supports_pathogenic → candidate for PS3.\n"
+        "  - supports_benign → does NOT support PS3; leave for BS3 evaluation.\n"
+        "  - ambiguous → does NOT support PS3.\n"
+        "  - low_quality → does NOT support PS3, even if the reported effect sounds damaging.\n"
+        "\n"
+        "Shortcut A: If there are no experiments, PS3 does NOT apply. Set applies=false. Stop.\n"
+        "Shortcut B: If no experiment has evaluation='supports_pathogenic', PS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 2: Sanity-check PS3 candidates.\n"
+        "Keep a supports_pathogenic experiment only if its fields are consistent with damaging function.\n"
+        "Compatible effect_direction values include strong_loss_of_function, partial_loss_of_function, "
+        "dominant_negative, or gain_of_function when authors explain why it is damaging.\n"
+        "Exclude candidates with no_effect_vs_wildtype or ambiguous unless authors_conclusion clearly resolves this.\n"
+        "\n"
+        "Shortcut C: If no PS3 candidate remains after sanity-checking, PS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 3: Check HHT VCEP assay category.\n"
+        "Count only accepted HHT PS3 assay categories: mRNA splicing, protein expression, BMP9/TGF-beta signaling, "
+        "binding, subcellular localization, morphology/tubulogenesis, or somatic second-hit evidence.\n"
+        "For protein expression, require acceptable controls and quantitative/semi-quantitative support "
+        "such as WB densitometry, or another concordant assay.\n"
+        "\n"
+        "Shortcut D: If no counted candidate remains, PS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 4: Assign strength.\n"
+        "  - Strong: damaging mRNA splicing assay only, unless the same mechanism is already counted by PVS1.\n"
+        "  - Moderate: multiple different accepted non-splicing assay categories with concordant supports_pathogenic results.\n"
+        "  - Supporting: one accepted non-splicing assay category with supports_pathogenic result.\n"
+        "\n"
+        "Be conservative. Downgrade or reject PS3 if controls_validity, magnitude_stats, authors_conclusion, "
+        "or assay relevance are weak or contradictory.\n"
+        "\n"
+        "Record counted PMIDs, excluded PMIDs with reasons, counted assay categories, selected strength, " "and the key evidence supporting the PS3 decision."
         ),
         "hht_modification": "Three strength levels: Strong (splicing), Moderate (concordant multiple assays), Supporting (single assay from defined list); do not use PS3 for splice variants meeting PVS1",
         "strength_override": None,
-        "deferred": True,
+        # "deferred": True,
     },
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -801,7 +829,7 @@ PLANRAG_DB = {
         "automation": "not_automatable",
         "tool": None,
         "phase": 4,
-        "depends_on": [],
+        "depends_on": ["PS3"],
         "description": (
             "Well-established functional studies show no damaging effect on protein function or splicing. "
             "HHT VCEP applies BS3 at Supporting strength only. "
@@ -813,17 +841,52 @@ PLANRAG_DB = {
         ),
         "threshold": None,
         "instructions": (
-            "BS3 cannot be evaluated automatically. "
-            "Requires reading published functional assay papers. "
-            "Strength is Supporting only per HHT VCEP. "
-            "Acceptable assays: mRNA splicing, intracellular signaling (BMP9/TGF-beta), binding, "
-            "subcellular localization, morphology. "
-            "EXCLUSION: normal protein expression alone is NOT acceptable as benign evidence. "
-            "Return applies=null, status=deferred, with explanation."
+        "BS3 is evaluated after PS3. Use the prior PS3 result; do not re-evaluate PS3.\n"
+        "Evaluate BS3 for HHT using the provided functional experiment dictionaries.\n"
+        "Use the `evaluation` field as the primary experiment-level judgment.\n"
+        "Use other fields only to sanity-check assay type, effect direction, quality, and strength.\n"
+        "\n"
+        "Shortcut A: If PS3 applies, BS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 1: Group experiments by `evaluation`.\n"
+        "  - supports_benign → candidate for BS3.\n"
+        "  - supports_pathogenic → evidence against BS3.\n"
+        "  - ambiguous → does NOT support BS3.\n"
+        "  - low_quality → does NOT support BS3, even if the reported effect sounds normal.\n"
+        "\n"
+        "Shortcut B: If there are no experiments, BS3 does NOT apply. Set applies=false. Stop.\n"
+        "Shortcut C: If no experiment has evaluation='supports_benign', BS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 2: Sanity-check BS3 candidates.\n"
+        "Keep a supports_benign experiment only if its fields are consistent with normal function.\n"
+        "Compatible effect_direction values include no_effect_vs_wildtype, or other results where "
+        "authors_conclusion clearly states no damaging functional effect.\n"
+        "Exclude candidates with strong_loss_of_function, partial_loss_of_function, dominant_negative, "
+        "gain_of_function, or ambiguous unless authors_conclusion clearly resolves why the result is benign.\n"
+        "\n"
+        "Shortcut D: If no BS3 candidate remains after sanity-checking, BS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 3: Check HHT VCEP-relevant assay category.\n"
+        "Count only functional assays that adequately test the relevant HHT disease mechanism, including "
+        "mRNA splicing, protein expression, BMP9/TGF-beta signaling, binding, subcellular localization, "
+        "morphology/tubulogenesis, or other well-validated disease-relevant functional assays.\n"
+        "Do not count assays that are too vague, poorly matched to HHT biology, or too narrow to show normal function.\n"
+        "\n"
+        "Shortcut E: If no counted BS3 candidate remains, BS3 does NOT apply. Set applies=false. Stop.\n"
+        "\n"
+        "STEP 4: Assign strength.\n"
+        "  - Strong: well-established disease-relevant functional assay shows no damaging effect.\n"
+        "  - Supporting: use only if the assay suggests normal function but validation, controls, or scope are limited.\n"
+        "\n"
+        "Be conservative. Do not apply BS3 if there is credible conflicting supports_pathogenic evidence, "
+        "weak controls_validity, missing key magnitude_stats, cautious authors_conclusion, or uncertain assay relevance.\n"
+        "\n"
+        "Record counted PMIDs, excluded PMIDs with reasons, counted assay categories, selected strength, "
+        "PS3 dependency result, and the key evidence supporting the BS3 decision."
         ),
         "hht_modification": "Supporting strength only; normal protein expression alone NOT acceptable as benign evidence",
         "strength_override": "supporting",
-        "deferred": True,
+        # "deferred": True,
     },
 
     "BS4": {

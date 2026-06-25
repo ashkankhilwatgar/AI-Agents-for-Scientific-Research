@@ -3,17 +3,19 @@ from dataclasses import dataclass, asdict
 from .vep import annotate_variant
 import sys
 from urllib.parse import quote
-from demo.config import NCBI_API_KEY
-from demo.config import NCBI_EMAIL
+from config import NCBI_API_KEY
+from config import NCBI_EMAIL
 import os
 import requests
 from metapub import PubMedFetcher, FindIt
 from pathlib import Path
 import time
 import json
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
 import re
 import urllib.request
+from agents.llm import invoke_llm
+from config import MODELS
 
 
 
@@ -468,23 +470,23 @@ VARIANT_FUNCTIONAL_SCHEMA = {
 }
 
 
-# =============================================================================
-# LLMs (This is temporary). We have to rewrite the entire llm calling logic later
-# =============================================================================
+# # =============================================================================
+# # LLMs (This is temporary). We have to rewrite the entire llm calling logic later
+# # =============================================================================
 
-# For now let's use a web api for this function. I will change it after rewrite the llm wrapper logic
-def get_llm() -> Any:
-    """
-    Initialize and return the appropriate LLM based on LLM_PROVIDER config.
-    """
-    return ChatGoogleGenerativeAI(
-        model = "gemini-2.5-flash",
-        temperature = 0,
-       #  api_key = your_google_api_key_here    When you guys are running this file, uncomment this line and replace your_google_api_key_here with the google genai api key in the shared google doc
-       )
+# # For now let's use a web api for this function. I will change it after rewrite the llm wrapper logic
+# def get_llm() -> Any:
+#     """
+#     Initialize and return the appropriate LLM based on LLM_PROVIDER config.
+#     """
+#     return ChatGoogleGenerativeAI(
+#         model = "gemini-2.5-flash",
+#         temperature = 0,
+#        #  api_key = your_google_api_key_here    When you guys are running this file, uncomment this line and replace your_google_api_key_here with the google genai api key in the shared google doc
+#        )
 
-# Initialize LLM on module import
-LLM = get_llm()
+# # Initialize LLM on module import
+# LLM = get_llm()
 
 
 # =============================================================================
@@ -570,22 +572,6 @@ class FunctionalExperiment:
     evaluation: str
 
 
-@dataclass
-class IntegratedAssessment:
-    """Store integrated PS3/BS3 assessment result.
-    
-    Attributes:
-        decision: One of "PS3", "BS3", or "none"
-        narrative: Summary explanation of the evidence and decision
-        strength: Evidence strength - "very_strong", "strong", "moderate", "supporting", or None
-        key_pmids: List of PMIDs contributing to the assessment
-        confidence: Confidence in the assessment - "high", "medium", "low", or None
-    """
-    decision: str
-    narrative: str
-    strength: Optional[str] = None
-    key_pmids: Optional[List[str]] = None
-    confidence: Optional[str] = None
 
 
 
@@ -624,7 +610,7 @@ def build_variant_label(vi: VariantInfo) -> str:
     """
     print("build_variant_label ", "vi type", type(vi))
 
-    print("build variant label: ", vi.name)
+    # print("build variant label: ", vi.name)
     return (
         f"{vi.name}, "
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
@@ -980,15 +966,17 @@ Based on the system instructions, respond in JSON with keys:
             # Use system prompt + user prompt structure
             from langchain_core.messages import SystemMessage, HumanMessage
             
-            messages = [
-                SystemMessage(content=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT),
-                HumanMessage(content=user_prompt)
-            ]
-            
-            resp = LLM.invoke(messages)
 
-            # resp.content can be a string or a list of content parts
-            content = resp.content
+            
+            content = invoke_llm(
+                model=MODELS["functional_evidence"]["model"],
+                provider=MODELS["functional_evidence"]["provider"],
+                human_messsage=user_prompt,
+                system_message=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT
+            )
+
+            # # resp.content can be a string or a list of content parts
+            # content = resp.content
             if isinstance(content, list):
                 # LangChain sometimes returns a list of dicts with "text"
                 content = "".join(
@@ -1228,14 +1216,23 @@ Extract functional experiments for this variant and return as JSON.
 """
     
     try:
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt)
-        ]
+        # messages = [
+        #     SystemMessage(content=system_prompt),
+        #     HumanMessage(content=user_prompt)
+        # ]
         
-        resp = LLM.invoke(messages)
+        # resp = LLM.invoke(messages)
         
-        content = resp.content
+        # content = resp.content
+
+        content = invoke_llm(
+            model=MODELS["functional_evidence"]["model"],
+            provider=MODELS["functional_evidence"]["provider"],
+            system_message=system_prompt,
+            human_messsage=user_prompt
+        )
+
+
         if isinstance(content, list):
             content = "".join(
                 part.get("text", "")
@@ -1278,7 +1275,6 @@ Extract functional experiments for this variant and return as JSON.
 def llm_extract_experiments(
     functional_papers: List[FunctionalPaper],
     variant_label: str,
-    pdf_dir: Optional[str] = None,
 ) -> List[FunctionalExperiment]:
     """
     Extract experiment details using LLM.
@@ -1331,10 +1327,7 @@ def llm_extract_experiments(
 
 
 def analyze_variant(
-    variant: str,
-    pdf_path: Optional[str] = None,
-    download_pdfs: bool = True,
-    max_pdf_downloads: Optional[int] = None
+    variant: str
 ) -> Dict[str, Any]:
     """
     Run the full PS3/BS3 functional evidence pipeline for a single variant,
@@ -1342,24 +1335,8 @@ def analyze_variant(
 
     Parameters
     ----------
-    chrom : str
-        Chromosome (e.g., "1", "2", "X")
-    pos : int
-        Genomic position (1-based)
-    ref : str
-        Reference allele
-    alt : str
-        Alternate allele
-    assembly : str, optional
-        Genome assembly version (default: "GRCh38")
-    pdf_path : str, optional
-        Directory to save functional paper PDFs (default: None)
-    download_pdfs : bool, optional
-        Whether to attempt downloading PDFs for functional papers (default: True)
-    max_pdf_downloads : int, optional
-        Maximum number of PDFs to download. If None, download all available.
-    interactive : bool, optional
-        If True, prompt user to manually download missing PDFs (default: True)
+    variant: str
+        Variant name in HGVS c. notation 
 
     Returns
     -------
@@ -1367,11 +1344,6 @@ def analyze_variant(
         Dictionary containing variant info, candidate papers, functional papers,
         experiments, and assessment results.
     """
-    # print(f"\n{'='*80}")
-    # print(f"ANALYZING VARIANT: {chrom}:{pos} {ref}>{alt}")
-    # print(f"{'='*80}\n")
-
-    # print("Step 1: VEP annotation...")
 
     vi = VariantInfo(name=variant)
     print("variant info: variant nmae")
@@ -1412,9 +1384,9 @@ def analyze_variant(
     print(f"   Retrieved details for {len(candidate_papers)} papers")
 
     # 4. Filter for functional papers (high-sensitivity screening)
-    print("\nStep 4: Filtering for functionally relevant papers...")
+    # print("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
-    print(f"   Identified {len(functional_papers)} functionally relevant papers")
+    # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
     # # 4b. Download PDFs for functional papers (if enabled)
     # downloaded_pdfs = {}
@@ -1434,11 +1406,10 @@ def analyze_variant(
     #             fp.pdf_path = downloaded_pdfs[fp.pmid]
 
     # 5. Extract experiments 
-    print("\nStep 5: Extracting functional experiments...")
+    # print("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
         variant_label,
-        pdf_dir=pdf_path if download_pdfs else None,
     )
 
     return {"experiments": [asdict(e) for e in experiments]}

@@ -6,6 +6,7 @@ from agents.task_agent import run_task
 from tools.utils import parse_json_response
 from .llm import invoke_llm
 from typing import Optional
+from config import MODELS
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -25,8 +26,18 @@ from typing import Optional
 #     response.raise_for_status()
 #     return response.json()["response"]
 
-def call_debug_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-    return invoke_llm("judge_agent", prompt)
+# def call_debug_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
+#     return invoke_llm("judge_agent", prompt)
+
+
+def call_debug_agent(prompt: str) -> str:
+    response = invoke_llm(
+        model=MODELS["debug"]["model"],
+        provider=MODELS["debug"]["provider"],
+        human_messsage=prompt
+    )
+    return response
+    
 
 def print_task_summary(task_output: dict) -> None:
     """

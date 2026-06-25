@@ -238,7 +238,7 @@ def annotate_variant(variant: str) -> dict:
             hgvsp = tc.get("hgvsp")
             gene_symbol = tc.get("gene_symbol")
             ensembl_transcript = tc.get("transcript_id")
-            mane_transcript = tx.get("mane_select")
+            mane_transcript = tc.get("mane_select")
             if not consequence_terms:
                 last_error = "VEP transcript_consequences missing consequence_terms"
                 continue

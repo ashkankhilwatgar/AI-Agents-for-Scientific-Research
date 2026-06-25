@@ -1,112 +1,109 @@
-from config import (
-    PLAN_AGENT_PROVIDER, PLAN_AGENT_MODEL, 
-    PLAN_AGENT_TEMPERATURE, TASK_AGENT_PROVIDER, 
-    TASK_AGENT_MODEL, TASK_AGENT_TEMPERATURE, 
-    DEBUG_AGENT_PROVIDER, DEBUG_AGENT_MODEL, 
-    DEBUG_AGENT_TEMPERATURE, JUDGE_AGENT_PROVIDER,
-    JUDGE_AGENT_MODEL, JUDGE_AGENT_TEMPERATURE,
-    CHECK_AGENT_PROVIDER, CHECK_AGENT_MODEL,
-    CHECK_AGENT_TEMPERATURE)
-
-# from demo.config import MAX_RETRY
-
-from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from typing import Optional
-
-import threading
-_LLM_LOCK = threading.Lock()
-
-
-
-model_info = {
-    "plan_agent": {
-        "provider": PLAN_AGENT_PROVIDER,
-        "model": PLAN_AGENT_MODEL,
-        "temperature": PLAN_AGENT_TEMPERATURE
-    },
-    "task_agent": {
-        "provider": TASK_AGENT_PROVIDER,
-        "model": TASK_AGENT_MODEL,
-        "temperature": TASK_AGENT_TEMPERATURE
-    },
-    "debug_agent": {
-        "provider": DEBUG_AGENT_PROVIDER,
-        "model": DEBUG_AGENT_MODEL,
-        "temperature": DEBUG_AGENT_TEMPERATURE
-    },
-    "judge_agent": {
-        "provider": JUDGE_AGENT_PROVIDER,
-        "model": JUDGE_AGENT_MODEL,
-        "temperature": JUDGE_AGENT_TEMPERATURE
-    },
-    "check_agent": {
-        "provider": CHECK_AGENT_PROVIDER,
-        "model": CHECK_AGENT_MODEL,
-        "temperature": CHECK_AGENT_TEMPERATURE
-    }
-}
+from langchain_core.messages import HumanMessage, SystemMessage
+import os
+from langchain.chat_models import init_chat_model
+from langchain_core.language_models.chat_models import BaseChatModel
 
 
-
-def create_agent(agent_name: str):
+def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatModel:
     """
-    Create a LangChain chat model for one agent.
-    Supported providers:
-        - ollama: use LangChain ChatOllama
-        - openai: use LangChain ChatOpenAI
-        - google: use LangChain ChatGoogleGenerativeAI
-    """
-    agent_name = agent_name.lower().strip()
-    provider = model_info[agent_name]["provider"].lower().strip()
-    model = model_info[agent_name]["model"].lower().strip()
-    temperature = model_info[agent_name]["temperature"]
+    Create and return a LangChain chat model wrapper.
 
-    if provider == "openai":
-        return ChatOpenAI(
-                model=model,
-                temperature=temperature
-        )
-    elif provider == "google":
-        return ChatGoogleGenerativeAI(
-            model = model,
-            temperature = temperature
-        )
-    elif provider == "ollama":
-        return ChatOllama(
-            model = model,
+    Parameters
+    ----------
+    provider : str
+        Which backend/provider to use. Supported values are:
+        - "openai"
+        - "google_genai"
+        - "ollama"
+    model : str
+        The model name for the selected provider.
+        For Ollama, this must match a model installed locally, such as the names
+        shown by `ollama list`.
+    temperature : float, optional
+        Controls randomness in model output. Lower values make output more deterministic.
+
+    Returns
+    -------
+    BaseChatModel
+        A LangChain chat model object that can be called with .invoke().
+
+    Returns
+    -------
+    Note: If you want to use z.ai's models such as glm5.2, use openai as the model provider
+    and use z.ai's model name as model. For example, if you want to use glm5.2, provider = openai 
+    and model = glm5.2. In addition, if you want to use a web api, you need to cp .env.example and 
+    provide your own api keys.
+    """
+    if provider=="openai":
+        return init_chat_model(
+            model=model,
+            model_provider="openai",
             temperature=temperature
         )
-    else:
-        raise ValueError(
-            "Unrecognized llm provider"
+    elif provider == "google_genai":
+        return init_chat_model(
+            model=model,
+            model_provider="google_genai",
+            temperature=temperature
         )
+    elif provider == "ollama":
+        return init_chat_model(
+            model=model,
+            model_provider="ollama",
+            temperature=temperature
+        )
+    elif provider == "z.ai":
+        return init_chat_model(
+            model=model,
+            model_provider="openai",
+            api_key=os.getenv("ZAI_API_KEY"),
+            base_url="https://api.z.ai/api/paas/v4/",
+            temperature=temperature,
+        )    
+    raise ValueError("Unsupported model provider")
     
 
 
-
 def invoke_llm(
-        agent_name: str,
-        prompt: str,
-        system_prompt: Optional[str] = None
+        model: str,
+        provider: str,
+        human_messsage: str,
+        system_message: Optional[str] = None,
+        temperature: float = 0,
 ) -> str:
     """
-    Main shared LLM entry point for all agents.
-    Example:
-        call_agent_llm("check_agent", prompt)
-        call_agent_llm("debug_agent", prompt)
-        call_agent_llm("judge_agent", prompt)
-        call_agent_llm("plan_agent", prompt)
+
+    Create an LLM, send it a prompt, and return the model's text response.
+
+    Parameters
+    ----------
+    model : str
+        Model name to use.
+    provider : str
+        Backend/provider name passed into create_llm().
+    human_messsage : str
+        The user's task/question/prompt.
+        Note: this variable currently has a typo in its name:
+        "messsage" instead of "message".
+    system_message : str, optional
+        Optional instruction that tells the model how to behave.
+    temperature : float, optional
+        Controls randomness in the model response.
+
+    Returns
+    -------
+    str
+        The content of the model's response message.
+
     """
-    agent = create_agent(agent_name)
-    message = [HumanMessage(content=prompt)]
-    if system_prompt:
-        message.append(SystemMessage(content=system_prompt))
-    with _LLM_LOCK:
-        response = agent.invoke(message)
+    llm = create_llm(provider, model, temperature)
+
+    message = [HumanMessage(human_messsage)]
+    if system_message:
+        message.append(SystemMessage(system_message))
+    
+    response = llm.invoke(message)
 
     return response.content
 
