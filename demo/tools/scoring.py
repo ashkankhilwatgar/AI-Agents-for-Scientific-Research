@@ -25,8 +25,8 @@ Outputs:
 from data.planrag import query as planrag_query
 
 
-def _get_scoring_entry() -> dict:
-    return planrag_query("SCORING")
+def _get_scoring_entry(disease: str = None) -> dict:
+    return planrag_query("SCORING", disease=disease)
 
 
 def _get_bucket(criterion: str, applied_strength: str, scoring: dict) -> str | None:
@@ -102,14 +102,17 @@ def _check_rule(rule: dict, counts: dict) -> bool:
     return True
 
 
-def classify(results_dict: dict) -> dict:
+def classify(results_dict: dict, disease: str = None) -> dict:
     """
-    Classify a variant using the HHT VCEP combining criteria rules.
+    Classify a variant using the appropriate combining criteria rules.
+
+    Routes to ACMG_PLANRAG_DB SCORING when disease is non-null and not a VCEP disease,
+    otherwise uses PLANRAG_DB SCORING (HHT VCEP). Backward compatible: disease=None → HHT.
 
     results_dict: mapping of criterion_key → pipeline result dict.
     Each result must have "applies" (bool) and "applied_strength" (str).
     """
-    scoring = _get_scoring_entry()
+    scoring = _get_scoring_entry(disease=disease)
     if scoring is None:
         return {
             "classification": "Error",
@@ -211,7 +214,7 @@ def classify(results_dict: dict) -> dict:
     # ── 8. VUS — no rules matched ─────────────────────────────────────────────
     return {
         "classification":       "Variant of Uncertain Significance (VUS)",
-        "rule_matched":         "No HHT VCEP combining criteria rule was satisfied",
+        "rule_matched":         "No combining criteria rule was satisfied",
         "buckets":              counts,
         "bucket_detail":        bucket_of,
         "applied_criteria":     applied_criteria,

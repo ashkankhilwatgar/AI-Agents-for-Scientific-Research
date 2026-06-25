@@ -260,6 +260,117 @@ def search_clinvar_for_variant_ps4(hgvs: str) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# PP5 / BP6 helper — exact variant classification lookup (disease-agnostic)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ClinVar review_status → star rating (same scale as ClinVar website)
+_STAR_MAP = {
+    "practice guideline":                                        4,
+    "reviewed by expert panel":                                  3,
+    "criteria provided, multiple submitters, no conflicts":      2,
+    "criteria provided, single submitter":                       1,
+    "criteria provided, conflicting classifications":            1,
+    "no assertion criteria provided":                            0,
+    "no classification provided":                                0,
+    "no classification for the individual variant":              0,
+}
+
+
+def search_clinvar_for_exact_variant(hgvs: str) -> dict:
+    """
+    Looks up a specific variant in ClinVar by HGVS and returns the aggregate
+    germline classification and review status. Used for PP5 and BP6 evaluation.
+
+    Returns:
+        {
+            "found": bool,
+            "variation_id": str,
+            "title": str,               # ClinVar variant title
+            "classification": str,      # e.g. "Pathogenic", "Likely Benign"
+            "review_status": str,       # e.g. "reviewed by expert panel"
+            "star_rating": int,         # 0–4 ClinVar review stars
+            "reputable_source": bool,   # True if star_rating >= 2 (expert panel or multi-submitter)
+            "source": "clinvar"
+        }
+    or {"error": "..."} on failure.
+    """
+    # Step 1: search by HGVS — exact, then version-stripped fallback
+    id_list = []
+    try:
+        r = requests.get(
+            CLINVAR_SEARCH_URL,
+            params={"db": "clinvar", "term": f'"{hgvs}"[HGVS]',
+                    "retmax": 5, "retmode": "json", **_BASE_PARAMS},
+            timeout=15,
+        )
+        r.raise_for_status()
+        id_list = r.json().get("esearchresult", {}).get("idlist", [])
+    except Exception as e:
+        return {"error": f"ClinVar esearch failed: {e}"}
+
+    if not id_list:
+        stripped = re.sub(r'(NM_\d+)\.\d+', r'\1', hgvs)
+        if stripped != hgvs:
+            try:
+                r2 = requests.get(
+                    CLINVAR_SEARCH_URL,
+                    params={"db": "clinvar", "term": f'"{stripped}"[HGVS]',
+                            "retmax": 5, "retmode": "json", **_BASE_PARAMS},
+                    timeout=15,
+                )
+                r2.raise_for_status()
+                id_list = r2.json().get("esearchresult", {}).get("idlist", [])
+                if id_list:
+                    print(f"DEBUG - ClinVar exact: version-stripped match for '{stripped}'")
+            except Exception:
+                pass
+
+    if not id_list:
+        return {
+            "found": False,
+            "classification": None,
+            "review_status": None,
+            "star_rating": 0,
+            "reputable_source": False,
+            "source": "clinvar",
+        }
+
+    # Step 2: esummary for aggregate germline classification
+    try:
+        r = requests.post(
+            CLINVAR_SUMMARY_URL,
+            data={"db": "clinvar", "id": id_list[0],
+                  "retmode": "json", **_BASE_PARAMS},
+            timeout=20,
+        )
+        r.raise_for_status()
+        result_data = r.json().get("result", {})
+        record = result_data.get(id_list[0], {})
+    except Exception as e:
+        return {"error": f"ClinVar esummary failed: {e}"}
+
+    germline = record.get("germline_classification", {})
+    classification = germline.get("description", "")
+    review_status  = germline.get("review_status", "")
+    star_rating    = _STAR_MAP.get(review_status.lower(), 0)
+    reputable      = star_rating >= 2
+
+    print(f"DEBUG - ClinVar exact: found {id_list[0]} | classification: {classification!r} | "
+          f"review: {review_status!r} | stars: {star_rating} | reputable: {reputable}")
+
+    return {
+        "found": bool(classification),
+        "variation_id": id_list[0],
+        "title":  record.get("title", ""),
+        "classification":  classification,
+        "review_status":   review_status,
+        "star_rating":     star_rating,
+        "reputable_source": reputable,
+        "source": "clinvar",
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Legacy — generic ClinVar lookup (used by PS1 and other non-PS4 criteria)
 # ─────────────────────────────────────────────────────────────────────────────
 

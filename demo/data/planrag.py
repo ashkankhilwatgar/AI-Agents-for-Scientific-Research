@@ -47,6 +47,14 @@ GENE_DB = {
         "total_exons":    15,
         "cspec_id":       "GN136",
     },
+    # ── Non-VCEP genes — add as needed for ACMG mode ──────────────────────────
+    "LDLR": {
+        "gene_symbol":    "LDLR",
+        "transcripts":    ["NM_000527"],        # NM_000527.x (any version)
+        "protein_length": 860,                  # aa
+        "total_exons":    18,
+        "cspec_id":       None,                 # no VCEP spec
+    },
 }
 
 
@@ -1058,7 +1066,1033 @@ EXCLUDED_CRITERIA = {
 }
 
 
-def query(criterion: str, gene: str = None) -> dict | None:
+# ──────────────────────────────────────────────────────────────────────────────
+# VCEP DISEASE REGISTRY
+# Add new VCEPs here as they are implemented. Keys are uppercase disease names.
+# The pipeline checks this registry to decide whether to use PLANRAG_DB (VCEP)
+# or ACMG_PLANRAG_DB (generic ACMG/AMP 2015).
+# ──────────────────────────────────────────────────────────────────────────────
+
+VCEP_DISEASES = {
+    "HHT": "Hereditary Hemorrhagic Telangiectasia",
+}
+
+
+def is_vcep_disease(disease: str) -> bool:
+    """Returns True if the disease has a ClinGen VCEP specification in VCEP_DISEASES."""
+    if not disease:
+        return False
+    return disease.upper() in VCEP_DISEASES
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# ACMG/AMP 2015 PLANRAG DATABASE — generic criteria (non-VCEP diseases)
+# Source: Richards et al. Genet Med 2015;17(5):405–424 (PMC4544753)
+#
+# Used when disease is provided but is NOT in VCEP_DISEASES.
+# Follows the same entry structure as PLANRAG_DB.
+#
+# EXECUTION ORDER:
+#   Phase 1: PM2, BA1, BS1, BS2  (gnomAD — no dependencies)
+#   Phase 2: PS4, PM1             (PS4 independent; PM1 needed before PM5)
+#   Phase 3: PVS1, PM5            (PM5 depends on PM1 implicitly)
+#   Phase 4: PS1, PP3, PP5, BP3, BP4, BP6, BP7, PM4  (no dependencies)
+#
+# Deferred (require expert input or non-automatable data):
+#   PS2, PS3, PM3, PM6, PP1, PP2, PP4, BS3, BS4, BP1, BP2, BP5
+#
+# Coverage notes:
+#   - PP2 and BP1 deferred until gnomAD gene-level constraint query is implemented
+#   - BS2 partially automatable for dominant/X-linked via gnomAD ac_hom
+#   - PM1 partially automatable via VEP codon position + LLM protein domain knowledge
+#   - PP5 and BP6 are now applicable (excluded in HHT VCEP)
+#   - BP3 is now applicable (excluded in HHT VCEP)
+#   - PM2 is Moderate strength (not Supporting as in some VCEP specifications)
+#
+# Key normalization: VCEP-style names (e.g. PM2_SUPPORTING, PP4_MODERATE) are
+# automatically mapped to their standard ACMG equivalents when querying this DB.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Maps VCEP-style criterion names → standard ACMG names, for backward compatibility
+# when the pipeline passes VCEP-style strings into a generic ACMG query.
+_ACMG_KEY_ALIASES = {
+    "PM2_SUPPORTING": "PM2",
+    "PP4_MODERATE":   "PP4",
+    "BS1_SUPPORTING": "BS1",
+    "BS3_SUPPORTING": "BS3",
+}
+
+ACMG_PLANRAG_DB = {
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 1 — population frequency (no dependencies)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PM2": {
+        "criterion": "PM2",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Absent from controls (or at extremely low frequency if recessive) in population databases. "
+            "ACMG standard: absent from gnomAD entirely OR allele frequency <0.0001 (0.01%) in any subpopulation. "
+            "Applied at Moderate strength per ACMG/AMP 2015."
+        ),
+        "threshold": "Absent from gnomAD OR AF <0.0001 (0.01%) in any gnomAD subpopulation",
+        "instructions": (
+            "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
+            "IMPORTANT: The evidence contains '_computed.verdicts' with pre-verified threshold comparisons. "
+            "Read '_computed.pm2_applies' and set applies accordingly — do NOT recompute frequency comparisons yourself.\n"
+            "\n"
+            "STEP 1: Is the variant absent from gnomAD entirely?\n"
+            "  - YES → PM2 APPLIES. Set applies=true. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is allele frequency in ALL gnomAD subpopulations less than 0.0001 (0.01%)?\n"
+            "  - YES (all AFs < 0.0001) → PM2 APPLIES. Set applies=true. Stop.\n"
+            "  - NO  (any AF >= 0.0001) → continue to Step 3.\n"
+            "\n"
+            "STEP 3 (recessive disorders only): Is total allele count below the expected carrier frequency?\n"
+            "  - Below expected carrier frequency for this recessive disorder → PM2 APPLIES. Set applies=true.\n"
+            "  - At or above expected carrier frequency → PM2 does NOT apply. Set applies=false.\n"
+            "\n"
+            "For dominant disorders: use Steps 1–2 only.\n"
+            "Record total AC, max subpopulation AF, and which step triggered the decision."
+        ),
+        "strength_override": "moderate",
+    },
+
+    "BA1": {
+        "criterion": "BA1",
+        "acmg_category": "Benign",
+        "strength": "stand_alone",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Allele frequency is above 5% in population databases — stand-alone benign. "
+            "ACMG standard threshold: >5% (0.05) in gnomAD, ExAC, or 1000 Genomes."
+        ),
+        "threshold": "Popmax FAF >= 0.05 (5%) in gnomAD",
+        "instructions": (
+            "Query gnomAD for Popmax Filtering Allele Frequency (FAF95, popmax field).\n"
+            "IMPORTANT: Read '_computed.ba1_applies' from the evidence — this is pre-computed. Set applies to that value.\n"
+            "\n"
+            "STEP 1: Is Popmax FAF >= 0.05 (5%)?\n"
+            "  - YES → BA1 APPLIES. Set applies=true.\n"
+            "    Stand-alone benign — variant is Benign regardless of other evidence.\n"
+            "  - NO  → BA1 does NOT apply. Set applies=false.\n"
+            "  - Variant absent from gnomAD → BA1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record exact Popmax FAF in evidence."
+        ),
+        "strength_override": "benign_stand_alone",
+    },
+
+    "BS1": {
+        "criterion": "BS1",
+        "acmg_category": "Benign",
+        "strength": "strong",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Allele frequency is greater than expected for the disorder. "
+            "Generic ACMG threshold: Popmax FAF > 1% (0.01) and < 5% (0.05). "
+            "Disease-specific thresholds should be applied when known; "
+            "1% is a conservative generic threshold for low-prevalence Mendelian disorders."
+        ),
+        "threshold": "Popmax FAF > 0.01 (1%) and < 0.05 (5%) in gnomAD",
+        "instructions": (
+            "Query gnomAD for Popmax FAF (faf95 popmax field).\n"
+            "IMPORTANT: Read '_computed.bs1_applies' from the evidence — this is pre-computed. Set applies to that value.\n"
+            "\n"
+            "STEP 1: Does BA1 already apply (Popmax FAF >= 0.05)?\n"
+            "  - YES → do NOT apply BS1; BA1 supersedes. Set applies=false. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is Popmax FAF > 0.01 (1%)?\n"
+            "  - YES → BS1 APPLIES. Set applies=true, applied_strength=benign_strong.\n"
+            "  - NO  → BS1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Note: if disease-specific expected carrier/disease frequency is known and lower than 1%, "
+            "apply that threshold instead.\n"
+            "Record exact Popmax FAF in evidence."
+        ),
+        "strength_override": "benign_strong",
+    },
+
+    "BS2": {
+        "criterion": "BS2",
+        "acmg_category": "Benign",
+        "strength": "strong",
+        "automation": "partially_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), "
+            "or X-linked (hemizygous) disorder, with full penetrance expected at an early age. "
+            "For dominant/X-linked: ac_hom > 0 in gnomAD strongly implies benign. "
+            "For recessive: requires homozygous healthy adults — use ac_hom as proxy with caution."
+        ),
+        "threshold": "ac_hom > 0 in gnomAD general population (dominant/X-linked); or homozygotes in healthy adults (recessive, with caveats)",
+        "instructions": (
+            "Query gnomAD for total homozygote count (ac_hom summed across exome + genome).\n"
+            "IMPORTANT: Read '_computed.bs2_check_ac_hom' from the evidence (True = homozygotes present).\n"
+            "\n"
+            "FOR DOMINANT OR X-LINKED DISORDERS:\n"
+            "  STEP 1: Is ac_hom (total homozygotes in gnomAD) > 0?\n"
+            "    - YES → BS2 APPLIES. Set applies=true, applied_strength=benign_strong.\n"
+            "      Rationale: healthy homozygotes in gnomAD are inconsistent with fully penetrant dominant disease.\n"
+            "    - NO  → BS2 does NOT apply. Set applies=false.\n"
+            "\n"
+            "FOR RECESSIVE DISORDERS:\n"
+            "  If the disorder is severe and early-onset AND ac_hom > 0 in gnomAD:\n"
+            "    → BS2 likely APPLIES. Set applies=true, applied_strength=benign_strong.\n"
+            "  Otherwise: flag as inconclusive and set applies=false.\n"
+            "  Note: gnomAD does not confirm individuals are 'healthy adults'; assume general population.\n"
+            "\n"
+            "Record ac_hom count, inheritance assumption, and reasoning in evidence."
+        ),
+        "strength_override": "benign_strong",
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 2
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PS4": {
+        "criterion": "PS4",
+        "acmg_category": "Pathogenic",
+        "strength": "strong",
+        "automation": "partially_automatable",
+        "tool": "clinvar",
+        "phase": 2,
+        "depends_on": [],
+        "description": (
+            "The prevalence of the variant in affected individuals is significantly increased "
+            "compared to controls. ACMG standard: OR or RR > 5.0 with CI not including 1.0. "
+            "For rare variants: prior observation in multiple unrelated patients with the same phenotype, "
+            "absent from controls, may be used as Moderate evidence."
+        ),
+        "threshold": "OR/RR > 5.0 (CI not including 1.0); or multiple unrelated patients with same phenotype absent from controls",
+        "instructions": (
+            "Search ClinVar and ClinGen ERepo for this variant's evidence. Fall back to PubMed.\n"
+            "\n"
+            "STEP 1: Gather case-level evidence (proband counts, case reports, statistical data).\n"
+            "\n"
+            "STEP 2: Apply strength based on evidence type:\n"
+            "  - OR/RR > 5.0 with CI not including 1.0 (case-control study) → PS4_Strong. applied_strength=strong.\n"
+            "  - >=4 unrelated patients with same phenotype, absent from controls → PS4_Strong. applied_strength=strong.\n"
+            "  - 2–3 unrelated patients with same phenotype → PS4_Moderate. applied_strength=moderate.\n"
+            "  - 1 patient with same phenotype → PS4_Supporting. applied_strength=supporting.\n"
+            "  - No case evidence → PS4 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record patient count or statistical values and source in evidence."
+        ),
+        "strength_override": None,
+    },
+
+    "PM1": {
+        "criterion": "PM1",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "partially_automatable",
+        "tool": "vep",
+        "phase": 2,
+        "depends_on": [],
+        "blocks": ["PM5_Strong"],
+        "variant_types": ["missense"],
+        "description": (
+            "Located in a mutational hot spot and/or critical and well-established functional domain "
+            "(e.g. active site of an enzyme) without benign variation. ACMG Moderate strength. "
+            "VEP provides the codon position; domain membership is assessed using LLM knowledge "
+            "of the gene's protein structure and known functional regions."
+        ),
+        "threshold": "Variant in a mutational hotspot or critical functional domain with no known benign variation at that position",
+        "instructions": (
+            "Use VEP to obtain the protein codon position of the variant.\n"
+            "\n"
+            "STEP 1: Is the variant in a well-established critical functional domain of this gene?\n"
+            "  Assess using knowledge of the gene's protein structure:\n"
+            "  - Active sites or catalytic residues\n"
+            "  - Ligand-binding or substrate-binding domains\n"
+            "  - Known mutational hotspots (positions with multiple independent P/LP variants)\n"
+            "  - Well-characterized structural domains (kinase domain, RING finger, DNA-binding domain, etc.)\n"
+            "  - YES → continue to Step 2.\n"
+            "  - NO / uncertain → PM1 does NOT apply. Set applies=false. Stop.\n"
+            "\n"
+            "STEP 2: Is there known benign variation at this specific position or domain?\n"
+            "  - YES (known benign variants at same codon) → PM1 does NOT apply. Set applies=false.\n"
+            "  - NO  → PM1_Moderate APPLIES. Set applies=true.\n"
+            "\n"
+            "Be conservative — only apply PM1 when domain membership is well-established. "
+            "Record the domain name, codon position, and reasoning in evidence."
+        ),
+        "strength_override": "moderate",
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 3
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PVS1": {
+        "criterion": "PVS1",
+        "acmg_category": "Pathogenic",
+        "strength": "very_strong",
+        "automation": "fully_automatable",
+        "tool": "vep",
+        "phase": 3,
+        "depends_on": [],
+        "variant_types": ["frameshift", "nonsense", "splice_site", "start_lost"],
+        "description": (
+            "Null variant (nonsense, frameshift, canonical +/−1 or 2 splice sites, initiation codon, "
+            "single or multi-exon deletion) in a gene where loss of function (LOF) is a known mechanism of disease. "
+            "Standard ACMG PVS1 decision tree (no gene-specific codon boundaries). "
+            "NMD is predicted when the premature termination codon (PTC) is NOT in the last exon and "
+            "NOT within 50–55 nt of the last exon-exon junction. "
+            "Caveats: do not apply to genes where LOF is NOT the disease mechanism (e.g. GFAP, MYH7)."
+        ),
+        "threshold": "LOF consequence in gene with established LOF disease mechanism",
+        "instructions": (
+            "Use VEP to determine variant consequence and protein codon position.\n"
+            "\n"
+            "PREREQUISITE: Is LOF a known disease mechanism for this gene?\n"
+            "  - NO (e.g. dominant negative, gain-of-function) → PVS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - UNCERTAIN → apply PVS1 with caution; note caveat in evidence.\n"
+            "  - YES → continue.\n"
+            "\n"
+            "NONSENSE OR FRAMESHIFT:\n"
+            "  NMD is predicted if the PTC is NOT in the last exon and NOT within 50–55 nt upstream\n"
+            "  of the last exon-exon junction.\n"
+            "  - NMD predicted → PVS1 (Very Strong). Set applied_strength=very_strong.\n"
+            "  - NMD NOT predicted (3'-terminal / last exon variant):\n"
+            "      * Truncated region is critical to protein function → PVS1_Strong. applied_strength=strong.\n"
+            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate. applied_strength=moderate.\n"
+            "      * Otherwise → PVS1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "CANONICAL SPLICE SITES (+/−1, 2):\n"
+            "  - Exon skipping predicted, disrupts reading frame, NMD predicted → PVS1 (Very Strong).\n"
+            "  - Exon skipping predicted, disrupts reading frame, NMD NOT predicted:\n"
+            "      * Truncated region critical → PVS1_Strong.\n"
+            "      * Role unknown AND <10% protein removed → PVS1_Moderate.\n"
+            "  - Exon skipping preserves reading frame:\n"
+            "      * Region critical → PVS1_Strong. Otherwise → PVS1_Moderate.\n"
+            "\n"
+            "INITIATION CODON (start_lost):\n"
+            "  - No known alternative start codon → PVS1_Moderate. Set applied_strength=moderate.\n"
+            "  - Known downstream alternative start codon → lower strength or not applicable.\n"
+            "\n"
+            "Record variant consequence, codon position, NMD prediction, and final applied_strength."
+        ),
+        "strength_override": None,
+    },
+
+    "PM5": {
+        "criterion": "PM5",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "partially_automatable",
+        "tool": "erepo",
+        "phase": 3,
+        "depends_on": ["PM1"],
+        "variant_types": ["missense"],
+        "description": (
+            "Novel missense change at an amino acid residue where a different missense change "
+            "determined to be pathogenic has been seen before. ACMG Moderate strength. "
+            "Reference variants must be P/LP from a reputable source "
+            "(expert panel, ClinVar 2+ star review, published VCEP classification). "
+            "Cannot combine PM5_Strong with PM1."
+        ),
+        "threshold": ">=1 different P/LP missense at same codon from a reputable source",
+        "instructions": (
+            "Search ClinGen ERepo and ClinVar for variants at the same amino acid position with different substitutions.\n"
+            "\n"
+            "STEP 1: Are there P/LP-classified missense variants at the same codon with a DIFFERENT amino acid change?\n"
+            "  - NO  → PM5 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Count qualifying variants (different substitution, same codon, P/LP, reputable source):\n"
+            "  - >=2 different P/LP missense at same codon → PM5_Strong. Set applied_strength=strong.\n"
+            "    RULE: do NOT combine PM5_Strong with PM1. If PM1 also applies, downgrade PM5 to Moderate.\n"
+            "  - 1 different P/LP missense at same codon → PM5_Moderate. Set applied_strength=moderate.\n"
+            "\n"
+            "STEP 3: Could the query variant affect splicing rather than the amino acid?\n"
+            "  - YES → PM5 may not be appropriate; note caveat in evidence.\n"
+            "\n"
+            "Record matched variant(s), classifications, amino acid changes, and source in evidence."
+        ),
+        "strength_override": None,
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 4 — no dependencies
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PS1": {
+        "criterion": "PS1",
+        "acmg_category": "Pathogenic",
+        "strength": "strong",
+        "automation": "partially_automatable",
+        "tool": "erepo",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["missense"],
+        "description": (
+            "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
+            "ACMG Strong strength. Reference variant must be P/LP from a reputable source. "
+            "Caveat: beware of changes that impact splicing rather than the amino acid."
+        ),
+        "threshold": "Identical amino acid change, P/LP from a reputable source",
+        "instructions": (
+            "Search for variants producing the same amino acid change (regardless of nucleotide change).\n"
+            "\n"
+            "STEP 1: Does a P/LP-classified entry exist with the same amino acid change?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is the source reputable (expert panel, 2+ star ClinVar, published VCEP)?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Could the query variant affect splicing rather than the amino acid?\n"
+            "  - YES → PS1 NOT appropriate. Set applies=false.\n"
+            "  - NO  → PS1 APPLIES. Set applies=true, applied_strength=strong.\n"
+            "\n"
+            "Record matched variant, classification, source, and amino acid change in evidence."
+        ),
+        "strength_override": "strong",
+    },
+
+    "PM4": {
+        "criterion": "PM4",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "fully_automatable",
+        "tool": "vep",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["inframe_insertion", "inframe_deletion", "stop_lost"],
+        "description": (
+            "Protein length changes due to in-frame deletions/insertions in a non-repeat region "
+            "or stop-loss variants. ACMG Moderate strength."
+        ),
+        "threshold": "VEP consequence = inframe_insertion, inframe_deletion, or stop_lost; not in repeat region",
+        "instructions": (
+            "Use VEP to annotate the variant consequence.\n"
+            "\n"
+            "STEP 1: What is the VEP consequence?\n"
+            "  - inframe_insertion → continue to Step 2.\n"
+            "  - inframe_deletion  → continue to Step 2.\n"
+            "  - stop_lost         → PM4_Moderate APPLIES. Set applies=true. Stop.\n"
+            "  - anything else     → PM4 does NOT apply. Set applies=false. Stop.\n"
+            "\n"
+            "STEP 2 (in-frame indels only): Does the variant overlap a repeat region?\n"
+            "  - YES → PM4 does NOT apply (BP3 may apply instead). Set applies=false.\n"
+            "  - NO  → PM4_Moderate APPLIES. Set applies=true.\n"
+            "\n"
+            "Record VEP consequence and repeat region status in evidence."
+        ),
+        "strength_override": "moderate",
+    },
+
+    "PP3": {
+        "criterion": "PP3",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "revel_spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "description": (
+            "Multiple lines of computational evidence support a deleterious effect. "
+            "ClinGen SVI calibrated thresholds: REVEL >= 0.644 (missense) OR SpliceAI >= 0.2. "
+            "PP3 can be used only once per variant evaluation."
+        ),
+        "threshold": "Missense: REVEL >= 0.644 OR SpliceAI >= 0.2 | Synonymous/intronic: SpliceAI >= 0.2",
+        "instructions": (
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "PP3 can be used only once per variant evaluation.\n"
+            "\n"
+            "BRANCH A — Missense variant:\n"
+            "  STEP 1: Is REVEL score >= 0.644?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Record REVEL score as trigger. Stop.\n"
+            "    - NO  → continue to Step 2.\n"
+            "  STEP 2: Is ANY SpliceAI delta score >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Record which score triggered.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
+            "\n"
+            "BRANCH B — Synonymous or intronic variant:\n"
+            "  STEP 1: Is ANY SpliceAI delta score >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record exact scores and which threshold triggered in evidence."
+        ),
+        "strength_override": "supporting",
+    },
+
+    "PP5": {
+        "criterion": "PP5",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "partially_automatable",
+        "tool": "clinvar",
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Reputable source recently reports the variant as pathogenic, but evidence is not available "
+            "for independent evaluation. ACMG Supporting strength. "
+            "Reputable sources: ClinGen expert panels, ClinVar 2+ star submissions, published VCEP classifications."
+        ),
+        "threshold": "Exact variant classified P/LP by a reputable source in ClinVar (star_rating >= 2)",
+        "instructions": (
+            "Search ClinVar for the exact variant's aggregate classification.\n"
+            "NOTE: the evidence will contain 'found', 'classification', 'review_status', "
+            "'star_rating' (0–4), and 'reputable_source' (True if star_rating >= 2).\n"
+            "\n"
+            "STEP 1: Is found == true?\n"
+            "  - NO  → PP5 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is classification 'Pathogenic' or 'Likely pathogenic'?\n"
+            "  - NO  → PP5 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Is reputable_source == true (star_rating >= 2)?\n"
+            "  - NO  (star_rating 0–1, single lab) → PP5 does NOT apply. Set applies=false.\n"
+            "  - YES → PP5 APPLIES. Set applies=true.\n"
+            "\n"
+            "PP5 should not substitute for independent evaluation when evidence IS available. "
+            "Record classification, review_status, and star_rating in evidence."
+        ),
+        "strength_override": "supporting",
+    },
+
+    "BP3": {
+        "criterion": "BP3",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "vep",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["inframe_insertion", "inframe_deletion"],
+        "description": (
+            "In-frame deletions/insertions in a repetitive region without a known function. "
+            "ACMG Supporting benign strength. "
+            "BP3 and PM4 are mutually exclusive for in-frame indels — BP3 applies in repeat regions, "
+            "PM4 applies outside repeat regions."
+        ),
+        "threshold": "VEP consequence = inframe_insertion or inframe_deletion AND overlaps repeat region",
+        "instructions": (
+            "Use VEP to annotate the variant consequence and check for repeat region overlap.\n"
+            "\n"
+            "STEP 1: What is the VEP consequence?\n"
+            "  - inframe_insertion or inframe_deletion → continue to Step 2.\n"
+            "  - anything else → BP3 does NOT apply. Set applies=false. Stop.\n"
+            "\n"
+            "STEP 2: Does the variant overlap a repeat region?\n"
+            "  - YES → BP3 APPLIES. Set applies=true.\n"
+            "    Note: PM4 cannot also apply for this variant — BP3 and PM4 are mutually exclusive.\n"
+            "  - NO  → BP3 does NOT apply (consider PM4 instead). Set applies=false.\n"
+            "\n"
+            "Record VEP consequence and repeat region status in evidence."
+        ),
+        "strength_override": "benign_supporting",
+    },
+
+    "BP4": {
+        "criterion": "BP4",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "revel_spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "description": (
+            "Multiple lines of computational evidence suggest no impact on gene or gene product. "
+            "ClinGen SVI calibrated thresholds: REVEL <= 0.290 AND SpliceAI <= 0.1 for missense. "
+            "BP4 can be used only once per variant evaluation."
+        ),
+        "threshold": "Missense: REVEL <= 0.290 AND SpliceAI <= 0.1 | Synonymous/intronic: SpliceAI <= 0.1",
+        "instructions": (
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP4 can be used only once per variant evaluation.\n"
+            "\n"
+            "BRANCH A — Missense variant (BOTH conditions required — AND logic):\n"
+            "  STEP 1: Is REVEL score <= 0.290?\n"
+            "    - NO  → BP4 does NOT apply. Set applies=false. Stop.\n"
+            "    - YES → continue to Step 2.\n"
+            "  STEP 2: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false.\n"
+            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
+            "\n"
+            "BRANCH B — Synonymous or intronic variant (SpliceAI only):\n"
+            "  STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "    - NO  → BP4 does NOT apply. Set applies=false.\n"
+            "    - YES → BP4 APPLIES. Set applies=true.\n"
+            "\n"
+            "Record exact REVEL and SpliceAI scores in evidence."
+        ),
+        "strength_override": "benign_supporting",
+    },
+
+    "BP6": {
+        "criterion": "BP6",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "partially_automatable",
+        "tool": "clinvar",
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Reputable source recently reports the variant as benign, but evidence is not available "
+            "for independent evaluation. ACMG Supporting benign strength. "
+            "Reputable sources: ClinGen expert panels, ClinVar 2+ star submissions."
+        ),
+        "threshold": "Exact variant classified B/LB by a reputable source in ClinVar (star_rating >= 2)",
+        "instructions": (
+            "Search ClinVar for the exact variant's aggregate classification.\n"
+            "NOTE: the evidence will contain 'found', 'classification', 'review_status', "
+            "'star_rating' (0–4), and 'reputable_source' (True if star_rating >= 2).\n"
+            "\n"
+            "STEP 1: Is found == true?\n"
+            "  - NO  → BP6 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is classification 'Benign' or 'Likely benign'?\n"
+            "  - NO  → BP6 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Is reputable_source == true (star_rating >= 2)?\n"
+            "  - NO  (star_rating 0–1, single lab) → BP6 does NOT apply. Set applies=false.\n"
+            "  - YES → BP6 APPLIES. Set applies=true.\n"
+            "\n"
+            "Record classification, review_status, and star_rating in evidence."
+        ),
+        "strength_override": "benign_supporting",
+    },
+
+    "BP7": {
+        "criterion": "BP7",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["synonymous", "intronic"],
+        "description": (
+            "A synonymous (silent) variant for which splicing prediction algorithms predict no impact "
+            "on the splice consensus sequence or creation of a new splice site, AND the nucleotide is "
+            "not highly conserved. ACMG Supporting benign strength."
+        ),
+        "threshold": "Synonymous or intronic variant AND SpliceAI <= 0.1 for all four delta scores",
+        "instructions": (
+            "Fetch all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP7 applies to synonymous or intronic variants only.\n"
+            "\n"
+            "STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "  - YES → BP7 APPLIES. Set applies=true.\n"
+            "  - NO  (any score > 0.1) → BP7 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Note: also consider nucleotide conservation — high conservation at this position "
+            "warrants additional caution even if SpliceAI is low.\n"
+            "Record all four SpliceAI scores in evidence."
+        ),
+        "strength_override": "benign_supporting",
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # DEFERRED — require expert input, clinical records, or non-automatable data
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PS2": {
+        "criterion": "PS2",
+        "acmg_category": "Pathogenic",
+        "strength": "strong",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history. "
+            "ACMG Strong strength. Requires laboratory confirmation of parental identity."
+        ),
+        "threshold": "Confirmed de novo with maternity and paternity verified",
+        "instructions": (
+            "PS2 cannot be evaluated automatically. "
+            "Requires confirmed parental testing to verify both maternity and paternity. "
+            "Egg donation, surrogate motherhood, and embryo transfer errors must be excluded. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "strong",
+        "deferred": True,
+    },
+
+    "PS3": {
+        "criterion": "PS3",
+        "acmg_category": "Pathogenic",
+        "strength": "strong",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Well-established in vitro or in vivo functional studies supportive of a damaging effect. "
+            "ACMG Strong strength. Studies must be validated, reproducible, and robust in a "
+            "clinical diagnostic laboratory setting."
+        ),
+        "threshold": None,
+        "instructions": (
+            "PS3 cannot be evaluated automatically. "
+            "Requires reading and assessing published functional assay papers. "
+            "Studies must be validated and reproducible. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": None,
+        "deferred": True,
+    },
+
+    "PM3": {
+        "criterion": "PM3",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "For recessive disorders: detected in trans with a pathogenic variant. "
+            "ACMG Moderate strength (upgradeable to Strong with multiple independent trans observations). "
+            "Requires parental testing to confirm phase."
+        ),
+        "threshold": "Confirmed in trans with a P/LP variant (parental or read-based phase testing)",
+        "instructions": (
+            "PM3 cannot be evaluated automatically. "
+            "Requires parental testing or read-based phasing to confirm the variant is in trans "
+            "with a pathogenic variant. Applicable for recessive disorders only. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": None,
+        "deferred": True,
+    },
+
+    "PM6": {
+        "criterion": "PM6",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Assumed de novo, but without confirmation of paternity and maternity. "
+            "ACMG Moderate strength. Weaker than PS2 due to unconfirmed parental identity."
+        ),
+        "threshold": "Apparent de novo without confirmed parental identity",
+        "instructions": (
+            "PM6 cannot be evaluated automatically. "
+            "Requires clinical records showing apparent de novo status without confirmed parental identity. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "moderate",
+        "deferred": True,
+    },
+
+    "PP1": {
+        "criterion": "PP1",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Co-segregation with disease in multiple affected family members in a gene definitively "
+            "known to cause the disease. ACMG Supporting strength "
+            "(upgradeable to Moderate or Strong with increasing segregation data)."
+        ),
+        "threshold": "Co-segregation in >=2 affected family members; more meioses → stronger evidence",
+        "instructions": (
+            "PP1 cannot be evaluated automatically. "
+            "Requires confirmed family pedigree with affected/unaffected status. "
+            "Strength increases with more informative meioses (PP1_Supporting → Moderate → Strong). "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": None,
+        "deferred": True,
+    },
+
+    "PP2": {
+        "criterion": "PP2",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Missense variant in a gene with a low rate of benign missense variation and where "
+            "missense variants are a common mechanism of disease. ACMG Supporting strength. "
+            "Requires gene-level missense Z-score from gnomAD (threshold >= 3.09). "
+            "Deferred until gnomAD gene-level constraint query is implemented."
+        ),
+        "threshold": "Gene missense Z-score >= 3.09 (gnomAD) AND missense is a primary disease mechanism",
+        "instructions": (
+            "PP2 cannot be evaluated automatically with current tools. "
+            "Requires gene-level missense constraint score (gnomAD Z-score) which is not yet implemented. "
+            "When implemented: apply PP2 if gene missense Z-score >= 3.09 AND missense variants "
+            "are a known disease mechanism for the gene. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "supporting",
+        "deferred": True,
+    },
+
+    "PP4": {
+        "criterion": "PP4",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Patient's phenotype or family history is highly specific for a disease with a single "
+            "genetic etiology. ACMG Supporting strength."
+        ),
+        "threshold": "Phenotype highly specific for disease with single genetic etiology",
+        "instructions": (
+            "PP4 cannot be evaluated automatically. "
+            "Requires clinical phenotype assessment and review of family history. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "supporting",
+        "deferred": True,
+    },
+
+    "BS3": {
+        "criterion": "BS3",
+        "acmg_category": "Benign",
+        "strength": "strong",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Well-established in vitro or in vivo functional studies show no damaging effect on "
+            "protein function or splicing. ACMG Strong benign strength."
+        ),
+        "threshold": None,
+        "instructions": (
+            "BS3 cannot be evaluated automatically. "
+            "Requires reading and assessing published functional assay papers that demonstrate "
+            "no damaging effect on protein function or splicing. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "benign_strong",
+        "deferred": True,
+    },
+
+    "BS4": {
+        "criterion": "BS4",
+        "acmg_category": "Benign",
+        "strength": "strong",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Lack of segregation in affected members of a family. ACMG Strong benign strength. "
+            "Caveat: phenocopies (e.g. cancer, epilepsy) can mimic lack of segregation; "
+            "families may carry more than one pathogenic variant in dominant disorders."
+        ),
+        "threshold": "Variant absent in affected family members (with appropriate caveats for phenocopies)",
+        "instructions": (
+            "BS4 cannot be evaluated automatically. "
+            "Requires family pedigree data with confirmed affected/unaffected status. "
+            "Consider phenocopies and the possibility of multiple pathogenic variants. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "benign_strong",
+        "deferred": True,
+    },
+
+    "BP1": {
+        "criterion": "BP1",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Missense variant in a gene for which primarily truncating variants are known to cause disease. "
+            "ACMG Supporting benign strength. "
+            "Requires gene-level variant spectrum knowledge. "
+            "Deferred until gnomAD gene-level constraint query is implemented."
+        ),
+        "threshold": "Gene primarily causes disease via truncating/LOF variants, not missense",
+        "instructions": (
+            "BP1 cannot be evaluated automatically with current tools. "
+            "Requires knowledge of the gene's disease mechanism and variant spectrum. "
+            "When implemented: assess whether truncating variants dominate the gene's pathogenic variant spectrum. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "benign_supporting",
+        "deferred": True,
+    },
+
+    "BP2": {
+        "criterion": "BP2",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder; "
+            "or observed in cis with a pathogenic variant in any inheritance pattern. "
+            "ACMG Supporting benign strength. Requires phase testing."
+        ),
+        "threshold": "Confirmed in trans with P/LP variant (dominant) or in cis with P/LP variant (any)",
+        "instructions": (
+            "BP2 cannot be evaluated automatically. "
+            "Requires patient-level phasing data (parental testing or read-based phasing). "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "benign_supporting",
+        "deferred": True,
+    },
+
+    "BP5": {
+        "criterion": "BP5",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
+        "description": (
+            "Variant found in a case with an alternate molecular basis for disease. "
+            "ACMG Supporting benign strength. Requires identification of an alternate causative variant."
+        ),
+        "threshold": "Alternate causative variant identified in the same patient",
+        "instructions": (
+            "BP5 cannot be evaluated automatically. "
+            "Requires clinical/molecular data showing an alternate causative variant in the patient. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "strength_override": "benign_supporting",
+        "deferred": True,
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # SCORING — ACMG/AMP 2015 standard combining rules
+    # Source: Richards et al. Genet Med 2015;17(5):405–424 (Table 5)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "SCORING": {
+        "criterion": "SCORING",
+
+        # Fixed-strength criteria: key → strength bucket.
+        # Variable-strength criteria (PVS1, PS4, PM5, PP1, PS2 upgraded, PM3 upgraded)
+        # are NOT listed here — they use applied_strength from the task agent.
+        "fixed_strengths": {
+            "PM2":  "moderate",
+            "PM1":  "moderate",
+            "PM4":  "moderate",
+            "PM6":  "moderate",
+            "PS1":  "strong",
+            "PS2":  "strong",
+            "PP3":  "supporting",
+            "PP4":  "supporting",
+            "PP5":  "supporting",
+            "BA1":  "benign_stand_alone",
+            "BS1":  "benign_strong",
+            "BS2":  "benign_strong",
+            "BS3":  "benign_strong",
+            "BS4":  "benign_strong",
+            "BP1":  "benign_supporting",
+            "BP2":  "benign_supporting",
+            "BP3":  "benign_supporting",
+            "BP4":  "benign_supporting",
+            "BP5":  "benign_supporting",
+            "BP6":  "benign_supporting",
+            "BP7":  "benign_supporting",
+        },
+
+        "variable_strength_map": {
+            "very_strong":       "very_strong",
+            "strong":            "strong",
+            "moderate":          "moderate",
+            "supporting":        "supporting",
+            "benign_strong":     "benign_strong",
+            "benign_supporting": "benign_supporting",
+        },
+
+        "incompatible_combinations": [
+            {
+                "criteria":   ["PM1", "PM5"],
+                "condition":  "PM5 applied_strength == strong",
+                "action":     "downgrade",
+                "target":     "PM5",
+                "new_strength": "moderate",
+                "note": "PM1 and PM5_Strong cannot be combined — PM5 is downgraded to Moderate",
+            },
+        ],
+
+        # Standard ACMG/AMP 2015 pathogenic combining rules (Table 5)
+        "pathogenic_rules": [
+            {"vs": 1, "s": 1,                     "label": "PVS1 + ≥1 Strong"},
+            {"vs": 1, "m": 2,                     "label": "PVS1 + ≥2 Moderate"},
+            {"vs": 1, "m": 1, "sup": 1,           "label": "PVS1 + 1 Moderate + 1 Supporting"},
+            {"vs": 1, "sup": 2,                   "label": "PVS1 + ≥2 Supporting"},
+            {"s": 2,                               "label": "≥2 Strong"},
+            {"s": 1, "m": 3,                       "label": "1 Strong + ≥3 Moderate"},
+            {"s": 1, "m": 2, "sup": 2,            "label": "1 Strong + 2 Moderate + ≥2 Supporting"},
+            {"s": 1, "m": 1, "sup": 4,            "label": "1 Strong + 1 Moderate + ≥4 Supporting"},
+        ],
+
+        "likely_pathogenic_rules": [
+            {"vs": 1, "m": 1,                     "label": "PVS1 + 1 Moderate"},
+            {"vs": 1, "sup": 1,                   "label": "PVS1 + 1 Supporting"},
+            {"s": 1, "m": 2,                       "label": "1 Strong + 2 Moderate"},
+            {"s": 1, "m": 1,                       "label": "1 Strong + 1 Moderate"},
+            {"s": 1, "sup": 2,                    "label": "1 Strong + ≥2 Supporting"},
+            {"m": 3,                               "label": "≥3 Moderate"},
+            {"m": 2, "sup": 2,                    "label": "2 Moderate + ≥2 Supporting"},
+            {"m": 1, "sup": 4,                    "label": "1 Moderate + ≥4 Supporting"},
+        ],
+
+        "benign_rules": [
+            {"ba": 1,          "label": "BA1 stand-alone"},
+            {"bs": 2,          "label": "≥2 Strong benign"},
+        ],
+
+        "likely_benign_rules": [
+            {"bs": 1, "bsup": 1, "label": "1 Strong + 1 Supporting benign"},
+            {"bsup": 2,          "label": "≥2 Supporting benign"},
+        ],
+    },
+}
+
+
+ACMG_EXCLUDED_CRITERIA = {}
+
+
+def query(criterion: str, gene: str = None, disease: str = None) -> dict | None:
     """
     Retrieve the PlanRAG entry for a given ACMG criterion.
 
@@ -1070,6 +2104,10 @@ def query(criterion: str, gene: str = None) -> dict | None:
         Gene symbol (e.g. "ACVRL1", "ENG"). When provided and the entry has a
         gene_data dict, the gene-specific sub-dict is merged into the returned entry.
         When None, defaults to the first gene in gene_data (ACVRL1) for backward compatibility.
+    disease : str | None
+        Disease name entered by the user. If provided and NOT in VCEP_DISEASES,
+        routes to ACMG_PLANRAG_DB (generic ACMG/AMP 2015 criteria).
+        If None or a VCEP disease, routes to PLANRAG_DB (HHT VCEP) for backward compatibility.
 
     Returns
     -------
@@ -1077,29 +2115,43 @@ def query(criterion: str, gene: str = None) -> dict | None:
         A shallow copy of the planrag entry with gene-specific fields merged in,
         or None if the criterion is not found.
     """
-    key = criterion.upper().replace("-", "_").replace(" ", "_")
+    # ── Route to the correct database ──────────────────────────────────────────
+    use_acmg = disease is not None and not is_vcep_disease(disease)
 
-    entry = None
-    if key in PLANRAG_DB:
-        entry = dict(PLANRAG_DB[key])
+    if use_acmg:
+        db = ACMG_PLANRAG_DB
+        excluded = ACMG_EXCLUDED_CRITERIA
+        # Normalize VCEP-style key variants → standard ACMG names so that
+        # callers using HHT criterion names still work in generic mode.
+        key = criterion.upper().replace("-", "_").replace(" ", "_")
+        key = _ACMG_KEY_ALIASES.get(key, key)
     else:
-        for db_key, db_entry in PLANRAG_DB.items():
+        db = PLANRAG_DB
+        excluded = EXCLUDED_CRITERIA
+        key = criterion.upper().replace("-", "_").replace(" ", "_")
+
+    # ── Exact-key lookup, then fuzzy criterion-name lookup ─────────────────────
+    entry = None
+    if key in db:
+        entry = dict(db[key])
+    else:
+        for db_entry in db.values():
             if (db_entry.get("criterion", "").upper().replace("_", "").replace(" ", "")
                     == key.replace("_", "").replace(" ", "")):
                 entry = dict(db_entry)
                 break
 
     if entry is None:
-        if key in EXCLUDED_CRITERIA:
+        if key in excluded:
             return {
                 "criterion": criterion,
                 "excluded": True,
-                "reason": EXCLUDED_CRITERIA[key],
+                "reason": excluded[key],
             }
         return None
 
-    # Merge gene-specific fields when gene_data is present.
-    # If gene is None or not found in gene_data, default to ACVRL1.
+    # ── Merge gene-specific fields (VCEP DB only) ──────────────────────────────
+    # ACMG_PLANRAG_DB entries do not use gene_data; this block is a no-op for them.
     gene_data = entry.get("gene_data")
     if gene_data is not None:
         resolved_gene = gene if (gene and gene in gene_data) else next(iter(gene_data))

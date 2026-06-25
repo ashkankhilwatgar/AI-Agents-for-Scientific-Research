@@ -57,6 +57,10 @@ The following are NOT reasoning errors — do not flag these:
   If the task agent found a proband count and correctly applied PS4, do not reject it on the grounds
   that the evidence also mentions an alternate molecular explanation — that is a separate criterion (BP5)
   and does not invalidate the PS4 finding.
+- PS4 tool_used field showing "clinvar" even when the underlying evidence came from ERepo, LOVD, or PubMed.
+  The "clinvar" tool internally runs a ClinVar → ERepo → LOVD → PubMed fallback chain for PS4.
+  tool_used="clinvar" is always the correct value for PS4 regardless of which fallback source
+  provided the proband count. Do NOT ask the task agent to change tool_used to "lovd" or "erepo".
 - A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
   is valid if the proband count supports it.
 - Evidence showing a variant is absent from a database — absence is valid evidence.
@@ -90,7 +94,8 @@ def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
 
-    rag_entry = query(criterion, gene=gene)
+    disease = task.get("disease")
+    rag_entry = query(criterion, gene=gene, disease=disease)
 
     if rag_entry is None:
         print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")

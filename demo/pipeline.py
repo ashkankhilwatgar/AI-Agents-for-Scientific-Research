@@ -8,12 +8,23 @@ from agents.judge_agent import run_judge
 from agents.check_agent import run_check
 from tools.utils import get_variant_type
 from tools.scoring import classify
-from data.planrag import query
+from data.planrag import query, is_vcep_disease, ACMG_PLANRAG_DB
 
-CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
-#"PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"
+# HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
+HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"]
 
-def filter_criteria_by_variant_type(criteria: list[str], variant_type: str) -> list[str]:
+# ACMG criteria — all automatable/partially-automatable entries in ACMG_PLANRAG_DB
+# (deferred entries are filtered out by plan_agent, but excluded here too for clarity)
+ACMG_CRITERIA = [k for k in ACMG_PLANRAG_DB if k != "SCORING"]
+
+
+def get_criteria_for_disease(disease: str) -> list[str]:
+    """Returns the correct criteria list based on whether disease has a VCEP spec."""
+    if disease is None or is_vcep_disease(disease):
+        return HHT_CRITERIA
+    return ACMG_CRITERIA
+
+def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, disease: str = None) -> list[str]:
     """
     Removes criteria that explicitly restrict which variant types they apply to
     when the variant type doesn't match.
@@ -25,7 +36,7 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str) -> l
     skipped = []
 
     for criterion in criteria:
-        entry = query(criterion)
+        entry = query(criterion, disease=disease)
         if entry is None or entry.get("excluded") or entry.get("deferred"):
             filtered.append(criterion)  # let plan_agent handle excluded/deferred
             continue
@@ -71,10 +82,11 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         variant_type = vep_result["variant_type"]
         print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
 
-    # ── CRITERIA FILTERING ─────────────────────
-    active_criteria = CRITERIA
+    # ── CRITERIA SELECTION & FILTERING ────────
+    base_criteria = get_criteria_for_disease(disease)
+    active_criteria = base_criteria
     if variant_type is not None:
-        active_criteria = filter_criteria_by_variant_type(CRITERIA, variant_type)
+        active_criteria = filter_criteria_by_variant_type(base_criteria, variant_type, disease=disease)
 
     # ── PLAN AGENT ────────────────────────────
     tasks = run_plan(variant, disease, active_criteria)
@@ -94,7 +106,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         task["variant_type"] = variant_type
 
         # ── PRECONDITION CHECK ────────────────────
-        rag_entry = query(criterion)
+        rag_entry = query(criterion, disease=disease)
         requires_applied = (rag_entry or {}).get("requires_applied", [])
         blocked_by      = (rag_entry or {}).get("blocked_by", [])
         skipped_reason = None
@@ -161,9 +173,10 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         print(f"\nPIPELINE: {criterion} complete")
 
     # ── SCORING ───────────────────────────────────────────────────────────────
+    scoring_label = "HHT VCEP" if (disease is None or is_vcep_disease(disease)) else "ACMG/AMP 2015"
     print("\n" + "─"*60)
-    print("PIPELINE: Running HHT VCEP classification scoring...")
-    scoring_result = classify(results_dict)
+    print(f"PIPELINE: Running {scoring_label} classification scoring...")
+    scoring_result = classify(results_dict, disease=disease)
     print(f"PIPELINE: Classification → {scoring_result['classification']}")
     print(f"          Rule matched   → {scoring_result['rule_matched']}")
 
