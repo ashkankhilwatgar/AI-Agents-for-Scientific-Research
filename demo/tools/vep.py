@@ -218,6 +218,19 @@ def annotate_variant(variant: str) -> dict:
                 last_error = "VEP transcript_consequences missing consequence_terms"
                 continue
 
+            rsid = None
+            for cv in data[0].get("colocated_variants", []):
+                if "id" in cv and str(cv["id"]).startswith("rs"):
+                    rsid = cv["id"]
+                    break
+                if "ids" in cv:
+                    for x in cv["ids"]:
+                        if str(x).startswith("rs"):
+                            rsid = x
+                            break
+                if rsid:
+                    break
+
             result = {
                 "variant_consequence": consequence_terms[0],
                 "variant_type": CONSEQUENCE_MAP.get(consequence_terms[0], "other"),
@@ -226,7 +239,8 @@ def annotate_variant(variant: str) -> dict:
                 "hgvsp": hgvsp,
                 "gene_symbol": gene_symbol,
                 "ensembl_transcript": ensembl_transcript,
-                "mane_transcript": mane_transcript
+                "mane_transcript": mane_transcript,
+                "rsid": rsid
             }
 
             # repeat region check — only for in-frame indels (required for PM4)

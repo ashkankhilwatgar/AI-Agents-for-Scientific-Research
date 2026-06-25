@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any, Set
 from dataclasses import dataclass, asdict
-from vep import annotate_variant
+from .vep import annotate_variant
 import sys
 from urllib.parse import quote
 from demo.config import NCBI_API_KEY
@@ -592,10 +592,10 @@ class IntegratedAssessment:
 # =============================================================================
 # VEP tools
 # =============================================================================
-def enrich_with_vep(vi: VariantInfo, vep_info: dict) -> VariantInfo:
+def enrich_with_vep(vi: VariantInfo, vep_info: dict) -> None:
     """Update VariantInfo with VEP annotations if present."""
     if not vep_info:
-        return
+        return 
 
     if vep_info.get("rsid") and not vi.rsid:
         vi.rsid = vep_info["rsid"]
@@ -622,6 +622,9 @@ def build_variant_label(vi: VariantInfo) -> str:
     """
     Build a simple, LLM-friendly "variant of interest" string.
     """
+    print("build_variant_label ", "vi type", type(vi))
+
+    print("build variant label: ", vi.name)
     return (
         f"{vi.name}, "
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
@@ -643,6 +646,8 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
     """
     try:
         encoded_variant = quote(variant_id, safe='')
+        print("litvar 2 encoded variant that is send to the server: ")
+        print(encoded_variant)
 
         url = f"{LITVAR2_API_BASE}/variant/get/litvar@{encoded_variant}%23%23/publications"
         print(f"   Querying LitVar2: {variant_id}...")
@@ -1302,20 +1307,20 @@ def llm_extract_experiments(
     for i, fp in enumerate(functional_papers, 1):
         print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
         
-        # Check if PDF exists
-        pdf_path = None
-        if pdf_dir:
-            candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
-            if candidate_pdf.exists():
-                pdf_path = str(candidate_pdf)
-                fp.pdf_path = pdf_path
+        # # Check if PDF exists
+        # pdf_path = None
+        # if pdf_dir:
+        #     candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
+        #     if candidate_pdf.exists():
+        #         pdf_path = str(candidate_pdf)
+        #         fp.pdf_path = pdf_path
         
-        # Try PDF-based extraction first if available
-        if pdf_path:
-            extracted = _extract_from_pdf(fp.pmid, variant_label, pdf_path, fp.title)
-            if extracted:
-                experiments.extend(extracted)
-                continue
+        # # Try PDF-based extraction first if available
+        # if pdf_path:
+        #     extracted = _extract_from_pdf(fp.pmid, variant_label, pdf_path, fp.title)
+        #     if extracted:
+        #         experiments.extend(extracted)
+        #         continue
         
         # Fallback to abstract-based extraction
         extracted = _extract_from_abstract(fp.pmid, variant_label, fp.title)
@@ -1369,14 +1374,24 @@ def analyze_variant(
     # print("Step 1: VEP annotation...")
 
     vi = VariantInfo(name=variant)
+    print("variant info: variant nmae")
+    print(vi.name)
+    print("variant info, vi type")
+    print(type(vi))
 
     vep_info: Optional[Dict[str, Any]] = None
     try:
         vep_info = annotate_variant(variant)
 
+        print("VEP annotation successful")
+        print("VEP info: ")
+        print(vep_info)
+
         if vep_info:
             print("   VEP annotation obtained.")
-            vi = enrich_with_vep(vi, vep_info)
+            print("")
+            enrich_with_vep(vi, vep_info)
+            print("Enriching successful")
         else:
             print("   VEP returned no annotation.")
     except Exception as e:
@@ -1385,9 +1400,6 @@ def analyze_variant(
     variant_label = build_variant_label(vi)
     print(f"\n   Variant label for LLM prompts: {variant_label}")
     print("   Identifiers to query in LitVar2:")
-    for s in vi.search_strings():
-        print(f"   - {s}")
-    print()
 
     # 2. Query LitVar2 for PMIDs
     print("Step 2: Querying LitVar2 for publications...")
@@ -1404,24 +1416,24 @@ def analyze_variant(
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
     print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
-    # 4b. Download PDFs for functional papers (if enabled)
-    downloaded_pdfs = {}
-    if download_pdfs and pdf_path and functional_papers:
-        print("\nStep 4b: Downloading PDFs for functional papers...")
-        functional_pmids = [fp.pmid for fp in functional_papers]
-        downloaded_pdfs = download_pdfs_for_papers(
-            functional_pmids,
-            pdf_path,
-            max_downloads=max_pdf_downloads,
-        )
-        print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
+    # # 4b. Download PDFs for functional papers (if enabled)
+    # downloaded_pdfs = {}
+    # if download_pdfs and pdf_path and functional_papers:
+    #     print("\nStep 4b: Downloading PDFs for functional papers...")
+    #     functional_pmids = [fp.pmid for fp in functional_papers]
+    #     downloaded_pdfs = download_pdfs_for_papers(
+    #         functional_pmids,
+    #         pdf_path,
+    #         max_downloads=max_pdf_downloads,
+    #     )
+    #     print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
         
-        # Update functional papers with PDF paths
-        for fp in functional_papers:
-            if fp.pmid in downloaded_pdfs:
-                fp.pdf_path = downloaded_pdfs[fp.pmid]
+    #     # Update functional papers with PDF paths
+    #     for fp in functional_papers:
+    #         if fp.pmid in downloaded_pdfs:
+    #             fp.pdf_path = downloaded_pdfs[fp.pmid]
 
-    # 5. Extract experiments (uses PDFs when available)
+    # 5. Extract experiments 
     print("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
@@ -1430,20 +1442,3 @@ def analyze_variant(
     )
 
     return {"experiments": [asdict(e) for e in experiments]}
-    # print(f"   Extracted {len(experiments)} experiments")
-
-    # # 6. Integrate evidence using LLM
-    # print("\nStep 6: Integrating evidence and making PS3/BS3 call...")
-    # assessment = integrate_evidence(experiments, variant_label)
-
-    # # # 7. Output report
-    # # print_report(vi, candidate_papers, functional_papers, experiments, assessment)
-
-    # # Return everything as a dict
-    # return {
-    #     "variant_info": asdict(vi),
-    #     "candidate_papers": [asdict(p) for p in candidate_papers],
-    #     "functional_papers": [asdict(fp) for fp in functional_papers],
-    #     "experiments": [asdict(e) for e in experiments],
-    #     "assessment": asdict(assessment),
-    # }
