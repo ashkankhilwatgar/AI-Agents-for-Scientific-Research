@@ -39,6 +39,9 @@ GENE_DB = {
         "protein_length": 503,                  # aa
         "total_exons":    10,
         "cspec_id":       "GN135",
+        # LOF mechanism — used by PVS1 prerequisite check
+        "lof_mechanism":       True,
+        "lof_mechanism_note":  "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     "ENG": {
         "gene_symbol":    "ENG",
@@ -46,6 +49,9 @@ GENE_DB = {
         "protein_length": 658,                  # aa
         "total_exons":    15,
         "cspec_id":       "GN136",
+        # LOF mechanism — used by PVS1 prerequisite check
+        "lof_mechanism":       True,
+        "lof_mechanism_note":  "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     # ── Non-VCEP genes — add as needed for ACMG mode ──────────────────────────
     "LDLR": {
@@ -54,6 +60,9 @@ GENE_DB = {
         "protein_length": 860,                  # aa
         "total_exons":    18,
         "cspec_id":       None,                 # no VCEP spec
+        # LOF mechanism — used by PVS1 prerequisite check
+        "lof_mechanism":       True,
+        "lof_mechanism_note":  "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
     },
 }
 
@@ -1837,26 +1846,38 @@ ACMG_PLANRAG_DB = {
         "criterion": "PP2",
         "acmg_category": "Pathogenic",
         "strength": "supporting",
-        "automation": "not_automatable",
-        "tool": None,
+        "automation": "partially_automatable",
+        "tool": "gnomad_gene",
         "phase": 4,
         "depends_on": [],
+        "variant_types": ["missense"],
         "description": (
             "Missense variant in a gene with a low rate of benign missense variation and where "
             "missense variants are a common mechanism of disease. ACMG Supporting strength. "
-            "Requires gene-level missense Z-score from gnomAD (threshold >= 3.09). "
-            "Deferred until gnomAD gene-level constraint query is implemented."
+            "gnomAD gene-level missense Z-score threshold >= 3.09. "
+            "Also requires that missense variants are a known disease mechanism for the gene."
         ),
-        "threshold": "Gene missense Z-score >= 3.09 (gnomAD) AND missense is a primary disease mechanism",
+        "threshold": "Gene missense Z-score >= 3.09 (gnomAD) AND missense is a known disease mechanism",
         "instructions": (
-            "PP2 cannot be evaluated automatically with current tools. "
-            "Requires gene-level missense constraint score (gnomAD Z-score) which is not yet implemented. "
-            "When implemented: apply PP2 if gene missense Z-score >= 3.09 AND missense variants "
-            "are a known disease mechanism for the gene. "
-            "Return applies=null, status=deferred, with explanation."
+            "Fetch gene-level constraint data from gnomAD for the gene of interest.\n"
+            "The evidence will contain 'mis_z', 'pLI', 'oe_lof_upper', 'oe_mis', and '_computed.verdicts'.\n"
+            "\n"
+            "IMPORTANT: Use the '_computed.verdicts' field directly — it contains the pre-verified "
+            "PP2 threshold determination. Do NOT recompute mis_z thresholds yourself.\n"
+            "\n"
+            "STEP 1: Read '_computed.pp2_threshold_met'.\n"
+            "  - FALSE (mis_z < 3.09) → PP2 does NOT apply. Set applies=false. Stop.\n"
+            "  - TRUE  (mis_z >= 3.09) → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is missense a known disease mechanism for this gene?\n"
+            "  - Use your knowledge of the gene's pathogenic variant spectrum.\n"
+            "  - If missense variants are commonly pathogenic in this gene → PP2 APPLIES. Set applies=true.\n"
+            "  - If disease is primarily caused by truncating/LOF variants (missense rarely pathogenic) "
+            "→ PP2 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record mis_z score and disease mechanism assessment in evidence."
         ),
         "strength_override": "supporting",
-        "deferred": True,
     },
 
     "PP4": {
@@ -1932,25 +1953,43 @@ ACMG_PLANRAG_DB = {
         "criterion": "BP1",
         "acmg_category": "Benign",
         "strength": "supporting",
-        "automation": "not_automatable",
-        "tool": None,
+        "automation": "partially_automatable",
+        "tool": "gnomad_gene",
         "phase": 4,
         "depends_on": [],
+        "variant_types": ["missense"],
         "description": (
             "Missense variant in a gene for which primarily truncating variants are known to cause disease. "
             "ACMG Supporting benign strength. "
-            "Requires gene-level variant spectrum knowledge. "
-            "Deferred until gnomAD gene-level constraint query is implemented."
+            "Uses gnomAD gene-level constraint (pLI, LOEUF, oe_mis) to support the assessment of "
+            "whether the gene's disease mechanism is primarily LOF/truncating, not missense."
         ),
         "threshold": "Gene primarily causes disease via truncating/LOF variants, not missense",
         "instructions": (
-            "BP1 cannot be evaluated automatically with current tools. "
-            "Requires knowledge of the gene's disease mechanism and variant spectrum. "
-            "When implemented: assess whether truncating variants dominate the gene's pathogenic variant spectrum. "
-            "Return applies=null, status=deferred, with explanation."
+            "Fetch gene-level constraint data from gnomAD for the gene of interest.\n"
+            "The evidence will contain 'mis_z', 'pLI', 'oe_lof_upper', 'oe_mis', and '_computed.verdicts'.\n"
+            "\n"
+            "IMPORTANT: Use the '_computed.verdicts' field for the constraint profile. "
+            "The final BP1 decision requires clinical knowledge of the gene's disease mechanism.\n"
+            "\n"
+            "STEP 1: Read the constraint profile from '_computed.verdicts'.\n"
+            "  - Note pLI, LOEUF (oe_lof_upper), and oe_mis values.\n"
+            "\n"
+            "STEP 2: Use your knowledge of the gene's disease mechanism.\n"
+            "  - If the gene is known to cause disease PRIMARILY via truncating/LOF variants "
+            "(frameshift, nonsense, splice-disrupting variants dominate the pathogenic spectrum) "
+            "AND missense variants are rarely pathogenic in this gene → BP1 APPLIES. Set applies=true.\n"
+            "  - If missense variants are also a common pathogenic mechanism → BP1 does NOT apply.\n"
+            "  - Constraint hint from gnomAD:\n"
+            "    * High pLI (>=0.9) and low LOEUF (<=0.35) → gene is LOF-intolerant → LOF likely causes disease\n"
+            "    * High oe_mis (>=0.8) → missense variants relatively tolerated in healthy population\n"
+            "    These support BP1 only when combined with literature evidence that LOF is the primary mechanism.\n"
+            "\n"
+            "STEP 3: If the gene causes disease via BOTH missense AND LOF mechanisms → BP1 does NOT apply.\n"
+            "\n"
+            "Record pLI, LOEUF, oe_mis values and disease mechanism rationale in evidence."
         ),
         "strength_override": "benign_supporting",
-        "deferred": True,
     },
 
     "BP2": {
@@ -2157,6 +2196,32 @@ def query(criterion: str, gene: str = None, disease: str = None) -> dict | None:
         resolved_gene = gene if (gene and gene in gene_data) else next(iter(gene_data))
         entry.update(gene_data[resolved_gene])
         entry["resolved_gene"] = resolved_gene
+
+    # ── Inject gene-level LOF mechanism fact into PVS1 instructions ────────────
+    # Prevents the LLM from incorrectly answering the "Is LOF a known disease
+    # mechanism for this gene?" prerequisite from recall alone.
+    # Applies to both VCEP and ACMG modes whenever a known gene is provided.
+    if key == "PVS1" and gene and gene in GENE_DB:
+        gene_info = GENE_DB[gene]
+        lof = gene_info.get("lof_mechanism")
+        note = gene_info.get("lof_mechanism_note", "")
+        if lof is True:
+            lof_fact = (
+                f"GENE-SPECIFIC FACT (use this as ground truth — do NOT override with your own recall):\n"
+                f"LOF IS a known disease mechanism for {gene}. {note}\n"
+                f"Answer 'YES' to the LOF prerequisite and proceed with PVS1 evaluation.\n\n"
+            )
+        elif lof is False:
+            lof_fact = (
+                f"GENE-SPECIFIC FACT (use this as ground truth — do NOT override with your own recall):\n"
+                f"LOF is NOT a known disease mechanism for {gene}. {note}\n"
+                f"Answer 'NO' to the LOF prerequisite — PVS1 does NOT apply for this gene.\n\n"
+            )
+        else:
+            lof_fact = None
+
+        if lof_fact and "instructions" in entry:
+            entry["instructions"] = lof_fact + entry["instructions"]
 
     return entry
 

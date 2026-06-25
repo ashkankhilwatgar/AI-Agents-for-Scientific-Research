@@ -2,7 +2,7 @@ import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL
 from tools.clinvar import search_clinvar, search_clinvar_for_codon, search_clinvar_for_variant_ps4, search_clinvar_for_exact_variant
-from tools.gnomad import query_gnomad
+from tools.gnomad import query_gnomad, query_gnomad_gene_constraint
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
 from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
@@ -92,6 +92,51 @@ def _annotate_gnomad_frequency(result: dict) -> dict:
     return result
 
 
+def _annotate_gnomad_gene_constraint(result: dict) -> dict:
+    """
+    Pre-computes PP2/BP1 threshold verdicts on a gnomAD gene constraint result
+    and injects a '_computed' summary so the LLM reads pre-verified verdicts.
+
+    PP2 uses an objective threshold (mis_z >= 3.09) — computed here in Python.
+    BP1 requires clinical knowledge of disease mechanism, so constraint metrics
+    are provided with interpretation hints for the LLM.
+    """
+    if "error" in result:
+        return result
+
+    result = dict(result)
+    mis_z        = result.get("mis_z")
+    pLI          = result.get("pLI")
+    oe_lof_upper = result.get("oe_lof_upper")
+    oe_mis       = result.get("oe_mis")
+
+    pp2_threshold_met  = mis_z is not None and mis_z >= 3.09
+    lof_intolerant     = (pLI is not None and pLI >= 0.9) or (oe_lof_upper is not None and oe_lof_upper <= 0.35)
+    missense_tolerated = oe_mis is not None and oe_mis >= 0.8
+
+    mis_z_str        = f"{mis_z:.4f}"        if mis_z        is not None else "N/A"
+    pLI_str          = f"{pLI:.6f}"          if pLI          is not None else "N/A"
+    oe_lof_upper_str = f"{oe_lof_upper:.4f}" if oe_lof_upper is not None else "N/A"
+    oe_mis_str       = f"{oe_mis:.4f}"       if oe_mis       is not None else "N/A"
+
+    result["_computed"] = {
+        "pp2_threshold_met":  pp2_threshold_met,
+        "lof_intolerant":     lof_intolerant,
+        "missense_tolerated": missense_tolerated,
+        "verdicts": (
+            f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
+            f"  PP2 (threshold: mis_z >= 3.09): mis_z={mis_z_str} "
+            f"→ {'THRESHOLD MET — PP2 applies IF missense is a known disease mechanism' if pp2_threshold_met else 'THRESHOLD NOT MET — PP2 does NOT apply'}\n"
+            f"  BP1 constraint profile: pLI={pLI_str}, LOEUF={oe_lof_upper_str}, oe_mis={oe_mis_str}\n"
+            f"    LOF intolerant (pLI>=0.9 or LOEUF<=0.35): {lof_intolerant} "
+            f"→ {'LOF-constrained gene — LOF likely causes disease; BP1 could apply if missense not primary mechanism' if lof_intolerant else 'Gene tolerates LOF — BP1 unlikely (LOF not primary disease mechanism)'}\n"
+            f"    Missense tolerated (oe_mis>=0.8): {missense_tolerated} "
+            f"→ {'missense common in healthy population → supports BP1 if LOF is primary disease mechanism' if missense_tolerated else 'missense constrained → gene does not tolerate missense → BP1 unlikely'}"
+        ),
+    }
+    return result
+
+
 def call_ollama(prompt: str) -> str:
     payload = {
         "model": MODELS["task"],
@@ -129,6 +174,7 @@ Your task is to evaluate criterion {criterion} for variant {variant} (disease: {
 You have access to the following tools:
 - clinvar: searches ClinVar for variant classifications and proband counts. Use for PS4.
 - gnomad: queries gnomAD for population allele frequency. Use for PM2, BA1, BS1, BS2.
+- gnomad_gene: queries gnomAD for gene-level constraint metrics (missense Z-score, pLI, LOEUF). Use for PP2 and BP1.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
 - vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1, PM1, PM4, BP3.
@@ -138,7 +184,7 @@ You have access to the following tools:
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
+    "tool": "<clinvar | gnomad | gnomad_gene | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
 
@@ -266,6 +312,15 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
         gnomad_result = query_gnomad(input_value)
         gnomad_result = _annotate_gnomad_frequency(gnomad_result)
         return gnomad_result, input_value
+
+    elif tool == "gnomad_gene":
+        # Gene-level constraint query for PP2 (missense Z-score) and BP1 (pLI, LOEUF)
+        if not gene:
+            return {"error": "Gene symbol required for gene-level constraint query — add this gene to GENE_DB in planrag.py"}, input_value
+        gene_result = query_gnomad_gene_constraint(gene)
+        gene_result = _annotate_gnomad_gene_constraint(gene_result)
+        print(f"DEBUG - gnomad_gene: {gene} | mis_z={gene_result.get('mis_z')} | pLI={gene_result.get('pLI')} | LOEUF={gene_result.get('oe_lof_upper')}")
+        return gene_result, gene
 
     elif tool == "revel_spliceai":
         if input_value.startswith("NM_") or "c." in input_value or "p." in input_value:
@@ -472,6 +527,8 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
         "BP3":  "benign_supporting",
         "BP6":  "benign_supporting",
         "PP5":  "supporting",
+        "PP2":  "supporting",
+        "BP1":  "benign_supporting",
     }
     if not result.get("applies"):
         # Criterion does not apply — applied_strength must be null.
