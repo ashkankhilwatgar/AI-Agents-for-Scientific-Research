@@ -1,7 +1,11 @@
 import re
+import time
 import requests
 import xml.etree.ElementTree as ET
 from config import NCBI_API_KEY
+
+MAX_RETRIES  = 3
+RETRY_DELAY  = 2  # seconds between retries
 
 CLINVAR_SEARCH_URL  = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 CLINVAR_FETCH_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
@@ -202,7 +206,8 @@ def search_clinvar_for_variant_ps4(hgvs: str) -> dict:
         }
     or {"error": "..."} on failure.
     """
-    # Step 1: search by HGVS
+    # Step 1: search by HGVS (exact, then version-stripped fallback)
+    id_list = []
     try:
         r = requests.get(
             CLINVAR_SEARCH_URL,
@@ -214,6 +219,25 @@ def search_clinvar_for_variant_ps4(hgvs: str) -> dict:
         id_list = r.json().get("esearchresult", {}).get("idlist", [])
     except Exception as e:
         return {"error": f"ClinVar esearch failed: {e}"}
+
+    # Fallback: strip transcript version number (NM_000020.3 → NM_000020) and retry.
+    # ClinVar entries may be indexed under a different version than the input HGVS.
+    if not id_list:
+        stripped = re.sub(r'(NM_\d+)\.\d+', r'\1', hgvs)
+        if stripped != hgvs:
+            try:
+                r2 = requests.get(
+                    CLINVAR_SEARCH_URL,
+                    params={"db": "clinvar", "term": f'"{stripped}"[HGVS]',
+                            "retmax": 5, "retmode": "json", **_BASE_PARAMS},
+                    timeout=15,
+                )
+                r2.raise_for_status()
+                id_list = r2.json().get("esearchresult", {}).get("idlist", [])
+                if id_list:
+                    print(f"DEBUG - ClinVar PS4: exact HGVS not found; matched via version-stripped '{stripped}'")
+            except Exception:
+                pass  # silently ignore fallback failure — return not-found below
 
     if not id_list:
         return {"found": False, "proband_count": 0, "comment": "", "source": "clinvar_vcep"}
@@ -236,24 +260,56 @@ def search_clinvar_for_variant_ps4(hgvs: str) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Legacy — generic ClinVar lookup (used by other criteria if needed)
+# Legacy — generic ClinVar lookup (used by PS1 and other non-PS4 criteria)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def search_clinvar(variant: str) -> dict:
-    search_params = {"db": "clinvar", "term": variant, "retmode": "json"}
-    search_response = requests.get(CLINVAR_SEARCH_URL, params=search_params)
-    search_response.raise_for_status()
-    data = search_response.json()
+    """
+    Generic ClinVar lookup by variant identifier.
+    Returns {"variation_id": str, "record": str (VCV XML)} on success,
+    or {"error": "..."} on failure.
+    Includes retry logic and rate-limit handling.
+    """
+    last_error = "No attempts completed"
 
-    id_list = data["esearchresult"]["idlist"]
-    if not id_list:
-        return {"error": f"No ClinVar records found for variant: {variant}"}
+    for attempt in range(MAX_RETRIES):
+        try:
+            r = requests.get(
+                CLINVAR_SEARCH_URL,
+                params={"db": "clinvar", "term": variant,
+                        "retmode": "json", **_BASE_PARAMS},
+                timeout=15,
+            )
+            if r.status_code in (429, 500, 503):
+                last_error = f"HTTP {r.status_code}"
+                time.sleep(RETRY_DELAY * (attempt + 1))
+                continue
+            if r.status_code != 200:
+                return {"error": f"ClinVar esearch returned HTTP {r.status_code}"}
 
-    fetch_response = requests.get(
-        CLINVAR_FETCH_URL,
-        params={"db": "clinvar", "id": id_list[0],
-                "rettype": "vcv", "retmode": "xml"},
-    )
-    fetch_response.raise_for_status()
+            id_list = r.json().get("esearchresult", {}).get("idlist", [])
+            if not id_list:
+                return {"error": f"No ClinVar records found for variant: {variant}"}
 
-    return {"variation_id": id_list[0], "record": fetch_response.text}
+            fetch_r = requests.get(
+                CLINVAR_FETCH_URL,
+                params={"db": "clinvar", "id": id_list[0],
+                        "rettype": "vcv", "retmode": "xml",
+                        "is_variationid": "", **_BASE_PARAMS},
+                timeout=20,
+            )
+            if fetch_r.status_code in (429, 500, 503):
+                last_error = f"ClinVar fetch HTTP {fetch_r.status_code}"
+                time.sleep(RETRY_DELAY * (attempt + 1))
+                continue
+            if fetch_r.status_code != 200:
+                return {"error": f"ClinVar efetch returned HTTP {fetch_r.status_code}"}
+
+            return {"variation_id": id_list[0], "record": fetch_r.text}
+
+        except Exception as e:
+            last_error = str(e)
+            time.sleep(RETRY_DELAY)
+            continue
+
+    return {"error": f"ClinVar search failed after {MAX_RETRIES} retries: {last_error}"}

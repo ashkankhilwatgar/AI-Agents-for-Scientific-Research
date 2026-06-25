@@ -1,0 +1,67 @@
+{
+  "variant": "NM_001114753.3:c.1701del",
+  "disease": "HHT",
+  "timestamp": "20260624_114729",
+  "classification": "Pathogenic",
+  "rule_matched": "PVS1 + \u22652 Supporting",
+  "scoring": {
+    "classification": "Pathogenic",
+    "rule_matched": "PVS1 + \u22652 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation has an allele frequency above 0.00004.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_SUPPORTING applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar ERepo reports 1 proband with the variant NM_001114753.3:c.1701del classified as pathogenic for HHT.",
+      "reasoning": "The ClinVar evidence indicates a single proband count, which meets PS4_Supporting criteria when PM2_Supporting is also met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.1701del is a frameshift variant leading to p.Thr567X.",
+      "reasoning": "The variant causes a frameshift resulting in a premature stop codon at position 567, which is less than the NMD boundary of 594 and also within the critical region up to 580. Therefore, it meets the criteria for PVS1_Very_Strong.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

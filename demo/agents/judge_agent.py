@@ -3,7 +3,7 @@ import json
 from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from agents.task_agent import run_task
 from tools.utils import parse_json_response
-from data.planrag import query
+from data.planrag import query, get_gene_from_transcript
 
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -51,6 +51,16 @@ Reasoning errors include:
   (e.g. concluding PP3 does not apply when the REVEL score meets the threshold)
 - The applies field contradicts the evidence and reasoning
 
+The following are NOT reasoning errors — do not flag these:
+- PS4 evidence mentioning "alternate molecular basis", "alternate explanation", or BP5 language.
+  The same patient can appear in both PS4 (proband count) and BP5 (alternate explanation) contexts.
+  If the task agent found a proband count and correctly applied PS4, do not reject it on the grounds
+  that the evidence also mentions an alternate molecular explanation — that is a separate criterion (BP5)
+  and does not invalidate the PS4 finding.
+- A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
+  is valid if the proband count supports it.
+- Evidence showing a variant is absent from a database — absence is valid evidence.
+
 Task output:
 {json.dumps(task_output, indent=2)}
 
@@ -72,7 +82,15 @@ def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
     Checks reasoning, retries Task agent only if reasoning error found.
     """
     criterion = task.get("criterion")
-    rag_entry = query(criterion)
+    variant = task.get("variant", "")
+
+    # Detect gene so gene-specific planrag rules (PVS1, PM1 boundaries) are
+    # used as ground truth when the judge evaluates the task agent's reasoning.
+    gene = None
+    if variant.startswith("NM_") and ":" in variant:
+        gene = get_gene_from_transcript(variant.split(":")[0])
+
+    rag_entry = query(criterion, gene=gene)
 
     if rag_entry is None:
         print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")

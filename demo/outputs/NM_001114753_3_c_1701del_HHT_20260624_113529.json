@@ -1,0 +1,65 @@
+{
+  "variant": "NM_001114753.3:c.1701del",
+  "disease": "HHT",
+  "timestamp": "20260624_113529",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation has an allele frequency above 0.00004.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_SUPPORTING applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar classification: Pathogenic, source: ClinGen ERepo.",
+      "reasoning": "The variant NM_001114753.3:c.1701del is classified as pathogenic in ClinVar by the HHT VCEP expert panel with no specific proband count provided. Since there's no explicit proband count, and we must prioritize ClinVar over PubMed, PS4 does not apply based on the given evidence.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.1701del is a frameshift variant leading to p.Thr567X.",
+      "reasoning": "The variant causes a frameshift resulting in a premature stop codon at position 567, which is less than the NMD boundary of 594 and also within the critical region up to 580. Therefore, it meets the criteria for PVS1_Very_Strong.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}
