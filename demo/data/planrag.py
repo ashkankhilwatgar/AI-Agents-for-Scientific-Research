@@ -1,23 +1,375 @@
-# PlanRAG database — HHT VCEP criteria for ACVRL1
-# Source of truth: ClinGen CSpec Registry GN135 v1.1.0 (released 3/20/2024)
-# https://cspec.genome.network/cspec/ui/svi/doc/GN135
+# PlanRAG database — HHT VCEP criteria for ACVRL1 and ENG
+# Sources of truth:
+#   GN135 v1.1.0 (released 3/20/2024) — ACVRL1/HHT
+#     https://cspec.genome.network/cspec/ui/svi/doc/GN135
+#   GN136 v1.1.0 (released 3/20/2024) — ENG/HHT
+#     https://cspec.genome.network/cspec/ui/svi/doc/GN136
 #
-# Coverage notes vs original code:
+# Gene-specific branches exist for PM1 and PVS1 only.
+# All other criteria are identical between ACVRL1 and ENG.
+#
+# EXECUTION ORDER:
+#   Phase 1: PM2_Supporting, BA1, BS1 (gnomAD — no dependencies, others depend on these)
+#   Phase 2: PS4 (needs PM2), PP4_Moderate (blocked by BA1/BS1), PM1 (needed before PM5)
+#   Phase 3: PVS1 (needed before PS3), PM5 (needs PM1), PS3 (needs PVS1 for splice exclusion)
+#   Phase 4: PS1, PP3, BP4, BP7, PM4, PP1, BS3, BS4, BP2, BP5 (no dependencies)
+#
+# Dependencies:
+#   PS4 requires PM2_Supporting
+#   PP4_Moderate blocked by BA1 / BS1 / BS1_Supporting
+#   PM5_Strong cannot combine with PM1
+#   PS3 cannot apply to splice variants that meet PVS1
+#
+# Coverage notes:
 #   - PP5 and BP6 are NOT applicable per HHT VCEP (SVI Review Committee recommendation)
-#     — removed from automatable list, added to EXCLUDED_CRITERIA
-#   - PP2 is NOT applicable for ACVRL1 (Z-score 2.45) — moved to EXCLUDED_CRITERIA
+#   - PP2 is NOT applicable for either ACVRL1 (Z-score 2.45) or ENG (Z-score 2.81)
 #   - BP1 is NOT applicable for HHT (missense variants common in HHT genes)
-#     — moved to EXCLUDED_CRITERIA
-#   - BP3 is NOT applicable per HHT VCEP — moved to EXCLUDED_CRITERIA
-#   - BP2 IS applicable per HHT VCEP (was previously in your excluded list — corrected)
-#   - BP5 IS applicable per HHT VCEP for variants where pathogenic ENG variant found
-#     (was previously in your excluded list — corrected)
+#   - BP3 is NOT applicable per HHT VCEP
+#   - BP2 IS applicable per HHT VCEP (confirmed in trans)
+#   - BP5 IS applicable per HHT VCEP; gene-specific: references the other HHT gene
+
+# ──────────────────────────────────────────────────────────────────────────────
+# GENE REGISTRY — transcript → gene symbol mapping + metadata
+# ──────────────────────────────────────────────────────────────────────────────
+
+GENE_DB = {
+    "ACVRL1": {
+        "gene_symbol":    "ACVRL1",
+        "transcripts":    ["NM_000020"],        # NM_000020.x (any version)
+        "protein_length": 503,                  # aa
+        "total_exons":    10,
+        "cspec_id":       "GN135",
+    },
+    "ENG": {
+        "gene_symbol":    "ENG",
+        "transcripts":    ["NM_001114753", "NM_000118", "NM_001278138"],   # NM_001114753.x, NM_000118.x, NM_001278138.x
+        "protein_length": 658,                  # aa
+        "total_exons":    15,
+        "cspec_id":       "GN136",
+    },
+}
+
+
+def get_gene_from_transcript(transcript_id: str) -> str | None:
+    """
+    Maps a transcript accession (NM_...) to a GENE_DB gene symbol.
+    Strips version numbers (e.g. NM_001114753.3 → NM_001114753).
+    Returns None if the transcript is not in GENE_DB.
+    """
+    bare = transcript_id.split(".")[0]
+    for gene_symbol, info in GENE_DB.items():
+        for t in info["transcripts"]:
+            if bare == t:
+                return gene_symbol
+    return None
+
 
 PLANRAG_DB = {
 
-    # ──────────────────────────────────────────────────────────────────────────
-    # FULLY AUTOMATABLE
-    # ──────────────────────────────────────────────────────────────────────────
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 1 — gnomAD criteria (run first, no dependencies, others depend on these)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PM2_SUPPORTING": {
+        "criterion": "PM2_Supporting",
+        "acmg_category": "Pathogenic",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Variant absent or at extremely low frequency in population databases. "
+            "HHT VCEP defines PM2 at Supporting strength only with the threshold: "
+            "<6 total alleles in gnomAD OR <0.00004 (0.004%) in gnomAD subpopulations."
+        ),
+        "threshold": "<6 total alleles in gnomAD OR <0.00004 (0.004%) in any gnomAD subpopulation",
+        "instructions": (
+            "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
+            "Do NOT use Popmax FAF for this criterion — PM2 uses raw AC and subpopulation AF only.\n"
+            "\n"
+            "STEP 1: Is the variant absent from gnomAD entirely?\n"
+            "  - YES → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Is total allele count (AC) across all gnomAD populations less than 6?\n"
+            "  - AC < 6  → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - AC >= 6 → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Is allele frequency in ANY single gnomAD subpopulation less than 0.00004?\n"
+            "  - ANY subpopulation AF < 0.00004 → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
+            "  - ALL subpopulation AFs >= 0.00004 → PM2_Supporting does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record in evidence: which step triggered the decision and the exact values used."
+        ),
+        "hht_modification": "Supporting strength only; threshold: <6 total alleles in gnomAD OR <0.00004 in any subpopulation",
+        "strength_override": "supporting",
+    },
+
+    "BA1": {
+        "criterion": "BA1",
+        "acmg_category": "Benign",
+        "strength": "stand_alone",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Allele frequency is high enough for stand-alone benign classification. "
+            "HHT VCEP defines BA1 as: Popmax FAF >=1% (0.01) in gnomAD. "
+            "If BA1 applies, PP4_Moderate cannot also be applied."
+        ),
+        "threshold": "Popmax FAF >= 0.01 (1%) in gnomAD",
+        "instructions": (
+            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF95, popmax field).\n"
+            "\n"
+            "STEP 1: Is Popmax FAF greater than or equal to 0.01 (i.e. >= 1%)?\n"
+            "  - Popmax FAF >= 0.01 → BA1 APPLIES. Set applies=true.\n"
+            "    This is stand-alone benign — variant is classified Benign regardless of all other evidence.\n"
+            "    PP4_Moderate cannot be applied if BA1 applies.\n"
+            "  - Popmax FAF < 0.01  → BA1 does NOT apply. Set applies=false.\n"
+            "  - Variant absent from gnomAD (popmax_faf = 0 or null) → BA1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "IMPORTANT: BA1 applies only when Popmax FAF is HIGH (>= 1%). A low frequency means BA1 does NOT apply.\n"
+            "Record exact Popmax FAF value in evidence."
+        ),
+        "hht_modification": "Popmax FAF >=0.01 (1%) in gnomAD; blocks PP4_Moderate",
+        "strength_override": "stand_alone",
+    },
+
+    "BS1": {
+        "criterion": "BS1",
+        "acmg_category": "Benign",
+        "strength": "strong",
+        "automation": "fully_automatable",
+        "tool": "gnomad",
+        "phase": 1,
+        "depends_on": [],
+        "description": (
+            "Allele frequency is greater than expected for the disorder. "
+            "HHT VCEP defines two strength levels using Popmax FAF (bottlenecked populations included): "
+            "Strong — Popmax FAF >0.2% to <1% (i.e. >0.002 and <0.01), OR variant meets BS1_Supporting AND has >=2 homozygotes; "
+            "Supporting — Popmax FAF >0.08% to 0.2% (i.e. >0.0008 and <=0.002). "
+            "If BS1 or BS1_Supporting applies, PP4_Moderate cannot also be applied."
+        ),
+        "threshold": "BS1_Strong: Popmax FAF >0.002 and <0.01 (OR BS1_Supporting + >=2 homozygotes); BS1_Supporting: Popmax FAF >0.0008 and <=0.002",
+        "instructions": (
+            "Query gnomAD for Popmax FAF (faf95 popmax field) and total homozygote count (ac_hom).\n"
+            "Bottlenecked populations (e.g. Ashkenazi Jewish) are included — do not exclude them.\n"
+            "\n"
+            "STEP 1: Does BA1 already apply (Popmax FAF >= 0.01)?\n"
+            "  - YES → do NOT apply BS1. BA1 supersedes it. Set applies=false. Stop.\n"
+            "  - NO  → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Check for BS1_Strong via the homozygote route.\n"
+            "  Is Popmax FAF > 0.0008 AND <= 0.002 (i.e. BS1_Supporting range) AND homozygote count >= 2?\n"
+            "  - YES → BS1_Strong APPLIES via homozygote route. Set applies=true, applied_strength=benign_strong. Stop.\n"
+            "  - NO  → continue to Step 3.\n"
+            "\n"
+            "STEP 3: Check for BS1_Strong via the FAF route.\n"
+            "  Is Popmax FAF > 0.002 AND < 0.01?\n"
+            "  - YES → BS1_Strong APPLIES. Set applies=true, applied_strength=benign_strong. Stop.\n"
+            "  - NO  → continue to Step 4.\n"
+            "\n"
+            "STEP 4: Check for BS1_Supporting.\n"
+            "  Is Popmax FAF > 0.0008 AND <= 0.002?\n"
+            "  - YES → BS1_Supporting APPLIES. Set applies=true, applied_strength=benign_supporting. Stop.\n"
+            "  - NO  → BS1 does NOT apply. Set applies=false.\n"
+            "\n"
+            "IMPORTANT: Set applied_strength to exactly 'benign_strong' or 'benign_supporting' (not 'strong' or 'supporting').\n"
+            "NOTE: If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied.\n"
+            "Record exact Popmax FAF, homozygote count, and which strength level triggered."
+        ),
+        "hht_modification": "Two strength levels (Strong: >0.2-<1% OR BS1_Sup + 2 homozygotes; Supporting: >0.08-0.2%); Popmax FAF including bottlenecked populations; blocks PP4_Moderate",
+        "strength_override": None,
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 2 — depends on Phase 1 results
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PS4": {
+        "criterion": "PS4",
+        "acmg_category": "Pathogenic",
+        "strength": "strong",
+        "automation": "partially_automatable",
+        "tool": "clinvar",
+        "phase": 2,
+        "depends_on": ["PM2_SUPPORTING"],
+        "requires_applied": ["PM2_SUPPORTING"],
+        "blocked_by": [],
+        "description": (
+            "Prevalence of variant in affected individuals significantly increased vs controls. "
+            "HHT VCEP uses proband counting (not OR/RR) with three strength levels: "
+            "Strong = 4+ probands; Moderate = 2-3 probands; Supporting = 1 proband. "
+            "Variant must also meet PM2_Supporting. "
+            "Phenotype must be consistent with HHT (see HHT phenotype document). "
+            "Note: probands meeting PP4_Moderate cannot also be counted for PS4."
+        ),
+        "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
+        "instructions": (
+            "PM2_Supporting has already been confirmed as met — do not re-evaluate it.\n"
+            "Query ClinVar for the HHT VCEP expert panel submission for this variant.\n"
+            "The submission comment contains the proband count reported by submitting labs.\n"
+            "If the variant is not in ClinVar or has no proband count, fall back to PubMed.\n"
+            "\n"
+            "STEP 1: Extract proband count from the ClinVar HHT VCEP SCV comment,\n"
+            "        or from PubMed case reports if ClinVar has no data.\n"
+            "  Rules for counting:\n"
+            "    - Each proband must have phenotype consistent with HHT.\n"
+            "    - Exclude duplicate reports of the same patient across papers.\n"
+            "    - Do NOT count probands who qualify for PP4_Moderate.\n"
+            "\n"
+            "STEP 2: Apply strength based on proband count:\n"
+            "  - Count >= 4 → PS4_Strong applies. Set applies=true, strength=strong.\n"
+            "  - Count = 2 or 3 → PS4_Moderate applies. Set applies=true, strength=moderate.\n"
+            "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
+            "  - Count = 0 → PS4 does NOT apply. Set applies=false.\n"
+            "\n"
+            "Record proband count, source (ClinVar or PubMed), and strength level in evidence."
+        ),
+        "hht_modification": "Proband-based counting (4+ Strong / 2-3 Moderate / 1 Supporting); requires PM2_Supporting; PP4_Moderate probands excluded from count",
+        "strength_override": None,
+    },
+
+    "PP4_MODERATE": {
+        "criterion": "PP4_Moderate",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 2,
+        "depends_on": [],
+        "blocked_by": ["BA1", "BS1", "BS1_SUPPORTING"],
+        "description": (
+            "Patient's phenotype meets consensus clinical diagnostic (Curaçao) criteria for HHT, AND "
+            "sequencing and large deletion/duplication analysis was performed for both ENG and ACVRL1 "
+            "with any other identified variants ruled out. "
+            "HHT VCEP applies PP4 at Moderate strength only. "
+            "RULES: PP4_Moderate cannot be applied to variants meeting BS1_Supporting, BS1, or BA1. "
+            "Patients counted for PP4_Moderate cannot be counted in PS4 proband counting."
+        ),
+        "threshold": "Patient meets Curaçao Criteria (>=3 of 4: epistaxis, telangiectases, visceral lesions, family history) AND comprehensive ENG/ACVRL1 sequencing + del/dup analysis ruled out other variants",
+        "instructions": (
+            "PP4_Moderate cannot be evaluated automatically. "
+            "Requires confirmed clinical records showing: "
+            "(1) patient meets Curaçao Criteria (>=3 of 4: spontaneous recurrent epistaxis, "
+            "telangiectases at characteristic sites, visceral lesions, first-degree relative with HHT), AND "
+            "(2) comprehensive sequencing and large deletion/duplication analysis was performed for BOTH "
+            "ENG and ACVRL1, with all other identified variants ruled out. "
+            "BLOCKED IF: variant meets BS1_Supporting, BS1, or BA1 — PP4_Moderate cannot apply in those cases. "
+            "If PP4_Moderate applies to a patient, that patient cannot be counted in PS4 proband counting. "
+            "Return applies=null, status=deferred, with explanation."
+        ),
+        "hht_modification": "Moderate strength only; requires Curaçao Criteria AND comprehensive ENG/ACVRL1 testing; blocked by BS1_Supporting/BS1/BA1; mutually exclusive with PS4 counting",
+        "strength_override": "moderate",
+        "deferred": True,
+    },
+
+    # ── PM1: gene-specific critical residues ─────────────────────────────────
+    # gene_data branches are merged into the returned entry by query(criterion, gene=...).
+    # Shared fields (criterion, phase, tool, etc.) are at the top level.
+    # Gene-specific fields (critical_regions, description, threshold, instructions) live in gene_data.
+    # Default (no gene specified) → ACVRL1 branch for backward compatibility.
+
+    "PM1": {
+        "criterion": "PM1",
+        "acmg_category": "Pathogenic",
+        "strength": "moderate",
+        "automation": "fully_automatable",
+        "tool": "vep",
+        "phase": 2,
+        "depends_on": [],
+        "blocks": ["PM5_Strong"],
+        "variant_types": ["missense"],
+        "strength_override": "moderate",
+
+        "gene_data": {
+            "ACVRL1": {
+                "critical_regions": {
+                    "ranges": [
+                        {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
+                        {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
+                        {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
+                        {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
+                        {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
+                    ],
+                    "discrete": [
+                        {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
+                         "name": "BMP10 interaction cluster"},
+                    ],
+                },
+                "description": (
+                    "Variant located in a critical residue of ACVRL1. "
+                    "HHT VCEP defines specific critical residues based on functional and structural data: "
+                    "glycine-rich loop (G209-V216), phosphate anchor (K229), C-helix E pairing the phosphate anchor (E242), "
+                    "catalytic loop (R329-N335), metal-binding loop (D348-L351), and the BMP10 interaction cluster "
+                    "(His40, Val54, Val56, Arg57, Glu58, Glu59, His66, Asn71, Leu72, His73, Glu75, Leu76, Arg78, Gly79, "
+                    "Arg80, Thr82, Glu83, Phe84, Val85, His87). "
+                    "PM1 applies only at Moderate strength. "
+                    "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
+                ),
+                "threshold": "Variant residue is in: G209-V216 OR K229 OR E242 OR R329-N335 OR D348-L351 OR BMP10 cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}",
+                "instructions": (
+                    "Determine the protein position of the variant on ACVRL1 (NM_000020.3). "
+                    "PM1_Moderate applies if the residue is in ANY of these critical regions: "
+                    "(1) glycine-rich loop: positions 209-216 inclusive; "
+                    "(2) phosphate anchor: position 229; "
+                    "(3) C-helix E pairing the phosphate anchor: position 242; "
+                    "(4) catalytic loop: positions 329-335 inclusive; "
+                    "(5) metal-binding loop: positions 348-351 inclusive; "
+                    "(6) BMP10 interaction cluster: positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87. "
+                    "This is a hardcoded residue list — no UniProt lookup needed, no LLM judgment needed. "
+                    "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
+                ),
+                "hht_modification": "Hardcoded critical residue list per CSpec GN135 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
+            },
+
+            "ENG": {
+                "critical_regions": {
+                    "ranges": [],
+                    "discrete": [
+                        {"positions": [278, 282],
+                         "name": "BMP9 binding sites (PMIDs 28564608, 25312062)"},
+                        {"positions": [207, 363, 382, 412, 549],
+                         "name": "cysteine residues classified LP/P by HHT VCEP"},
+                        {"positions": [350, 394],
+                         "name": "cysteine residues critical to ENG function (disulfide bonds)"},
+                    ],
+                },
+                "description": (
+                    "Variant located in a critical residue of ENG (endoglin). "
+                    "HHT VCEP defines specific critical residues for ENG based on structural and functional data: "
+                    "BMP9 binding sites (Tyr278, Thr282), "
+                    "cysteine residues classified LP/P by HHT VCEP (Cys207, Cys363, Cys382, Cys412, Cys549), "
+                    "and cysteine residues critical to ENG function via disulfide bonds (Cys350, Cys394). "
+                    "PM1 applies only at Moderate strength. "
+                    "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
+                ),
+                "threshold": "Variant residue is in: BMP9 binding sites {278, 282} OR LP/P-classified cysteines {207, 363, 382, 412, 549} OR disulfide-bond cysteines {350, 394}",
+                "instructions": (
+                    "Determine the protein position of the variant on ENG (NM_001114753.3). "
+                    "PM1_Moderate applies if the residue is in ANY of these critical positions: "
+                    "(1) BMP9 binding sites: positions 278, 282; "
+                    "(2) cysteine residues classified LP/P by HHT VCEP: positions 207, 363, 382, 412, 549; "
+                    "(3) cysteine residues critical to ENG function (disulfide bonds): positions 350, 394. "
+                    "This is a hardcoded residue list per CSpec GN136 — no UniProt lookup needed, no LLM judgment needed. "
+                    "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
+                ),
+                "hht_modification": "Hardcoded critical residue list per CSpec GN136 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
+            },
+        },
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 3 — depends on Phase 2 results
+    # ══════════════════════════════════════════════════════════════════════════
+
+    # ── PVS1: gene-specific decision tree boundaries ──────────────────────────
+    # Shared fields are at the top level.
+    # Gene-specific fields (nmd_boundary, critical_region_boundary, description,
+    # threshold, instructions) live in gene_data.
+    # Default (no gene specified) → ACVRL1 branch for backward compatibility.
 
     "PVS1": {
         "criterion": "PVS1",
@@ -25,88 +377,158 @@ PLANRAG_DB = {
         "strength": "very_strong",
         "automation": "fully_automatable",
         "tool": "vep",
-        "description": (
-            "Null variant in ACVRL1 evaluated by the HHT VCEP PVS1 decision tree. "
-            "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
-            "and codon position. Key codon thresholds: codon 442 (NMD boundary), codon 490 (critical region boundary)."
-        ),
-        "threshold": "Codon 442 (NMD boundary); Codon 490 (critical region boundary)",
-        "instructions": (
-            "Use VEP to determine variant consequence and protein codon position. "
-            "Then apply the ACVRL1 PVS1 Decision Tree (CSpec GN135 v1.1.0):\n"
-            "\n"
-            "NONSENSE OR FRAMESHIFT:\n"
-            "  - Predicted to undergo NMD (codon <=442) → PVS1 (Very Strong)\n"
-            "  - Not predicted to undergo NMD (codon >442):\n"
-            "      * Truncated/altered region critical to protein function (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "\n"
-            "GT-AG +/-1,2 SPLICE SITES:\n"
-            "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=442) → PVS1\n"
-            "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >442):\n"
-            "      * Truncated/altered region critical (codon <=490, see also PM1 regions) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "  - Exon skipping or cryptic splice preserves reading frame:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "\n"
-            "DELETION (single exon to full gene):\n"
-            "  - Full gene deletion → PVS1\n"
-            "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
-            "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
-            "  - Single/multi-exon deletion preserves reading frame:\n"
-            "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
-            "\n"
-            "DUPLICATION (>=1 exon, fully within gene):\n"
-            "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
-            "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
-            "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
-            "  - Proven NOT in tandem → N/A\n"
-            "\n"
-            "INITIATION CODON:\n"
-            "  - No known alternative start codon in other transcripts → PVS1_Moderate (ACVRL1)\n"
-            "\n"
-            "Record the variant type, codon position, NMD prediction, and final strength."
-        ),
-        "hht_modification": "Decision tree with codon 442 NMD boundary and codon 490 critical region boundary; initiation codon variants are PVS1_Moderate for ACVRL1",
+        "phase": 3,
+        "depends_on": [],
+        "blocks": ["PS3_for_splice_variants"],
+        "variant_types": ["frameshift", "nonsense", "splice_site", "start_lost"],
         "strength_override": None,
+
+        "gene_data": {
+            "ACVRL1": {
+                "nmd_boundary":             442,   # codons <= this → NMD predicted
+                "critical_region_boundary": 490,   # codons <= this → truncated region critical
+                "description": (
+                    "Null variant in ACVRL1 evaluated by the HHT VCEP PVS1 decision tree. "
+                    "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
+                    "and codon position. Key codon thresholds: codon 442 (NMD boundary), codon 490 (critical region boundary)."
+                ),
+                "threshold": "ACVRL1: Codon 442 (NMD boundary); Codon 490 (critical region boundary); protein length 503 aa",
+                "instructions": (
+                    "Use VEP to determine variant consequence and protein codon position. "
+                    "Then apply the ACVRL1 PVS1 Decision Tree (CSpec GN135 v1.1.0):\n"
+                    "\n"
+                    "NONSENSE OR FRAMESHIFT:\n"
+                    "  - Predicted to undergo NMD (codon <=442) → PVS1 (Very Strong)\n"
+                    "  - Not predicted to undergo NMD (codon >442):\n"
+                    "      * Truncated/altered region critical to protein function (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "GT-AG +/-1,2 SPLICE SITES:\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=442) → PVS1\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >442):\n"
+                    "      * Truncated/altered region critical (codon <=490, see also PM1 regions) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Exon skipping or cryptic splice preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "DELETION (single exon to full gene):\n"
+                    "  - Full gene deletion → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Single/multi-exon deletion preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=490) → PVS1_Strong\n"
+                    "\n"
+                    "DUPLICATION (>=1 exon, fully within gene):\n"
+                    "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
+                    "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
+                    "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
+                    "  - Proven NOT in tandem → N/A\n"
+                    "\n"
+                    "INITIATION CODON:\n"
+                    "  - No known alternative start codon in other transcripts → PVS1_Moderate (ACVRL1)\n"
+                    "\n"
+                    "Record the variant type, codon position, NMD prediction, and final strength."
+                ),
+                "hht_modification": "Decision tree with codon 442 NMD boundary and codon 490 critical region boundary; initiation codon variants are PVS1_Moderate for ACVRL1",
+            },
+
+            "ENG": {
+                # ⚠ VERIFY: codon boundaries below are estimated from ENG gene structure.
+                # ENG protein = 658 aa, 15 exons. NMD boundary and critical region boundary
+                # must be confirmed against GN136 PDF (ClinGen HHT VCEP CSpec documentation).
+                # Estimated: NMD boundary ~codon 594 (last exon-exon junction, exon 14/15).
+                #            Critical region boundary ~codon 580 (start of exon 14 intracellular domain).
+                "nmd_boundary":             594,   # ⚠ VERIFY from GN136 PDF
+                "critical_region_boundary": 580,   # ⚠ VERIFY from GN136 PDF
+                "description": (
+                    "Null variant in ENG evaluated by the HHT VCEP PVS1 decision tree. "
+                    "Final strength (Very Strong / Strong / Moderate / N/A) depends on variant type, NMD prediction, "
+                    "and codon position. Key codon thresholds: codon 594 (NMD boundary, ⚠ verify), "
+                    "codon 580 (critical region boundary, ⚠ verify). "
+                    "ENG exon 13 frameshifts are predicted NMD per VCEP evidence."
+                ),
+                "threshold": "ENG: Codon 594 (NMD boundary, ⚠ verify); Codon 580 (critical region boundary, ⚠ verify); protein length 658 aa",
+                "instructions": (
+                    "Use VEP to determine variant consequence and protein codon position. "
+                    "Then apply the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0):\n"
+                    "NOTE: Codon boundary values below are estimated — verify against GN136 PDF before production use.\n"
+                    "\n"
+                    "NONSENSE OR FRAMESHIFT:\n"
+                    "  - Predicted to undergo NMD (codon <=594) → PVS1 (Very Strong)\n"
+                    "    Example: frameshift in exon 13/15 → NMD confirmed per HHT VCEP.\n"
+                    "  - Not predicted to undergo NMD (codon >594):\n"
+                    "      * Truncated/altered region critical to protein function (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "GT-AG +/-1,2 SPLICE SITES:\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, predicted NMD (codon <=594) → PVS1\n"
+                    "  - Exon skipping or cryptic splice disrupts reading frame, NOT predicted NMD (codon >594):\n"
+                    "      * Truncated/altered region critical (codon <=580, see also PM1 regions) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Exon skipping or cryptic splice preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "\n"
+                    "DELETION (single exon to full gene):\n"
+                    "  - Full gene deletion → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, predicted NMD, exon in biologically-relevant transcript → PVS1\n"
+                    "  - Single/multi-exon deletion disrupts reading frame, NOT predicted NMD:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "      * Role of region unknown AND variant removes <10% of protein → PVS1_Moderate\n"
+                    "  - Single/multi-exon deletion preserves reading frame:\n"
+                    "      * Truncated/altered region critical (codon <=580) → PVS1_Strong\n"
+                    "\n"
+                    "DUPLICATION (>=1 exon, fully within gene):\n"
+                    "  - Proven in tandem AND reading frame disrupted AND NMD predicted → PVS1\n"
+                    "  - Proven in tandem AND no/unknown impact on reading frame and NMD → N/A\n"
+                    "  - Presumed in tandem AND reading frame presumed disrupted AND NMD predicted → PVS1_Strong\n"
+                    "  - Proven NOT in tandem → N/A\n"
+                    "\n"
+                    "INITIATION CODON:\n"
+                    "  - No known alternative start codon in other ENG transcripts → PVS1_Moderate\n"
+                    "\n"
+                    "Record the variant type, codon position, NMD prediction, and final strength."
+                ),
+                "hht_modification": "Decision tree with codon 594 NMD boundary (⚠ verify) and codon 580 critical region boundary (⚠ verify); protein length 658 aa; 15 exons",
+            },
+        },
     },
 
-    "PS1": {
-        "criterion": "PS1",
+    "PM5": {
+        "criterion": "PM5",
         "acmg_category": "Pathogenic",
-        "strength": "strong",
+        "strength": "moderate",
         "automation": "partially_automatable",
         "tool": "erepo",
+        "phase": 3,
+        "depends_on": ["PM1"],
+        "variant_types": ["missense"],
         "description": (
-            "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
-            "HHT VCEP applies no modification — use as in original ACMG (Strong only). "
-            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "Reference variant must be classified by the HHT VCEP specifically."
+            "Novel missense at an amino acid residue where a different missense change has been determined "
+            "to be likely pathogenic or pathogenic based on HHT VCEP rules. "
+            "HHT VCEP defines two strength levels: "
+            "Strong — >=2 different missense changes at same codon classified LP/P by HHT VCEP rules; "
+            "Moderate — 1 different missense change at same codon classified LP/P by HHT VCEP rules. "
+            "Important: reference variants must be classified per HHT VCEP rules, not just any ClinVar submission. "
+            "Cannot combine PM5_Strong with PM1 (PM5_Moderate + PM1 IS allowed)."
         ),
-        "threshold": "Same amino acid change at same protein position, classified P/LP by HHT VCEP",
+        "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
         "instructions": (
-            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
-            "\n"
-            "STEP 1: Is there an entry with the same amino acid change as the query variant?\n"
-            "  (Same amino acid change = same ref AA, same position, same alt AA — but different nucleotide change.)\n"
-            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Is that entry classified Pathogenic or Likely Pathogenic by the HHT VCEP?\n"
-            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
-            "  - YES → continue to Step 3.\n"
-            "\n"
-            "STEP 3: Could the query variant affect splicing rather than the amino acid change?\n"
-            "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
-            "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
-            "\n"
-            "Record the matching HGVS, protein change, and HHT VCEP classification in evidence."
+            "primary_source: ClinGen Evidence Repository (https://erepo.clinicalgenome.org); "
+            "fallback_source: ClinVar entries with submitter = 'ClinGen Hereditary Hemorrhagic Telangiectasia VCEP'; "
+            "search_strategy: Find variants at same amino acid residue, different substitution; "
+            "filter: Only count variants classified LP or P by HHT VCEP; "
+            "note: These are pipeline-level decisions, not from CSpec GN135 v1.1.0; "
+            "Apply strength: PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
+            "PM5_Moderate if 1 different missense change at same codon is LP/P per HHT VCEP rules. "
+            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
+            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed."
         ),
-        "hht_modification": "No modification — use as in original ACMG; Strong strength only; reference must be HHT VCEP-classified",
-        "strength_override": "strong",
+        "hht_modification": "Two strength levels (Strong / Moderate) based on count of LP/P missense at same codon; reference must be HHT VCEP-classified; PM5_Strong cannot combine with PM1",
+        "strength_override": None,
     },
 
     "PS3": {
@@ -115,6 +537,8 @@ PLANRAG_DB = {
         "strength": "strong",
         "automation": "not_automatable",
         "tool": None,
+        "phase": 3,
+        "depends_on": ["PVS1"],
         "description": (
             "Well-established in vitro or in vivo functional studies supportive of a damaging effect. "
             "HHT VCEP defines three strength levels: "
@@ -145,129 +569,85 @@ PLANRAG_DB = {
         "deferred": True,
     },
 
-    "PS4": {
-        "criterion": "PS4",
+    # ══════════════════════════════════════════════════════════════════════════
+    # PHASE 4 — no dependencies, can run in any order
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "PS1": {
+        "criterion": "PS1",
         "acmg_category": "Pathogenic",
         "strength": "strong",
         "automation": "partially_automatable",
-        "tool": "pubmed",
+        "tool": "clinvar",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["missense"],
         "description": (
-            "Prevalence of variant in affected individuals significantly increased vs controls. "
-            "HHT VCEP uses proband counting (not OR/RR) with three strength levels: "
-            "Strong = 4+ probands; Moderate = 2-3 probands; Supporting = 1 proband. "
-            "Variant must also meet PM2_Supporting. "
-            "Phenotype must be consistent with HHT (see HHT phenotype document). "
-            "Note: probands meeting PP4_Moderate cannot also be counted for PS4."
+            "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change. "
+            "HHT VCEP applies no modification — use as in original ACMG (Strong only). "
+            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level."
         ),
-        "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
+        "threshold": "Same amino acid change as established pathogenic variant",
         "instructions": (
-            "You are given PubMed search results for this variant in HHT patients. "
-            "PM2_Supporting has already been confirmed — do not re-check it.\n"
+            "Search for variants producing the same amino acid change as the query variant\n"
+            "(regardless of nucleotide change).\n"
             "\n"
-            "STEP 1: Count unrelated probands with phenotype consistent with HHT.\n"
-            "  Rules for counting:\n"
-            "    - Each proband must have phenotype consistent with HHT.\n"
-            "    - Exclude duplicate reports of the same patient across papers.\n"
-            "    - Do NOT count probands who qualify for PP4_Moderate — those are counted only under PP4_Moderate.\n"
+            "STEP 1: Does an HHT VCEP-classified entry exist with the same amino acid change?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
             "\n"
-            "STEP 2: Apply strength based on proband count:\n"
-            "  - Count >= 4 → PS4_Strong applies. Set applies=true, strength=strong.\n"
-            "  - Count = 2 or 3 → PS4_Moderate applies. Set applies=true, strength=moderate.\n"
-            "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
-            "  - Count = 0 → PS4 does NOT apply. Set applies=false.\n"
+            "STEP 2: Is the classification Pathogenic or Likely Pathogenic?\n"
+            "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 3.\n"
             "\n"
-            "Record proband count, references, and strength level in evidence."
+            "STEP 3: Could the query variant affect splicing rather than the amino acid change?\n"
+            "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
+            "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
+            "\n"
+            "Record the matched variant, classification, and amino acid change in evidence."
         ),
-        "hht_modification": "Proband-based counting (4+ Strong / 2-3 Moderate / 1 Supporting); requires PM2_Supporting; PP4_Moderate probands excluded from count",
-        "strength_override": None,
+        "hht_modification": "No modification — use as in original ACMG; Strong strength only",
+        "strength_override": "strong",
     },
 
-    "PM1": {
-        "criterion": "PM1",
-        "acmg_category": "Pathogenic",
-        "strength": "moderate",
-        "automation": "fully_automatable",
-        "tool": "vep",
-        "critical_regions": {
-            "ranges": [
-                {"start": 209, "end": 216, "name": "glycine-rich loop (G209-V216)"},
-                {"start": 229, "end": 229, "name": "phosphate anchor (K229)"},
-                {"start": 242, "end": 242, "name": "C-helix E / phosphate anchor pairing (E242)"},
-                {"start": 329, "end": 335, "name": "catalytic loop (R329-N335)"},
-                {"start": 348, "end": 351, "name": "metal-binding loop (D348-L351)"},
-            ],
-            "discrete": [
-                {"positions": [40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87],
-                "name": "BMP10 interaction cluster"},
-            ],
-        },
-        "description": (
-            "Variant located in a critical residue of ACVRL1. "
-            "HHT VCEP defines specific critical residues based on functional and structural data: "
-            "glycine-rich loop (G209-V216), phosphate anchor (K229), C-helix E pairing the phosphate anchor (E242), "
-            "catalytic loop (R329-N335), metal-binding loop (D348-L351), and the BMP10 interaction cluster "
-            "(His40, Val54, Val56, Arg57, Glu58, Glu59, His66, Asn71, Leu72, His73, Glu75, Leu76, Arg78, Gly79, "
-            "Arg80, Thr82, Glu83, Phe84, Val85, His87). "
-            "PM1 applies only at Moderate strength. "
-            "If variant falls within a PM1 region, do not use PM1 with PM5_Strong; PM1 + PM5 (Moderate) is allowed."
-        ),
-        "threshold": "Variant residue is in: G209-V216 OR K229 OR E242 OR R329-N335 OR D348-L351 OR BMP10 cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}",
-        "instructions": (
-            "Determine the protein position of the variant on ACVRL1 (NM_000020.3). "
-            "PM1_Moderate applies if the residue is in ANY of these critical regions: "
-            "(1) glycine-rich loop: positions 209-216 inclusive; "
-            "(2) phosphate anchor: position 229; "
-            "(3) C-helix E pairing the phosphate anchor: position 242; "
-            "(4) catalytic loop: positions 329-335 inclusive; "
-            "(5) metal-binding loop: positions 348-351 inclusive; "
-            "(6) BMP10 interaction cluster: positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87. "
-            "This is a hardcoded residue list — no UniProt lookup needed, no LLM judgment needed. "
-            "RULE: if PM1 applies, do NOT combine with PM5_Strong. PM1 + PM5 (Moderate) IS allowed."
-        ),
-        "hht_modification": "Hardcoded critical residue list per CSpec GN135 v1.1.0; Moderate strength only; cannot combine with PM5_Strong",
-        "strength_override": "moderate",
-    },
-
-    "PM2_SUPPORTING": {
-        "criterion": "PM2_Supporting",
+    "PP3": {
+        "criterion": "PP3",
         "acmg_category": "Pathogenic",
         "strength": "supporting",
         "automation": "fully_automatable",
-        "tool": "gnomad",
+        "tool": "revel_spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
-            "Variant absent or at extremely low frequency in population databases. "
-            "HHT VCEP defines PM2 at Supporting strength only with the threshold: "
-            "<6 total alleles in gnomAD OR <0.00004 (0.004%) in gnomAD subpopulations."
+            "Multiple lines of computational evidence support a deleterious effect. "
+            "HHT VCEP specifies thresholds at Supporting strength only: "
+            "For missense variants — REVEL >=0.644 OR SpliceAI >=0.2; "
+            "For synonymous and intronic variants — SpliceAI >=0.2."
         ),
-        "threshold": "<6 total alleles in gnomAD OR <0.00004 (0.004%) in any gnomAD subpopulation",
+        "threshold": "Missense: REVEL >=0.644 OR SpliceAI >=0.2 | Synonymous/intronic: SpliceAI >=0.2",
         "instructions": (
-            "Query gnomAD for the variant. "
-            "Retrieve: (1) total allele count (AC) across all gnomAD populations; "
-            "(2) allele frequency in each gnomAD subpopulation. "
-            "PM2_Supporting applies if EITHER: "
-            "(a) total allele count in gnomAD is <6, OR "
-            "(b) allele frequency in any gnomAD subpopulation is <0.00004 (0.004%). "
-            "If the variant is absent from gnomAD, PM2_Supporting applies. "
-            "Do NOT use Popmax FAF here — PM2 uses raw allele count and subpopulation frequency. "
-            "Record which condition triggered PM2 in the evidence field."
-            "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
-            "Do NOT use Popmax FAF for this criterion — PM2 uses raw AC and subpopulation AF only.\n"
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "PP3 can be used only once per variant evaluation.\n"
             "\n"
-            "STEP 1: Is the variant absent from gnomAD entirely?\n"
-            "  - YES → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
-            "  - NO  → continue to Step 2.\n"
+            "BRANCH A — Missense variant:\n"
+            "  STEP 1: Is REVEL score >= 0.644?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record REVEL score as trigger.\n"
+            "    - NO  → continue to Step 2.\n"
+            "  STEP 2: Is ANY SpliceAI delta score >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record which score triggered.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
             "\n"
-            "STEP 2: Is total allele count (AC) across all gnomAD populations less than 6?\n"
-            "  - AC < 6  → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
-            "  - AC >= 6 → continue to Step 3.\n"
+            "BRANCH B — Synonymous or intronic variant:\n"
+            "  STEP 1: Is ANY SpliceAI delta score >= 0.2?\n"
+            "    - YES → PP3 APPLIES. Set applies=true. Record which score triggered.\n"
+            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
             "\n"
-            "STEP 3: Is allele frequency in ANY single gnomAD subpopulation less than 0.00004?\n"
-            "  - ANY subpopulation AF < 0.00004 → PM2_Supporting APPLIES. Set applies=true. Stop.\n"
-            "  - ALL subpopulation AFs >= 0.00004 → PM2_Supporting does NOT apply. Set applies=false.\n"
-            "\n"
-            "Record in evidence: which step triggered the decision and the exact values used."
+            "IMPORTANT: For missense, REVEL and SpliceAI are independent triggers (OR logic).\n"
+            "Record exact scores and which threshold triggered in the evidence field."
         ),
-        "hht_modification": "Supporting strength only; threshold: <6 total alleles in gnomAD OR <0.00004 in any subpopulation",
+        "hht_modification": "Supporting strength only; thresholds: REVEL >=0.644 (missense); SpliceAI >=0.2 (any variant type)",
         "strength_override": "supporting",
     },
 
@@ -277,18 +657,15 @@ PLANRAG_DB = {
         "strength": "moderate",
         "automation": "fully_automatable",
         "tool": "vep",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["inframe_insertion", "inframe_deletion", "stop_lost"],
         "description": (
             "Protein length changes due to in-frame deletions/insertions in a non-repeat region or stop-loss variants. "
             "HHT VCEP: no modification, use as applicable. Moderate strength only."
         ),
         "threshold": "VEP consequence = inframe_insertion, inframe_deletion, or stop_lost; not in repeat region",
         "instructions": (
-            "Use VEP to annotate the variant. "
-            "PM4_Moderate applies if the variant is: "
-            "(a) an in-frame insertion in a non-repeat region, OR "
-            "(b) an in-frame deletion in a non-repeat region, OR "
-            "(c) a stop-loss variant. "
-            "If the in-frame indel overlaps a repeat region, PM4 does not apply."
             "Use VEP to annotate the variant consequence.\n"
             "\n"
             "STEP 1: What is the VEP consequence?\n"
@@ -307,41 +684,86 @@ PLANRAG_DB = {
         "strength_override": "moderate",
     },
 
-    "PM5": {
-        "criterion": "PM5",
-        "acmg_category": "Pathogenic",
-        "strength": "moderate",
-        "automation": "partially_automatable",
-        "tool": "erepo",
+    "BP4": {
+        "criterion": "BP4",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "revel_spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
         "description": (
-            "Novel missense at an amino acid residue where a different missense change has been determined "
-            "to be likely pathogenic or pathogenic based on HHT VCEP rules. "
-            "HHT VCEP defines two strength levels: "
-            "Strong — >=2 different missense changes at same codon classified LP/P by HHT VCEP rules; "
-            "Moderate — 1 different missense change at same codon classified LP/P by HHT VCEP rules. "
-            "Reference variants must be classified per HHT VCEP rules. "
-            "Cannot combine PM5_Strong with PM1 (PM5_Moderate + PM1 IS allowed)."
+            "Multiple lines of computational evidence suggest no impact on gene product. "
+            "HHT VCEP thresholds at Supporting strength only: "
+            "For missense variants — REVEL <=0.15 AND SpliceAI <=0.1 (BOTH required); "
+            "For synonymous and intronic variants — SpliceAI <=0.1. "
+            "BP4 can be used only once per variant evaluation."
         ),
-        "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
+        "threshold": "Missense: REVEL <=0.15 AND SpliceAI <=0.1 | Synonymous/intronic: SpliceAI <=0.1",
         "instructions": (
-            "You are given ERepo results: all HHT VCEP-classified variants at the same protein position as the query variant.\n"
+            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP4 can be used only once per variant evaluation.\n"
             "\n"
-            "STEP 1: Count entries with a DIFFERENT amino acid change from the query variant\n"
-            "  that are classified Pathogenic or Likely Pathogenic by the HHT VCEP.\n"
-            "  - Exclude the query variant itself.\n"
-            "  - Only count missense changes (not splicing, nonsense, etc.).\n"
+            "BRANCH A — Missense variant (BOTH conditions must be true — AND logic):\n"
+            "  STEP 1: Is REVEL score <= 0.15?\n"
+            "    - NO  → BP4 does NOT apply. Set applies=false. Stop.\n"
+            "    - YES → continue to Step 2.\n"
+            "  STEP 2: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false. Stop.\n"
+            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
             "\n"
-            "STEP 2: Apply strength based on count:\n"
-            "  - Count >= 2 → PM5_Strong applies. Set applies=true, strength=strong.\n"
-            "  - Count = 1  → PM5_Moderate applies. Set applies=true, strength=moderate.\n"
-            "  - Count = 0  → PM5 does NOT apply. Set applies=false.\n"
+            "BRANCH B — Synonymous or intronic variant (SpliceAI only):\n"
+            "  STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false.\n"
+            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
             "\n"
-            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed.\n"
-            "Record matching HGVS entries, protein changes, classifications, and strength level in evidence."
+            "IMPORTANT: For missense, failing EITHER condition means BP4 does NOT apply (AND logic, not OR).\n"
+            "Record exact REVEL and SpliceAI scores in evidence."
         ),
-        "hht_modification": "Two strength levels (Strong / Moderate) based on count of LP/P missense at same codon; reference must be HHT VCEP-classified; PM5_Strong cannot combine with PM1",
-        "strength_override": None,
+        "hht_modification": "Missense requires BOTH REVEL <=0.15 AND SpliceAI <=0.1 (not OR); synonymous/intronic uses SpliceAI <=0.1 only",
+        "strength_override": "supporting",
     },
+
+    "BP7": {
+        "criterion": "BP7",
+        "acmg_category": "Benign",
+        "strength": "supporting",
+        "automation": "fully_automatable",
+        "tool": "spliceai",
+        "phase": 4,
+        "depends_on": [],
+        "variant_types": ["synonymous", "intronic"],
+        "description": (
+            "Synonymous or intronic variant with no predicted splice impact. "
+            "HHT VCEP threshold: SpliceAI <=0.1 at Supporting strength. "
+            "Can be combined with BP4 evidence. "
+            "CAUTION per HHT VCEP: do not dismiss intronic or last-nucleotide-of-exon synonymous variants "
+            "based on SpliceAI alone when clinical suspicion is high (some validated splice variants have "
+            "low SpliceAI scores — see ENG c.219G>A example and ACVRL1 intron 9 CT-rich hotspot)."
+        ),
+        "threshold": "Synonymous or intronic variant AND SpliceAI <=0.1",
+        "instructions": (
+            "Fetch all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
+            "BP7 applies to synonymous or intronic variants only — not missense.\n"
+            "\n"
+            "STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
+            "  - YES (all four <= 0.1) → BP7 APPLIES. Set applies=true.\n"
+            "  - NO  (any score > 0.1) → BP7 does NOT apply. Set applies=false.\n"
+            "\n"
+            "CAUTION: Even if BP7 applies, flag the following for manual review:\n"
+            "  - Variant at the last nucleotide of an exon\n"
+            "  - Deep intronic variant in a known splicing hotspot (e.g. ACVRL1 intron 9 CT-rich region)\n"
+            "  SpliceAI can miss real splice effects in these regions.\n"
+            "\n"
+            "Record all four SpliceAI scores in evidence."
+        ),
+        "hht_modification": "Supporting strength; SpliceAI <=0.1; flag last-exon-nucleotide and deep intronic hotspot variants for manual review even if SpliceAI is low",
+        "strength_override": "supporting",
+    },
+
+    # ── Phase 4: Not automatable (deferred) ──────────────────────────────────
 
     "PP1": {
         "criterion": "PP1",
@@ -349,6 +771,8 @@ PLANRAG_DB = {
         "strength": "supporting",
         "automation": "not_automatable",
         "tool": None,
+        "phase": 4,
+        "depends_on": [],
         "description": (
             "Co-segregation with disease in multiple affected family members. "
             "HHT VCEP uses meiosis-based scoring: "
@@ -370,174 +794,14 @@ PLANRAG_DB = {
         "deferred": True,
     },
 
-    "PP3": {
-        "criterion": "PP3",
-        "acmg_category": "Pathogenic",
-        "strength": "supporting",
-        "automation": "fully_automatable",
-        "tool": "revel_spliceai",
-        "variant_types": ["missense", "synonymous", "intronic"],
-        "description": (
-            "Multiple lines of computational evidence support a deleterious effect. "
-            "HHT VCEP specifies thresholds at Supporting strength only: "
-            "For missense variants — REVEL >=0.644 OR SpliceAI >=0.2; "
-            "For synonymous and intronic variants — SpliceAI >=0.2."
-        ),
-        "threshold": "Missense: REVEL >=0.644 OR SpliceAI >=0.2 | Synonymous/intronic: SpliceAI >=0.2",
-        "instructions": (
-            "Determine variant type (missense / synonymous / intronic). "
-            "For missense variants: fetch REVEL score AND SpliceAI scores. "
-            "PP3 applies if REVEL >=0.644 OR any SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >=0.2. "
-            "For synonymous or intronic variants: fetch SpliceAI only. "
-            "PP3 applies if any SpliceAI delta score >=0.2. "
-            "PP3 can be used only once in any evaluation of a variant. "
-            "Record exact scores retrieved and which threshold triggered."
-            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
-            "PP3 can be used only once per variant evaluation.\n"
-            "\n"
-            "BRANCH A — Missense variant:\n"
-            "  STEP 1: Is REVEL score >= 0.644?\n"
-            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record REVEL score as trigger.\n"
-            "    - NO  → continue to Step 2.\n"
-            "  STEP 2: Is ANY SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >= 0.2?\n"
-            "    - YES → PP3 APPLIES. Set applies=true. Stop. Record which score triggered.\n"
-            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
-            "\n"
-            "BRANCH B — Synonymous or intronic variant:\n"
-            "  STEP 1: Is ANY SpliceAI delta score (DS_AG, DS_AL, DS_DG, DS_DL) >= 0.2?\n"
-            "    - YES → PP3 APPLIES. Set applies=true. Record which score triggered.\n"
-            "    - NO  → PP3 does NOT apply. Set applies=false.\n"
-            "\n"
-            "IMPORTANT: For missense, REVEL and SpliceAI are independent triggers — either one alone is sufficient (OR logic).\n"
-            "Record exact scores and which threshold triggered in the evidence field."
-        ),
-        "hht_modification": "Supporting strength only; thresholds: REVEL >=0.644 (missense); SpliceAI >=0.2 (any variant type)",
-        "strength_override": "supporting",
-    },
-
-    "PP4_MODERATE": {
-        "criterion": "PP4_Moderate",
-        "acmg_category": "Pathogenic",
-        "strength": "moderate",
-        "automation": "not_automatable",
-        "tool": None,
-        "description": (
-            "Patient's phenotype meets consensus clinical diagnostic (Curaçao) criteria for HHT, AND "
-            "sequencing and large deletion/duplication analysis was performed for both ENG and ACVRL1 "
-            "with any other identified variants ruled out. "
-            "HHT VCEP applies PP4 at Moderate strength only. "
-            "RULES: PP4_Moderate cannot be applied to variants meeting BS1_Supporting, BS1, or BA1. "
-            "Patients counted for PP4_Moderate cannot be counted in PS4 proband counting."
-        ),
-        "threshold": "Patient meets Curaçao Criteria (>=3 of 4: epistaxis, telangiectases, visceral lesions, family history) AND comprehensive ENG/ACVRL1 sequencing + del/dup analysis ruled out other variants",
-        "instructions": (
-            "PP4_Moderate cannot be evaluated automatically. "
-            "Requires confirmed clinical records showing: "
-            "(1) patient meets Curaçao Criteria (>=3 of 4: spontaneous recurrent epistaxis, "
-            "telangiectases at characteristic sites, visceral lesions, first-degree relative with HHT), AND "
-            "(2) comprehensive sequencing and large deletion/duplication analysis was performed for BOTH "
-            "ENG and ACVRL1, with all other identified variants ruled out. "
-            "BLOCKED IF: variant meets BS1_Supporting, BS1, or BA1 — PP4_Moderate cannot apply in those cases. "
-            "If PP4_Moderate applies to a patient, that patient cannot be counted in PS4 proband counting. "
-            "Return applies=null, status=deferred, with explanation."
-        ),
-        "hht_modification": "Moderate strength only; requires Curaçao Criteria AND comprehensive ENG/ACVRL1 testing; blocked by BS1_Supporting/BS1/BA1; mutually exclusive with PS4 counting",
-        "strength_override": "moderate",
-        "deferred": True,
-    },
-
-    "BA1": {
-        "criterion": "BA1",
-        "acmg_category": "Benign",
-        "strength": "stand_alone",
-        "automation": "fully_automatable",
-        "tool": "gnomad",
-        "description": (
-            "Allele frequency is high enough for stand-alone benign classification. "
-            "HHT VCEP defines BA1 as: Popmax FAF >=1% (0.01) in gnomAD. "
-            "If BA1 applies, PP4_Moderate cannot also be applied."
-        ),
-        "threshold": "Popmax FAF >= 0.01 (1%) in gnomAD",
-        "instructions": (
-            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF). "
-            "BA1 applies if Popmax FAF >= 0.01 (1%). "
-            "This is a stand-alone benign criterion — if it applies, variant is classified Benign "
-            "regardless of all other evidence. "
-            "If BA1 applies, PP4_Moderate cannot also be applied. "
-            "Flag BA1 to the Scoring agent immediately — remaining criteria can be skipped."
-            "Query gnomAD for the Popmax Filtering Allele Frequency (FAF95, popmax field).\n"
-            "\n"
-            "STEP 1: Is Popmax FAF greater than or equal to 0.01 (i.e. >= 1%)?\n"
-            "  - Popmax FAF >= 0.01 → BA1 APPLIES. Set applies=true.\n"
-            "    This is stand-alone benign — variant is classified Benign regardless of all other evidence.\n"
-            "    PP4_Moderate cannot be applied if BA1 applies.\n"
-            "  - Popmax FAF < 0.01  → BA1 does NOT apply. Set applies=false.\n"
-            "  - Variant absent from gnomAD (popmax_faf = 0 or null) → BA1 does NOT apply. Set applies=false.\n"
-            "\n"
-            "IMPORTANT: BA1 applies only when Popmax FAF is HIGH (>= 1%). A low frequency means BA1 does NOT apply.\n"
-            "Record exact Popmax FAF value in evidence."
-        ),
-        "hht_modification": "Popmax FAF >=0.01 (1%) in gnomAD; blocks PP4_Moderate",
-        "strength_override": "stand_alone",
-    },
-
-    "BS1": {
-        "criterion": "BS1",
-        "acmg_category": "Benign",
-        "strength": "strong",
-        "automation": "fully_automatable",
-        "tool": "gnomad",
-        "description": (
-            "Allele frequency is greater than expected for the disorder. "
-            "HHT VCEP defines two strength levels using Popmax FAF (bottlenecked populations included):(e.g. Ashkenazi Jewish). The HHT VCEP does not exclude these from the frequency threshold calculation"
-            "Strong — Popmax FAF >0.2% to <1% (i.e. >0.002 and <0.01), OR variant meets BS1_Supporting AND has >=2 homozygotes; "
-            "Supporting — Popmax FAF >0.08% to 0.2% (i.e. >0.0008 and <=0.002). "
-            "If BS1 or BS1_Supporting applies, PP4_Moderate cannot also be applied."
-        ),
-        "threshold": "BS1_Strong: Popmax FAF >0.002 and <0.01 (OR BS1_Supporting + >=2 homozygotes); BS1_Supporting: Popmax FAF >0.0008 and <=0.002",
-        "instructions": (
-            "Query gnomAD for the Popmax FAF and homozygote count. "
-            "Apply strength: "
-            "BS1_Strong if Popmax FAF >0.002 (0.2%) and <0.01 (1%), OR if variant meets BS1_Supporting AND has >=2 homozygotes; "
-            "BS1_Supporting if Popmax FAF >0.0008 (0.08%) and <=0.002 (0.2%). "
-            "If BA1 already applies (Popmax FAF >=0.01), do not apply BS1. "
-            "If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied. "
-            "Record exact Popmax FAF, homozygote count, and strength level."
-            "Query gnomAD for Popmax FAF (faf95 popmax field) and total homozygote count (ac_hom).\n"
-            "Bottlenecked populations (e.g. Ashkenazi Jewish) are included — do not exclude them.\n"
-            "\n"
-            "STEP 1: Does BA1 already apply (Popmax FAF >= 0.01)?\n"
-            "  - YES → do NOT apply BS1. BA1 supersedes it. Set applies=false. Stop.\n"
-            "  - NO  → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Check for BS1_Strong via the homozygote route.\n"
-            "  Is Popmax FAF > 0.0008 AND <= 0.002 (i.e. BS1_Supporting range) AND homozygote count >= 2?\n"
-            "  - YES → BS1_Strong APPLIES via homozygote route. Set applies=true, strength=strong. Stop.\n"
-            "  - NO  → continue to Step 3.\n"
-            "\n"
-            "STEP 3: Check for BS1_Strong via the FAF route.\n"
-            "  Is Popmax FAF > 0.002 AND < 0.01?\n"
-            "  - YES → BS1_Strong APPLIES. Set applies=true, strength=strong. Stop.\n"
-            "  - NO  → continue to Step 4.\n"
-            "\n"
-            "STEP 4: Check for BS1_Supporting.\n"
-            "  Is Popmax FAF > 0.0008 AND <= 0.002?\n"
-            "  - YES → BS1_Supporting APPLIES. Set applies=true, strength=supporting. Stop.\n"
-            "  - NO  → BS1 does NOT apply. Set applies=false.\n"
-            "\n"
-            "NOTE: If BS1 or BS1_Supporting applies, PP4_Moderate cannot be applied.\n"
-            "Record exact Popmax FAF, homozygote count, and which strength level triggered."
-        ),
-        "hht_modification": "Two strength levels (Strong: >0.2-<1% OR BS1_Sup + 2 homozygotes; Supporting: >0.08-0.2%); Popmax FAF including bottlenecked populations; blocks PP4_Moderate",
-        "strength_override": None,
-    },
-
     "BS3": {
         "criterion": "BS3",
         "acmg_category": "Benign",
         "strength": "supporting",
         "automation": "not_automatable",
         "tool": None,
+        "phase": 4,
+        "depends_on": [],
         "description": (
             "Well-established functional studies show no damaging effect on protein function or splicing. "
             "HHT VCEP applies BS3 at Supporting strength only. "
@@ -568,6 +832,8 @@ PLANRAG_DB = {
         "strength": "strong",
         "automation": "not_automatable",
         "tool": None,
+        "phase": 4,
+        "depends_on": [],
         "description": (
             "Lack of segregation in affected members of a family. "
             "HHT VCEP applies BS4 at Strong strength only. "
@@ -591,8 +857,10 @@ PLANRAG_DB = {
         "criterion": "BP2",
         "acmg_category": "Benign",
         "strength": "supporting",
-        "automation": "partially_automatable",
-        "tool": "clinvar",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
         "description": (
             "Observed in trans with a pathogenic or likely pathogenic variant (per HHT VCEP rules). "
             "HHT VCEP applies BP2 at Supporting strength only. "
@@ -600,141 +868,188 @@ PLANRAG_DB = {
         ),
         "threshold": "Confirmed in trans with a P/LP variant classified per HHT VCEP rules",
         "instructions": (
-            "BP2 applies if the variant is observed in trans with a Pathogenic or Likely Pathogenic variant "
-            "classified per HHT VCEP rules. "
-            "Phase MUST be confirmed (parental testing or read-based phasing) — assumed in trans is not sufficient. "
-            "Search ClinVar / literature for co-occurring P/LP variants in HHT VCEP-classified entries. "
-            "Note: HHT is autosomal dominant; BP2 in trans suggests this variant is unlikely to be pathogenic "
-            "because the patient would otherwise have biallelic LOF, which is generally embryonic lethal in HHT genes. "
-            "Return applies=null, status=deferred if phase cannot be confirmed."
+            "BP2 cannot be evaluated automatically. "
+            "Requires patient-level phasing data (parental testing or read-based phasing). "
+            "Return applies=null, status=deferred, with explanation."
         ),
         "hht_modification": "Supporting strength only; phase must be confirmed; reference variant must be HHT VCEP-classified P/LP",
         "strength_override": "supporting",
+        "deferred": True,
     },
 
-    "BP4": {
-        "criterion": "BP4",
-        "acmg_category": "Benign",
-        "strength": "supporting",
-        "automation": "fully_automatable",
-        "tool": "revel_spliceai",
-        "variant_types": ["missense", "synonymous", "intronic"],
-        "description": (
-            "Multiple lines of computational evidence suggest no impact on gene product. "
-            "HHT VCEP thresholds at Supporting strength only: "
-            "For missense variants — REVEL <=0.15 AND SpliceAI <=0.1 (BOTH required); "
-            "For synonymous and intronic variants — SpliceAI <=0.1. "
-            "BP4 can be used only once per variant evaluation."
-        ),
-        "threshold": "Missense: REVEL <=0.15 AND SpliceAI <=0.1 | Synonymous/intronic: SpliceAI <=0.1",
-        "instructions": (
-            "Determine variant type (missense / synonymous / intronic). "
-            "For missense variants: fetch BOTH REVEL and SpliceAI scores. "
-            "BP4 applies ONLY if REVEL <=0.15 AND all SpliceAI delta scores <=0.1. "
-            "If either condition fails, BP4 does not apply. "
-            "For synonymous or intronic variants: fetch SpliceAI only. "
-            "BP4 applies if all SpliceAI delta scores <=0.1. "
-            "Note whether BP7 also applies — these can be combined per HHT VCEP rules."
-            "Fetch REVEL score and all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
-            "BP4 can be used only once per variant evaluation.\n"
-            "\n"
-            "BRANCH A — Missense variant (BOTH conditions must be true — AND logic):\n"
-            "  STEP 1: Is REVEL score <= 0.15?\n"
-            "    - NO  → BP4 does NOT apply. Set applies=false. Stop.\n"
-            "    - YES → continue to Step 2.\n"
-            "  STEP 2: Are ALL four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL) <= 0.1?\n"
-            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false. Stop.\n"
-            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
-            "\n"
-            "BRANCH B — Synonymous or intronic variant (SpliceAI only):\n"
-            "  STEP 1: Are ALL four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL) <= 0.1?\n"
-            "    - NO  (any score > 0.1) → BP4 does NOT apply. Set applies=false.\n"
-            "    - YES (all scores <= 0.1) → BP4 APPLIES. Set applies=true.\n"
-            "\n"
-            "IMPORTANT: For missense, failing EITHER condition means BP4 does NOT apply (AND logic, not OR).\n"
-            "Record exact REVEL and SpliceAI scores in evidence."
-        ),
-        "hht_modification": "Missense requires BOTH REVEL <=0.15 AND SpliceAI <=0.1 (not OR); synonymous/intronic uses SpliceAI <=0.1 only",
-        "strength_override": "supporting",
-    },
+    # ── BP5: gene-specific — references the other HHT gene ───────────────────
+    # For an ACVRL1 variant: BP5 applies when a P/LP ENG variant is also found.
+    # For an ENG variant: BP5 applies when a P/LP ACVRL1 variant is also found.
 
     "BP5": {
         "criterion": "BP5",
         "acmg_category": "Benign",
         "strength": "supporting",
-        "automation": "partially_automatable",
-        "tool": "clinvar",
-        "description": (
-            "Variant found in a case with an alternate molecular basis for disease. "
-            "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
-            "(per HHT VCEP rules) is identified in ENG. "
-            "Rationale: this is ACVRL1-specific spec — if the patient's HHT is explained by a P/LP ENG variant, "
-            "an ACVRL1 variant in the same patient is less likely to be the cause."
-        ),
-        "threshold": "Patient also carries a P/LP variant in ENG (per HHT VCEP rules)",
-        "instructions": (
-            "BP5 applies if a likely pathogenic or pathogenic variant in ENG (per HHT VCEP rules) "
-            "is identified in the same patient. "
-            "This requires patient-level data — search ClinVar / literature for co-reported ENG variants "
-            "and check whether they are classified P/LP by the HHT VCEP. "
-            "Return applies=null, status=deferred if patient-level data is not available."
-        ),
-        "hht_modification": "Supporting strength only; specifically applies when a P/LP ENG variant (HHT VCEP rules) is found in the same patient",
+        "automation": "not_automatable",
+        "tool": None,
+        "phase": 4,
+        "depends_on": [],
         "strength_override": "supporting",
+        "deferred": True,
+
+        "gene_data": {
+            "ACVRL1": {
+                "description": (
+                    "Variant found in a case with an alternate molecular basis for disease. "
+                    "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
+                    "(per HHT VCEP rules) is identified in ENG in the same patient."
+                ),
+                "threshold": "Patient also carries a P/LP variant in ENG (per HHT VCEP rules)",
+                "instructions": (
+                    "BP5 cannot be evaluated automatically. "
+                    "Requires patient-level data showing co-occurrence of a P/LP ENG variant in the same patient. "
+                    "Return applies=null, status=deferred, with explanation."
+                ),
+                "hht_modification": "Supporting strength only; specifically applies when a P/LP ENG variant (HHT VCEP rules) is found in the same patient",
+            },
+            "ENG": {
+                "description": (
+                    "Variant found in a case with an alternate molecular basis for disease. "
+                    "HHT VCEP applies BP5 at Supporting strength when: a likely pathogenic or pathogenic variant "
+                    "(per HHT VCEP rules) is identified in ACVRL1 in the same patient."
+                ),
+                "threshold": "Patient also carries a P/LP variant in ACVRL1 (per HHT VCEP rules)",
+                "instructions": (
+                    "BP5 cannot be evaluated automatically. "
+                    "Requires patient-level data showing co-occurrence of a P/LP ACVRL1 variant in the same patient. "
+                    "Return applies=null, status=deferred, with explanation."
+                ),
+                "hht_modification": "Supporting strength only; specifically applies when a P/LP ACVRL1 variant (HHT VCEP rules) is found in the same patient",
+            },
+        },
     },
 
-    "BP7": {
-        "criterion": "BP7",
-        "acmg_category": "Benign",
-        "strength": "supporting",
-        "automation": "fully_automatable",
-        "tool": "spliceai",
-        "variant_types": ["synonymous", "intronic"],
-        "description": (
-            "Synonymous or intronic variant with no predicted splice impact. "
-            "HHT VCEP threshold: SpliceAI <=0.1 at Supporting strength. "
-            "Can be combined with BP4 evidence. "
-            "CAUTION per HHT VCEP: do not dismiss intronic or last-nucleotide-of-exon synonymous variants "
-            "based on SpliceAI alone when clinical suspicion is high (some validated splice variants have "
-            "low SpliceAI scores — see ENG c.219G>A example and ACVRL1 intron 9 CT-rich hotspot)."
-        ),
-        "threshold": "Synonymous or intronic variant AND SpliceAI <=0.1",
-        "instructions": (
-            "BP7 applies to synonymous or intronic variants only. "
-            "Fetch SpliceAI delta scores. "
-            "BP7 applies if all SpliceAI delta scores <=0.1. "
-            "If the variant is at the last nucleotide of an exon OR is a deep intronic variant in a known "
-            "splicing hotspot, flag for manual review — SpliceAI can miss real splice effects in these regions. "
-            "Note whether BP4 also applies — HHT VCEP allows combining BP4 + BP7."
-            "Fetch all four SpliceAI delta scores (DS_AG, DS_AL, DS_DG, DS_DL).\n"
-            "BP7 applies to synonymous or intronic variants only — not missense.\n"
-            "\n"
-            "STEP 1: Are ALL four SpliceAI delta scores <= 0.1?\n"
-            "  - YES (all four <= 0.1) → BP7 APPLIES. Set applies=true.\n"
-            "  - NO  (any score > 0.1) → BP7 does NOT apply. Set applies=false.\n"
-            "\n"
-            "CAUTION: Even if BP7 applies, flag the following for manual review:\n"
-            "  - Variant at the last nucleotide of an exon\n"
-            "  - Deep intronic variant in a known splicing hotspot (e.g. ACVRL1 intron 9 CT-rich region)\n"
-            "  SpliceAI can miss real splice effects in these regions.\n"
-            "\n"
-            "Record all four SpliceAI scores in evidence."
-        ),
-        "hht_modification": "Supporting strength; SpliceAI <=0.1; flag last-exon-nucleotide and deep intronic hotspot variants for manual review even if SpliceAI is low",
-        "strength_override": "supporting",
+    # ══════════════════════════════════════════════════════════════════════════
+    # SCORING — HHT VCEP combining criteria rules (CSpec GN135/GN136 v1.1.0)
+    # Source: https://cspec.genome.network/cspec/ui/svi/doc/GN135#rules-combinations-panel-1576018580
+    #
+    # Each applied criterion maps to a strength bucket.
+    # Fixed-strength criteria always land in the same bucket (enforced in task_agent.py).
+    # Variable-strength criteria (PVS1, PS3, PS4, PM5, PP1) land in the bucket
+    # corresponding to their applied_strength field.
+    #
+    # Bucket → contribution to rule counts:
+    #   "very_strong"       → vs  (pathogenic)
+    #   "strong"            → s   (pathogenic)
+    #   "moderate"          → m   (pathogenic)
+    #   "supporting"        → sup (pathogenic)
+    #   "benign_stand_alone"→ ba  (benign — auto-Benign, evaluated first)
+    #   "benign_strong"     → bs  (benign)
+    #   "benign_supporting" → bsup(benign)
+    #
+    # Incompatibility rule: PM1 + PM5_Strong → downgrade PM5 to moderate before bucketing.
+    # ══════════════════════════════════════════════════════════════════════════
+
+    "SCORING": {
+        "criterion": "SCORING",
+
+        # Maps criterion key → its fixed bucket (enforced in task_agent.py for these;
+        # listed here as the single source of truth for the scoring module too).
+        # Variable-strength criteria are NOT listed here — they use applied_strength.
+        "fixed_strengths": {
+            "PM2_SUPPORTING": "supporting",
+            "PP3":            "supporting",
+            "PP4_MODERATE":   "moderate",
+            "PM1":            "moderate",
+            "PM4":            "moderate",
+            "PS1":            "strong",
+            "PS2":            "strong",   # excluded in HHT VCEP but kept for completeness
+            "BA1":            "benign_stand_alone",
+            # BS1 is NOT here — it has two strength levels (benign_strong / benign_supporting)
+            # and is treated as a variable-strength criterion (see variable_strength_map below).
+            "BS3_SUPPORTING": "benign_supporting",
+            "BS4":            "benign_strong",
+            "BP2":            "benign_supporting",
+            "BP4":            "benign_supporting",
+            "BP5":            "benign_supporting",
+            "BP7":            "benign_supporting",
+        },
+
+        # Variable-strength criteria: applied_strength string → bucket.
+        # Used for PVS1, PS3, PS4, PM5, PP1 (pathogenic variable-strength) and
+        # BS1 (benign variable-strength: benign_strong or benign_supporting).
+        "variable_strength_map": {
+            "very_strong":       "very_strong",
+            "strong":            "strong",
+            "moderate":          "moderate",
+            "supporting":        "supporting",
+            # Benign variable-strength buckets (used by BS1)
+            "benign_strong":     "benign_strong",
+            "benign_supporting": "benign_supporting",
+        },
+
+        # Incompatible combinations — handled before bucketing.
+        # Format: list of {"criteria": [...], "action": "...", "target": "...", "new_strength": "..."}
+        "incompatible_combinations": [
+            {
+                "criteria":   ["PM1", "PM5"],
+                "condition":  "PM5 applied_strength == strong",
+                "action":     "downgrade",
+                "target":     "PM5",
+                "new_strength": "moderate",
+                "note": "PM1 and PM5_Strong cannot be combined — PM5 is downgraded to Moderate",
+            },
+        ],
+
+        # ── PATHOGENIC combining rules ─────────────────────────────────────────
+        # Each rule specifies minimum counts that must be satisfied simultaneously.
+        # Keys: vs (very strong), s (strong), m (moderate), sup (supporting).
+        # Missing keys default to 0 (i.e. no requirement on that bucket).
+        # Rules are checked in order — first match wins.
+        "pathogenic_rules": [
+            {"vs": 1, "s": 1,                     "label": "PVS1 + ≥1 Strong"},
+            {"vs": 1, "m": 2,                     "label": "PVS1 + ≥2 Moderate"},
+            {"vs": 1, "m": 1, "sup": 1,           "label": "PVS1 + 1 Moderate + 1 Supporting"},
+            {"vs": 1, "sup": 2,                   "label": "PVS1 + ≥2 Supporting"},
+            {"s": 2,                               "label": "≥2 Strong"},
+            {"s": 1, "m": 3,                       "label": "1 Strong + ≥3 Moderate"},
+            {"s": 1, "m": 2, "sup": 2,            "label": "1 Strong + 2 Moderate + ≥2 Supporting"},
+            {"s": 1, "m": 1, "sup": 4,            "label": "1 Strong + 1 Moderate + ≥4 Supporting"},
+        ],
+
+        # ── LIKELY PATHOGENIC combining rules ─────────────────────────────────
+        "likely_pathogenic_rules": [
+            {"vs": 1, "m": 1,                     "label": "PVS1 + 1 Moderate"},
+            {"vs": 1, "sup": 1,                   "label": "PVS1 + 1 Supporting"},
+            {"s": 1, "m": 2,                       "label": "1 Strong + 2 Moderate"},
+            {"s": 1, "m": 1,                       "label": "1 Strong + 1 Moderate"},
+            {"s": 1, "sup": 2,                    "label": "1 Strong + ≥2 Supporting"},
+            {"m": 3,                               "label": "≥3 Moderate"},
+            {"m": 2, "sup": 2,                    "label": "2 Moderate + ≥2 Supporting"},
+            {"m": 1, "sup": 4,                    "label": "1 Moderate + ≥4 Supporting"},
+        ],
+
+        # ── BENIGN combining rules (checked before pathogenic) ─────────────────
+        # Keys: ba (stand-alone), bs (strong), bsup (supporting).
+        "benign_rules": [
+            {"ba": 1,          "label": "BA1 stand-alone"},
+            {"bs": 2,          "label": "≥2 Strong benign"},
+        ],
+
+        # ── LIKELY BENIGN combining rules ──────────────────────────────────────
+        "likely_benign_rules": [
+            {"bs": 1, "bsup": 1, "label": "1 Strong + 1 Supporting benign"},
+            {"bs": 1,            "label": "1 Strong benign"},
+            {"bsup": 2,          "label": "≥2 Supporting benign"},
+        ],
     },
 }
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# EXCLUDED CRITERIA — Not Applicable per HHT VCEP CSpec GN135 v1.1.0
+# EXCLUDED CRITERIA — Not Applicable per HHT VCEP CSpec GN135/GN136 v1.1.0
 # ──────────────────────────────────────────────────────────────────────────────
 
 EXCLUDED_CRITERIA = {
     "PS2": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed. Low-level mosaicism in parents has been observed.",
     "PM3": "Not Applicable per HHT VCEP — HHT is autosomal dominant; AR trans mechanism not relevant",
     "PM6": "Not Applicable per HHT VCEP — de novo variants are rare in HHT; should be confirmed not presumed",
-    "PP2": "Not Applicable for ACVRL1 — gene missense Z-score is 2.45 (below threshold for PP2)",
+    "PP2": "Not Applicable for ACVRL1 or ENG — gene missense Z-scores are below threshold for PP2 (ACVRL1: 2.45; ENG: 2.81)",
     "PP5": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)",
     "BS2": "Not Applicable per HHT VCEP — full penetrance at an early age is not observed in HHT",
     "BP1": "Not Applicable per HHT VCEP — missense variants commonly seen in HHT genes",
@@ -743,34 +1058,65 @@ EXCLUDED_CRITERIA = {
 }
 
 
-def query(criterion: str) -> dict | None:
+def query(criterion: str, gene: str = None) -> dict | None:
     """
     Retrieve the PlanRAG entry for a given ACMG criterion.
-    Returns None if no entry exists.
-    Handles both exact keys (PM2_SUPPORTING) and display names (PM2_Supporting).
+
+    Parameters
+    ----------
+    criterion : str
+        Criterion key (e.g. "PM1", "PM2_SUPPORTING") or display name (e.g. "PM2_Supporting").
+    gene : str | None
+        Gene symbol (e.g. "ACVRL1", "ENG"). When provided and the entry has a
+        gene_data dict, the gene-specific sub-dict is merged into the returned entry.
+        When None, defaults to the first gene in gene_data (ACVRL1) for backward compatibility.
+
+    Returns
+    -------
+    dict | None
+        A shallow copy of the planrag entry with gene-specific fields merged in,
+        or None if the criterion is not found.
     """
     key = criterion.upper().replace("-", "_").replace(" ", "_")
 
+    entry = None
     if key in PLANRAG_DB:
-        return PLANRAG_DB[key]
+        entry = dict(PLANRAG_DB[key])
+    else:
+        for db_key, db_entry in PLANRAG_DB.items():
+            if (db_entry.get("criterion", "").upper().replace("_", "").replace(" ", "")
+                    == key.replace("_", "").replace(" ", "")):
+                entry = dict(db_entry)
+                break
 
-    for db_key, entry in PLANRAG_DB.items():
-        if entry["criterion"].upper().replace("_", "").replace(" ", "") == key.replace("_", "").replace(" ", ""):
-            return entry
+    if entry is None:
+        if key in EXCLUDED_CRITERIA:
+            return {
+                "criterion": criterion,
+                "excluded": True,
+                "reason": EXCLUDED_CRITERIA[key],
+            }
+        return None
 
-    if key in EXCLUDED_CRITERIA:
-        return {
-            "criterion": criterion,
-            "excluded": True,
-            "reason": EXCLUDED_CRITERIA[key],
-        }
+    # Merge gene-specific fields when gene_data is present.
+    # If gene is None or not found in gene_data, default to ACVRL1.
+    gene_data = entry.get("gene_data")
+    if gene_data is not None:
+        resolved_gene = gene if (gene and gene in gene_data) else next(iter(gene_data))
+        entry.update(gene_data[resolved_gene])
+        entry["resolved_gene"] = resolved_gene
 
-    return None
+    return entry
 
 
 def get_all_active_criteria() -> list[str]:
     """List of all active HHT VCEP criteria keys."""
     return list(PLANRAG_DB.keys())
+
+
+def get_criteria_by_phase(phase: int) -> list[str]:
+    """Returns criteria keys for a given execution phase."""
+    return [k for k, v in PLANRAG_DB.items() if v.get("phase") == phase]
 
 
 def get_automatable_criteria() -> list[str]:
@@ -780,3 +1126,4 @@ def get_automatable_criteria() -> list[str]:
 
 def get_deferred_criteria() -> list[str]:
     """Criteria that cannot be automated."""
+    return [k for k, v in PLANRAG_DB.items() if v.get("deferred", False)]

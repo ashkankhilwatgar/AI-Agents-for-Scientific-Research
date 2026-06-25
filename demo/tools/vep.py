@@ -6,6 +6,15 @@ ENSEMBL_URL = "https://rest.ensembl.org"
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds between retries
 
+# Single-letter to three-letter amino acid code conversion
+AA_1TO3 = {
+    'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe',
+    'G': 'Gly', 'H': 'His', 'I': 'Ile', 'K': 'Lys', 'L': 'Leu',
+    'M': 'Met', 'N': 'Asn', 'P': 'Pro', 'Q': 'Gln', 'R': 'Arg',
+    'S': 'Ser', 'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr',
+    '*': 'Ter',
+}
+
 # Maps VEP most_severe_consequence to simplified variant type categories
 # used by the pipeline for criterion pre-filtering.
 CONSEQUENCE_MAP = {
@@ -204,16 +213,32 @@ def annotate_variant(variant: str) -> dict:
                 last_error = "VEP returned empty or non-list response"
                 continue
 
-            tc = data[0].get("transcript_consequences", [])
-            if tc:
-                tc = tc[0]   # selected transcript
-                consequence_terms = tc.get("consequence_terms")[0]
-                hgvsc = tc.get("hgvsc")
-                hgvsp = tc.get("hgvsp")
-                gene_symbol = tc.get("gene_symbol")
-                ensembl_transcript = tc.get("transcript_id")
-                mane_transcript = tc.get("mane_select")
-            
+            transcript_consequences = data[0].get("transcript_consequences")
+            if not transcript_consequences:
+                last_error = "VEP response missing transcript_consequences"
+                continue
+
+            # When the input is HGVS with a named transcript (e.g. NM_000020.3),
+            # find the consequence entry for that specific transcript.
+            # Falling back to [0] risks picking a consequence from a different
+            # overlapping transcript (e.g. a coding exon in another gene/isoform).
+            tc = None
+            if variant.startswith("NM_") and ":" in variant:
+                transcript_base = variant.split(":")[0].split(".")[0]  # e.g. "NM_000020"
+                tc = next(
+                    (t for t in transcript_consequences
+                     if t.get("transcript_id", "").startswith(transcript_base)),
+                    None
+                )
+            if tc is None:
+                tc = transcript_consequences[0]  # fallback for gnomAD format or no match
+
+            consequence_terms = tc.get("consequence_terms")
+            hgvsc = tc.get("hgvsc")
+            hgvsp = tc.get("hgvsp")
+            gene_symbol = tc.get("gene_symbol")
+            ensembl_transcript = tc.get("transcript_id")
+            mane_transcript = tx.get("mane_select")
             if not consequence_terms:
                 last_error = "VEP transcript_consequences missing consequence_terms"
                 continue
@@ -242,6 +267,30 @@ def annotate_variant(variant: str) -> dict:
                 "mane_transcript": mane_transcript,
                 "rsid": rsid
             }
+
+            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly)
+            aa_raw = tc.get("amino_acids", "")
+            if "/" in aa_raw:
+                ref_1, alt_1 = aa_raw.split("/", 1)
+                ref_3 = AA_1TO3.get(ref_1.strip(), ref_1.strip())
+                alt_3 = AA_1TO3.get(alt_1.strip(), alt_1.strip())
+                result["amino_acid_ref"] = ref_3   # e.g. "Cys"
+                result["amino_acid_alt"] = alt_3   # e.g. "Gly"
+                if result["codon_position"]:
+                    result["protein_change"] = f"p.{ref_3}{result['codon_position']}{alt_3}"  # e.g. "p.Cys51Gly"
+                    result["protein_change_1letter"] = f"p.{ref_1.strip()}{result['codon_position']}{alt_1.strip()}"  # e.g. "p.C51G"
+
+            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly)
+            aa_raw = tc.get("amino_acids", "")
+            if "/" in aa_raw:
+                ref_1, alt_1 = aa_raw.split("/", 1)
+                ref_3 = AA_1TO3.get(ref_1.strip(), ref_1.strip())
+                alt_3 = AA_1TO3.get(alt_1.strip(), alt_1.strip())
+                result["amino_acid_ref"] = ref_3   # e.g. "Cys"
+                result["amino_acid_alt"] = alt_3   # e.g. "Gly"
+                if result["codon_position"]:
+                    result["protein_change"] = f"p.{ref_3}{result['codon_position']}{alt_3}"  # e.g. "p.Cys51Gly"
+                    result["protein_change_1letter"] = f"p.{ref_1.strip()}{result['codon_position']}{alt_1.strip()}"  # e.g. "p.C51G"
 
             # repeat region check — only for in-frame indels (required for PM4)
             indel_consequences = {"inframe_deletion", "inframe_insertion"}

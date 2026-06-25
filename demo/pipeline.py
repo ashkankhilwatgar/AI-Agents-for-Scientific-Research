@@ -7,6 +7,7 @@ from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
 from tools.vep import annotate_variant
+from tools.scoring import classify
 from data.planrag import query
 
 CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"] #list(__import__('data.planrag', fromlist=['PLANRAG_DB']).PLANRAG_DB.keys())
@@ -84,12 +85,48 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         return []
 
     results = []
+    results_dict = {}  # criterion → completed result, for dependency checking
 
     for task in tasks:
         criterion = task.get("criterion")
 
         # inject variant_type into task dict so downstream agents have it if needed
         task["variant_type"] = variant_type
+
+        # ── PRECONDITION CHECK ────────────────────
+        rag_entry = query(criterion)
+        requires_applied = (rag_entry or {}).get("requires_applied", [])
+        blocked_by      = (rag_entry or {}).get("blocked_by", [])
+        skipped_reason = None
+
+        for dep in requires_applied:
+            dep_key = dep.upper().replace("-", "_").replace(" ", "_")
+            dep_result = results_dict.get(dep_key)
+            if dep_result is None:
+                skipped_reason = f"{dep} has not been evaluated (dependency ordering error)"
+                break
+            if not dep_result.get("applies"):
+                skipped_reason = f"{dep} did not apply — {criterion} requires it"
+                break
+
+        if not skipped_reason:
+            for blocker in blocked_by:
+                blocker_key = blocker.upper().replace("-", "_").replace(" ", "_")
+                blocker_result = results_dict.get(blocker_key)
+                if blocker_result and blocker_result.get("applies") is True:
+                    skipped_reason = f"{blocker} applied — {criterion} is excluded when {blocker} applies"
+                    break
+
+        if skipped_reason:
+            print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
+            skipped_entry = {
+                "criterion": criterion,
+                "status": "skipped",
+                "reason": skipped_reason,
+            }
+            results.append(skipped_entry)
+            results_dict[criterion.upper().replace("-", "_")] = skipped_entry
+            continue
 
         print(f"\n{'─'*60}")
         print(f"PIPELINE: Processing criterion {criterion}")
@@ -102,6 +139,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         if debug_output.get("status") == "error":
             print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
             results.append(debug_output)
+            results_dict[criterion.upper().replace("-", "_")] = debug_output
             continue
 
         # ── JUDGE AGENT ───────────────────────
@@ -111,6 +149,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         if judge_output.get("status") == "error":
             print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
             results.append(judge_output)
+            results_dict[criterion.upper().replace("-", "_")] = judge_output
             continue
 
         # ── CHECK AGENT ───────────────────────
@@ -118,12 +157,20 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         final_output = run_check(judge_output)
 
         results.append(final_output)
+        results_dict[criterion.upper().replace("-", "_")] = final_output
         print(f"\nPIPELINE: {criterion} complete")
 
-    return results
+    # ── SCORING ───────────────────────────────────────────────────────────────
+    print("\n" + "─"*60)
+    print("PIPELINE: Running HHT VCEP classification scoring...")
+    scoring_result = classify(results_dict)
+    print(f"PIPELINE: Classification → {scoring_result['classification']}")
+    print(f"          Rule matched   → {scoring_result['rule_matched']}")
+
+    return results, scoring_result
 
 
-def print_report(variant: str, disease: str, results: list[dict]) -> None:
+def print_report(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> None:
     """
     Prints a human-readable classification report to the terminal.
     """
@@ -135,6 +182,60 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
     print(f"Date    : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
 
+    # ── FINAL CLASSIFICATION ──────────────────────────────────────────────────
+    if scoring_result:
+        classification = scoring_result.get("classification", "Unknown")
+        rule = scoring_result.get("rule_matched", "—")
+        buckets = scoring_result.get("buckets", {})
+        bucket_detail = scoring_result.get("bucket_detail", {})
+
+        # Colour-code the classification label
+        _COLOURS = {
+            "Pathogenic":          "\033[91m",   # red
+            "Likely Pathogenic":   "\033[93m",   # yellow
+            "Likely Benign":       "\033[96m",   # cyan
+            "Benign":              "\033[94m",   # blue
+        }
+        _RESET = "\033[0m"
+        colour = _COLOURS.get(classification, "\033[97m")  # white for VUS
+
+        print(f"\n{'─'*60}")
+        print(f"  FINAL CLASSIFICATION: {colour}{classification}{_RESET}")
+        print(f"  Rule matched        : {rule}")
+
+        # Bucket summary (only print non-zero buckets)
+        bucket_labels = {
+            "vs":   "Very Strong (P)",
+            "s":    "Strong (P)",
+            "m":    "Moderate (P)",
+            "sup":  "Supporting (P)",
+            "ba":   "Stand-alone (B)",
+            "bs":   "Strong (B)",
+            "bsup": "Supporting (B)",
+        }
+        nonempty = {k: v for k, v in buckets.items() if v > 0}
+        if nonempty:
+            print(f"\n  Strength bucket counts:")
+            for k, v in nonempty.items():
+                criteria_in_bucket = [c for c, b in bucket_detail.items()
+                                      if b == {
+                                          "vs": "very_strong", "s": "strong",
+                                          "m": "moderate", "sup": "supporting",
+                                          "ba": "benign_stand_alone", "bs": "benign_strong",
+                                          "bsup": "benign_supporting",
+                                      }.get(k)]
+                print(f"    {bucket_labels.get(k, k):20s}: {v}  [{', '.join(criteria_in_bucket)}]")
+
+        # Incompatibility notes
+        for note in scoring_result.get("incompatibility_notes", []):
+            print(f"\n  ⚠  {note}")
+
+        # Unrecognised criteria (should be empty in normal operation)
+        for u in scoring_result.get("unrecognised_criteria", []):
+            print(f"\n  ⚠  Unrecognised criterion skipped in scoring: {u}")
+
+        print(f"{'─'*60}")
+
     if not results:
         print("No results to report.")
         return
@@ -142,10 +243,15 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
     applied = []
     not_applied = []
     failed = []
+    skipped = []
 
     for result in results:
         criterion = result.get("criterion", "Unknown")
         status = result.get("status")
+
+        if status == "skipped":
+            skipped.append(result)
+            continue
 
         if status == "error":
             failed.append(result)
@@ -175,6 +281,13 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
         print(f"    Evidence : {r.get('evidence')}")
         print(f"    Reasoning: {r.get('reasoning')}")
 
+    # ── SKIPPED CRITERIA ──────────────────────
+    if skipped:
+        print(f"\nSKIPPED CRITERIA ({len(skipped)}):")
+        for r in skipped:
+            print(f"\n  – {r['criterion']}")
+            print(f"    Reason: {r.get('reason')}")
+
     # ── FAILED CRITERIA ───────────────────────
     if failed:
         print(f"\nFAILED CRITERIA ({len(failed)}):")
@@ -185,7 +298,7 @@ def print_report(variant: str, disease: str, results: list[dict]) -> None:
     print("\n" + "="*60)
 
 
-def save_results(variant: str, disease: str, results: list[dict]) -> str:
+def save_results(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> str:
     """
     Saves full JSON results to a timestamped output file.
     Returns the file path.
@@ -200,7 +313,10 @@ def save_results(variant: str, disease: str, results: list[dict]) -> str:
         "variant": variant,
         "disease": disease,
         "timestamp": timestamp,
-        "results": results
+        "classification": scoring_result.get("classification") if scoring_result else None,
+        "rule_matched":   scoring_result.get("rule_matched")   if scoring_result else None,
+        "scoring":        scoring_result,
+        "results": results,
     }
 
     with open(filename, "w") as f:
@@ -228,9 +344,9 @@ def main():
 
     args = parser.parse_args()
 
-    results = run_pipeline(args.variant, args.disease)
-    print_report(args.variant, args.disease, results)
-    filepath = save_results(args.variant, args.disease, results)
+    results, scoring_result = run_pipeline(args.variant, args.disease)
+    print_report(args.variant, args.disease, results, scoring_result)
+    filepath = save_results(args.variant, args.disease, results, scoring_result)
 
     print(f"Full results saved to: {filepath}\n")
 

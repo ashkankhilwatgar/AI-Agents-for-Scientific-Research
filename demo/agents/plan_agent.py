@@ -32,15 +32,24 @@ def call_plan_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
 
 def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dict]:
     """
-    For each criterion, retrieves the PlanRAG entry and asks the LLM
-    to produce a one-sentence instruction summary for the Task agent.
-    All other task fields are set deterministically from the RAG entry.
-    Returns a list of task dicts ready for the Task agent.
+    For each criterion, retrieves the PlanRAG entry and builds a task dict
+    for the Task agent. All fields are set deterministically from the RAG entry —
+    no LLM call is made here. The Task agent has access to the full RAG entry
+    (including detailed instructions) at evaluation time.
+
+    Returns a list of task dicts sorted by execution phase.
     """
     tasks = []
 
+    # Detect gene from transcript so gene-specific planrag branches are used
+    gene = None
+    if variant.startswith("NM_") and ":" in variant:
+        gene = get_gene_from_transcript(variant.split(":")[0])
+    if gene:
+        print(f"PLAN AGENT: Detected gene {gene} from transcript")
+
     for criterion in criteria:
-        rag_entry = query(criterion)
+        rag_entry = query(criterion, gene=gene)
 
         if rag_entry is None:
             print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
@@ -80,11 +89,14 @@ Respond ONLY with a JSON object in this exact format, no explanation:
             "variant": variant,
             "disease": disease,
             "tool": rag_entry["tool"],
-            "instructions": instructions,
+            "instructions": rag_entry["instructions"],
         }
 
         tasks.append(task)
         print(f"PLAN AGENT: Task created for {criterion}")
+
+    # Sort by phase so dependencies are always evaluated before dependents
+    tasks.sort(key=lambda t: (query(t["criterion"], gene=gene) or {}).get("phase", 99))
 
     return tasks
 
@@ -98,12 +110,3 @@ def run_plan(variant: str, disease: str, criteria: list[str]) -> list[dict]:
     tasks = build_task_list(variant, disease, criteria)
     print(f"PLAN AGENT: {len(tasks)} task(s) generated")
     return tasks
-
-
-# if __name__ == "__main__":
-#     tasks = run_plan(
-#         variant="NM_000020.3:c.557G>T",
-#         disease="HHT",
-#         criteria=["PM2_SUPPORTING", "PP3"]
-#     )
-#     print(json.dumps(tasks, indent=2))

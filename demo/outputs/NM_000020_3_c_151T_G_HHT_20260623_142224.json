@@ -1,0 +1,157 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260623_142224",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate",
+      "PM5": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PM5",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count: 0, subpopulation AFs: all 0.0",
+      "reasoning": "Step 1: Variant is absent from gnomAD entirely; applies=true.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 which is less than the threshold of 0.01 and variant is absent from gnomAD.",
+      "applies": false,
+      "applied_strength": "benign_stand_alone",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_000020.3:c.151T>G is a missense variant resulting in p.Cys51Gly.",
+      "reasoning": "The protein position 51 does not fall within any of the specified critical regions for PM1 (G209-V216, K229, E242, R329-N335, D348-L351, BMP10 cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}).",
+      "applies": false,
+      "applied_strength": "moderate",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "The variant NM_000020.3:c.151T>G has been reported in 2 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia (HHT).",
+      "reasoning": "Based on the ClinVar VCEP submission, there are 2 proband counts which meet the PS4_Moderate criteria.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_000020.3:c.151T>G is a missense variant changing Cys to Gly at codon 51, resulting in p.Cys51Gly.",
+      "reasoning": "The variant does not meet the criteria for nonsense or frameshift mutations that would predict NMD (codon <=442) or critical truncation (codon <=490). It is a missense mutation which does not fit any of the PVS1 categories as described in the ACMG guidelines.",
+      "applies": false,
+      "applied_strength": "",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "clinvar evidence for ACVRL1 codon 51 shows multiple missense variants classified as likely pathogenic or pathogenic by HHT VCEP rules.",
+      "reasoning": "There are at least two different LP/P missense changes (p.Cys51Trp, p.Cys51Tyr) at the same codon position according to clinvar evidence from ClinGen Evidence Repository. This meets the threshold for PM5_Strong.",
+      "applies": true,
+      "applied_strength": "strong",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 51",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.917, SpliceAI DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.09, DS_DL: 0.0",
+      "reasoning": "REVEL score >= 0.644 (0.917 > 0.644), so PP3 applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.917, SpliceAI DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.09, DS_DL: 0.0",
+      "reasoning": "REVEL score is > 0.15 (0.917), so BP4 does not apply.",
+      "applies": false,
+      "applied_strength": "benign_supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "VEP consequence: missense_variant, codon position: 51, amino acid change: Cys to Gly (p.C51G)",
+      "reasoning": "The VEP consequence is 'missense_variant', which does not meet the threshold for PM4. Therefore, PM4 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "ClinVar record for NM_0000245 does not contain relevant HHT VCEP-classified entries with the same amino acid change.",
+      "reasoning": "No HHT VCEP-classified entry exists with the same amino acid change as the query variant, so PS1 does NOT apply.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "strong"
+    }
+  ]
+}

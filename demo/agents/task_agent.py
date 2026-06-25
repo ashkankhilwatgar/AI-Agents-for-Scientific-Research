@@ -2,14 +2,15 @@ import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL
 from tools.vep import annotate_variant
-from tools.clinvar import search_clinvar
+from tools.clinvar import search_clinvar, search_clinvar_for_codon, search_clinvar_for_variant_ps4
 from tools.gnomad import query_gnomad
 from tools.utils import hgvs_to_gnomad_format, parse_json_response
 from tools.computational import query_revel_spliceai, query_spliceai
 from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
 from tools.pubmed import search_pubmed
-from tools.erepo import search_erepo_by_position
-from data.planrag import query
+from tools.erepo import search_erepo_by_position, search_erepo_for_variant
+from tools.lovd import search_lovd_for_variant
+from data.planrag import query, get_gene_from_transcript
 from .llm import invoke_llm
 from typing import Optional
 
@@ -54,17 +55,18 @@ Use this feedback to select the correct tool.
 Your task is to evaluate criterion {criterion} for variant {variant}.
 {feedback_block}
 You have access to the following tools:
-- clinvar: searches ClinVar for existing variant classifications.
+- clinvar: searches ClinVar for variant classifications and proband counts. Use for PS4 (queries HHT VCEP submission for proband count, falls back to PubMed).
 - gnomad: queries gnomAD for population allele frequency.
 - revel_spliceai: fetches REVEL score and SpliceAI delta scores. Use for PP3 and BP4.
 - spliceai: fetches SpliceAI delta scores only. Use for BP7 (synonymous/intronic variants).
 - vep: annotates variant consequence, codon position, and NMD prediction. Use for PVS1, PM1, and PM4.
 - pubmed: searches PubMed for case reports of the variant in HHT patients. Use for PS4.
 - erepo: queries the ClinGen Evidence Repository for HHT VCEP-classified variants at the same protein position. Use for PS1 and PM5.
+- lovd: queries the Leiden Open Variation Database for variant observations across labs. Use for PS4 when ClinVar and ERepo have no proband data.
 
 Respond ONLY with a JSON object in this exact format, no explanation:
 {{
-    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo>",
+    "tool": "<clinvar | gnomad | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
     "reason": "<one sentence why this tool applies to {criterion}>"
 }}"""
     raw = call_task_agent(prompt)
@@ -73,7 +75,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple[dict, str]:
+def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: str = None) -> tuple[dict, str]:
     """
     Runs the selected tool and returns (result, actual_input_used).
     actual_input_used is the exact string passed to the API after any format conversion.
@@ -84,7 +86,100 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
     print(f"DEBUG - tool: {tool}, input: {input_value}")
 
     if tool == "clinvar":
-        return search_clinvar(input_value), input_value
+        criterion = (rag_entry or {}).get("criterion", "")
+        if criterion == "PS4":
+            # PS4: ClinVar VCEP SCV first (contains proband count), PubMed fallback
+            cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
+            print(f"DEBUG - PS4: querying ClinVar VCEP SCV for {input_value}")
+            clinvar_ps4 = search_clinvar_for_variant_ps4(input_value)
+
+            if "error" in clinvar_ps4:
+                print(f"DEBUG - ClinVar PS4 lookup error: {clinvar_ps4['error']}, trying ERepo")
+            elif clinvar_ps4.get("found") and clinvar_ps4.get("proband_count", 0) > 0:
+                print(f"DEBUG - ClinVar PS4: {clinvar_ps4['proband_count']} proband(s) in HHT VCEP SCV")
+                return clinvar_ps4, f"ClinVar VCEP SCV for {input_value}"
+            else:
+                print(f"DEBUG - ClinVar PS4: no proband count in SCV, trying ERepo")
+
+            # ERepo fallback — VCEP curated evidence may contain proband count
+            # even when the ClinVar SCV comment field is empty
+            erepo_ps4 = search_erepo_for_variant(gene or "ACVRL1", cdna_change)
+            if "error" not in erepo_ps4 and erepo_ps4.get("found"):
+                proband_count = erepo_ps4.get("proband_count")
+                classification = erepo_ps4.get("classification") or ""
+                print(f"DEBUG - ERepo PS4: variant found | classification: {classification} | proband_count: {proband_count}")
+
+                # If proband_count is not explicitly stated in the evidence notes,
+                # infer it from the VCEP classification: P/LP requires patient-level evidence,
+                # so treat it as ≥1 proband (PS4_Supporting threshold).
+                if not proband_count:
+                    if any(c in classification for c in ("Pathogenic", "Likely Pathogenic")):
+                        proband_count = 1
+                        print(f"DEBUG - ERepo PS4: proband_count inferred as 1 from VCEP {classification} classification")
+
+                # Only return ERepo as a PS4 source if we have usable proband data.
+                # If classification is VUS (or other non-P/LP) and no explicit proband count,
+                # ERepo has no useful PS4 evidence — fall through to LOVD.
+                if proband_count and proband_count > 0:
+                    return {
+                        "found": True,
+                        "proband_count": proband_count,
+                        "source": "ClinGen ERepo",
+                        "classification": classification,
+                        "evidence_notes": erepo_ps4.get("evidence_notes"),
+                        "proband_count_note": (
+                            "Proband count inferred from VCEP classification (≥1 required for P/LP); "
+                            "not explicitly stated in evidence notes."
+                            if proband_count == 1 and not erepo_ps4.get("proband_count")
+                            else None
+                        ),
+                    }, f"ERepo for {input_value}"
+                else:
+                    print(f"DEBUG - ERepo PS4: classification '{classification}' with no proband count — falling through to LOVD")
+            else:
+                print(f"DEBUG - ERepo PS4: variant not found, trying LOVD")
+
+            # LOVD fallback — observation database across participating labs
+            # Times_reported = number of independent lab submissions (proxy for probands)
+            lovd_ps4 = search_lovd_for_variant(gene or "ACVRL1", cdna_change)
+            if "error" not in lovd_ps4 and lovd_ps4.get("found"):
+                times_reported = lovd_ps4.get("times_reported")
+                print(f"DEBUG - LOVD PS4: variant found | times_reported: {times_reported}")
+                if times_reported and times_reported > 0:
+                    return {
+                        "found": True,
+                        "proband_count": times_reported,
+                        "source": "LOVD",
+                        "classification": None,
+                        "evidence_notes": (
+                            f"Variant observed {times_reported} time(s) in LOVD "
+                            f"(Leiden Open Variation Database). LOVD is an observation "
+                            f"database — Times_reported reflects independent lab submissions, "
+                            f"not VCEP-curated pathogenicity."
+                        ),
+                    }, f"LOVD for {input_value}"
+            else:
+                print(f"DEBUG - LOVD PS4: variant not found, falling back to PubMed")
+
+            # PubMed fallback with protein + nucleotide notation
+            gene_label = gene or "ACVRL1"
+            vep_result = annotate_variant(input_value)
+            if "error" not in vep_result:
+                protein_change   = vep_result.get("protein_change")
+                protein_change_1 = vep_result.get("protein_change_1letter")
+                if protein_change and protein_change_1:
+                    pubmed_query = f"{gene_label} ({cdna_change} OR {protein_change} OR {protein_change_1}) HHT"
+                elif protein_change:
+                    pubmed_query = f"{gene_label} ({cdna_change} OR {protein_change}) HHT"
+                else:
+                    pubmed_query = f"{gene_label} {cdna_change} HHT"
+            else:
+                pubmed_query = f"{gene_label} {cdna_change} HHT"
+            result = search_pubmed(pubmed_query)
+            print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+            return result, pubmed_query
+        else:
+            return search_clinvar(input_value), input_value
 
     elif tool == "gnomad":
         if input_value.startswith("NM_") or "c." in input_value or "p." in input_value:
@@ -106,13 +201,14 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
         return query_spliceai(input_value), input_value
 
     elif tool == "erepo":
+        gene_label = gene or "ACVRL1"
         vep_result = annotate_variant(input_value)
         if "error" in vep_result:
             return vep_result, input_value
         codon_position = vep_result.get("codon_position")
         if codon_position is None:
             return {"error": "VEP did not return a protein position — cannot search ERepo"}, input_value
-        result = search_erepo_by_position("ACVRL1", codon_position)
+        result = search_erepo_by_position(gene_label, codon_position)
         # Remove the query variant itself from results — PS1/PM5 require other variants
         # at the same position. Match on the cdna change (e.g. "c.557G>T").
         query_cdna = input_value.split(":")[-1] if ":" in input_value else None
@@ -123,19 +219,43 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None) -> tuple
                 if query_cdna not in c.get("hgvs", "")
             ]
             after = len(result["classifications"])
-            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
+            print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
         else:
-            print(f"DEBUG - erepo query: ACVRL1 position {codon_position} | classifications found: {len(result.get('classifications', []))}")
-        return result, f"ACVRL1 position {codon_position}"
+            print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+
+        # ClinVar fallback — if ERepo has no other variants at this codon,
+        # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
+        if not result.get("classifications"):
+            ref_aa = vep_result.get("amino_acid_ref")
+            if ref_aa:
+                print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
+                clinvar_result = search_clinvar_for_codon(
+                    gene_label, codon_position, ref_aa, query_cdna
+                )
+                if "error" not in clinvar_result:
+                    print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
+                    result = clinvar_result
+                else:
+                    print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+
+        return result, f"{gene_label} position {codon_position}"
 
     elif tool == "pubmed":
-        # VEP first to get protein position — papers use p.notation, not HGVS
+        # Generic PubMed search — PS4 now routes through the clinvar branch instead
+        gene_label = gene or "ACVRL1"
+        cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
         vep_result = annotate_variant(input_value)
-        codon_position = vep_result.get("codon_position") if "error" not in vep_result else None
-        if codon_position is not None:
-            pubmed_query = f"ACVRL1 position {codon_position} HHT"
+        if "error" not in vep_result:
+            protein_change   = vep_result.get("protein_change")
+            protein_change_1 = vep_result.get("protein_change_1letter")
+            if protein_change and protein_change_1:
+                pubmed_query = f"{gene_label} ({cdna_change} OR {protein_change} OR {protein_change_1}) HHT"
+            elif protein_change:
+                pubmed_query = f"{gene_label} ({cdna_change} OR {protein_change}) HHT"
+            else:
+                pubmed_query = f"{gene_label} {cdna_change} HHT"
         else:
-            pubmed_query = input_value
+            pubmed_query = f"{gene_label} {cdna_change} HHT"
         result = search_pubmed(pubmed_query)
         print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
         return result, pubmed_query
@@ -191,6 +311,24 @@ A previous interpretation of this evidence was rejected with the following feedb
 Correct this specific error in your response.
 """
 
+    # applied_strength guidance — variable-strength criteria must set this explicitly.
+    # Fixed-strength criteria are enforced in code below, so we tell the LLM to omit them.
+    # BS1 is benign but has two strength levels (benign_strong / benign_supporting).
+    variable_strength_criteria = {"PVS1", "PS3", "PS4", "PM5", "PP1"}
+    variable_benign_strength_criteria = {"BS1"}
+    if criterion in variable_strength_criteria:
+        strength_note = (
+            '\n"applied_strength": "<very_strong | strong | moderate | supporting>  '
+            '← set based on the strength level that applies per the instructions above",'
+        )
+    elif criterion in variable_benign_strength_criteria:
+        strength_note = (
+            '\n"applied_strength": "<benign_strong | benign_supporting>  '
+            '← set to benign_strong (FAF >0.2-<1% or Supporting+2hom) or benign_supporting (FAF >0.08-0.2%)",'
+        )
+    else:
+        strength_note = '\n"applied_strength": null,  ← will be set automatically, leave null'
+
     prompt = f"""You are a variant classification assistant applying ACMG criteria.
 
 Variant: {variant}
@@ -209,7 +347,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     "criterion": "{criterion}",
     "evidence": "<concise summary of raw evidence>",
     "reasoning": "<how evidence maps to criterion>",
-    "applies": <true | false>,
+    "applies": <true | false>,{strength_note}
     "tool_used": "{tool_used}",
     "tool_input": "{tool_input}",
     "disease": "{disease}",
@@ -225,6 +363,44 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     result["tool_input"] = tool_input
     result["criterion"] = criterion
     result["disease"] = disease
+
+    # enforce applied_strength for fixed-strength criteria
+    # variable-strength criteria (PVS1, PS3, PS4, PM5, PP1) set their own applied_strength
+    # BS1 is benign variable-strength — two levels (benign_strong / benign_supporting)
+    _FIXED_STRENGTH: dict[str, str] = {
+        "PM2_SUPPORTING": "supporting",
+        "PP3":            "supporting",
+        "PP4_MODERATE":   "moderate",
+        "PM1":            "moderate",
+        "PM4":            "moderate",
+        "PS1":            "strong",
+        "PS2":            "strong",
+        "BA1":            "benign_stand_alone",
+        # BS1 is intentionally absent — treated as variable benign strength below
+        "BS3_SUPPORTING": "benign_supporting",
+        "BS4":            "benign_strong",
+        "BP2":            "benign_supporting",
+        "BP4":            "benign_supporting",
+        "BP5":            "benign_supporting",
+        "BP7":            "benign_supporting",
+    }
+    if not result.get("applies"):
+        # Criterion does not apply — applied_strength must be null.
+        # Scoring only counts applied criteria, so this value is irrelevant,
+        # but the judge agent flags non-null applied_strength on non-applied criteria.
+        result["applied_strength"] = None
+    else:
+        fixed = _FIXED_STRENGTH.get(criterion)
+        if fixed:
+            result["applied_strength"] = fixed
+        elif criterion in variable_benign_strength_criteria:
+            # BS1: validate LLM chose a valid benign strength; default to benign_strong
+            if result.get("applied_strength") not in ("benign_strong", "benign_supporting"):
+                result["applied_strength"] = "benign_strong"
+        elif "applied_strength" not in result or result.get("applied_strength") is None:
+            # variable-strength criterion but LLM didn't set it — default to criterion's base strength
+            base = (rag_entry or {}).get("strength")
+            result["applied_strength"] = base
 
     return result
 
@@ -246,7 +422,15 @@ def run_task(task: dict, feedback: str = None) -> dict:
     variant = task["variant"]
     disease = task["disease"]
 
-    rag_entry = query(criterion)
+    # Detect gene from transcript (NM_... prefix) so gene-specific planrag branches
+    # and tool queries (erepo, PubMed) use the correct gene symbol.
+    gene = None
+    if variant.startswith("NM_") and ":" in variant:
+        gene = get_gene_from_transcript(variant.split(":")[0])
+    if gene:
+        print(f"TASK AGENT: Detected gene {gene} from transcript")
+
+    rag_entry = query(criterion, gene=gene)
     if rag_entry is None:
         print(f"TASK AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
 
@@ -271,7 +455,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "error": tool_decision["error"]
         }
 
-    evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry)
+    evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene)
 
     if "error" in evidence:
         return {

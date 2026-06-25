@@ -1,0 +1,129 @@
+{
+  "variant": "NM_001114753.3:c.1701del",
+  "disease": "HHT",
+  "timestamp": "20260624_101112",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation has an allele frequency above 0.00004.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_SUPPORTING applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 which is less than the threshold of 0.01 and variant is absent from gnomAD.",
+      "applies": false,
+      "applied_strength": "benign_stand_alone",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_001114753.3:c.1701del results in a frameshift at codon position 567, leading to p.Thr567X.",
+      "reasoning": "The variant residue is not within any of the critical regions specified for PM1 (G209-V216, K229, E242, R329-N335, D348-L351, or BMP10 cluster {40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87}).",
+      "applies": false,
+      "applied_strength": "moderate",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar query returned 0 results for NM_001114753.3:c.1701del variant in ACVRL1 gene associated with HHT.",
+      "reasoning": "No proband count was found in ClinVar, and no PubMed articles were retrieved to provide additional evidence. Therefore, PS4 does not apply as there is insufficient evidence meeting the criteria.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.1701del OR p.Thr567X OR p.T567X) HHT",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "strong"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Frameshift variant at codon 567, resulting in p.Thr567X.",
+      "reasoning": "The frameshift variant occurs beyond the critical region boundary (codon >490) and is not within a truncated/altered region critical to protein function. Therefore, it does not meet PVS1_Strong criteria. The role of this region is unknown, but since the variant removes more than 10% of the protein, no moderate strength can be applied.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "very_strong"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_001114753.3:c.1701del in ACVRL1 at codon position 567; no LP/P missense classifications found.",
+      "reasoning": "No missense variants classified as LP or P by HHT VCEP rules were found at the same codon position, therefore PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 567",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "VEP consequence: frameshift_variant, codon position: 567, amino acid change: p.Thr567X",
+      "reasoning": "The VEP consequence is 'frameshift_variant', which does not meet the threshold for PM4 (inframe_insertion, inframe_deletion, or stop_lost). Therefore, PM4 does not apply.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "ClinVar record for NM_001114753.3:c.1701del does not contain any HHT VCEP-classified entries with the same amino acid change.",
+      "reasoning": "No matching variant producing the same amino acid change as the query variant was found in ClinVar records for HHT, so PS1 does not apply.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "strong"
+    }
+  ]
+}

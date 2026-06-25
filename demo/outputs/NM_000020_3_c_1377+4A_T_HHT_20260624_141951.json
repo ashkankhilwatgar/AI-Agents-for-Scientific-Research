@@ -1,0 +1,109 @@
+{
+  "variant": "NM_000020.3:c.1377+4A>T",
+  "disease": "HHT",
+  "timestamp": "20260624_141951",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation allele frequency data available.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_Supporting applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 which is less than the threshold of 0.01. The variant is not present in gnomAD.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 and there are no homozygotes, which does not meet the criteria for BS1_Strong or BS1_Supporting.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar Uncertain Significance classification with no proband count provided.",
+      "reasoning": "No specific proband count was found in the ClinVar submission comment for this variant. The evidence does not meet the criteria to apply PS4 as there is insufficient data on probands consistent with HHT phenotype.",
+      "applies": false,
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "splice_donor_region_variant at c.1377+4, codon position not specified",
+      "reasoning": "The variant is a splice donor region variant but the exact codon position is unknown. Based on ACMG PVS1 criteria for ACVRL1 gene, this type of variant does not directly map to any specific rule without knowing the precise impact on protein function or reading frame.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "revel_score: null, DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.0, DS_DL: 0.4",
+      "reasoning": "Since the variant is intronic and there is no REVEL score available, we check SpliceAI scores. Only DS_DL (0.4) meets or exceeds the threshold of 0.2 for PP3 application.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score not available, DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.0, DS_DL: 0.4",
+      "reasoning": "Since the variant is intronic and REVEL score is unavailable, only SpliceAI scores are considered. However, DS_DL (0.4) exceeds the threshold of 0.1.",
+      "applies": false,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    }
+  ]
+}

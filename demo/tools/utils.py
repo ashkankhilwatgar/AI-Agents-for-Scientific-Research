@@ -1,3 +1,4 @@
+import re
 import requests
 from urllib.parse import quote
 import json
@@ -36,9 +37,47 @@ CONSEQUENCE_MAP = {
 }
 
 
+# Regex for intronic HGVS offset notation: c.NNN+/-NNN or c.*NNN+/-NNN
+_INTRONIC_RE = re.compile(r'c\.\*?(\d+)([+-])(\d+)')
+
+
+def _classify_hgvs_directly(variant: str) -> dict | None:
+    """
+    Classifies a variant from its HGVS cDNA notation without calling VEP.
+    Returns a get_variant_type-compatible dict, or None if the notation
+    doesn't allow unambiguous classification (e.g. it's not intronic).
+
+    Intronic offset rules (HGVS standard):
+      +/-1, +/-2  → splice_site    (canonical GT-AG dinucleotide)
+      +/-3 to +/-8 → splice_region  (near-splice, may affect splicing)
+      +/-9 and beyond → intronic    (deep intronic)
+    """
+    if ":" not in variant:
+        return None
+    cdna = variant.split(":", 1)[1]  # e.g. "c.1377+4A>T"
+    m = _INTRONIC_RE.search(cdna)
+    if not m:
+        return None  # not intronic — let VEP classify it
+    offset = int(m.group(3))
+    if offset <= 2:
+        direction = m.group(2)
+        raw = "splice_donor_variant" if direction == "+" else "splice_acceptor_variant"
+        return {"variant_type": "splice_site", "raw_consequence": raw}
+    elif offset <= 8:
+        return {"variant_type": "splice_region", "raw_consequence": "splice_region_variant"}
+    else:
+        return {"variant_type": "intronic", "raw_consequence": "intron_variant"}
+
+
 def get_variant_type(variant: str) -> dict:
     """
-    Calls Ensembl VEP to determine variant consequence type.
+    Determines variant consequence type.
+    For intronic HGVS (c.NNN+/-NNN), classifies directly from the notation
+    without calling VEP — VEP's most_severe_consequence is computed across
+    all overlapping transcripts and will misclassify intronic variants when
+    another transcript has a coding exon at the same position.
+    For all other variants, falls back to Ensembl VEP.
+
     Accepts HGVS (NM_... format) or gnomAD format (chrom-pos-ref-alt).
 
     Returns:
@@ -52,6 +91,12 @@ def get_variant_type(variant: str) -> dict:
     or {"error": "<message>"} on failure.
     """
     is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
+
+    # Fast path: intronic HGVS can be classified from notation alone
+    if is_hgvs:
+        direct = _classify_hgvs_directly(variant)
+        if direct is not None:
+            return direct
 
     if is_hgvs:
         encoded = quote(variant, safe="")
@@ -96,7 +141,37 @@ def get_variant_type(variant: str) -> dict:
         if not data or not isinstance(data, list):
             return {"error": "Ensembl VEP returned empty or unexpected response"}
 
-        raw_consequence = data[0].get("most_severe_consequence", "")
+        # Prefer the consequence for the input transcript when HGVS is given.
+        # most_severe_consequence is computed across ALL overlapping transcripts —
+        # a more severe consequence in a different transcript (e.g. missense in an
+        # overlapping coding exon) will dominate and misclassify intronic/splice variants.
+        raw_consequence = None
+
+        if is_hgvs and variant.startswith("NM_") and ":" in variant:
+            # Extract transcript base ID without version (e.g. "NM_000020.3" → "NM_000020")
+            transcript_base = variant.split(":")[0].split(".")[0]
+            tcs = data[0].get("transcript_consequences", [])
+            # Find the consequence entry for the input transcript
+            matched_tc = next(
+                (tc for tc in tcs
+                 if tc.get("transcript_id", "").startswith(transcript_base)),
+                None
+            )
+            if matched_tc:
+                terms = matched_tc.get("consequence_terms", [])
+                # Pick the most severe term for this transcript using CONSEQUENCE_MAP priority
+                _SEVERITY_ORDER = list(CONSEQUENCE_MAP.keys())
+                best = None
+                for term in terms:
+                    if best is None or (term in _SEVERITY_ORDER and
+                            (_SEVERITY_ORDER.index(term) <
+                             _SEVERITY_ORDER.index(best) if best in _SEVERITY_ORDER else True)):
+                        best = term
+                raw_consequence = best
+
+        # Fallback: use VEP's global most_severe_consequence
+        if not raw_consequence:
+            raw_consequence = data[0].get("most_severe_consequence", "")
 
         if not raw_consequence:
             return {"error": "VEP response missing most_severe_consequence field"}
@@ -107,6 +182,124 @@ def get_variant_type(variant: str) -> dict:
         }
 
     return {"error": f"Ensembl VEP failed after {MAX_RETRIES} retries: {last_error}"}
+
+def _fetch_ref_base(nc_accession_or_chrom: str, pos_1based: int) -> str:
+    """
+    Fetches a single reference nucleotide from the Ensembl REST API.
+
+    Accepts either:
+      - An NC_ accession (e.g. "NC_000009.12") — resolved to chromosome name internally
+      - A bare chromosome name (e.g. "9", "X") — used directly
+
+    pos_1based: 1-based genomic position (GRCh38)
+    Returns the nucleotide string, or {"error": "..."} on failure.
+    """
+    if nc_accession_or_chrom.startswith("NC_"):
+        nc_prefix = nc_accession_or_chrom.split(".")[0]
+        chrom = _NC_TO_CHROM.get(nc_prefix)
+        if chrom is None:
+            return {"error": f"_fetch_ref_base: unrecognised NC_ accession {nc_accession_or_chrom}"}
+    else:
+        chrom = nc_accession_or_chrom
+
+    url = f"{ENSEMBL_URL}/sequence/region/human/{chrom}:{pos_1based}-{pos_1based}:1"
+    last_error = "No attempts completed"
+
+    for attempt in range(MAX_RETRIES):
+        try:
+            r = requests.get(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=15
+            )
+            if r.status_code in (429, 500, 503):
+                last_error = f"HTTP {r.status_code}"
+                time.sleep(RETRY_DELAY * (attempt + 1))
+                continue
+            if r.status_code != 200:
+                last_error = f"HTTP {r.status_code}: {r.text}"
+                continue
+            seq = r.json().get("seq", "")
+            if not seq:
+                return {"error": f"_fetch_ref_base: empty sequence returned for {chrom}:{pos_1based}"}
+            return seq[0].upper()
+        except requests.RequestException as e:
+            last_error = str(e)
+            time.sleep(RETRY_DELAY)
+
+    return {"error": f"_fetch_ref_base: Ensembl failed after {MAX_RETRIES} retries: {last_error}"}
+
+
+def _hgvs_to_gnomad_via_vep(hgvs: str) -> str:
+    """
+    Fallback coordinate resolver using Ensembl VEP.
+    Used when NCBI Variation Services rejects the HGVS (e.g. intronic variants).
+
+    VEP returns seq_region_name (chrom), start (1-based), and allele_string (REF/ALT).
+    For substitutions (no '-'): constructs gnomAD format directly.
+    For indels ('-' in ref or alt): applies VCF anchor normalisation via _fetch_ref_base.
+
+    Returns gnomAD format string, or {"error": "..."} on failure.
+    """
+    encoded = quote(hgvs, safe="")
+    last_error = "No attempts completed"
+
+    for attempt in range(MAX_RETRIES):
+        try:
+            r = requests.get(
+                f"{ENSEMBL_URL}/vep/human/hgvs/{encoded}",
+                headers={"Content-Type": "application/json"},
+                timeout=15,
+                params={"refseq": 1}
+            )
+            if r.status_code in (429, 500, 503):
+                last_error = f"HTTP {r.status_code}"
+                time.sleep(RETRY_DELAY * (attempt + 1))
+                continue
+            if r.status_code != 200:
+                return {"error": f"VEP fallback failed for {hgvs}: HTTP {r.status_code}"}
+
+            data = r.json()
+            if not data or not isinstance(data, list):
+                return {"error": f"VEP fallback: empty response for {hgvs}"}
+
+            hit = data[0]
+            chrom = str(hit.get("seq_region_name", ""))
+            pos   = hit.get("start")
+            allele_string = hit.get("allele_string", "")
+
+            if not chrom or pos is None or not allele_string:
+                return {"error": f"VEP fallback: missing coordinates in response for {hgvs}"}
+
+            parts = allele_string.split("/")
+            if len(parts) != 2:
+                return {"error": f"VEP fallback: unexpected allele_string '{allele_string}' for {hgvs}"}
+
+            ref_raw, alt_raw = parts
+
+            # VEP uses '-' to represent absent sequence in indels — convert to empty string
+            ref = "" if ref_raw == "-" else ref_raw
+            alt = "" if alt_raw == "-" else alt_raw
+
+            # Apply VCF anchor normalisation if either side is empty
+            if ref == "" or alt == "":
+                anchor_pos = pos - 1  # pos is already 1-based; anchor is one to the left
+                anchor_base = _fetch_ref_base(chrom, anchor_pos)
+                if isinstance(anchor_base, dict):
+                    return anchor_base
+                ref = anchor_base + ref
+                alt = anchor_base + alt
+                pos = anchor_pos
+
+            return f"{chrom}-{pos}-{ref}-{alt}"
+
+        except requests.RequestException as e:
+            last_error = str(e)
+            time.sleep(RETRY_DELAY)
+            continue
+
+    return {"error": f"VEP fallback failed after {MAX_RETRIES} retries: {last_error}"}
+
 
 def hgvs_to_gnomad_format(hgvs: str) -> str:
     """
@@ -125,7 +318,9 @@ def hgvs_to_gnomad_format(hgvs: str) -> str:
     last_error = "No attempts completed"
 
     # --- Step 1: HGVS → SPDI (NM_ coordinates) ---
+    # NCBI does not support intronic positions (c.X+N / c.X-N) — fall back to VEP for those.
     spdi = None
+    ncbi_400 = False
     for attempt in range(MAX_RETRIES):
         try:
             r = requests.get(
@@ -137,6 +332,9 @@ def hgvs_to_gnomad_format(hgvs: str) -> str:
                 last_error = f"HTTP {r.status_code}"
                 time.sleep(RETRY_DELAY * (attempt + 1))
                 continue
+            if r.status_code == 400:
+                ncbi_400 = True
+                break  # not a transient error — try VEP fallback immediately
             if r.status_code != 200:
                 return {"error": f"NCBI contextuals failed for {hgvs}: HTTP {r.status_code}"}
             spdis = r.json().get("data", {}).get("spdis", [])
@@ -148,6 +346,12 @@ def hgvs_to_gnomad_format(hgvs: str) -> str:
             last_error = str(e)
             time.sleep(RETRY_DELAY)
             continue
+
+    if ncbi_400:
+        result = _hgvs_to_gnomad_via_vep(hgvs)
+        if not isinstance(result, dict):
+            _RECODER_CACHE[hgvs] = result
+        return result
 
     if spdi is None:
         return {"error": f"NCBI contextuals failed after {MAX_RETRIES} retries: {last_error}"}
@@ -186,9 +390,25 @@ def hgvs_to_gnomad_format(hgvs: str) -> str:
     if chrom is None:
         return {"error": f"Unrecognised NC_ accession: {nc_accession}"}
 
-    pos = genomic_spdi["position"] + 1  # 0-based → 1-based VCF
+    spdi_pos = genomic_spdi["position"]  # 0-based
     ref = genomic_spdi["deleted_sequence"]
     alt = genomic_spdi["inserted_sequence"]
+
+    # --- Step 4: VCF anchor normalisation for indels ---
+    # gnomAD uses VCF conventions: pure deletions (alt="") and pure insertions (ref="")
+    # must include a left-anchor base so neither ref nor alt is empty.
+    # SPDI position is 0-based; anchor sits at position-1 (0-based) = position (1-based).
+    if ref == "" or alt == "":
+        anchor_pos_0based = spdi_pos - 1
+        anchor_pos_1based = anchor_pos_0based + 1
+        anchor_base = _fetch_ref_base(nc_accession, anchor_pos_1based)
+        if isinstance(anchor_base, dict):  # error dict
+            return anchor_base
+        ref = anchor_base + ref
+        alt = anchor_base + alt
+        pos = anchor_pos_1based  # VCF POS is 1-based position of the anchor
+    else:
+        pos = spdi_pos + 1  # 0-based → 1-based VCF (SNV / MNV path)
 
     result = f"{chrom}-{pos}-{ref}-{alt}"
     _RECODER_CACHE[hgvs] = result
