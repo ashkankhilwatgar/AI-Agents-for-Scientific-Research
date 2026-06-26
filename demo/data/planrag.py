@@ -88,6 +88,22 @@ GENE_DB = {
             "pathogenic mechanisms."
         ),
     },
+        "TP53": {
+        "gene_symbol":    "TP53",
+        "transcripts":    ["NM_000546"],
+        "protein_length": 393,
+        "total_exons":    11,
+        "cspec_id":       None,
+        "lof_mechanism":  True,
+        "lof_mechanism_note": (
+            "TP53 causes Li-Fraumeni Syndrome via haploinsufficiency and dominant negative "
+            "mechanisms; frameshift, nonsense, and canonical splice variants are established "
+            "pathogenic mechanisms."
+        ),
+        "pm1_critical_regions": [
+            {"name": "DNA-binding domain", "start": 94, "end": 292},
+        ],
+    },
 }
 
 
