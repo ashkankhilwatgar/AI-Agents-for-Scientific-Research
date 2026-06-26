@@ -146,6 +146,7 @@ def get_variant_type(variant: str) -> dict:
         # a more severe consequence in a different transcript (e.g. missense in an
         # overlapping coding exon) will dominate and misclassify intronic/splice variants.
         raw_consequence = None
+        matched_tc = None
 
         if is_hgvs and variant.startswith("NM_") and ":" in variant:
             # Extract transcript base ID without version (e.g. "NM_000020.3" → "NM_000020")

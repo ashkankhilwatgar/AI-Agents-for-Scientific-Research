@@ -528,6 +528,16 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
             return vep_result, input_value
         codon_position = vep_result.get("codon_position")
 
+        # Inject lof_mechanism from GENE_DB so the LLM can gate PVS1 correctly.
+        # Without this, the LLM conservatively says "LOF not established" for any
+        # gene not hardcoded in its training data.
+        if gene and gene in GENE_DB:
+            vep_result["lof_mechanism"] = GENE_DB[gene].get("lof_mechanism")
+            vep_result["lof_mechanism_note"] = GENE_DB[gene].get("lof_mechanism_note")
+        else:
+            vep_result["lof_mechanism"] = None
+            vep_result["lof_mechanism_note"] = "Gene not in GENE_DB — LOF mechanism unknown; PVS1 requires manual review."
+
         # Prefer critical_regions from the planrag entry (HHT VCEP gene-specific regions).
         # Fall back to GENE_DB pm1_critical_regions when the rag entry has none —
         # this covers ACMG mode for genes like LDLR where domain boundaries are known
@@ -716,6 +726,9 @@ def run_task(task: dict, feedback: str = None) -> dict:
         gene = get_gene_from_transcript(variant.split(":")[0])
     if gene:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
+    elif task.get("gene_symbol"):
+        gene = task["gene_symbol"]
+        print(f"TASK AGENT: Gene {gene} resolved from VEP (not in GENE_DB)")
 
     rag_entry = query(criterion, gene=gene, disease=disease)
     if rag_entry is None:

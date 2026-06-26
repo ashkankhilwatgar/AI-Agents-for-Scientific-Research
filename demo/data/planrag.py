@@ -53,6 +53,15 @@ GENE_DB = {
         "lof_mechanism_note":  "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     # ── Non-VCEP genes — add as needed for ACMG mode ──────────────────────────
+    "SPAST": {
+        "gene_symbol":    "SPAST",
+        "transcripts":    ["NM_014946"],        # NM_014946.x (any version)
+        "protein_length": 616,                  # aa
+        "total_exons":    17,
+        "cspec_id":       None,                 # no VCEP spec
+        "lof_mechanism":       True,
+        "lof_mechanism_note":  "SPAST causes SPG4 (Hereditary Spastic Paraplegia type 4) via haploinsufficiency. ClinGen haploinsufficiency score: 3 (sufficient evidence). Frameshift, nonsense, and canonical splice variants are the predominant disease-causing mechanism.",
+    },
     "LDLR": {
         "gene_symbol":    "LDLR",
         "transcripts":    ["NM_000527"],        # NM_000527.x (any version)

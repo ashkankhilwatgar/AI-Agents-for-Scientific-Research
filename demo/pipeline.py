@@ -74,13 +74,16 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
     print("\nPIPELINE: Detecting variant type via Ensembl VEP...")
     vep_result = get_variant_type(variant)
 
+    gene_symbol = None
     if "error" in vep_result:
         print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
         print("PIPELINE: Proceeding without variant type filtering")
         variant_type = None
     else:
         variant_type = vep_result["variant_type"]
-        gene_symbol = vep_result.get("gene_symbol") 
+        gene_symbol = vep_result.get("gene_symbol")
+        if gene_symbol:
+            print(f"PIPELINE: Gene detected from VEP: {gene_symbol}")
         print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
@@ -103,8 +106,9 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
     for task in tasks:
         criterion = task.get("criterion")
 
-        # inject variant_type into task dict so downstream agents have it if needed
+        # inject variant_type and gene_symbol into task dict so downstream agents have it if needed
         task["variant_type"] = variant_type
+        task["gene_symbol"] = gene_symbol
         task["gene_symbol"] = gene_symbol   
 
         # ── PRECONDITION CHECK ────────────────────
