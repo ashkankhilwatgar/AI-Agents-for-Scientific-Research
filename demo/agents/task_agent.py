@@ -1,3 +1,4 @@
+import re
 import requests
 import json
 from config import MODELS, OLLAMA_BASE_URL
@@ -478,6 +479,25 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
                     result = clinvar_result
                 else:
                     print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+
+        # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
+        # Done here deterministically so the LLM never has to reason about it.
+        _alt_re = re.compile(r'p\.[A-Za-z]{3}\d+([A-Za-z]{3})')
+        alt_aa = vep_result.get("amino_acid_alt", "").lower()
+        if alt_aa and "classifications" in result:
+            same_aa, diff_aa = [], []
+            for c in result["classifications"]:
+                m = _alt_re.match(c.get("protein_change", ""))
+                if m and m.group(1).lower() == alt_aa:
+                    same_aa.append(c)
+                else:
+                    diff_aa.append(c)
+            result["same_aa_classifications"] = same_aa
+            result["different_aa_classifications"] = diff_aa
+            print(
+                f"DEBUG - erepo AA split: same_aa={len(same_aa)} (PS1), "
+                f"different_aa={len(diff_aa)} (PM5)"
+            )
 
         return result, f"{gene_label} position {codon_position}"
 
