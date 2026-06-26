@@ -728,7 +728,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
     elif task.get("gene_symbol"):
         gene = task["gene_symbol"]
-        print(f"TASK AGENT: Gene {gene} resolved from VEP (not in GENE_DB)")
+        print(f"TASK AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 
     rag_entry = query(criterion, gene=gene, disease=disease)
     if rag_entry is None:

@@ -32,83 +32,41 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 GENE_DB = {
+    # ── VCEP genes — cspec_id required for VCEP dispatch ──────────────────────
     "ACVRL1": {
-        "gene_symbol":    "ACVRL1",
-        "transcripts":    ["NM_000020"],        # NM_000020.x (any version)
-        "protein_length": 503,                  # aa
-        "total_exons":    10,
-        "cspec_id":       "GN135",
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
+        "cspec_id":           "GN135",
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     "ENG": {
-        "gene_symbol":    "ENG",
-        "transcripts":    ["NM_001114753", "NM_000118", "NM_001278138"],   # NM_001114753.x, NM_000118.x, NM_001278138.x
-        "protein_length": 658,                  # aa
-        "total_exons":    15,
-        "cspec_id":       "GN136",
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
+        "cspec_id":           "GN136",
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
-    # ── Non-VCEP genes — add as needed for ACMG mode ──────────────────────────
+    # ── Non-VCEP genes — lof_mechanism and pm1_critical_regions only ──────────
     "SPAST": {
-        "gene_symbol":    "SPAST",
-        "transcripts":    ["NM_014946"],        # NM_014946.x (any version)
-        "protein_length": 616,                  # aa
-        "total_exons":    17,
-        "cspec_id":       None,                 # no VCEP spec
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "SPAST causes SPG4 (Hereditary Spastic Paraplegia type 4) via haploinsufficiency. ClinGen haploinsufficiency score: 3 (sufficient evidence). Frameshift, nonsense, and canonical splice variants are the predominant disease-causing mechanism.",
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "SPAST causes SPG4 (Hereditary Spastic Paraplegia type 4) via haploinsufficiency. ClinGen haploinsufficiency score: 3 (sufficient evidence). Frameshift, nonsense, and canonical splice variants are the predominant disease-causing mechanism.",
     },
     "LDLR": {
-        "gene_symbol":    "LDLR",
-        "transcripts":    ["NM_000527"],        # NM_000527.x (any version)
-        "protein_length": 860,                  # aa
-        "total_exons":    18,
-        "cspec_id":       None,                 # no VCEP spec
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
-        # PM1 critical regions — used to determine if a missense codon is in a
-        # mutational hotspot or functional domain without benign variation.
-        # LDLR domain boundaries (NM_000527.5, signal peptide excluded from mature protein):
-        #   Ligand-binding domain (class A cysteine-rich repeats): aa 22-292
-        #   EGF-like domain (EGFA, EGFB, EGFC precursor): aa 293-692
-        #   O-linked sugar domain: aa 693-740  — not a mutational hotspot
-        #   Transmembrane domain: aa 741-764   — not evaluated by PM1 (membrane-spanning)
-        #   Cytoplasmic domain: aa 765-860      — not a mutational hotspot; FDNPVY signal ~801-806
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
         "pm1_critical_regions": [
             {"name": "ligand-binding domain (class A cysteine-rich repeats)", "start": 22,  "end": 292},
             {"name": "EGF-like domain (EGFA/EGFB/EGFC)",                      "start": 293, "end": 692},
         ],
-        },
-        "BRCA1": {
-        "gene_symbol":    "BRCA1",
-        "transcripts":    ["NM_007294"],
-        "protein_length": 1863,
-        "total_exons":    23,
-        "cspec_id":       None,
-        "lof_mechanism":  True,
-        "lof_mechanism_note": (
-            "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; "
-            "frameshift, nonsense, and canonical splice variants are well-established "
-            "pathogenic mechanisms."
-        ),
     },
-        "TP53": {
-        "gene_symbol":    "TP53",
-        "transcripts":    ["NM_000546"],
-        "protein_length": 393,
-        "total_exons":    11,
-        "cspec_id":       None,
-        "lof_mechanism":  True,
-        "lof_mechanism_note": (
-            "TP53 causes Li-Fraumeni Syndrome via haploinsufficiency and dominant negative "
-            "mechanisms; frameshift, nonsense, and canonical splice variants are established "
-            "pathogenic mechanisms."
-        ),
+    "BRCA1": {
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; frameshift, nonsense, and canonical splice variants are well-established pathogenic mechanisms.",
+        "pm1_critical_regions": [
+            {"name": "RING domain", "start": 1,    "end": 101},
+            {"name": "BRCT domain", "start": 1650, "end": 1863},
+        ],
+    },
+    "TP53": {
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "TP53 causes Li-Fraumeni Syndrome via haploinsufficiency and dominant negative mechanisms; frameshift, nonsense, and canonical splice variants are established pathogenic mechanisms.",
         "pm1_critical_regions": [
             {"name": "DNA-binding domain", "start": 94, "end": 292},
         ],
@@ -124,7 +82,7 @@ def get_gene_from_transcript(transcript_id: str) -> str | None:
     """
     bare = transcript_id.split(".")[0]
     for gene_symbol, info in GENE_DB.items():
-        for t in info["transcripts"]:
+        for t in info.get("transcripts", []):
             if bare == t:
                 return gene_symbol
     return None

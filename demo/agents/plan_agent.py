@@ -22,7 +22,7 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     
     if gene is None and gene_symbol:              # ADD
         gene = gene_symbol
-        print(f"PLAN AGENT: Gene {gene} resolved from VEP (not in GENE_DB)")  
+        print(f"PLAN AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")  
 
 
     for criterion in criteria:
