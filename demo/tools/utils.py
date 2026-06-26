@@ -176,9 +176,17 @@ def get_variant_type(variant: str) -> dict:
         if not raw_consequence:
             return {"error": "VEP response missing most_severe_consequence field"}
 
+
+        gene_sym = None
+        if matched_tc:
+            gene_sym = matched_tc.get("gene_symbol")
+        elif data[0].get("transcript_consequences"):
+            gene_sym = data[0]["transcript_consequences"][0].get("gene_symbol")
+
         return {
             "variant_type": CONSEQUENCE_MAP.get(raw_consequence, "other"),
             "raw_consequence": raw_consequence,
+            "gene_symbol": gene_sym
         }
 
     return {"error": f"Ensembl VEP failed after {MAX_RETRIES} retries: {last_error}"}

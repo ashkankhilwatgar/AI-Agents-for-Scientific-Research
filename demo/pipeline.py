@@ -80,6 +80,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         variant_type = None
     else:
         variant_type = vep_result["variant_type"]
+        gene_symbol = vep_result.get("gene_symbol") 
         print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
@@ -89,7 +90,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         active_criteria = filter_criteria_by_variant_type(base_criteria, variant_type, disease=disease)
 
     # ── PLAN AGENT ────────────────────────────
-    tasks = run_plan(variant, disease, active_criteria)
+    tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
     # print(tasks)
 
     if not tasks:
@@ -104,6 +105,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
 
         # inject variant_type into task dict so downstream agents have it if needed
         task["variant_type"] = variant_type
+        task["gene_symbol"] = gene_symbol   
 
         # ── PRECONDITION CHECK ────────────────────
         rag_entry = query(criterion, disease=disease)

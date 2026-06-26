@@ -32,3 +32,13 @@ Removed a redundant reasoning by plan agent, this cuts down pipeline time by 50%
 Changed the API lookup for clinvar and VEP so that frameshift and other sorts of variants can be detected.
 Created a method that filters out criterion based on what sort of variant exists. 
 
+6/26 Suning
+
+1. Command line to test SPAST splice variant (the one that should be Pathogenic):
+ACMG python3.12 -m pipeline --variant "NM_014946.4:c.1688-2A>G" --disease "ACMG"
+
+2. Command line to test the TMCC2 missense (the one with PM5/PS1/BP1 failures):
+
+python3 -m pipeline --variant "NM_014858.4:c.1676G>A" --disease "ACMG"
+
+
