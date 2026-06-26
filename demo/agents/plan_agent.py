@@ -59,7 +59,7 @@ def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dic
         print(f"PLAN AGENT: Detected gene {gene} from transcript")
 
     for criterion in criteria:
-        rag_entry = query(criterion, gene=gene)
+        rag_entry = query(criterion, gene=gene, disease=disease)
 
         if rag_entry is None:
             print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
@@ -106,7 +106,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
         print(f"PLAN AGENT: Task created for {criterion}")
 
     # Sort by phase so dependencies are always evaluated before dependents
-    tasks.sort(key=lambda t: (query(t["criterion"], gene=gene) or {}).get("phase", 99))
+    tasks.sort(key=lambda t: (query(t["criterion"], gene=gene, disease=disease) or {}).get("phase", 99))
 
     return tasks
 

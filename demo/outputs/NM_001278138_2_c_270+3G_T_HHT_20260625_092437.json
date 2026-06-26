@@ -1,0 +1,98 @@
+{
+  "variant": "NM_001278138.2:c.270+3G>T",
+  "disease": "HHT",
+  "timestamp": "20260625_092437",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No HHT VCEP combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 1
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total allele count is 0, and no subpopulation has an allele frequency.",
+      "reasoning": "Step 1: The variant is absent from gnomAD entirely. Therefore, PM2_Supporting applies based on Step 1 criteria.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 which is less than the threshold of 0.01. The variant is not present in gnomAD.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD (likely rare or novel), total_ac: 0, popmax_faf: 0.0, ac_hom: 0",
+      "reasoning": "Popmax FAF is 0.0 and there are no homozygotes, which does not meet the criteria for BS1_Strong or BS1_Supporting.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "No specific proband count for NM_001278138.2:c.270+3G>T in PubMed articles related to HHT and ACVRL1/ENG.",
+      "reasoning": "None of the retrieved PubMed articles provide a direct proband count or case report specifically mentioning NM_001278138.2:c.270+3G>T in patients with HHT. The evidence does not meet PS4 criteria as no consistent phenotype is associated with this variant.",
+      "applies": false,
+      "tool_used": "pubmed",
+      "tool_input": "ENG c.270+3G>T HHT",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score unavailable, DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.0, DS_DL: 0.0",
+      "reasoning": "Since the variant is intronic and REVEL score is not available, we check SpliceAI scores. All SpliceAI delta scores are below the threshold of 0.2.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score not available, DS_AG: 0.0, DS_AL: 0.0, DS_DG: 0.0, DS_DL: 0.0",
+      "reasoning": "Since the variant is intronic and all SpliceAI delta scores are <= 0.1, BP4 applies.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "benign_supporting"
+    }
+  ]
+}

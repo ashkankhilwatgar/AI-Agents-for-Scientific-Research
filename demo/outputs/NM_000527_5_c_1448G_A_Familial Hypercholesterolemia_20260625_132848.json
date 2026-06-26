@@ -1,0 +1,118 @@
+{
+  "variant": "NM_000527.5:c.1448G>A",
+  "disease": "Familial Hypercholesterolemia",
+  "timestamp": "20260625_132848",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "Total allele count (AC) is 1, with an allele frequency of 6.845e-07 in the overall population and present only in the EAS_XY subpopulation with a frequency of 5.3E-05.",
+      "reasoning": "The variant is not absent from gnomAD (Step 1). The allele frequency in the EAS_XY subpopulation is greater than or equal to 0.0001, which means PM2 does not apply according to Step 2.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11113624-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.0 for the variant NM_000527.5:c.1448G>A in gnomAD.",
+      "reasoning": "The Popmax FAF (0.0) does not meet or exceed the threshold of 0.05 required by criterion BA1.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11113624-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.0, allele count (AC): 1, total alleles (AN): 1460932.",
+      "reasoning": "The Popmax FAF is 0.0 which does not exceed the threshold of >0.01 and <0.05 as per BS1 criteria.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11113624-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for NM_000527.5:c.1448G>A is 0 in gnomAD.",
+      "reasoning": "Since the variant is associated with a dominant disorder and there are no reported homozygotes in gnomAD, BS2 does not apply as it requires at least one healthy homozygote to be present for this criterion to be met.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "19-11113624-G-A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "Familial Hypercholesterolemia",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (2) without resolving reasoning error"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "NM_000527.5:c.1448G>A, stop_gained at codon 483 (Trp to Ter), protein change p.Trp483Ter.",
+      "reasoning": "LOF is a known disease mechanism for Familial Hypercholesterolemia in the LDLR gene. The variant NM_000527.5:c.1448G>A results in a stop-gained mutation, leading to NMD prediction as it introduces a premature termination codon not within 50-55 nt upstream of the last exon-exon junction.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "tool_used": "vep",
+      "tool_input": "NM_000527.5:c.1448G>A",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "NM_000527.5(LDLR):c.1447T>A (p.Trp483Arg) classified as Pathogenic in ClinVar.",
+      "reasoning": "The exact variant NM_000527.5:c.1448G>A is not found, but a similar one c.1447T>A with the same protein change p.Trp483Arg was found and classified as Pathogenic in ClinVar. However, PP5 requires an exact match of the variant nucleotide sequence.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "LDLR position 483",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "NM_000527.5(LDLR):c.1447T>A (p.Trp483Arg) classified as Pathogenic in ClinVar.",
+      "reasoning": "The exact variant is not classified as Benign or Likely Benign by a reputable source, so BP6 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "erepo",
+      "tool_input": "LDLR position 483",
+      "disease": "Familial Hypercholesterolemia",
+      "status": "complete"
+    }
+  ]
+}
