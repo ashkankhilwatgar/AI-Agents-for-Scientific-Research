@@ -9,11 +9,12 @@ MAX_RETRIES  = 3
 ENTREZ_EMAIL = "akhilwat@hamilton.edu"
 
 
-def search_pubmed(variant: str) -> dict:
+def search_pubmed(query: str) -> dict:
     """
-    Searches PubMed for case reports of the given variant in HHT patients.
+    Searches PubMed using the provided query string.
 
-    Query: "{variant} AND HHT AND ACVRL1"
+    The caller (task_agent) is responsible for building the query
+    with the correct gene, variant notation, and disease terms.
 
     Returns:
         {
@@ -27,7 +28,6 @@ def search_pubmed(variant: str) -> dict:
 
     Returns {"error": "..."} on unrecoverable failure — never raises.
     """
-    query = f"{variant} AND HHT AND ACVRL1"
 
     # --- Step 1: esearch — get PMIDs ---
     search_params = {
