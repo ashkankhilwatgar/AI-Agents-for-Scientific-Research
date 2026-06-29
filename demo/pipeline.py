@@ -344,13 +344,17 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     print("\nPIPELINE: Detecting variant type via Ensembl VEP...")
     vep_result = annotate_variant(variant)
 
+    gene_symbol = None
     if "error" in vep_result:
         print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
         print("PIPELINE: Proceeding without variant type filtering")
         variant_type = None
     else:
         variant_type = vep_result["variant_type"]
-        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['variant_consequence']})")
+        gene_symbol = vep_result.get("gene_symbol")
+        if gene_symbol:
+            print(f"PIPELINE: Gene detected from VEP: {gene_symbol}")
+        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
     base_criteria = get_criteria_for_disease(disease)
@@ -359,7 +363,7 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
         active_criteria = filter_criteria_by_variant_type(base_criteria, variant_type, disease=disease)
 
     # ── PLAN AGENT ────────────────────────────
-    tasks = run_plan(variant, disease, active_criteria)
+    tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
     # print(tasks)
 
     if not tasks:

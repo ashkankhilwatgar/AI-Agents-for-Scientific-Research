@@ -1,3 +1,4 @@
+import re
 import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL
@@ -728,6 +729,25 @@ def run_tool(
                 else:
                     print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
 
+        # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
+        # Done here deterministically so the LLM never has to reason about it.
+        _alt_re = re.compile(r'p\.[A-Za-z]{3}\d+([A-Za-z]{3})')
+        alt_aa = vep_result.get("amino_acid_alt", "").lower()
+        if alt_aa and "classifications" in result:
+            same_aa, diff_aa = [], []
+            for c in result["classifications"]:
+                m = _alt_re.match(c.get("protein_change", ""))
+                if m and m.group(1).lower() == alt_aa:
+                    same_aa.append(c)
+                else:
+                    diff_aa.append(c)
+            result["same_aa_classifications"] = same_aa
+            result["different_aa_classifications"] = diff_aa
+            print(
+                f"DEBUG - erepo AA split: same_aa={len(same_aa)} (PS1), "
+                f"different_aa={len(diff_aa)} (PM5)"
+            )
+
         return result, f"{gene_label} position {codon_position}"
 
     elif tool == "pubmed":
@@ -756,6 +776,16 @@ def run_tool(
         if "error" in vep_result:
             return vep_result, input_value
         codon_position = vep_result.get("codon_position")
+
+        # Inject lof_mechanism from GENE_DB so the LLM can gate PVS1 correctly.
+        # Without this, the LLM conservatively says "LOF not established" for any
+        # gene not hardcoded in its training data.
+        if gene and gene in GENE_DB:
+            vep_result["lof_mechanism"] = GENE_DB[gene].get("lof_mechanism")
+            vep_result["lof_mechanism_note"] = GENE_DB[gene].get("lof_mechanism_note")
+        else:
+            vep_result["lof_mechanism"] = None
+            vep_result["lof_mechanism_note"] = "Gene not in GENE_DB — LOF mechanism unknown; PVS1 requires manual review."
 
         # Prefer critical_regions from the planrag entry (HHT VCEP gene-specific regions).
         # Fall back to GENE_DB pm1_critical_regions when the rag entry has none —
@@ -956,6 +986,9 @@ def run_task(task: dict, tool_results: ToolResults | None,  feedback: str | None
         gene = get_gene_from_transcript(variant.split(":")[0])
     if gene:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
+    elif task.get("gene_symbol"):
+        gene = task["gene_symbol"]
+        print(f"TASK AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 
     rag_entry = query(criterion, gene=gene, disease=disease)
     if rag_entry is None:

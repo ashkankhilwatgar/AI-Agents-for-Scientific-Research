@@ -1,0 +1,196 @@
+{
+  "variant": "NM_000546.6:c.817C>T",
+  "disease": "Li-Fraumeni Syndrome",
+  "timestamp": "20260626_094821",
+  "classification": "Pathogenic",
+  "rule_matched": "1 Strong + \u22653 Moderate",
+  "scoring": {
+    "classification": "Pathogenic",
+    "rule_matched": "1 Strong + \u22653 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 3,
+      "sup": 3,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2": "moderate",
+      "PS4": "supporting",
+      "PM1": "moderate",
+      "PM5": "moderate",
+      "PS1": "strong",
+      "PP3": "supporting",
+      "PP5": "supporting"
+    },
+    "applied_criteria": [
+      "PM2",
+      "PS4",
+      "PM1",
+      "PM5",
+      "PS1",
+      "PP3",
+      "PP5"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "Total allele count (AC) is 6, with an allele frequency (AF) of 4.104640980735552e-06 in the gnomAD exome dataset. The maximum subpopulation AF is 5.2664840952180324e-05, which is below the threshold of 0.0001 (0.01%).",
+      "reasoning": "The variant's allele frequency in all gnomAD subpopulations is less than 0.0001 (0.01%), meeting the PM2 criteria for a dominant disorder.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 8.4e-07 in gnomAD, variant present with allele count of 6.",
+      "reasoning": "The Popmax FAF (8.4e-07) is less than the threshold of 0.05 for criterion BA1.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 8.4e-07 in gnomAD exome data, with a total allele count of 6 and no homozygous alleles.",
+      "reasoning": "The Popmax FAF (8.4e-07) does not exceed the threshold of 0.01 for BS1 criterion application.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for the variant NM_000546.6:c.817C>T is 0 in both exome and genome data from gnomAD.",
+      "reasoning": "Since ac_hom is 0, there are no healthy homozygotes reported in gnomAD for this variant, which is consistent with a fully penetrant dominant disease like Li-Fraumeni Syndrome. Therefore, BS2 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Variant observed 1 time(s) in LOVD (Leiden Open Variation Database). LOVD is an observation database \u2014 Times_reported reflects independent lab submissions, not VCEP-curated pathogenicity.",
+      "reasoning": "The variant was observed once in a patient with Li-Fraumeni Syndrome. According to the PS4 criteria, this maps to 1 patient with same phenotype which corresponds to PS4_Supporting strength level.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000546.6:c.817C>T",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_000546.6:c.817C>T is a missense variant resulting in p.Arg273Cys, located within the DNA-binding domain and marked as being in a critical region.",
+      "reasoning": "The evidence indicates that the variant is located in a critical functional domain (DNA-binding domain) with no known benign variation at this specific position. The 'in_critical_region' field confirms it is true.",
+      "applies": true,
+      "tool_used": "vep",
+      "tool_input": "NM_000546.6:c.817C>T",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000546.6(TP53):c.817C>G (p.Arg273Gly) classified as Pathogenic/Likely pathogenic in ClinVar.",
+      "reasoning": "There is one P/LP missense variant at the same codon with a different amino acid change, but no other qualifying variants were found to meet the threshold for PM5_Strong. Therefore, PM5_Moderate applies.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "tool_used": "erepo",
+      "tool_input": "TP53 position 273",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "clinvar reports a pathogenic/likely pathogenic variant NM_000546.6(TP53):c.817C>G (p.Arg273Gly) for TP53 at codon position 273.",
+      "reasoning": "Step 1: A P/LP-classified entry exists with the same amino acid change p.Arg273Gly. Step 2: The source is ClinVar, which is reputable. Step 3: The query variant does not affect splicing but rather the amino acid at position 273.",
+      "applies": true,
+      "tool_used": "erepo",
+      "tool_input": "TP53 position 273",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": "strong"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.901, SpliceAI scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "The REVEL score is >= 0.644 (APPLIES), and the SpliceAI scores are all < 0.2 (DOES NOT FIRE). Since this is a missense variant, PP3 applies based on the REVEL score.",
+      "applies": true,
+      "tool_used": "revel_spliceai",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "{\"found\": true, \"classification\": \"Pathogenic/Likely pathogenic\", \"review_status\": \"criteria provided, multiple submitters, no conflicts\", \"star_rating\": 2}",
+      "reasoning": "The variant NM_000546.6:c.817C>T is classified as Pathogenic/Likely pathogenic by ClinVar with a star rating of 2, indicating it meets the threshold for PP5.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "NM_000546.6:c.817C>T",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.901, SpliceAI scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "For missense variant, BP4 requires both REVEL <= 0.29 and SpliceAI <= 0.1. REVEL score of 0.901 fails the threshold (REVEL <= 0.29). Therefore, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "17-7673803-G-A",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "{\"found\": true, \"classification\": \"Pathogenic/Likely pathogenic\", \"review_status\": \"criteria provided, multiple submitters, no conflicts\", \"star_rating\": 2, \"reputable_source\": true}",
+      "reasoning": "The variant NM_000546.6:c.817C>T is classified as Pathogenic/Likely pathogenic in ClinVar with a star rating of 2 and reputable source status.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000546.6:c.817C>T",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP2",
+      "evidence": "mis_z=1.1216, pLI=0.999596, LOEUF=0.4184, oe_mis=0.8851",
+      "reasoning": "The missense Z-score (mis_z) is 1.1216 which does not meet the threshold of \u22653.09 for PP2 criterion.",
+      "applies": false,
+      "tool_used": "gnomad_gene",
+      "tool_input": "TP53",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BP1",
+      "evidence": "pLI=0.9996, LOEUF=0.4184, oe_mis=0.8851",
+      "reasoning": "TP53 is known to cause disease primarily via truncating/LOF variants. The gene-level constraint data from gnomAD indicates high pLI and low LOEUF values, suggesting that TP53 is LOF-intolerant and LOF likely causes disease. However, the oe_mis value of 0.8851 suggests missense variants are relatively common in healthy populations, which does not support BP1 if missense variants can also be pathogenic.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad_gene",
+      "tool_input": "TP53",
+      "disease": "Li-Fraumeni Syndrome",
+      "status": "complete"
+    }
+  ]
+}

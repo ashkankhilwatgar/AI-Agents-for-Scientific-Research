@@ -41,7 +41,7 @@ def call_plan_agent(prompt: str) -> str:
     
 
 
-def build_task_list(variant: str, disease: str, criteria: list[str]):
+def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol = None) -> dict[str, list]:
     """
     For each criterion, retrieves the PlanRAG entry and builds a task dict
     for the Task agent. All fields are set deterministically from the RAG entry —
@@ -56,8 +56,14 @@ def build_task_list(variant: str, disease: str, criteria: list[str]):
     gene = None
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
+        
     if gene:
         print(f"PLAN AGENT: Detected gene {gene} from transcript")
+    
+    if gene is None and gene_symbol:              # ADD
+        gene = gene_symbol
+        print(f"PLAN AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")  
+
 
     for criterion in criteria:
         rag_entry = query(criterion, gene=gene, disease=disease)
@@ -127,16 +133,16 @@ def build_task_list(variant: str, disease: str, criteria: list[str]):
         "phase1": result.get("phase 1", []),
         "phase2": result.get("phase 2", []),
         "phase3": result.get("phase 3", []),
-        "phase4": result.get("phase 4", [])
+        "phase4": result.get("phase 4", []),
     }
 
 
-def run_plan(variant: str, disease: str, criteria: list[str]):
+def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> list[dict]:
     """
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.
     """
     print(f"PLAN AGENT: Building task list for {variant} / {disease}")
-    tasks = build_task_list(variant, disease, criteria)
+    tasks = build_task_list(variant, disease, criteria, gene_symbol)
     print(f"PLAN AGENT: {len(tasks)} task(s) generated")
     return tasks

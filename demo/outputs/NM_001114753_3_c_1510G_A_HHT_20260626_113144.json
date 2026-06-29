@@ -1,0 +1,123 @@
+{
+  "variant": "NM_001114753.3:c.1510G>A",
+  "disease": "HHT",
+  "timestamp": "20260626_113144",
+  "classification": "Likely Benign",
+  "rule_matched": "1 Strong benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "1 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong"
+    },
+    "applied_criteria": [
+      "BS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Total allele count (AC) is 1488, and the maximum subpopulation allele frequency is 0.0614 in AFR.",
+      "reasoning": "The total AC across all gnomAD populations is greater than 6 (1488). Additionally, no single subpopulation has an allele frequency less than 0.00004.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.007969 in gnomAD for the variant NM_001114753.3:c.1510G>A.",
+      "reasoning": "The Popmax FAF value of 0.007969 is less than the threshold of 0.01, therefore BA1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.007969, and there are 6 homozygotes.",
+      "reasoning": "The Popmax FAF (0.007969) falls within the BS1_Strong range (>0.002 and <0.01). Additionally, there are >=2 homozygotes (6 total), which meets the criteria for BS1_Strong via the homozygote route.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_001114753.3:c.1510G>A results in a missense change from Val to Met at codon position 504 (p.Val504Met).",
+      "reasoning": "The variant residue is not located within the critical positions specified for PM1: BMP9 binding sites {278, 282}, LP/P-classified cysteines {207, 363, 382, 412, 549}, or disulfide-bond cysteines {350, 394}.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_001114753.3:c.1510G>A in ENG gene at codon position 504; no different amino acid classifications found.",
+      "reasoning": "The 'different_aa_classifications' list is empty, meaning there are no variants with a different amino acid substitution at the same codon position that meet PM5 criteria. Therefore, criterion PM5 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 504",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.239, SpliceAI scores: DS_AG=0.03, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "According to the BRANCH A rules for missense variants, PP3 REVEL does not apply (score < 0.644). SpliceAI also does not fire as no score is >= 0.2.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.239, SpliceAI scores: DS_AG=0.03, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "For missense variant in HHT, BP4 requires REVEL <= 0.15 and SpliceAI <= 0.1. REVEL score is 0.239 (fails threshold), so BP4 does not apply despite passing SpliceAI criteria.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "NM_001114753.3:c.1510G>A, no same_aa_classifications found.",
+      "reasoning": "No entries in same_aa_classifications list, so PS1 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 504",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    }
+  ]
+}

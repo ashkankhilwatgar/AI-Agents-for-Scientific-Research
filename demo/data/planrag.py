@@ -32,61 +32,44 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 GENE_DB = {
+    # ── VCEP genes — cspec_id required for VCEP dispatch ──────────────────────
     "ACVRL1": {
-        "gene_symbol":    "ACVRL1",
-        "transcripts":    ["NM_000020"],        # NM_000020.x (any version)
-        "protein_length": 503,                  # aa
-        "total_exons":    10,
-        "cspec_id":       "GN135",
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
+        "cspec_id":           "GN135",
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     "ENG": {
-        "gene_symbol":    "ENG",
-        "transcripts":    ["NM_001114753", "NM_000118", "NM_001278138"],   # NM_001114753.x, NM_000118.x, NM_001278138.x
-        "protein_length": 658,                  # aa
-        "total_exons":    15,
-        "cspec_id":       "GN136",
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
+        "cspec_id":           "GN136",
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
-    # ── Non-VCEP genes — add as needed for ACMG mode ──────────────────────────
+    # ── Non-VCEP genes — lof_mechanism and pm1_critical_regions only ──────────
+    "SPAST": {
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "SPAST causes SPG4 (Hereditary Spastic Paraplegia type 4) via haploinsufficiency. ClinGen haploinsufficiency score: 3 (sufficient evidence). Frameshift, nonsense, and canonical splice variants are the predominant disease-causing mechanism.",
+    },
     "LDLR": {
-        "gene_symbol":    "LDLR",
-        "transcripts":    ["NM_000527"],        # NM_000527.x (any version)
-        "protein_length": 860,                  # aa
-        "total_exons":    18,
-        "cspec_id":       None,                 # no VCEP spec
-        # LOF mechanism — used by PVS1 prerequisite check
-        "lof_mechanism":       True,
-        "lof_mechanism_note":  "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
-        # PM1 critical regions — used to determine if a missense codon is in a
-        # mutational hotspot or functional domain without benign variation.
-        # LDLR domain boundaries (NM_000527.5, signal peptide excluded from mature protein):
-        #   Ligand-binding domain (class A cysteine-rich repeats): aa 22-292
-        #   EGF-like domain (EGFA, EGFB, EGFC precursor): aa 293-692
-        #   O-linked sugar domain: aa 693-740  — not a mutational hotspot
-        #   Transmembrane domain: aa 741-764   — not evaluated by PM1 (membrane-spanning)
-        #   Cytoplasmic domain: aa 765-860      — not a mutational hotspot; FDNPVY signal ~801-806
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
         "pm1_critical_regions": [
             {"name": "ligand-binding domain (class A cysteine-rich repeats)", "start": 22,  "end": 292},
             {"name": "EGF-like domain (EGFA/EGFB/EGFC)",                      "start": 293, "end": 692},
         ],
-        },
-        "BRCA1": {
-        "gene_symbol":    "BRCA1",
-        "transcripts":    ["NM_007294"],
-        "protein_length": 1863,
-        "total_exons":    23,
-        "cspec_id":       None,
-        "lof_mechanism":  True,
-        "lof_mechanism_note": (
-            "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; "
-            "frameshift, nonsense, and canonical splice variants are well-established "
-            "pathogenic mechanisms."
-        ),
+    },
+    "BRCA1": {
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; frameshift, nonsense, and canonical splice variants are well-established pathogenic mechanisms.",
+        "pm1_critical_regions": [
+            {"name": "RING domain", "start": 1,    "end": 101},
+            {"name": "BRCT domain", "start": 1650, "end": 1863},
+        ],
+    },
+    "TP53": {
+        "lof_mechanism":      True,
+        "lof_mechanism_note": "TP53 causes Li-Fraumeni Syndrome via haploinsufficiency and dominant negative mechanisms; frameshift, nonsense, and canonical splice variants are established pathogenic mechanisms.",
+        "pm1_critical_regions": [
+            {"name": "DNA-binding domain", "start": 94, "end": 292},
+        ],
     },
 }
 
@@ -99,7 +82,7 @@ def get_gene_from_transcript(transcript_id: str) -> str | None:
     """
     bare = transcript_id.split(".")[0]
     for gene_symbol, info in GENE_DB.items():
-        for t in info["transcripts"]:
+        for t in info.get("transcripts", []):
             if bare == t:
                 return gene_symbol
     return None
@@ -267,7 +250,9 @@ PLANRAG_DB = {
             "  - Count = 1 → PS4_Supporting applies. Set applies=true, strength=supporting.\n"
             "  - Count = 0 → PS4 does NOT apply. Set applies=false.\n"
             "\n"
-            "Record proband count, source (ClinVar or PubMed), and strength level in evidence."
+            "REQUIRED — always list every source queried in the evidence field, regardless of outcome.\n"
+            "Format: 'ClinVar HHT VCEP SCV: <result>; ERepo: <result>; LOVD: <result>; PubMed: <N> articles found'.\n"
+            "This is mandatory so downstream review can confirm all fallback sources were exhausted."
         ),
         "hht_modification": "Proband-based counting (4+ Strong / 2-3 Moderate / 1 Supporting); requires PM2_Supporting; PP4_Moderate probands excluded from count",
         "strength_override": None,
@@ -558,15 +543,27 @@ PLANRAG_DB = {
         ),
         "threshold": "PM5_Strong: >=2 different LP/P missense (HHT VCEP rules) at same codon; PM5_Moderate: 1 different LP/P missense (HHT VCEP rules) at same codon",
         "instructions": (
-            "primary_source: ClinGen Evidence Repository (https://erepo.clinicalgenome.org); "
-            "fallback_source: ClinVar entries with submitter = 'ClinGen Hereditary Hemorrhagic Telangiectasia VCEP'; "
-            "search_strategy: Find variants at same amino acid residue, different substitution; "
-            "filter: Only count variants classified LP or P by HHT VCEP; "
-            "note: These are pipeline-level decisions, not from CSpec GN135 v1.1.0; "
-            "Apply strength: PM5_Strong if >=2 different missense changes at same codon are LP/P per HHT VCEP rules; "
-            "PM5_Moderate if 1 different missense change at same codon is LP/P per HHT VCEP rules. "
-            "Caveat: beware of changes that impact splicing rather than at the amino acid/protein level. "
-            "RULE: do not combine PM5_Strong with PM1. PM5_Moderate + PM1 IS allowed."
+            "The tool returns two pre-split lists:\n"
+            "  different_aa_classifications — variants with a DIFFERENT alt amino acid at the same codon (PM5 evidence)\n"
+            "  same_aa_classifications      — variants with the IDENTICAL alt amino acid (PS1 evidence, ignore here)\n"
+            "\n"
+            "CRITICAL: Use ONLY different_aa_classifications for PM5. "
+            "Do NOT use same_aa_classifications — those are PS1 territory, not PM5.\n"
+            "\n"
+            "STEP 1: Is different_aa_classifications non-empty?\n"
+            "  - NO  → PM5 does NOT apply. Set applies=false. Stop.\n"
+            "  - YES → continue to Step 2.\n"
+            "\n"
+            "STEP 2: Count qualifying variants in different_aa_classifications "
+            "(different substitution, P/LP per HHT VCEP rules):\n"
+            "  - >=2 → PM5_Strong. Set applied_strength=strong.\n"
+            "    RULE: do NOT combine PM5_Strong with PM1. If PM1 also applies, downgrade to Moderate.\n"
+            "  - 1   → PM5_Moderate. Set applied_strength=moderate.\n"
+            "\n"
+            "STEP 3: Could the query variant affect splicing rather than the amino acid?\n"
+            "  - YES → note caveat in evidence.\n"
+            "\n"
+            "Record matched variant(s), classifications, amino acid changes, and source in evidence."
         ),
         "hht_modification": "Two strength levels (Strong / Moderate) based on count of LP/P missense at same codon; reference must be HHT VCEP-classified; PM5_Strong cannot combine with PM1",
         "strength_override": None,
@@ -647,7 +644,7 @@ PLANRAG_DB = {
         "acmg_category": "Pathogenic",
         "strength": "strong",
         "automation": "partially_automatable",
-        "tool": "clinvar",
+        "tool": "erepo",
         "phase": 4,
         "depends_on": [],
         "variant_types": ["missense"],
@@ -658,14 +655,18 @@ PLANRAG_DB = {
         ),
         "threshold": "Same amino acid change as established pathogenic variant",
         "instructions": (
-            "Search for variants producing the same amino acid change as the query variant\n"
-            "(regardless of nucleotide change).\n"
+            "The tool returns two pre-split lists:\n"
+            "  same_aa_classifications   — variants with the IDENTICAL alt amino acid as the query (PS1 evidence)\n"
+            "  different_aa_classifications — variants with a DIFFERENT alt amino acid (PM5 evidence, ignore here)\n"
             "\n"
-            "STEP 1: Does an HHT VCEP-classified entry exist with the same amino acid change?\n"
+            "Use ONLY same_aa_classifications for PS1. Do NOT use different_aa_classifications.\n"
+            "\n"
+            "STEP 1: Is same_aa_classifications non-empty?\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 2.\n"
             "\n"
-            "STEP 2: Is the classification Pathogenic or Likely Pathogenic?\n"
+            "STEP 2: Is at least one entry classified Pathogenic or Likely Pathogenic "
+            "by HHT VCEP (ERepo) or by ClinVar consensus (2+ stars)?\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 3.\n"
             "\n"
@@ -673,7 +674,8 @@ PLANRAG_DB = {
             "  - YES → PS1 is NOT appropriate. Set applies=false.\n"
             "  - NO  → PS1 APPLIES. Set applies=true. Strength is Strong only.\n"
             "\n"
-            "Record the matched variant, classification, and amino acid change in evidence."
+            "Record the matched variant, its nucleotide change, classification, source, "
+            "and exact amino acid changes in evidence."
         ),
         "hht_modification": "No modification — use as in original ACMG; Strong strength only",
         "strength_override": "strong",
@@ -1239,24 +1241,14 @@ ACMG_PLANRAG_DB = {
         ),
         "threshold": "Absent from gnomAD OR AF <0.0001 (0.01%) in any gnomAD subpopulation",
         "instructions": (
-            "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
-            "IMPORTANT: The evidence contains '_computed.verdicts' with pre-verified threshold comparisons. "
-            "Read '_computed.pm2_applies' and set applies accordingly — do NOT recompute frequency comparisons yourself.\n"
+            "CRITICAL: The evidence contains '_computed.verdicts' with pre-verified threshold decisions.\n"
+            "Find the line starting with 'PM2 (threshold: popmax_FAF < 0.0001):' in _computed.verdicts.\n"
+            "  - Line ends with '→ APPLIES'        → PM2 APPLIES. Set applies=true. Stop.\n"
+            "  - Line ends with '→ DOES NOT APPLY' → PM2 does NOT apply. Set applies=false. Stop.\n"
+            "  - Variant absent from gnomAD entirely (no gnomAD data at all) → PM2 APPLIES. Set applies=true. Stop.\n"
+            "Do NOT recompute or re-evaluate frequency values yourself — the verdict is authoritative.\n"
             "\n"
-            "STEP 1: Is the variant absent from gnomAD entirely?\n"
-            "  - YES → PM2 APPLIES. Set applies=true. Stop.\n"
-            "  - NO  → continue to Step 2.\n"
-            "\n"
-            "STEP 2: Is allele frequency in ALL gnomAD subpopulations less than 0.0001 (0.01%)?\n"
-            "  - YES (all AFs < 0.0001) → PM2 APPLIES. Set applies=true. Stop.\n"
-            "  - NO  (any AF >= 0.0001) → continue to Step 3.\n"
-            "\n"
-            "STEP 3 (recessive disorders only): Is total allele count below the expected carrier frequency?\n"
-            "  - Below expected carrier frequency for this recessive disorder → PM2 APPLIES. Set applies=true.\n"
-            "  - At or above expected carrier frequency → PM2 does NOT apply. Set applies=false.\n"
-            "\n"
-            "For dominant disorders: use Steps 1–2 only.\n"
-            "Record total AC, max subpopulation AF, and which step triggered the decision."
+            "Record the popmax_FAF value and the verdict line from _computed.verdicts in evidence."
         ),
         "strength_override": "moderate",
     },
@@ -1512,9 +1504,14 @@ ACMG_PLANRAG_DB = {
         ),
         "threshold": ">=1 different P/LP missense at same codon from a reputable source",
         "instructions": (
-            "Search ClinGen ERepo and ClinVar for variants at the same amino acid position with different substitutions.\n"
+            "The tool returns two pre-split lists:\n"
+            "  different_aa_classifications — variants with a DIFFERENT alt amino acid at the same codon (PM5 evidence)\n"
+            "  same_aa_classifications      — variants with the IDENTICAL alt amino acid (PS1 evidence, ignore here)\n"
             "\n"
-            "STEP 1: Are there P/LP-classified missense variants at the same codon with a DIFFERENT amino acid change?\n"
+            "CRITICAL: Use ONLY different_aa_classifications for PM5. "
+            "Do NOT use same_aa_classifications — those are PS1 territory, not PM5.\n"
+            "\n"
+            "STEP 1: Is different_aa_classifications non-empty?\n"
             "  - NO  → PM5 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 2.\n"
             "\n"
@@ -1551,9 +1548,13 @@ ACMG_PLANRAG_DB = {
         ),
         "threshold": "Identical amino acid change, P/LP from a reputable source",
         "instructions": (
-            "Search for variants producing the same amino acid change (regardless of nucleotide change).\n"
+            "The tool returns two pre-split lists:\n"
+            "  same_aa_classifications      — variants with the IDENTICAL alt amino acid as the query (PS1 evidence)\n"
+            "  different_aa_classifications — variants with a DIFFERENT alt amino acid (PM5 evidence, ignore here)\n"
             "\n"
-            "STEP 1: Does a P/LP-classified entry exist with the same amino acid change?\n"
+            "Use ONLY same_aa_classifications for PS1. Do NOT use different_aa_classifications.\n"
+            "\n"
+            "STEP 1: Is same_aa_classifications non-empty?\n"
             "  - NO  → PS1 does NOT apply. Set applies=false. Stop.\n"
             "  - YES → continue to Step 2.\n"
             "\n"
@@ -1565,7 +1566,8 @@ ACMG_PLANRAG_DB = {
             "  - YES → PS1 NOT appropriate. Set applies=false.\n"
             "  - NO  → PS1 APPLIES. Set applies=true, applied_strength=strong.\n"
             "\n"
-            "Record matched variant, classification, source, and amino acid change in evidence."
+            "Record matched variant, its nucleotide change, classification, source, "
+            "and exact amino acid changes in evidence."
         ),
         "strength_override": "strong",
     },
@@ -2216,7 +2218,7 @@ ACMG_PLANRAG_DB = {
 ACMG_EXCLUDED_CRITERIA = {}
 
 
-def query(criterion: str, gene: str = None, disease: str = None) -> dict | None:
+def query(criterion: str, gene: str | None = None, disease: str | None = None) -> dict | None:
     """
     Retrieve the PlanRAG entry for a given ACMG criterion.
 

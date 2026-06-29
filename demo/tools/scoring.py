@@ -102,7 +102,7 @@ def _check_rule(rule: dict, counts: dict) -> bool:
     return True
 
 
-def classify(results_dict: dict, disease: str = None) -> dict:
+def classify(results_dict: dict, disease: str | None = None) -> dict:
     """
     Classify a variant using the appropriate combining criteria rules.
 

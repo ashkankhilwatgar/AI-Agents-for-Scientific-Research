@@ -80,3 +80,13 @@ Tomorrow I will come back to implementing parallel agent architecture.
 
 
 
+6/26 Suning
+
+1. Command line to test SPAST splice variant (the one that should be Pathogenic):
+ACMG python3.12 -m pipeline --variant "NM_014946.4:c.1688-2A>G" --disease "ACMG"
+
+2. Command line to test the TMCC2 missense (the one with PM5/PS1/BP1 failures):
+
+python3 -m pipeline --variant "NM_014858.4:c.1676G>A" --disease "ACMG"
+
+

@@ -92,11 +92,10 @@ def get_variant_type(variant: str) -> dict:
     """
     is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
 
-    # Fast path: intronic HGVS can be classified from notation alone
-    if is_hgvs:
-        direct = _classify_hgvs_directly(variant)
-        if direct is not None:
-            return direct
+    # Fast path: intronic HGVS can be classified from notation alone.
+    # We DON'T return immediately — we still call VEP to extract gene_symbol,
+    # then override variant_type/raw_consequence with the fast-path result.
+    direct = _classify_hgvs_directly(variant) if is_hgvs else None
 
     if is_hgvs:
         encoded = quote(variant, safe="")
@@ -146,6 +145,7 @@ def get_variant_type(variant: str) -> dict:
         # a more severe consequence in a different transcript (e.g. missense in an
         # overlapping coding exon) will dominate and misclassify intronic/splice variants.
         raw_consequence = None
+        matched_tc = None
 
         if is_hgvs and variant.startswith("NM_") and ":" in variant:
             # Extract transcript base ID without version (e.g. "NM_000020.3" → "NM_000020")
@@ -176,10 +176,30 @@ def get_variant_type(variant: str) -> dict:
         if not raw_consequence:
             return {"error": "VEP response missing most_severe_consequence field"}
 
+
+        gene_sym = None
+        if matched_tc:
+            gene_sym = matched_tc.get("gene_symbol")
+        elif data[0].get("transcript_consequences"):
+            gene_sym = data[0]["transcript_consequences"][0].get("gene_symbol")
+
+        # If fast path already classified variant_type more accurately, use it
+        # but add gene_symbol from VEP.
+        if direct is not None:
+            direct["gene_symbol"] = gene_sym
+            return direct
+
         return {
             "variant_type": CONSEQUENCE_MAP.get(raw_consequence, "other"),
             "raw_consequence": raw_consequence,
+            "gene_symbol": gene_sym
         }
+
+    # If fast path classified the variant but VEP failed (network error etc.),
+    # still return the fast-path result with gene_symbol=None rather than an error.
+    if direct is not None:
+        direct["gene_symbol"] = None
+        return direct
 
     return {"error": f"Ensembl VEP failed after {MAX_RETRIES} retries: {last_error}"}
 
