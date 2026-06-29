@@ -1,0 +1,133 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260629_151221",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD total allele count (AC) = 1.",
+      "reasoning": "The total allele count (AC) across all gnomAD populations is 1. This is less than the threshold of 6, triggering PM2_SUPPORTING based on Step 2 of the classification rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD Popmax FAF = 0.0.",
+      "reasoning": "The Popmax FAF (0.0) is less than the BA1 threshold of 0.01. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD Popmax FAF is 0.0, and total homozygote count (ac_hom) is 0.",
+      "reasoning": "STEP 1: Popmax FAF (0.0) is not >= 0.01, so BA1 does not apply. \nSTEP 2: Popmax FAF (0.0) is not > 0.0008, so BS1_Strong via the homozygote route does not apply. \nSTEP 3: Popmax FAF (0.0) is not > 0.002, so BS1_Strong via the FAF route does not apply. \nSTEP 4: Popmax FAF (0.0) is not > 0.0008, so BS1_Supporting does not apply. \nTherefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.557G>T results in a missense change p.Ser186Ile in the ACVRL1 protein.",
+      "reasoning": "The variant affects amino acid position 186. This position is not within any of the specified critical regions for PM1 (G209-V216, K229, E242, R329-N335, D348-L351, or the BMP10 interaction cluster {40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87}). Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "The ClinVar HHT VCEP submission states that the variant has been reported in 2 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia.",
+      "reasoning": "The ClinVar HHT VCEP submission explicitly reports '2 probands' for this variant, which is consistent with HHT. According to the PS4 classification rules, a proband count of 2 or 3 leads to PS4_Moderate. The instruction to not count probands qualifying for PP4_Moderate was considered; however, the VCEP itself applied PS4_Moderate based on '2 probands', implying their final count for PS4 was 2 or 3 after internal considerations. Therefore, PS4 applies with moderate strength.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No LP/P missense variants were found at codon 186 in ACVRL1 from the specified sources (ClinGen Evidence Repository/ClinVar HHT VCEP).",
+      "reasoning": "The PM5 criterion requires at least one (for Moderate strength) or two (for Strong strength) different LP/P missense variants at the same codon (186) as classified by HHT VCEP rules. The retrieved evidence indicates 0 such variants, therefore the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915, SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "The variant NM_000020.3:c.557G>T is a missense variant. Following BRANCH A, Step 1, the '_computed.verdicts' states 'PP3 REVEL (>= 0.644): APPLIES (score=0.9150)'. Since this is true, PP3 applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915, SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0. From computed verdicts: 'BP4 REVEL HHT threshold (<= 0.15): FAILS' and 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "The variant NM_000020.3:c.557G>T is a missense variant. Following BRANCH A, Step 1, the verdict for 'BP4 REVEL HHT threshold (<= 0.15)' is 'FAILS'. According to the rules, if this condition fails, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The NM_000020.3:c.557G>T variant (p.Ser186Ile) is classified as Likely Pathogenic by the ClinGen HHT VCEP.",
+      "reasoning": "STEP 1 of the PS1 rules asks if an HHT VCEP-classified entry exists with the *same amino acid change*. The provided evidence is for the query variant itself (NM_000020.3:c.557G>T, p.Ser186Ile), which is classified as Likely Pathogenic by the HHT VCEP. However, PS1 specifically looks for *other* variants producing the same amino acid change that are already established as pathogenic. The evidence does not describe a *different* variant (with a different nucleotide change) that results in the same p.Ser186Ile amino acid change and is classified as Pathogenic or Likely Pathogenic. Therefore, based on the provided evidence, Step 1 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

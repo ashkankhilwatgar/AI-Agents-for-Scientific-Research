@@ -9,6 +9,11 @@ from agents.check_agent import run_check
 from tools.vep import annotate_variant
 from tools.scoring import classify
 from data.planrag import query, is_vcep_disease, ACMG_PLANRAG_DB
+from typing_extensions import TypedDict, Annotated
+import operator
+from typing import Any, TypeAlias
+from langgraph.graph import StateGraph, START, END
+from langgraph.types import Send
 
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
 HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"]
@@ -16,7 +21,6 @@ HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM
 # ACMG criteria — all automatable/partially-automatable entries in ACMG_PLANRAG_DB
 # (deferred entries are filtered out by plan_agent, but excluded here too for clarity)
 ACMG_CRITERIA = [k for k in ACMG_PLANRAG_DB if k != "SCORING"]
-
 
 def get_criteria_for_disease(disease: str) -> list[str]:
     """Returns the correct criteria list based on whether disease has a VCEP spec."""
@@ -57,8 +61,274 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
 
     return filtered
 
+# ==================================
+# Type alias for langgraph states
+# ==================================
+ToolResults: TypeAlias = dict[str, dict[str, Any]]
+Tasks: TypeAlias = dict[str, list[dict[str, str]]]
+CriterionResults: TypeAlias = dict[str, dict[str, Any]]
 
-def run_pipeline(variant: str, disease: str) -> list[dict]:
+# ==================================
+# Stategraph reducer
+# ==================================
+def merge_tool_results(
+        left: ToolResults,
+        right: ToolResults
+) -> ToolResults:
+    """
+    Merges tool result dictionaries in LangGraph state updates.
+    Later values override earlier ones on key conflicts.
+    """
+    return {**left, **right}
+
+def merge_criterion_results(
+        left: CriterionResults,
+        right: CriterionResults
+) -> CriterionResults:
+    """
+    Merges criterion result dictionaries in LangGraph state updates.
+    Later results overwrite existing entries with the same key.
+    """
+    return {**left, **right}
+
+# ==================================
+# Langgraph States
+# ==================================
+class OverallState(TypedDict):
+    tasks: Tasks
+    tool_results: Annotated[ToolResults, merge_tool_results]
+    criterion_results: Annotated[CriterionResults, merge_criterion_results]
+    variant_type: str | None 
+    disease: str
+
+class PerCriterionState(TypedDict):
+    task: dict[str, str]
+    variant_type: str | None
+    disease: str
+    previous_results: CriterionResults
+    tool_results: ToolResults
+
+# ==================================
+# Langgraph Nodes
+# ==================================
+
+def fan_in(state: OverallState):
+    """
+    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
+
+    Acts as a barrier node after parallel criterion execution, allowing the graph
+    to merge results before proceeding to the next phase.
+
+    Returns:
+        Empty dict to trigger state continuation without modification.
+    """
+    return {}
+
+def process_criterion(state: PerCriterionState):
+    """
+    Executes full evaluation pipeline for a single ACMG/VCEP criterion.
+
+    Performs dependency checking, runs debug → judge → check agents sequentially,
+    and returns updated criterion and tool results. Skips execution if prerequisites
+    are not satisfied.
+    """
+
+    task = state["task"]
+    criterion = task["criterion"]
+    disease = state["disease"]
+    previous_results = state["previous_results"]
+    tool_results = state["tool_results"]
+
+    # ── PRECONDITION CHECK ────────────────────
+    rag_entry = query(criterion, disease=disease)
+    requires_applied = (rag_entry or {}).get("requires_applied", [])
+    blocked_by      = (rag_entry or {}).get("blocked_by", [])
+    skipped_reason = None
+
+    for dep in requires_applied:
+        dep_key = dep.upper().replace("-", "_").replace(" ", "_")
+        dep_result = previous_results.get(dep_key)
+        if dep_result is None:
+            skipped_reason = f"{dep} has not been evaluated (dependency ordering error)"
+            break
+        if not dep_result.get("applies"):
+            skipped_reason = f"{dep} did not apply — {criterion} requires it"
+            break
+
+    if not skipped_reason:
+        for blocker in blocked_by:
+            blocker_key = blocker.upper().replace("-", "_").replace(" ", "_")
+            blocker_result = previous_results.get(blocker_key)
+            if blocker_result and blocker_result.get("applies") is True:
+                skipped_reason = f"{blocker} applied — {criterion} is excluded when {blocker} applies"
+                break
+
+    if skipped_reason:
+        print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
+        skipped_entry = {
+            "criterion": criterion,
+            "status": "skipped",
+            "reason": skipped_reason,
+        }
+        
+        return {"criterion_results": {criterion.upper().replace("-", "_"): skipped_entry}}        
+
+    print(f"\n{'─'*60}")
+    print(f"PIPELINE: Processing criterion {criterion}")
+    print(f"{'─'*60}")
+
+    # ── DEBUG AGENT (runs Task agent internally) ──
+    print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
+    debug_output, tool_cache_update = run_debug(task, tool_results = tool_results)
+
+    if debug_output.get("status") == "error":
+        print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
+
+        return {
+            "criterion_results": {criterion.upper().replace("-", "_"): debug_output},
+            "tool_results": tool_cache_update
+        }  
+
+    # ── JUDGE AGENT ───────────────────────
+    print(f"\n[2/3] JUDGE AGENT — checking reasoning")
+    judge_output = run_judge(task, debug_output)
+
+    if judge_output.get("status") == "error":
+        print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
+
+        return {
+            "criterion_results": {criterion.upper().replace("-", "_"): judge_output},
+            "tool_results": tool_cache_update
+            }  
+
+    # ── CHECK AGENT ───────────────────────
+    print(f"\n[3/3] CHECK AGENT — validating formatting")
+    final_output = run_check(judge_output)
+
+    print(f"\nPIPELINE: {criterion} complete")
+    return {
+        "criterion_results": {criterion.upper().replace("-", "_"): final_output},
+        "tool_results": tool_cache_update
+        } 
+
+# ==================================
+# Langgraph Routers
+# ==================================
+
+def fan_out_before_phase_1(state: OverallState):
+    """
+    Dispatch phase 1 tasks to parallel criterion nodes.
+    """
+    return [Send("process_phase_1_criterion", {
+        "task": task, 
+        "variant_type": state["variant_type"],
+        "disease": state["disease"],
+        "previous_results": state["criterion_results"],
+        "tool_results": state["tool_results"]
+    }) for task in state["tasks"]["phase1"]]
+
+def fan_out_before_phase_2(state: OverallState):
+    """
+    Dispatch phase 2 tasks to parallel criterion nodes.
+    """
+    return [Send("process_phase_2_criterion", {
+        "task": task, 
+        "variant_type": state["variant_type"],
+        "disease": state["disease"],
+        "previous_results": state["criterion_results"],
+        "tool_results": state["tool_results"]
+    }) for task in state["tasks"]["phase2"]]
+
+def fan_out_before_phase_3(state: OverallState):
+    """
+    Dispatch phase 3 tasks to parallel criterion nodes.
+    """
+    return [Send("process_phase_3_criterion", {
+        "task": task, 
+        "variant_type": state["variant_type"],
+        "disease": state["disease"],
+        "previous_results": state["criterion_results"],
+        "tool_results": state["tool_results"]
+    }) for task in state["tasks"]["phase3"]]
+
+def fan_out_before_phase_4(state: OverallState):
+    """
+    Dispatch phase 4 tasks to parallel criterion nodes.
+    """
+    return [Send("process_phase_4_criterion", {
+        "task": task, 
+        "variant_type": state["variant_type"],
+        "disease": state["disease"],
+        "previous_results": state["criterion_results"],
+        "tool_results": state["tool_results"]
+    }) for task in state["tasks"]["phase4"]]
+        
+# ==================================
+# Invoking state graph
+# ==================================
+def build_graph():
+    """
+    Build and compile LangGraph once.
+    """
+    graph_builder = StateGraph(OverallState)
+
+    # NODES
+    graph_builder.add_node("process_phase_1_criterion", process_criterion)
+    graph_builder.add_node("fan_in_after_phase_1", fan_in)
+    graph_builder.add_node("process_phase_2_criterion", process_criterion)
+    graph_builder.add_node("fan_in_after_phase_2", fan_in)
+    graph_builder.add_node("process_phase_3_criterion", process_criterion)
+    graph_builder.add_node("fan_in_after_phase_3", fan_in)
+    graph_builder.add_node("process_phase_4_criterion", process_criterion)
+
+    # EDGES
+    graph_builder.add_conditional_edges(START, fan_out_before_phase_1)
+    graph_builder.add_edge("process_phase_1_criterion", "fan_in_after_phase_1")
+    graph_builder.add_conditional_edges("fan_in_after_phase_1", fan_out_before_phase_2)
+    graph_builder.add_edge("process_phase_2_criterion", "fan_in_after_phase_2")
+    graph_builder.add_conditional_edges("fan_in_after_phase_2", fan_out_before_phase_3)
+    graph_builder.add_edge("process_phase_3_criterion", "fan_in_after_phase_3")
+    graph_builder.add_conditional_edges("fan_in_after_phase_3", fan_out_before_phase_4)
+    graph_builder.add_edge("process_phase_4_criterion", END)
+
+    # COMPILE
+    graph = graph_builder.compile()
+    return graph
+
+def process_criterions_in_parallel(
+        tasks: Tasks,
+        variant_type: str | None,
+        disease: str,
+) -> dict[str, Any]:
+    """
+    Runs ACMG/VCEP criterion evaluation in parallel using a LangGraph pipeline.
+    Builds and executes a multi-phase graph that processes each criterion
+    through parallel agent steps and aggregates tool + evaluation results.
+
+    Args:
+        tasks: Phased criterion tasks.
+        variant_type: Variant consequence type (may be None).
+        disease: Target disease context.
+    Returns:
+        Final LangGraph state with criterion and tool results.
+    """
+
+    # BUILD GRAPH
+    graph = build_graph()
+
+    # INVOKE
+    initial_state: OverallState = {
+        "tasks": tasks,
+        "tool_results": {},
+        "criterion_results": {},
+        "variant_type": variant_type,
+        "disease": disease,
+    }
+
+    state = graph.invoke(initial_state)
+    return state
+
+def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     """
     Main pipeline entry point.
     Runs all agents in sequence for each criterion.
@@ -94,83 +364,17 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
 
     if not tasks:
         print("PIPELINE: Plan agent returned no tasks. Exiting.")
-        return []
+        return [], {}
 
-    results = []
-    results_dict = {}  # criterion → completed result, for dependency checking
-
-    for task in tasks:
-        criterion = task.get("criterion")
-
-        # inject variant_type into task dict so downstream agents have it if needed
-        task["variant_type"] = variant_type
-
-        # ── PRECONDITION CHECK ────────────────────
-        rag_entry = query(criterion, disease=disease)
-        requires_applied = (rag_entry or {}).get("requires_applied", [])
-        blocked_by      = (rag_entry or {}).get("blocked_by", [])
-        skipped_reason = None
-
-        for dep in requires_applied:
-            dep_key = dep.upper().replace("-", "_").replace(" ", "_")
-            dep_result = results_dict.get(dep_key)
-            if dep_result is None:
-                skipped_reason = f"{dep} has not been evaluated (dependency ordering error)"
-                break
-            if not dep_result.get("applies"):
-                skipped_reason = f"{dep} did not apply — {criterion} requires it"
-                break
-
-        if not skipped_reason:
-            for blocker in blocked_by:
-                blocker_key = blocker.upper().replace("-", "_").replace(" ", "_")
-                blocker_result = results_dict.get(blocker_key)
-                if blocker_result and blocker_result.get("applies") is True:
-                    skipped_reason = f"{blocker} applied — {criterion} is excluded when {blocker} applies"
-                    break
-
-        if skipped_reason:
-            print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
-            skipped_entry = {
-                "criterion": criterion,
-                "status": "skipped",
-                "reason": skipped_reason,
-            }
-            results.append(skipped_entry)
-            results_dict[criterion.upper().replace("-", "_")] = skipped_entry
-            continue
-
-        print(f"\n{'─'*60}")
-        print(f"PIPELINE: Processing criterion {criterion}")
-        print(f"{'─'*60}")
-
-        # ── DEBUG AGENT (runs Task agent internally) ──
-        print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
-        debug_output = run_debug(task)
-
-        if debug_output.get("status") == "error":
-            print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
-            results.append(debug_output)
-            results_dict[criterion.upper().replace("-", "_")] = debug_output
-            continue
-
-        # ── JUDGE AGENT ───────────────────────
-        print(f"\n[2/3] JUDGE AGENT — checking reasoning")
-        judge_output = run_judge(task, debug_output)
-
-        if judge_output.get("status") == "error":
-            print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
-            results.append(judge_output)
-            results_dict[criterion.upper().replace("-", "_")] = judge_output
-            continue
-
-        # ── CHECK AGENT ───────────────────────
-        print(f"\n[3/3] CHECK AGENT — validating formatting")
-        final_output = run_check(judge_output)
-
-        results.append(final_output)
-        results_dict[criterion.upper().replace("-", "_")] = final_output
-        print(f"\nPIPELINE: {criterion} complete")
+    # ── RUN PARALLEL AGENTS ────────────────────────────
+    results = process_criterions_in_parallel(
+        tasks=tasks,
+        variant_type=variant_type,
+        disease=disease
+    )
+    
+    results_list = list(results["criterion_results"].values())
+    results_dict = results["criterion_results"]
 
     # ── SCORING ───────────────────────────────────────────────────────────────
     scoring_label = "HHT VCEP" if (disease is None or is_vcep_disease(disease)) else "ACMG/AMP 2015"
@@ -180,7 +384,7 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
     print(f"PIPELINE: Classification → {scoring_result['classification']}")
     print(f"          Rule matched   → {scoring_result['rule_matched']}")
 
-    return results, scoring_result
+    return results_list, scoring_result
 
 
 def print_report(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> None:

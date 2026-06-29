@@ -7,6 +7,7 @@ from .llm import invoke_llm
 from typing import Optional
 from config import MODELS
 from data.planrag import get_gene_from_transcript
+from collections import defaultdict
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -40,7 +41,7 @@ def call_plan_agent(prompt: str) -> str:
     
 
 
-def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dict]:
+def build_task_list(variant: str, disease: str, criteria: list[str]):
     """
     For each criterion, retrieves the PlanRAG entry and builds a task dict
     for the Task agent. All fields are set deterministically from the RAG entry —
@@ -73,26 +74,26 @@ def build_task_list(variant: str, disease: str, criteria: list[str]) -> list[dic
             print(f"PLAN AGENT: {criterion} is deferred (not automatable), skipping")
             continue
 
-        prompt = f"""You are a variant classification assistant.
+#         prompt = f"""You are a variant classification assistant.
 
-Variant: {variant}
-Disease: {disease}
-Criterion: {criterion}
-Tool: {rag_entry['tool']}
-Threshold: {rag_entry['threshold']}
+# Variant: {variant}
+# Disease: {disease}
+# Criterion: {criterion}
+# Tool: {rag_entry['tool']}
+# Threshold: {rag_entry['threshold']}
 
-Write one sentence describing what the Task agent should do to evaluate this criterion.
+# Write one sentence describing what the Task agent should do to evaluate this criterion.
 
-Respond ONLY with a JSON object in this exact format, no explanation:
-{{
-    "instructions": "<one sentence>"
-}}"""
-        raw = call_plan_agent(prompt)
+# Respond ONLY with a JSON object in this exact format, no explanation:
+# {{
+#     "instructions": "<one sentence>"
+# }}"""
+#         raw = call_plan_agent(prompt)
 
-        # raw = call_ollama(prompt)
-        result = parse_json_response(raw)
+#         # raw = call_ollama(prompt)
+#         result = parse_json_response(raw)
 
-        instructions = result.get("instructions", rag_entry["instructions"])
+#         instructions = result.get("instructions", rag_entry["instructions"])
 
         task = {
             "criterion": criterion,
@@ -105,13 +106,32 @@ Respond ONLY with a JSON object in this exact format, no explanation:
         tasks.append(task)
         print(f"PLAN AGENT: Task created for {criterion}")
 
-    # Sort by phase so dependencies are always evaluated before dependents
-    tasks.sort(key=lambda t: (query(t["criterion"], gene=gene, disease=disease) or {}).get("phase", 99))
+    result = defaultdict(list)
 
-    return tasks
+    for task in tasks:
+        rag_entry = query(task["criterion"], gene=gene, disease=disease) or {}
+
+        phase = rag_entry.get("phase", 4)
+
+        # Defensive normalization (in case phase is string or invalid)
+        try:
+            phase = int(phase)
+        except (TypeError, ValueError):
+            phase = 4
+
+        phase_key = f"phase {phase}" 
+
+        result[phase_key].append(task)
+
+    return {
+        "phase1": result.get("phase 1", []),
+        "phase2": result.get("phase 2", []),
+        "phase3": result.get("phase 3", []),
+        "phase4": result.get("phase 4", [])
+    }
 
 
-def run_plan(variant: str, disease: str, criteria: list[str]) -> list[dict]:
+def run_plan(variant: str, disease: str, criteria: list[str]):
     """
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.

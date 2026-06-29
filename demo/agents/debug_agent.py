@@ -7,6 +7,9 @@ from tools.utils import parse_json_response
 from .llm import invoke_llm
 from typing import Optional
 from config import MODELS
+from typing import Any, TypeAlias
+
+ToolResults: TypeAlias = dict[str, dict[str, Any]]
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -132,7 +135,7 @@ def _deterministic_check(task_output: dict) -> bool:
     return True
 
 
-def run_debug(task: dict, retry_count: int = 0) -> dict:
+def run_debug(task: dict, tool_results: ToolResults | None, retry_count: int = 0) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py.
     Runs the Task agent, checks output, retries if technical error found.
@@ -148,34 +151,38 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
 
     Returns the validated task output or a failure dict if retry limit hit.
     """
-    task_output = run_task(task)
+    task_output, tool_cache_update = run_task(task, tool_results = tool_results)
     print_task_summary(task_output)
 
     while retry_count < RETRY_LIMIT:
         # Fast path: structurally valid output skips LLM entirely
         if _deterministic_check(task_output):
-            return task_output
+            return task_output, tool_cache_update
 
         # Slow path: genuine structural problem — ask LLM for specific feedback
         result = check_technical(task_output)
 
         if result["pass"]:
-            return task_output
+            return task_output, tool_cache_update
 
         print(f"DEBUG AGENT: Technical error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
         print(f"Feedback: {result['feedback']}")
 
-        task_output = run_task(task, feedback=result["feedback"])
+        task_output, tool_cache_update = run_task(
+            task, 
+            tool_results = tool_results, 
+            feedback=result["feedback"]
+        )
         print_task_summary(task_output)
         retry_count += 1
 
     # check the final retry output before giving up
     if _deterministic_check(task_output):
-        return task_output
+        return task_output, tool_cache_update
 
     result = check_technical(task_output)
     if result["pass"]:
-        return task_output
+        return task_output, tool_cache_update
 
     return {
         "criterion": task.get("criterion"),
@@ -187,7 +194,7 @@ def run_debug(task: dict, retry_count: int = 0) -> dict:
         "disease": task.get("disease"),
         "status": "error",
         "error": f"Debug agent exceeded retry limit ({RETRY_LIMIT}) without resolving technical error"
-    }
+    }, tool_cache_update
 
 
 # if __name__ == "__main__":

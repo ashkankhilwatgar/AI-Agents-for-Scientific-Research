@@ -12,8 +12,11 @@ from tools.erepo import search_erepo_by_position, search_erepo_for_variant
 from tools.lovd import search_lovd_for_variant
 from data.planrag import query, get_gene_from_transcript, GENE_DB
 from .llm import invoke_llm
-from typing import Optional
+from typing import Optional, Any, TypeAlias
 from config import MODELS
+# from pipeline import ToolResults
+ToolResults: TypeAlias = dict[str, dict[str, Any]]
+
 
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
@@ -533,7 +536,13 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: str = None, disease: str = None) -> tuple[dict, str]:
+def run_tool(
+        tool_decision: dict, 
+        variant: str, 
+        rag_entry: dict | None = None, 
+        gene: str | None = None, 
+        disease: str | None = None
+) -> tuple[dict, str]:
     """
     Runs the selected tool and returns (result, actual_input_used).
     actual_input_used is the exact string passed to the API after any format conversion.
@@ -788,8 +797,8 @@ def interpret_evidence(
     tool_used: str,
     tool_input: str,
     evidence: dict,
-    rag_entry: dict = None,
-    feedback: str = None
+    rag_entry: dict | None = None,
+    feedback: str | None = None,
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
@@ -922,7 +931,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     return result
 
 
-def run_task(task: dict, feedback: str = None) -> dict:
+def run_task(task: dict, tool_results: ToolResults | None,  feedback: str | None = None) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py and by Debug/Judge agents on retry.
 
@@ -938,6 +947,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
     criterion = task["criterion"]
     variant = task["variant"]
     disease = task["disease"]
+    tool_cache_update = {}
 
     # Detect gene from transcript (NM_... prefix) so gene-specific planrag branches
     # and tool queries (erepo, PubMed) use the correct gene symbol.
@@ -969,10 +979,15 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "tool_input": None,
             "disease": disease,
             "status": "error",
-            "error": tool_decision["error"]
-        }
+            "error": tool_decision["error"],
+        }, tool_cache_update
 
-    evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
+    if tool_results is not None and tool_decision["tool"] in tool_results:
+        evidence = tool_results[tool_decision["tool"]]["evidence"]
+        actual_input = tool_results[tool_decision["tool"]]["actual_input"]
+    else: 
+        evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
+        tool_cache_update[tool_decision["tool"]] = {"evidence": evidence, "actual_input" : actual_input}
 
     if "error" in evidence:
         return {
@@ -984,15 +999,15 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "tool_input": actual_input,
             "disease": disease,
             "status": "error",
-            "error": evidence["error"]
-        }
+            "error": evidence["error"],
+        }, tool_cache_update
 
     return interpret_evidence(
         criterion, variant, disease,
         tool_decision["tool"], actual_input, evidence,
         rag_entry=rag_entry,
-        feedback=feedback
-    )
+        feedback=feedback,
+    ), tool_cache_update
 
 
 # if __name__ == "__main__":
