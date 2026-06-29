@@ -435,6 +435,46 @@ def hgvs_to_gnomad_format(hgvs: str) -> str:
     return result
 
 
+def get_gene_symbol_from_transcript(transcript_id: str) -> str | None:
+    """
+    Fallback: maps a RefSeq transcript ID (NM_...) to a gene symbol via NCBI eutils.
+    Used when VEP fails and gene_symbol cannot be extracted from VEP response.
+
+    Returns gene symbol string, or None on failure.
+    """
+    bare = transcript_id.split(".")[0]  # strip version, e.g. NM_014858.4 → NM_014858
+
+    try:
+        # Step 1: transcript accession → NCBI Gene ID
+        r1 = requests.get(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+            params={"db": "gene", "term": f"{bare}[accn]", "retmode": "json"},
+            timeout=10,
+        )
+        if r1.status_code != 200:
+            return None
+        ids = r1.json().get("esearchresult", {}).get("idlist", [])
+        if not ids:
+            return None
+        gene_id = ids[0]
+
+        # Step 2: Gene ID → gene symbol
+        r2 = requests.get(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+            params={"db": "gene", "id": gene_id, "retmode": "json"},
+            timeout=10,
+        )
+        if r2.status_code != 200:
+            return None
+        result = r2.json().get("result", {})
+        gene_info = result.get(gene_id, {})
+        symbol = gene_info.get("name") or gene_info.get("nomenclaturesymbol")
+        return symbol or None
+
+    except Exception:
+        return None
+
+
 def extract_json_from_response(raw: str) -> str:
     """
     Handles deepseek-r1 thinking blocks.

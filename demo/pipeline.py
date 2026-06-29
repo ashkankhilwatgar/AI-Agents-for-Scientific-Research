@@ -6,7 +6,7 @@ from agents.plan_agent import run_plan
 from agents.debug_agent import run_debug
 from agents.judge_agent import run_judge
 from agents.check_agent import run_check
-from tools.utils import get_variant_type
+from tools.utils import get_variant_type, get_gene_symbol_from_transcript
 from tools.scoring import classify
 from data.planrag import query, is_vcep_disease, ACMG_PLANRAG_DB
 
@@ -45,13 +45,15 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
         if allowed_types is None:
             # no restriction — criterion applies to all variant types
             filtered.append(criterion)
-        elif variant_type in allowed_types:
+        elif variant_type is not None and variant_type in allowed_types:
             filtered.append(criterion)
         else:
+            # variant_type is None (VEP failed) or doesn't match — exclude
             skipped.append((criterion, allowed_types))
 
     if skipped:
-        print(f"PIPELINE: Skipped {len(skipped)} criterion/criteria — not applicable to {variant_type} variants:")
+        reason = f"{variant_type} variants" if variant_type else "unknown variant type (VEP failed)"
+        print(f"PIPELINE: Skipped {len(skipped)} criterion/criteria — not applicable to {reason}:")
         for criterion, allowed in skipped:
             print(f"  - {criterion} (applies to: {allowed})")
 
@@ -77,8 +79,13 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
     gene_symbol = None
     if "error" in vep_result:
         print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
-        print("PIPELINE: Proceeding without variant type filtering")
         variant_type = None
+        # Fallback: get gene_symbol from NCBI when VEP fails
+        if variant.startswith("NM_") and ":" in variant:
+            transcript = variant.split(":")[0]
+            gene_symbol = get_gene_symbol_from_transcript(transcript)
+            if gene_symbol:
+                print(f"PIPELINE: Gene detected from NCBI fallback: {gene_symbol}")
     else:
         variant_type = vep_result["variant_type"]
         gene_symbol = vep_result.get("gene_symbol")
@@ -87,10 +94,10 @@ def run_pipeline(variant: str, disease: str) -> list[dict]:
         print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
+    # Always run filtering — when variant_type is None (VEP failed), conservatively
+    # exclude criteria with variant_type restrictions since we can't verify the type.
     base_criteria = get_criteria_for_disease(disease)
-    active_criteria = base_criteria
-    if variant_type is not None:
-        active_criteria = filter_criteria_by_variant_type(base_criteria, variant_type, disease=disease)
+    active_criteria = filter_criteria_by_variant_type(base_criteria, variant_type, disease=disease)
 
     # ── PLAN AGENT ────────────────────────────
     tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
