@@ -64,6 +64,16 @@ The following are NOT reasoning errors — do not flag these:
 - A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
   is valid if the proband count supports it.
 - Evidence showing a variant is absent from a database — absence is valid evidence.
+- The task agent concluding BP1 does NOT apply because the gene causes disease via missense variants.
+  BP1 requires that the gene causes disease PRIMARILY through truncating/LOF variants with missense
+  rarely pathogenic. If the task agent determined that missense variants are a known pathogenic
+  mechanism in the gene, BP1 not applying is the correct answer. Do NOT override this conclusion
+  based on your own belief about the disease mechanism — the task agent's gene-specific reasoning
+  must be respected. Only flag BP1 if the gnomAD gene constraint tool was not used at all, or if a
+  threshold comparison is demonstrably wrong (e.g. pLI value misread).
+- Similarly, the task agent concluding PP2 does NOT apply because mis_z is below threshold is correct
+  when the gnomAD gene tool was used and the threshold comparison is accurate. Do not override PP2
+  based on your own belief about whether missense variants are pathogenic in the gene.
 
 Task output:
 {json.dumps(task_output, indent=2)}

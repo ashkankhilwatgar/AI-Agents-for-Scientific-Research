@@ -662,7 +662,7 @@ PLANRAG_DB = {
         "phase": 4,
         "depends_on": [],
         "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
-        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site", "utr"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
             "HHT VCEP specifies thresholds at Supporting strength only: "
@@ -736,7 +736,7 @@ PLANRAG_DB = {
         "phase": 4,
         "depends_on": [],
         "blocked_by": ["PVS1"],   # computational evidence is redundant when PVS1 (null variant) applies
-        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site", "utr"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene product. "
             "HHT VCEP thresholds at Supporting strength only: "
@@ -1549,7 +1549,7 @@ ACMG_PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
-        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site", "utr"],
         "description": (
             "Multiple lines of computational evidence support a deleterious effect. "
             "ClinGen SVI calibrated thresholds: REVEL >= 0.644 (missense) OR SpliceAI >= 0.2. "
@@ -1657,7 +1657,7 @@ ACMG_PLANRAG_DB = {
         "tool": "revel_spliceai",
         "phase": 4,
         "depends_on": [],
-        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site"],
+        "variant_types": ["missense", "synonymous", "intronic", "splice_region", "splice_site", "utr"],
         "description": (
             "Multiple lines of computational evidence suggest no impact on gene or gene product. "
             "ClinGen SVI calibrated thresholds: REVEL <= 0.290 AND SpliceAI <= 0.1 for missense. "

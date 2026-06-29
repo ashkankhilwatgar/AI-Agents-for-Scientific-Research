@@ -42,3 +42,6 @@ ACMG python3.12 -m pipeline --variant "NM_014946.4:c.1688-2A>G" --disease "ACMG"
 python3 -m pipeline --variant "NM_014858.4:c.1676G>A" --disease "ACMG"
 
 
+6/29/26
+Ashkan
+Fixed some prompts for a few criterion, got started on incorporation more VCEPs

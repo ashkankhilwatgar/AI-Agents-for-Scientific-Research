@@ -69,6 +69,7 @@ def _apply_incompatibilities(
         target = rule.get("target")
         target_result = applied.get(target, {})
 
+        required_strength = "unknown"
         if "applied_strength ==" in condition:
             # e.g. "PM5 applied_strength == strong"
             _, rhs = condition.split("==")

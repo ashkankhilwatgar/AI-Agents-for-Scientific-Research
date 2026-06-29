@@ -163,9 +163,8 @@ def get_variant_type(variant: str) -> dict:
                 _SEVERITY_ORDER = list(CONSEQUENCE_MAP.keys())
                 best = None
                 for term in terms:
-                    if best is None or (term in _SEVERITY_ORDER and
-                            (_SEVERITY_ORDER.index(term) <
-                             _SEVERITY_ORDER.index(best) if best in _SEVERITY_ORDER else True)):
+                    if best is None or best not in _SEVERITY_ORDER or (term in _SEVERITY_ORDER and
+                            _SEVERITY_ORDER.index(term) < _SEVERITY_ORDER.index(best)):
                         best = term
                 raw_consequence = best
 
@@ -516,4 +515,11 @@ def parse_json_response(raw: str) -> dict:
             "feedback": "Judge agent could not find JSON object in model response"
         }
 
-    return json.loads(text[start:end])
+    try:
+        return json.loads(text[start:end])
+    except json.JSONDecodeError:
+        return {
+            "pass": False,
+            "error_type": "reasoning",
+            "feedback": "Judge agent received malformed JSON from model"
+        }

@@ -325,6 +325,26 @@ def search_clinvar_for_exact_variant(hgvs: str) -> dict:
             except Exception:
                 pass
 
+    # Step 2b: gnomAD-format fallback — "chrom-pos-ref-alt" → ClinVar chromosome position search
+    if not id_list:
+        gnomad_parts = re.match(r'^(\d+|X|Y|MT)-(\d+)-([ACGT]+)-([ACGT]+)$', hgvs)
+        if gnomad_parts:
+            chrom, pos = gnomad_parts.group(1), gnomad_parts.group(2)
+            try:
+                r3 = requests.get(
+                    CLINVAR_SEARCH_URL,
+                    params={"db": "clinvar",
+                            "term": f"{chrom}[CHR] AND {pos}[CHRPOS38]",
+                            "retmax": 10, "retmode": "json", **_BASE_PARAMS},
+                    timeout=15,
+                )
+                r3.raise_for_status()
+                id_list = r3.json().get("esearchresult", {}).get("idlist", [])
+                if id_list:
+                    print(f"DEBUG - ClinVar exact: gnomAD position fallback for {hgvs}")
+            except Exception:
+                pass
+
     if not id_list:
         return {
             "found": False,

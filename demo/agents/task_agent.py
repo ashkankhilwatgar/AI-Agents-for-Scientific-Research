@@ -438,7 +438,9 @@ def run_tool(tool_decision: dict, variant: str, rag_entry: dict = None, gene: st
         return revel_result, input_value
 
     elif tool == "spliceai":
-        return query_spliceai(input_value), input_value
+        spliceai_result = query_spliceai(input_value)
+        spliceai_result = _annotate_spliceai(spliceai_result)
+        return spliceai_result, input_value
 
     elif tool == "erepo":
         if not gene:
@@ -570,7 +572,8 @@ def interpret_evidence(
     tool_input: str,
     evidence: dict,
     rag_entry: dict = None,
-    feedback: str = None
+    feedback: str = None,
+    variant_type: str = None
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
@@ -616,9 +619,11 @@ Correct this specific error in your response.
     else:
         strength_note = '\n"applied_strength": null,  ← will be set automatically, leave null'
 
+    variant_type_line = f"\nVariant type: {variant_type}" if variant_type else ""
+
     prompt = f"""You are a variant classification assistant applying ACMG criteria.
 
-Variant: {variant}
+Variant: {variant}{variant_type_line}
 Disease: {disease}
 Criterion: {criterion}
 Tool used: {tool_used}
@@ -742,7 +747,8 @@ def run_task(task: dict, feedback: str = None) -> dict:
         tool_decision = {"tool": task["tool"], "reason": "specified by Plan agent"}
 
     # check tool selection itself didn't fail
-    if "error" in tool_decision:
+    if "error" in tool_decision or "tool" not in tool_decision:
+        error_msg = tool_decision.get("error") or tool_decision.get("feedback", "Tool selection returned invalid response")
         return {
             "criterion": criterion,
             "evidence": None,
@@ -752,7 +758,7 @@ def run_task(task: dict, feedback: str = None) -> dict:
             "tool_input": None,
             "disease": disease,
             "status": "error",
-            "error": tool_decision["error"]
+            "error": error_msg
         }
 
     evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
@@ -774,7 +780,8 @@ def run_task(task: dict, feedback: str = None) -> dict:
         criterion, variant, disease,
         tool_decision["tool"], actual_input, evidence,
         rag_entry=rag_entry,
-        feedback=feedback
+        feedback=feedback,
+        variant_type=task.get("variant_type")
     )
 
 
