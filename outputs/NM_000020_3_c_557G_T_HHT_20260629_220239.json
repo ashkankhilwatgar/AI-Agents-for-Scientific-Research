@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260629_220239",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD total allele count (AC) = 1.",
+      "reasoning": "The total allele count (AC) across all gnomAD populations is 1. This is less than the threshold of 6, triggering PM2_SUPPORTING based on Step 2 of the classification rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD Popmax FAF = 0.0.",
+      "reasoning": "The Popmax FAF (0.0) is less than the BA1 threshold of 0.01. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD Popmax FAF is 0.0, and total homozygote count (ac_hom) is 0.",
+      "reasoning": "STEP 1: Popmax FAF (0.0) is not >= 0.01, so BA1 does not apply. \nSTEP 2: Popmax FAF (0.0) is not > 0.0008, so BS1_Strong via the homozygote route does not apply. \nSTEP 3: Popmax FAF (0.0) is not > 0.002, so BS1_Strong via the FAF route does not apply. \nSTEP 4: Popmax FAF (0.0) is not > 0.0008, so BS1_Supporting does not apply. \nTherefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.557G>T results in a missense change p.Ser186Ile in the ACVRL1 protein. The amino acid change occurs at protein position 186.",
+      "reasoning": "The protein position of the variant is 186. According to the PM1 classification rules, PM1 applies if the variant residue is in one of the specified critical regions: glycine-rich loop (209-216), phosphate anchor (229), C-helix E (242), catalytic loop (329-335), metal-binding loop (348-351), or the BMP10 interaction cluster (40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). Protein position 186 does not fall within any of these defined critical regions.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands reported; ERepo: not queried; LOVD: not queried; PubMed: not queried",
+      "reasoning": "The ClinVar HHT VCEP submission for NM_000020.3:c.557G>T explicitly states that 'This variant has been reported in 2 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia'. According to the PS4 classification rules, a count of 2 probands results in PS4_Moderate. The instruction to not count probands qualifying for PP4_Moderate is noted, but the VCEP's explicit application of PS4_Moderate based on 2 probands suggests this count is the appropriate one for PS4.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved.",
+      "reasoning": "The provided functional evidence dictionary contains an empty list of experiments. According to Shortcut A of the PS3 classification rules, if there are no experiments, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915; SpliceAI scores: DS_AG=0.0000, DS_AL=0.0100, DS_DG=0.0000, DS_DL=0.0000",
+      "reasoning": "The variant is missense. Following BRANCH A for missense variants, Step 1 checks if 'PP3 REVEL (>= 0.644): APPLIES'. The '_computed.verdicts' explicitly states 'PP3 REVEL (>= 0.644): APPLIES (score=0.9150)'. Since the REVEL score (0.915) meets the threshold of 0.644, PP3 applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915. SpliceAI max score: 0.01. BP4 REVEL HHT threshold (<= 0.15): FAILS. BP4 SpliceAI (all scores <= 0.1): PASSES.",
+      "reasoning": "The variant is missense. Following BRANCH A, Step 1: The verdict 'BP4 REVEL HHT threshold (<= 0.15): FAILS' means the REVEL condition for BP4 is not met. Since both conditions must be true for missense variants, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Debug agent exceeded retry limit (2) without resolving technical error"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for this variant.",
+      "reasoning": "According to Shortcut B for BS3, if there are no experiments, BS3 does NOT apply. The provided evidence contains an empty list of experiments.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "complete"
+    }
+  ]
+}

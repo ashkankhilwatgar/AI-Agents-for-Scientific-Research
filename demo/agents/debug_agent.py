@@ -135,7 +135,7 @@ def _deterministic_check(task_output: dict) -> bool:
     return True
 
 
-def run_debug(task: dict, tool_results: ToolResults | None, retry_count: int = 0) -> tuple[dict, dict]:
+def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | None, retry_count: int = 0) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py.
     Runs the Task agent, checks output, retries if technical error found.
@@ -151,7 +151,7 @@ def run_debug(task: dict, tool_results: ToolResults | None, retry_count: int = 0
 
     Returns the validated task output or a failure dict if retry limit hit.
     """
-    task_output, tool_cache_update = run_task(task, tool_results = tool_results)
+    task_output, tool_cache_update = run_task(task, gene_symbol=gene_symbol, tool_results = tool_results)
     print_task_summary(task_output)
 
     while retry_count < RETRY_LIMIT:
@@ -171,6 +171,7 @@ def run_debug(task: dict, tool_results: ToolResults | None, retry_count: int = 0
         task_output, tool_cache_update = run_task(
             task, 
             tool_results = tool_results, 
+            gene_symbol=gene_symbol,
             feedback=result["feedback"]
         )
         print_task_summary(task_output)

@@ -42,7 +42,7 @@ def call_judge_agent(prompt: str) -> str:
 # def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
 #     return invoke_llm("judge_agent", prompt)
 
-def fix_formatting(task_output: dict) -> dict:
+def fix_formatting(task_output: dict) -> tuple[dict, list]:
     """
     Fixes formatting errors in the task output deterministically where possible.
     Falls back to LLM only for fields that require rewriting.
@@ -135,7 +135,7 @@ def run_check(task_output: dict) -> dict:
         print(f"  - {issue}")
 
     corrected, fixes = fix_formatting(task_output)
-
+# 
     print(f"CHECK AGENT: Applied {len(fixes)} fix(es):")
     for fix in fixes:
         print(f"  - {fix}")

@@ -16,7 +16,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
 
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
-HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4"]
+HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4", "BS3", "PS3"]
 
 # ACMG criteria — all automatable/partially-automatable entries in ACMG_PLANRAG_DB
 # (deferred entries are filtered out by plan_agent, but excluded here too for clarity)
@@ -100,6 +100,7 @@ class OverallState(TypedDict):
     criterion_results: Annotated[CriterionResults, merge_criterion_results]
     variant_type: str | None 
     disease: str
+    gene_symbol: str | None
 
 class PerCriterionState(TypedDict):
     task: dict[str, str]
@@ -107,12 +108,13 @@ class PerCriterionState(TypedDict):
     disease: str
     previous_results: CriterionResults
     tool_results: ToolResults
+    gene_symbol: str | None
 
 # ==================================
 # Langgraph Nodes
 # ==================================
 
-def fan_in(state: OverallState):
+def fan_in_after_phase_1(state: OverallState):
     """
     Fan-in node that synchronizes phase completion in the LangGraph pipeline.
 
@@ -122,6 +124,51 @@ def fan_in(state: OverallState):
     Returns:
         Empty dict to trigger state continuation without modification.
     """
+    phase1_tasks = state["tasks"]["phase1"]
+    phase1_criterions = [task["criterion"] for task in phase1_tasks]
+    
+    print(f"\n{'-'*60}")
+    print("PHASE 1 COMPLETE")
+    print(f"CHECKED: {', '.join(phase1_criterions)}")
+    print(f"\n{'-'*60}")
+    return {}
+
+def fan_in_after_phase_2(state: OverallState):
+    """
+    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
+
+    Acts as a barrier node after parallel criterion execution, allowing the graph
+    to merge results before proceeding to the next phase.
+
+    Returns:
+        Empty dict to trigger state continuation without modification.
+    """
+    phase2_tasks = state["tasks"]["phase2"]
+    phase2_criterions = [task["criterion"] for task in phase2_tasks]
+
+    print(f"\n{'-'*60}")
+    print("PHASE 2 COMPLETE")
+    print(f"CHECKED: {', '.join(phase2_criterions)}")
+    print(f"\n{'-'*60}")
+    return {}
+
+def fan_in_after_phase_3(state: OverallState):
+    """
+    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
+
+    Acts as a barrier node after parallel criterion execution, allowing the graph
+    to merge results before proceeding to the next phase.
+
+    Returns:
+        Empty dict to trigger state continuation without modification.
+    """
+    phase3_tasks = state['tasks']["phase3"]
+    phase3_criterions = [task["criterion"] for task in phase3_tasks]
+
+    print(f"\n{'-'*60}")
+    print("PHASE 3 COMPLETE")
+    print(f"CHECKED: {', '.join(phase3_criterions)}")
+    print(f"\n{'-'*60}")
     return {}
 
 def process_criterion(state: PerCriterionState):
@@ -138,6 +185,7 @@ def process_criterion(state: PerCriterionState):
     disease = state["disease"]
     previous_results = state["previous_results"]
     tool_results = state["tool_results"]
+    gene_symbol = state["gene_symbol"]
 
     # ── PRECONDITION CHECK ────────────────────
     rag_entry = query(criterion, disease=disease)
@@ -178,11 +226,11 @@ def process_criterion(state: PerCriterionState):
     print(f"{'─'*60}")
 
     # ── DEBUG AGENT (runs Task agent internally) ──
-    print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
-    debug_output, tool_cache_update = run_debug(task, tool_results = tool_results)
+    # print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
+    debug_output, tool_cache_update = run_debug(task, gene_symbol = gene_symbol, tool_results = tool_results)
 
     if debug_output.get("status") == "error":
-        print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
+        # print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
 
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): debug_output},
@@ -190,11 +238,11 @@ def process_criterion(state: PerCriterionState):
         }  
 
     # ── JUDGE AGENT ───────────────────────
-    print(f"\n[2/3] JUDGE AGENT — checking reasoning")
-    judge_output = run_judge(task, debug_output)
+    # print(f"\n[2/3] JUDGE AGENT — checking reasoning")
+    judge_output, tool_cache_update = run_judge(task, tool_results, debug_output)
 
     if judge_output.get("status") == "error":
-        print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
+        # print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
 
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): judge_output},
@@ -202,7 +250,7 @@ def process_criterion(state: PerCriterionState):
             }  
 
     # ── CHECK AGENT ───────────────────────
-    print(f"\n[3/3] CHECK AGENT — validating formatting")
+    # print(f"\n[3/3] CHECK AGENT — validating formatting")
     final_output = run_check(judge_output)
 
     print(f"\nPIPELINE: {criterion} complete")
@@ -224,7 +272,8 @@ def fan_out_before_phase_1(state: OverallState):
         "variant_type": state["variant_type"],
         "disease": state["disease"],
         "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"]
+        "tool_results": state["tool_results"],
+        "gene_symbol": state["gene_symbol"]
     }) for task in state["tasks"]["phase1"]]
 
 def fan_out_before_phase_2(state: OverallState):
@@ -236,7 +285,8 @@ def fan_out_before_phase_2(state: OverallState):
         "variant_type": state["variant_type"],
         "disease": state["disease"],
         "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"]
+        "tool_results": state["tool_results"],
+        "gene_symbol": state["gene_symbol"]
     }) for task in state["tasks"]["phase2"]]
 
 def fan_out_before_phase_3(state: OverallState):
@@ -248,7 +298,8 @@ def fan_out_before_phase_3(state: OverallState):
         "variant_type": state["variant_type"],
         "disease": state["disease"],
         "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"]
+        "tool_results": state["tool_results"],
+        "gene_symbol": state["gene_symbol"]
     }) for task in state["tasks"]["phase3"]]
 
 def fan_out_before_phase_4(state: OverallState):
@@ -260,7 +311,8 @@ def fan_out_before_phase_4(state: OverallState):
         "variant_type": state["variant_type"],
         "disease": state["disease"],
         "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"]
+        "tool_results": state["tool_results"],
+        "gene_symbol": state["gene_symbol"]
     }) for task in state["tasks"]["phase4"]]
         
 # ==================================
@@ -274,11 +326,11 @@ def build_graph():
 
     # NODES
     graph_builder.add_node("process_phase_1_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_1", fan_in)
+    graph_builder.add_node("fan_in_after_phase_1", fan_in_after_phase_1)
     graph_builder.add_node("process_phase_2_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_2", fan_in)
+    graph_builder.add_node("fan_in_after_phase_2", fan_in_after_phase_2)
     graph_builder.add_node("process_phase_3_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_3", fan_in)
+    graph_builder.add_node("fan_in_after_phase_3", fan_in_after_phase_3)
     graph_builder.add_node("process_phase_4_criterion", process_criterion)
 
     # EDGES
@@ -299,6 +351,7 @@ def process_criterions_in_parallel(
         tasks: Tasks,
         variant_type: str | None,
         disease: str,
+        gene_symbol: str | None
 ) -> dict[str, Any]:
     """
     Runs ACMG/VCEP criterion evaluation in parallel using a LangGraph pipeline.
@@ -323,6 +376,7 @@ def process_criterions_in_parallel(
         "criterion_results": {},
         "variant_type": variant_type,
         "disease": disease,
+        "gene_symbol": gene_symbol
     }
 
     state = graph.invoke(initial_state)
@@ -354,7 +408,7 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
         gene_symbol = vep_result.get("gene_symbol")
         if gene_symbol:
             print(f"PIPELINE: Gene detected from VEP: {gene_symbol}")
-        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['raw_consequence']})")
+        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['variant_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
     base_criteria = get_criteria_for_disease(disease)
@@ -364,7 +418,8 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
 
     # ── PLAN AGENT ────────────────────────────
     tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
-    # print(tasks)
+
+    print(tasks)
 
     if not tasks:
         print("PIPELINE: Plan agent returned no tasks. Exiting.")
@@ -374,7 +429,8 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     results = process_criterions_in_parallel(
         tasks=tasks,
         variant_type=variant_type,
-        disease=disease
+        disease=disease,
+        gene_symbol=gene_symbol
     )
     
     results_list = list(results["criterion_results"].values())

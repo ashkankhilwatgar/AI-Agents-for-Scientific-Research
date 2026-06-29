@@ -87,6 +87,20 @@ ACMG python3.12 -m pipeline --variant "NM_014946.4:c.1688-2A>G" --disease "ACMG"
 
 2. Command line to test the TMCC2 missense (the one with PM5/PS1/BP1 failures):
 
+```bash
 python3 -m pipeline --variant "NM_014858.4:c.1676G>A" --disease "ACMG"
+```
+
+
+06/29/2026 Simon
+1. Finish implementing parallel agents. Currently I didn't comment out all the print statements, but do note that as we let agents run in paralle the print statements do get messy. 
+2. My next step is to try to implement a real rag. Hopefully I will finish that tomorrow. I will also think about other langgraph & langchain tools that we can use in our pipeline.
+3. The pipeline runtime is approximately 1.5 to 2 min after implementing the parallel agents. 
+4. I also run our pipeline on the first transcript (NM_000020.3:c.557G>T). The result is (for that variant only PP4_moderate, PM2_supporting, PS4_moderare, and PP3 holds, and currently we don't check PP4_moderate so I only look at PM2_supporting, PS4_moderare, and PP3 )
+  - Round 1:  PM2_supporting, PS4_moderare -> Correct; PP3 -> Incorrect; PM5, PS1 -> failed
+  - Round 2: PM2_supporting, PS4_moderare, PP3 -> Correct; PM5, PS1 -> failed
+  - Round 3: PM2_supporting, PS4_moderare, PP3 -> Correct; PM5, PS1 -> failed
+
+
 
 

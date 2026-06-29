@@ -4,10 +4,11 @@ import json
 from data.planrag import query
 from tools.utils import parse_json_response
 from .llm import invoke_llm
-from typing import Optional
+from typing import Optional, TypeAlias
 from config import MODELS
 from data.planrag import get_gene_from_transcript
 from collections import defaultdict
+Tasks: TypeAlias = dict[str, list[dict[str, str]]]
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -137,7 +138,7 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     }
 
 
-def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> list[dict]:
+def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> Task:
     """
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.

@@ -6,8 +6,9 @@ from agents.task_agent import run_task
 from tools.utils import parse_json_response
 from data.planrag import query, get_gene_from_transcript
 from .llm import invoke_llm
-from typing import Optional
+from typing import Optional, TypeAlias, Any
 from config import MODELS
+ToolResults: TypeAlias = dict[str, dict[str, Any]]
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -38,7 +39,7 @@ def call_judge_agent(prompt: str) -> str:
     )
     return response
 
-def check_reasoning(task_output: dict, rag_entry: dict = None) -> dict:
+def check_reasoning(task_output: dict, rag_entry: dict | None = None) -> dict:
     """
     Evaluates Task agent output for reasoning errors.
     Returns a pass/fail dict with feedback if failed.
@@ -94,7 +95,7 @@ Respond ONLY with a JSON object in this exact format, no explanation:
     return parse_json_response(raw)
 
 
-def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
+def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_count: int = 0) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py.
     Receives validated task output from Debug agent.
@@ -114,24 +115,25 @@ def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
 
     if rag_entry is None:
         print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
+    tool_cache_update = {}
 
     while retry_count < RETRY_LIMIT:
         result = check_reasoning(task_output, rag_entry)
 
         if result["pass"]:
-            return task_output
+            return task_output, tool_cache_update
 
         print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
         print(f"Feedback: {result['feedback']}")
 
         # get new output from Task agent with correction feedback
-        task_output = run_task(task, feedback=result["feedback"])
+        task_output, tool_cache_update = run_task(task, tool_results=tool_result, feedback=result["feedback"])
         retry_count += 1
 
     # check the final retry output before giving up
     result = check_reasoning(task_output, rag_entry)
     if result["pass"]:
-        return task_output
+        return task_output, tool_cache_update
 
     return {
         "criterion": task.get("criterion"),
@@ -143,7 +145,7 @@ def run_judge(task: dict, task_output: dict, retry_count: int = 0) -> dict:
         "disease": task.get("disease"),
         "status": "error",
         "error": f"Judge agent exceeded retry limit ({RETRY_LIMIT}) without resolving reasoning error"
-    }
+    }, tool_cache_update
 
 
 # if __name__ == "__main__":

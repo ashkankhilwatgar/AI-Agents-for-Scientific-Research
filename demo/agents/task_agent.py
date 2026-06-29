@@ -496,7 +496,7 @@ def call_task_agent(prompt: str) -> str:
     return response
 
 
-def select_tool(criterion: str, variant: str, disease: str = None, feedback: str = None) -> dict:
+def select_tool(criterion: str, variant: str, disease: str | None = None, feedback: str | None = None) -> dict:
     """
     Called only on retry — first attempt always uses task["tool"] from the plan.
     feedback is the Judge agent's correction from the previous attempt.
@@ -961,7 +961,7 @@ NOTE: Only include the "error" field if status is "error". Omit it entirely when
     return result
 
 
-def run_task(task: dict, tool_results: ToolResults | None,  feedback: str | None = None) -> tuple[dict, dict]:
+def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | None, feedback: str | None = None) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py and by Debug/Judge agents on retry.
 
@@ -987,7 +987,7 @@ def run_task(task: dict, tool_results: ToolResults | None,  feedback: str | None
     if gene:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
     elif task.get("gene_symbol"):
-        gene = task["gene_symbol"]
+        gene = gene_symbol
         print(f"TASK AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 
     rag_entry = query(criterion, gene=gene, disease=disease)

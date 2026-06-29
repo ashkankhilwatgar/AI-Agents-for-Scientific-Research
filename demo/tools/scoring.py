@@ -25,7 +25,7 @@ Outputs:
 from data.planrag import query as planrag_query
 
 
-def _get_scoring_entry(disease: str = None) -> dict:
+def _get_scoring_entry(disease: str | None = None) -> dict:
     return planrag_query("SCORING", disease=disease)
 
 

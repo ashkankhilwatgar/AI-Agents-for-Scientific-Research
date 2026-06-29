@@ -127,7 +127,7 @@ def search_erepo_by_position(gene: str, codon_position: int) -> dict:
     }
 
 
-def search_erepo_for_variant(gene: str, cdna_change: str) -> dict:
+def search_erepo_for_variant(gene: str | None, cdna_change: str) -> dict:
     """
     Searches the ClinGen ERepo for a specific variant by gene and cDNA change.
     Used by PS4 to retrieve the VCEP's curated evidence for this exact variant,
