@@ -41,13 +41,20 @@ OLLAMA_BASE_URL="http://150.209.23.239:11434"
 
 RETRY_LIMIT=2
 
-# Free-tier Gemini quota is 5 requests/minute PER MODEL
-# (generativelanguage.googleapis.com/generate_content_free_tier_requests).
-# Our LangGraph pipeline fans criteria out in parallel, so several agents can
-# try to call the same Gemini model within the same minute. The LLM wrapper
-# throttles calls to this rate so they queue instead of getting 429'd.
-# Raise this if you move to a paid tier with a higher requests-per-minute limit.
-GEMINI_REQUESTS_PER_MINUTE = 5
+# Raised from the free-tier default (5) now that we're on a paid tier.
+# This is still shared PER MODEL across every concurrently-running variant
+# (see run_pipeline_batch in pipeline.py) — with --max-concurrency > 1, all
+# variants calling the same model queue against this same limit. Raise
+# further if you confirm a higher RPM ceiling for your actual paid tier/model.
+GEMINI_REQUESTS_PER_MINUTE = 50
+
+# gnomAD's public GraphQL API has no published rate limit, but returns HTTP 429
+# when several variants' BA1/BS1 (and PP2/BP1 gene-constraint) queries land at
+# the same instant — which happens routinely now that variants run concurrently
+# (see run_pipeline_batch in pipeline.py, and the shared rate limiter in
+# tools/gnomad.py). Lower this if 429s still show up; raise it if things feel
+# unnecessarily slow and you're not seeing 429s.
+GNOMAD_REQUESTS_PER_MINUTE = 60
 
 
 

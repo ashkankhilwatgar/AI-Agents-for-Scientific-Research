@@ -24,8 +24,6 @@ def get_gene_info(gene_symbol: str) -> dict | None:
     if gene_symbol in _CACHE:
         return _CACHE[gene_symbol]
 
-    last_error = "No attempts made"
-
     for attempt in range(MAX_RETRIES):
         try:
             r = requests.get(
@@ -36,7 +34,6 @@ def get_gene_info(gene_symbol: str) -> dict | None:
             )
 
             if r.status_code in (429, 500, 503):
-                last_error = f"HTTP {r.status_code}"
                 time.sleep(RETRY_DELAY * (attempt + 1))
                 continue
 
@@ -46,7 +43,6 @@ def get_gene_info(gene_symbol: str) -> dict | None:
                 return None
 
             if r.status_code != 200:
-                last_error = f"HTTP {r.status_code}: {r.text[:200]}"
                 continue
 
             data = r.json()
@@ -93,13 +89,11 @@ def get_gene_info(gene_symbol: str) -> dict | None:
             _CACHE[gene_symbol] = result
             return result
 
-        except requests.RequestException as e:
-            last_error = str(e)
+        except requests.RequestException:
             time.sleep(RETRY_DELAY)
             continue
 
     # All retries exhausted
-    print(f"GENE_INFO: Ensembl lookup failed for {gene_symbol} after {MAX_RETRIES} retries: {last_error}")
     _CACHE[gene_symbol] = None
     return None
 

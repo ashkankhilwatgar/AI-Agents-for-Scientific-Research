@@ -207,7 +207,7 @@ def annotate_variant(variant: str) -> dict:
                 continue
 
             data = response.json()
-            # print(data)
+            # log(data)
 
             if not data or not isinstance(data, list):
                 last_error = "VEP returned empty or non-list response"
@@ -355,4 +355,4 @@ if __name__ == "__main__":
     # Example usage
     variant = "NM_000020.3:c.557G>T"  
     result = annotate_variant(variant)
-    # print(result)
+    # log(result)

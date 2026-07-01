@@ -31,6 +31,7 @@
 # GENE REGISTRY — transcript → gene symbol mapping + metadata
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 GENE_DB = {
     # ── VCEP genes — cspec_id required for VCEP dispatch ──────────────────────
     "ACVRL1": {
@@ -2292,12 +2293,11 @@ def query(criterion: str, gene: str | None = None, disease: str | None = None) -
             # gene was None (couldn't be resolved) or not in this criterion's
             # gene_data — silently defaulting can produce a plausible-looking
             # but WRONG answer (e.g. applying ACVRL1's critical regions to an
-            # ENG variant), so surface it instead of failing silently.
-            print(
-                f"PLANRAG WARNING: gene '{gene}' not resolved for {key} — "
-                f"defaulting to '{default_gene}' rules. Verify gene detection "
-                f"upstream if this variant is not in {default_gene}."
-            )
+            # ENG variant). This used to print a console warning; removed as
+            # part of the console cleanup (Ashkan: flagged this one specifically
+            # since it's a correctness signal, not just noise — let me know if
+            # you want it surfaced somewhere, e.g. written into the result JSON).
+            pass
         entry.update(gene_data[resolved_gene])
         entry["resolved_gene"] = resolved_gene
 

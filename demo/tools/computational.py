@@ -218,14 +218,5 @@ if __name__ == "__main__":
     TEST_HGVS = "NM_000020.3:c.557G>T"
     TEST_GNOMAD = "12-51914005-G-T"
 
-    print("=== query_revel_spliceai (HGVS input) ===")
-    print(json.dumps(query_revel_spliceai(TEST_HGVS), indent=2))
 
-    print("\n=== query_spliceai (HGVS input) ===")
-    print(json.dumps(query_spliceai(TEST_HGVS), indent=2))
 
-    print("\n=== query_spliceai (gnomAD input) ===")
-    print(json.dumps(query_spliceai(TEST_GNOMAD), indent=2))
-
-    print("\n=== query_revel only ===")
-    print(json.dumps(query_revel(TEST_GNOMAD), indent=2))

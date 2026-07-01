@@ -1,0 +1,110 @@
+{
+  "variant": "NM_001114753.3:c.144_145dup",
+  "disease": "HHT",
+  "timestamp": "20260701_171655_570765",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is absent from the gnomAD database (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant was not found in gnomAD (total AC = 0), Step 1 triggers a positive decision, and PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is absent from gnomAD (Popmax FAF = 0.0, total AC = 0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax Filtering Allele Frequency (FAF) is >= 0.01 (1%). Since the variant is absent from gnomAD (Popmax FAF = 0.0), the frequency is below the threshold, and BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the BS1 classification rules, we first check if BA1 applies (popmax FAF >= 0.01), which it does not. Next, we check for BS1_Strong via the homozygote route (popmax FAF > 0.0008 and <= 0.002 with >= 2 homozygotes) and the FAF route (popmax FAF > 0.002 and < 0.01), neither of which are met. Finally, we check for BS1_Supporting (popmax FAF > 0.0008 and <= 0.002), which is also not met because the popmax FAF is 0.0. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "The variant NM_001114753.3:c.144_145dup was searched across ClinVar, ERepo, LOVD, and PubMed, yielding 0 probands. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG (c.144_145dup OR p.Gln48QX OR p.Q48QX) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "NM_001114753.3:c.144_145dup is a frameshift variant (p.Gln48QX) at codon position 48 in the ENG gene. Loss of function is an established mechanism of disease for ENG in HHT.",
+      "reasoning": "The variant is a frameshift predicted to undergo nonsense-mediated decay (NMD) because its codon position (48) is well upstream of the NMD boundary (codon 594). According to the ENG-specific PVS1 decision tree, a nonsense or frameshift variant predicted to undergo NMD qualifies for PVS1 at a very strong strength level.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT",
+      "status": "error",
+      "error": "functional_evidence tool temporarily disabled \u2014 see agents/task_agent.py"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT",
+      "status": "error",
+      "error": "functional_evidence tool temporarily disabled \u2014 see agents/task_agent.py"
+    }
+  ],
+  "error": null
+}

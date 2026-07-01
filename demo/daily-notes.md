@@ -106,4 +106,13 @@ Let the agents always produce structured output by feeding it an output schema.
 
 
 
+7/1/26
+Ashkan
+Agents working in parallel by variant in ashkan-fixes branch.
+Cleaned up the output to be understandable
+Had to temporarily comment out PS3/BS3 because they were hitting API limits and crashing the pipeline. 
+Used google cloud API instead of the free api.
+
+
+
 

@@ -1,6 +1,9 @@
 import argparse
+import csv
 import json
 import os
+import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from agents.plan_agent import run_plan
 from agents.debug_agent import run_debug
@@ -9,11 +12,8 @@ from agents.check_agent import run_check
 from tools.vep import annotate_variant
 from tools.scoring import classify
 from data.planrag import query, is_vcep_disease, ACMG_PLANRAG_DB
-from typing_extensions import TypedDict, Annotated
-import operator
 from typing import Any, TypeAlias
-from langgraph.graph import StateGraph, START, END
-from langgraph.types import Send
+from pipeline_logging import log
 
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
 HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4", "BS3", "PS3"]
@@ -37,7 +37,6 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
     A criterion with variant_types = [...] is only kept if variant_type is in that list.
     """
     filtered = []
-    skipped = []
 
     for criterion in criteria:
         entry = query(criterion, disease=disease)
@@ -51,141 +50,48 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
             filtered.append(criterion)
         elif variant_type in allowed_types:
             filtered.append(criterion)
-        else:
-            skipped.append((criterion, allowed_types))
-
-    if skipped:
-        print(f"PIPELINE: Skipped {len(skipped)} criterion/criteria — not applicable to {variant_type} variants:")
-        for criterion, allowed in skipped:
-            print(f"  - {criterion} (applies to: {allowed})")
+        # else: criterion doesn't apply to this variant_type — silently
+        # excluded. It just won't show up in the "variant | criterion |
+        # applies=" console lines or the output JSON for this variant.
 
     return filtered
 
 # ==================================
-# Type alias for langgraph states
+# Type aliases
 # ==================================
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
 Tasks: TypeAlias = dict[str, list[dict[str, str]]]
 CriterionResults: TypeAlias = dict[str, dict[str, Any]]
 
 # ==================================
-# Stategraph reducer
+# Criterion processing
 # ==================================
-def merge_tool_results(
-        left: ToolResults,
-        right: ToolResults
-) -> ToolResults:
-    """
-    Merges tool result dictionaries in LangGraph state updates.
-    Later values override earlier ones on key conflicts.
-    """
-    return {**left, **right}
+# Criteria used to run in parallel per phase via a LangGraph StateGraph with
+# Send-based fan-out. That's been removed — criteria within a variant now
+# run strictly sequentially, phase by phase, in a plain loop. The only
+# parallelism left is across variants (see run_pipeline_batch below).
 
-def merge_criterion_results(
-        left: CriterionResults,
-        right: CriterionResults
-) -> CriterionResults:
-    """
-    Merges criterion result dictionaries in LangGraph state updates.
-    Later results overwrite existing entries with the same key.
-    """
-    return {**left, **right}
-
-# ==================================
-# Langgraph States
-# ==================================
-class OverallState(TypedDict):
-    tasks: Tasks
-    tool_results: Annotated[ToolResults, merge_tool_results]
-    criterion_results: Annotated[CriterionResults, merge_criterion_results]
-    variant_type: str | None 
-    disease: str
-    gene_symbol: str | None
-
-class PerCriterionState(TypedDict):
-    task: dict[str, str]
-    variant_type: str | None
-    disease: str
-    previous_results: CriterionResults
-    tool_results: ToolResults
-    gene_symbol: str | None
-
-# ==================================
-# Langgraph Nodes
-# ==================================
-
-def fan_in_after_phase_1(state: OverallState):
-    """
-    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
-
-    Acts as a barrier node after parallel criterion execution, allowing the graph
-    to merge results before proceeding to the next phase.
-
-    Returns:
-        Empty dict to trigger state continuation without modification.
-    """
-    phase1_tasks = state["tasks"]["phase1"]
-    phase1_criterions = [task["criterion"] for task in phase1_tasks]
-    
-    print(f"\n{'-'*60}")
-    print("PHASE 1 COMPLETE")
-    print(f"CHECKED: {', '.join(phase1_criterions)}")
-    print(f"\n{'-'*60}")
-    return {}
-
-def fan_in_after_phase_2(state: OverallState):
-    """
-    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
-
-    Acts as a barrier node after parallel criterion execution, allowing the graph
-    to merge results before proceeding to the next phase.
-
-    Returns:
-        Empty dict to trigger state continuation without modification.
-    """
-    phase2_tasks = state["tasks"]["phase2"]
-    phase2_criterions = [task["criterion"] for task in phase2_tasks]
-
-    print(f"\n{'-'*60}")
-    print("PHASE 2 COMPLETE")
-    print(f"CHECKED: {', '.join(phase2_criterions)}")
-    print(f"\n{'-'*60}")
-    return {}
-
-def fan_in_after_phase_3(state: OverallState):
-    """
-    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
-
-    Acts as a barrier node after parallel criterion execution, allowing the graph
-    to merge results before proceeding to the next phase.
-
-    Returns:
-        Empty dict to trigger state continuation without modification.
-    """
-    phase3_tasks = state['tasks']["phase3"]
-    phase3_criterions = [task["criterion"] for task in phase3_tasks]
-
-    print(f"\n{'-'*60}")
-    print("PHASE 3 COMPLETE")
-    print(f"CHECKED: {', '.join(phase3_criterions)}")
-    print(f"\n{'-'*60}")
-    return {}
-
-def process_criterion(state: PerCriterionState):
+def process_criterion(
+        variant: str,
+        task: dict[str, str],
+        disease: str,
+        previous_results: CriterionResults,
+        tool_results: ToolResults,
+        gene_symbol: str | None,
+) -> tuple[dict[str, Any], ToolResults]:
     """
     Executes full evaluation pipeline for a single ACMG/VCEP criterion.
 
     Performs dependency checking, runs debug → judge → check agents sequentially,
-    and returns updated criterion and tool results. Skips execution if prerequisites
-    are not satisfied.
-    """
+    and returns the criterion's result entry plus any tool_results to merge in.
+    Skips execution if prerequisites are not satisfied.
 
-    task = state["task"]
+    Prints exactly one console line for this criterion when it finishes:
+        <variant> | <criterion> | applies=<True/False/None>
+    Full reasoning/evidence/tool detail is not printed — it's still in the
+    returned result dict, which pipeline.py writes to the batch JSON output.
+    """
     criterion = task["criterion"]
-    disease = state["disease"]
-    previous_results = state["previous_results"]
-    tool_results = state["tool_results"]
-    gene_symbol = state["gene_symbol"]
 
     # ── PRECONDITION CHECK ────────────────────
     rag_entry = query(criterion, disease=disease)
@@ -212,175 +118,84 @@ def process_criterion(state: PerCriterionState):
                 break
 
     if skipped_reason:
-        print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
         skipped_entry = {
             "criterion": criterion,
             "status": "skipped",
             "reason": skipped_reason,
         }
-        
-        return {"criterion_results": {criterion.upper().replace("-", "_"): skipped_entry}}        
-
-    print(f"\n{'─'*60}")
-    print(f"PIPELINE: Processing criterion {criterion}")
-    print(f"{'─'*60}")
+        log(f"{variant} | {criterion} | applies=None (skipped)")
+        return skipped_entry, {}
 
     # ── DEBUG AGENT (runs Task agent internally) ──
-    # print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
-    debug_output, tool_cache_update = run_debug(task, gene_symbol = gene_symbol, tool_results = tool_results)
+    debug_output, tool_cache_update = run_debug(task, gene_symbol=gene_symbol, tool_results=tool_results)
 
     if debug_output.get("status") == "error":
-        # print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
-
-        return {
-            "criterion_results": {criterion.upper().replace("-", "_"): debug_output},
-            "tool_results": tool_cache_update
-        }  
+        log(f"{variant} | {criterion} | applies=None (error)")
+        return debug_output, tool_cache_update
 
     # ── JUDGE AGENT ───────────────────────
-    # print(f"\n[2/3] JUDGE AGENT — checking reasoning")
     judge_output, tool_cache_update = run_judge(task, tool_results, debug_output, gene_symbol=gene_symbol)
 
     if judge_output.get("status") == "error":
-        # print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
-
-        return {
-            "criterion_results": {criterion.upper().replace("-", "_"): judge_output},
-            "tool_results": tool_cache_update
-            }  
+        log(f"{variant} | {criterion} | applies=None (error)")
+        return judge_output, tool_cache_update
 
     # ── CHECK AGENT ───────────────────────
-    # print(f"\n[3/3] CHECK AGENT — validating formatting")
     final_output = run_check(judge_output)
 
-    print(f"\nPIPELINE: {criterion} complete")
-    return {
-        "criterion_results": {criterion.upper().replace("-", "_"): final_output},
-        "tool_results": tool_cache_update
-        } 
+    log(f"{variant} | {criterion} | applies={final_output.get('applies')}")
+    return final_output, tool_cache_update
 
-# ==================================
-# Langgraph Routers
-# ==================================
 
-def fan_out_before_phase_1(state: OverallState):
-    """
-    Dispatch phase 1 tasks to parallel criterion nodes.
-    """
-    return [Send("process_phase_1_criterion", {
-        "task": task, 
-        "variant_type": state["variant_type"],
-        "disease": state["disease"],
-        "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"],
-        "gene_symbol": state["gene_symbol"]
-    }) for task in state["tasks"]["phase1"]]
-
-def fan_out_before_phase_2(state: OverallState):
-    """
-    Dispatch phase 2 tasks to parallel criterion nodes.
-    """
-    return [Send("process_phase_2_criterion", {
-        "task": task, 
-        "variant_type": state["variant_type"],
-        "disease": state["disease"],
-        "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"],
-        "gene_symbol": state["gene_symbol"]
-    }) for task in state["tasks"]["phase2"]]
-
-def fan_out_before_phase_3(state: OverallState):
-    """
-    Dispatch phase 3 tasks to parallel criterion nodes.
-    """
-    return [Send("process_phase_3_criterion", {
-        "task": task, 
-        "variant_type": state["variant_type"],
-        "disease": state["disease"],
-        "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"],
-        "gene_symbol": state["gene_symbol"]
-    }) for task in state["tasks"]["phase3"]]
-
-def fan_out_before_phase_4(state: OverallState):
-    """
-    Dispatch phase 4 tasks to parallel criterion nodes.
-    """
-    return [Send("process_phase_4_criterion", {
-        "task": task, 
-        "variant_type": state["variant_type"],
-        "disease": state["disease"],
-        "previous_results": state["criterion_results"],
-        "tool_results": state["tool_results"],
-        "gene_symbol": state["gene_symbol"]
-    }) for task in state["tasks"]["phase4"]]
-        
-# ==================================
-# Invoking state graph
-# ==================================
-def build_graph():
-    """
-    Build and compile LangGraph once.
-    """
-    graph_builder = StateGraph(OverallState)
-
-    # NODES
-    graph_builder.add_node("process_phase_1_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_1", fan_in_after_phase_1)
-    graph_builder.add_node("process_phase_2_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_2", fan_in_after_phase_2)
-    graph_builder.add_node("process_phase_3_criterion", process_criterion)
-    graph_builder.add_node("fan_in_after_phase_3", fan_in_after_phase_3)
-    graph_builder.add_node("process_phase_4_criterion", process_criterion)
-
-    # EDGES
-    graph_builder.add_conditional_edges(START, fan_out_before_phase_1)
-    graph_builder.add_edge("process_phase_1_criterion", "fan_in_after_phase_1")
-    graph_builder.add_conditional_edges("fan_in_after_phase_1", fan_out_before_phase_2)
-    graph_builder.add_edge("process_phase_2_criterion", "fan_in_after_phase_2")
-    graph_builder.add_conditional_edges("fan_in_after_phase_2", fan_out_before_phase_3)
-    graph_builder.add_edge("process_phase_3_criterion", "fan_in_after_phase_3")
-    graph_builder.add_conditional_edges("fan_in_after_phase_3", fan_out_before_phase_4)
-    graph_builder.add_edge("process_phase_4_criterion", END)
-
-    # COMPILE
-    graph = graph_builder.compile()
-    return graph
-
-def process_criterions_in_parallel(
+def process_criterions_sequentially(
+        variant: str,
         tasks: Tasks,
         variant_type: str | None,
         disease: str,
         gene_symbol: str | None
 ) -> dict[str, Any]:
     """
-    Runs ACMG/VCEP criterion evaluation in parallel using a LangGraph pipeline.
-    Builds and executes a multi-phase graph that processes each criterion
-    through parallel agent steps and aggregates tool + evaluation results.
+    Runs ACMG/VCEP criterion evaluation sequentially, phase by phase.
+
+    Each phase's criteria are processed one at a time, in order; results and
+    tool_results accumulate as we go, so a phase-N criterion can rely on
+    phase-(N-1) results (requires_applied/blocked_by) the same way the old
+    LangGraph fan-out/fan-in did — a phase never starts before the previous
+    one has fully finished.
 
     Args:
-        tasks: Phased criterion tasks.
+        variant: Variant string, used only to label console output.
+        tasks: Phased criterion tasks (phase1..phase4).
         variant_type: Variant consequence type (may be None).
         disease: Target disease context.
+        gene_symbol: Resolved gene symbol (may be None).
     Returns:
-        Final LangGraph state with criterion and tool results.
+        dict with "criterion_results" and "tool_results", matching the shape
+        the old LangGraph state produced.
     """
+    tool_results: ToolResults = {}
+    criterion_results: CriterionResults = {}
 
-    # BUILD GRAPH
-    graph = build_graph()
+    for phase_num in (1, 2, 3, 4):
+        phase_key = f"phase{phase_num}"
+        phase_tasks = tasks.get(phase_key, [])
+        if not phase_tasks:
+            continue
 
-    # INVOKE
-    initial_state: OverallState = {
-        "tasks": tasks,
-        "tool_results": {},
-        "criterion_results": {},
-        "variant_type": variant_type,
-        "disease": disease,
-        "gene_symbol": gene_symbol
-    }
+        for task in phase_tasks:
+            criterion = task["criterion"]
+            result, tool_cache_update = process_criterion(
+                variant=variant,
+                task=task,
+                disease=disease,
+                previous_results=criterion_results,
+                tool_results=tool_results,
+                gene_symbol=gene_symbol,
+            )
+            criterion_results[criterion.upper().replace("-", "_")] = result
+            tool_results.update(tool_cache_update)
 
-    state = graph.invoke(initial_state)
-    return state
+    return {"criterion_results": criterion_results, "tool_results": tool_results}
 
 def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     """
@@ -388,27 +203,15 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     Runs all agents in sequence for each criterion.
     Returns a list of validated, formatted task outputs.
     """
-    print("\n" + "="*60)
-    print("PIPELINE: Starting variant classification")
-    print(f"Variant:  {variant}")
-    print(f"Disease:  {disease}")
-    print("="*60)
-
     # ── VARIANT TYPE DETECTION ─────────────────
-    print("\nPIPELINE: Detecting variant type via Ensembl VEP...")
     vep_result = annotate_variant(variant)
 
     gene_symbol = None
     if "error" in vep_result:
-        print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
-        print("PIPELINE: Proceeding without variant type filtering")
         variant_type = None
     else:
         variant_type = vep_result["variant_type"]
         gene_symbol = vep_result.get("gene_symbol")
-        if gene_symbol:
-            print(f"PIPELINE: Gene detected from VEP: {gene_symbol}")
-        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['variant_consequence']})")
 
     # ── CRITERIA SELECTION & FILTERING ────────
     base_criteria = get_criteria_for_disease(disease)
@@ -420,27 +223,28 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
 
     if not any(tasks.values()):
-        print("PIPELINE: Plan agent returned no tasks. Exiting.")
+        log(f"{variant} | no tasks generated by plan agent — skipping")
         return [], {}
 
-    # ── RUN PARALLEL AGENTS ────────────────────────────
-    results = process_criterions_in_parallel(
+    # ── RUN CRITERIA SEQUENTIALLY ────────────────────────────
+    # process_criterion() prints one "variant | criterion | applies=..." line
+    # per criterion as it finishes — that's the only per-criterion console
+    # output. Full reasoning/evidence stays in the returned results, which
+    # save_results() below (or run_pipeline_batch's caller) writes to JSON.
+    results = process_criterions_sequentially(
+        variant=variant,
         tasks=tasks,
         variant_type=variant_type,
         disease=disease,
         gene_symbol=gene_symbol
     )
-    
+
     results_list = list(results["criterion_results"].values())
     results_dict = results["criterion_results"]
 
     # ── SCORING ───────────────────────────────────────────────────────────────
-    scoring_label = "HHT VCEP" if (disease is None or is_vcep_disease(disease)) else "ACMG/AMP 2015"
-    print("\n" + "─"*60)
-    print(f"PIPELINE: Running {scoring_label} classification scoring...")
     scoring_result = classify(results_dict, disease=disease)
-    print(f"PIPELINE: Classification → {scoring_result['classification']}")
-    print(f"          Rule matched   → {scoring_result['rule_matched']}")
+    log(f"{variant} | RESULT | classification={scoring_result['classification']} rule={scoring_result['rule_matched']}")
 
     return results_list, scoring_result
 
@@ -573,16 +377,36 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
     print("\n" + "="*60)
 
 
-def save_results(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> str:
+def save_results(
+        variant: str,
+        disease: str,
+        results: list[dict],
+        scoring_result: dict = None,
+        output_dir: str = "outputs",
+        error: str = None,
+) -> str:
     """
     Saves full JSON results to a timestamped output file.
+    output_dir defaults to "outputs" for single-variant runs; batch runs pass
+    a per-batch subfolder (see run_pipeline_batch) so files don't all land
+    flat in outputs/.
+    error is set only when the variant's pipeline run raised an exception —
+    still writes a file so every requested variant produces exactly one
+    output record, success or failure.
+
+    The timestamp includes microseconds and a short random suffix so two
+    variants finishing in the same wall-clock second — e.g. a duplicate
+    (variant, disease) pair in a batch CSV, or a rerun landing in the same
+    output_dir — never collide on the same filename and silently overwrite
+    each other.
     Returns the file path.
     """
-    os.makedirs("outputs", exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    unique_suffix = uuid.uuid4().hex[:8]
     safe_variant = variant.replace(":", "_").replace(">", "_").replace(".", "_")
-    filename = f"outputs/{safe_variant}_{disease}_{timestamp}.json"
+    filename = f"{output_dir}/{safe_variant}_{disease}_{timestamp}_{unique_suffix}.json"
 
     output = {
         "variant": variant,
@@ -592,12 +416,117 @@ def save_results(variant: str, disease: str, results: list[dict], scoring_result
         "rule_matched":   scoring_result.get("rule_matched")   if scoring_result else None,
         "scoring":        scoring_result,
         "results": results,
+        "error": error,
     }
 
     with open(filename, "w") as f:
-        json.dump(output, f, indent=2)
+        # default=str: if anything non-JSON-native (e.g. a set, dataclass
+        # instance, or other object) ever ends up embedded in results/scoring
+        # from an agent or tool, fall back to str() for that value instead of
+        # raising and losing the whole record. Better a stringified field
+        # than a batch run that silently dies mid-way with no output at all.
+        json.dump(output, f, indent=2, default=str)
 
     return filename
+
+
+def load_variants_from_csv(csv_path: str) -> list[tuple[str, str]]:
+    """
+    Reads (variant, disease) pairs from a batch-evaluation CSV like
+    hht_variants_eval.csv. Expects an "hgvs_cdna" column for the variant and
+    a "condition" column for the disease. Rows with no hgvs_cdna are skipped
+    (e.g. large deletions/duplications not expressed as HGVS in this dataset).
+    """
+    pairs = []
+    with open(csv_path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            variant = (row.get("hgvs_cdna") or "").strip()
+            disease = (row.get("condition") or "").strip()
+            if not variant:
+                continue
+            pairs.append((variant, disease))
+    return pairs
+
+
+def run_pipeline_batch(
+        variant_disease_pairs: list[tuple[str, str]],
+        max_concurrency: int = 3,
+) -> str:
+    """
+    Runs run_pipeline() for each (variant, disease) pair concurrently, bounded
+    by max_concurrency. Criterion evaluation within each variant's pipeline is
+    sequential (see process_criterions_sequentially) — this is the only layer
+    of parallelism, across variants.
+
+    Every console line printed (see process_criterion() in this file) embeds
+    the variant string directly, so concurrent variants' output stays
+    distinguishable even without any thread-tagging — log() just holds a
+    shared lock so two threads' lines can't get interleaved into a garbled one.
+
+    One variant failing (exception anywhere in its pipeline) does not stop
+    the rest of the batch — the error is caught, logged, and still written to
+    a JSON output file so every variant produces exactly one result record.
+
+    All output files for this run go into a single timestamped subfolder
+    under outputs/, e.g. outputs/batch_20260701_143000/, instead of flat in
+    outputs/.
+
+    Returns the batch output directory path.
+    """
+    batch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    batch_dir = f"outputs/batch_{batch_timestamp}"
+    os.makedirs(batch_dir, exist_ok=True)
+
+    total = len(variant_disease_pairs)
+    log("="*60)
+    log(f"BATCH: Starting {total} variant(s), max_concurrency={max_concurrency}")
+    log(f"BATCH: Output folder → {batch_dir}")
+    log("="*60)
+
+    def _run_one(variant: str, disease: str) -> tuple[str, str, list, dict, str]:
+        try:
+            results, scoring_result = run_pipeline(variant, disease)
+            return variant, disease, results, scoring_result, None
+        except Exception as e:
+            return variant, disease, [], {}, str(e)
+
+    completed = 0
+    with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
+        futures = [
+            executor.submit(_run_one, variant, disease)
+            for variant, disease in variant_disease_pairs
+        ]
+
+        for future in as_completed(futures):
+            completed += 1
+            variant, disease = "unknown", "unknown"
+            try:
+                variant, disease, results, scoring_result, error = future.result()
+
+                filepath = save_results(
+                    variant, disease, results, scoring_result,
+                    output_dir=batch_dir, error=error,
+                )
+
+                if error:
+                    log(f"BATCH [{completed}/{total}] ✗ {variant} ({disease}) — ERROR: {error}")
+                else:
+                    classification = scoring_result.get("classification", "Unknown") if scoring_result else "Unknown"
+                    log(f"BATCH [{completed}/{total}] ✓ {variant} ({disease}) → {classification}  [{filepath}]")
+            except Exception as e:
+                # Anything unexpected here (e.g. future.result() itself
+                # raising, or save_results() failing) must not kill the rest
+                # of the batch — log it clearly and keep going so every other
+                # variant still gets processed and BATCH COMPLETE still prints.
+                log(f"BATCH [{completed}/{total}] ✗ {variant} ({disease}) — UNEXPECTED ERROR: {e}")
+
+    log("="*60)
+    log(f"BATCH COMPLETE: {completed}/{total} variant(s) processed")
+    log(f"Results saved to: {batch_dir}/")
+    log("="*60)
+
+    return batch_dir
 
 
 def main():
@@ -607,17 +536,42 @@ def main():
     parser.add_argument(
         "--variant",
         type=str,
-        required=True,
-        help="Variant in HGVS or gnomAD format (e.g. NM_000020.3:c.557G>T or 12-51914005-G-T)"
+        default=None,
+        help="Variant in HGVS or gnomAD format (e.g. NM_000020.3:c.557G>T or 12-51914005-G-T). "
+             "Required unless --variants-csv is given."
     )
     parser.add_argument(
         "--disease",
         type=str,
-        required=True,
-        help="Disease name (e.g. HHT)"
+        default=None,
+        help="Disease name (e.g. HHT). Required unless --variants-csv is given."
+    )
+    parser.add_argument(
+        "--variants-csv",
+        type=str,
+        default=None,
+        help="Path to a CSV with 'hgvs_cdna' and 'condition' columns (e.g. hht_variants_eval.csv) "
+             "to run many variants in parallel instead of a single --variant/--disease pair."
+    )
+    parser.add_argument(
+        "--max-concurrency",
+        type=int,
+        default=3,
+        help="Max number of variants to run at once in batch mode (--variants-csv). "
+             "Ignored for single-variant runs. Default: 3."
     )
 
     args = parser.parse_args()
+
+    if args.variants_csv:
+        pairs = load_variants_from_csv(args.variants_csv)
+        if not pairs:
+            parser.error(f"No variants found in {args.variants_csv} (expected an 'hgvs_cdna' column)")
+        run_pipeline_batch(pairs, max_concurrency=args.max_concurrency)
+        return
+
+    if not args.variant or not args.disease:
+        parser.error("Either --variants-csv, or both --variant and --disease, must be provided.")
 
     results, scoring_result = run_pipeline(args.variant, args.disease)
     print_report(args.variant, args.disease, results, scoring_result)

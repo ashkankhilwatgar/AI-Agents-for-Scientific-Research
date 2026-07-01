@@ -1,0 +1,110 @@
+{
+  "variant": "NM_000020.3:c.1390del",
+  "disease": "HHT",
+  "timestamp": "20260701_170754_982603",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.1390del is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to Step 1 of the PM2_SUPPORTING classification rules, if the variant is absent from gnomAD entirely, PM2_Supporting applies. Since the variant was not found in gnomAD (absent_from_gnomad is true, total AC is 0), this criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.1390del is absent from gnomAD (popmax_faf = 0.0, total allele count = 0).",
+      "reasoning": "According to the BA1 rules, the criterion applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since the variant is absent from gnomAD (popmax_faf = 0.0), which is less than 0.01, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "gnomAD API failed after 3 retries: HTTP 429"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "The search for NM_000020.3:c.1390del in ClinVar and PubMed returned 0 results. With a proband count of 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.1390del OR p.Leu464X OR p.L464X) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "NM_000020.3:c.1390del is a frameshift variant in ACVRL1 at codon position 464.",
+      "reasoning": "Loss of function is a known disease mechanism for ACVRL1. The variant is a frameshift variant at codon 464. Since the codon position (464) is greater than the NMD boundary (codon 442), it is not predicted to undergo nonsense-mediated decay (NMD). However, because the codon position is less than or equal to the critical region boundary (codon 490), the truncated/altered region is considered critical to protein function. According to the ACVRL1 PVS1 decision tree, this meets the criteria for PVS1 at a strong strength level.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "functional_evidence tool temporarily disabled \u2014 see agents/task_agent.py"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "functional_evidence tool temporarily disabled \u2014 see agents/task_agent.py"
+    }
+  ],
+  "error": null
+}

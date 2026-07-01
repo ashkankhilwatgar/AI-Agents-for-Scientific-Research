@@ -234,8 +234,6 @@ def search_clinvar_for_variant_ps4(hgvs: str) -> dict:
                 )
                 r2.raise_for_status()
                 id_list = r2.json().get("esearchresult", {}).get("idlist", [])
-                if id_list:
-                    print(f"DEBUG - ClinVar PS4: exact HGVS not found; matched via version-stripped '{stripped}'")
             except Exception:
                 pass  # silently ignore fallback failure — return not-found below
 
@@ -320,8 +318,6 @@ def search_clinvar_for_exact_variant(hgvs: str) -> dict:
                 )
                 r2.raise_for_status()
                 id_list = r2.json().get("esearchresult", {}).get("idlist", [])
-                if id_list:
-                    print(f"DEBUG - ClinVar exact: version-stripped match for '{stripped}'")
             except Exception:
                 pass
 
@@ -355,8 +351,6 @@ def search_clinvar_for_exact_variant(hgvs: str) -> dict:
     star_rating    = _STAR_MAP.get(review_status.lower(), 0)
     reputable      = star_rating >= 2
 
-    print(f"DEBUG - ClinVar exact: found {id_list[0]} | classification: {classification!r} | "
-          f"review: {review_status!r} | stars: {star_rating} | reputable: {reputable}")
 
     return {
         "found": bool(classification),

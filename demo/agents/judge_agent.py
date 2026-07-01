@@ -126,16 +126,16 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
     if gene:
-        print(f"JUDGE AGENT: Detected gene {gene} from transcript")
+        pass
     elif gene_symbol:
         gene = gene_symbol
-        print(f"JUDGE AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 
     disease = task.get("disease")
     rag_entry = query(criterion, gene=gene, disease=disease)
 
     if rag_entry is None:
-        print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
+        pass
+
     tool_cache_update = {}
 
     while retry_count < RETRY_LIMIT:
@@ -144,8 +144,6 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         if result["past"]:
             return task_output, tool_cache_update
 
-        print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
-        print(f"Feedback: {result['feedback']}")
 
         # get new output from Task agent with correction feedback
         task_output, tool_cache_update = run_task(task, gene_symbol= gene, tool_results=tool_result, feedback=result["feedback"])
@@ -181,9 +179,9 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
 #     # -------------------------------------------------------------------------
 #     # TEST 1: Clean output — Judge agent should pass it through without retrying
 #     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 1: Clean output — expect pass=true, no retry")
-#     print("="*60)
+#     log("\n" + "="*60)
+#     log("TEST 1: Clean output — expect pass=true, no retry")
+#     log("="*60)
 
 #     clean_output = {
 #         "criterion": "PM2_SUPPORTING",
@@ -197,4 +195,4 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
 #     }
 
 #     result = run_judge(DEMO_TASK, clean_output)
-#     print(json.dumps(result, indent=2))
+#     log(json.dumps(result, indent=2))

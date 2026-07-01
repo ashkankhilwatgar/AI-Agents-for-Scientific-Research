@@ -59,26 +59,22 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
         gene = get_gene_from_transcript(variant.split(":")[0])
         
     if gene:
-        print(f"PLAN AGENT: Detected gene {gene} from transcript")
-    
+        pass
+
     if gene is None and gene_symbol:              # ADD
         gene = gene_symbol
-        print(f"PLAN AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")  
 
 
     for criterion in criteria:
         rag_entry = query(criterion, gene=gene, disease=disease)
 
         if rag_entry is None:
-            print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
             continue
 
         if rag_entry.get("excluded"):
-            print(f"PLAN AGENT: {criterion} is excluded — {rag_entry.get('reason')}, skipping")
             continue
 
         if rag_entry.get("deferred"):
-            print(f"PLAN AGENT: {criterion} is deferred (not automatable), skipping")
             continue
 
 #         prompt = f"""You are a variant classification assistant.
@@ -111,7 +107,6 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
         }
 
         tasks.append(task)
-        print(f"PLAN AGENT: Task created for {criterion}")
 
     result = defaultdict(list)
 
@@ -143,8 +138,5 @@ def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.
     """
-    print(f"PLAN AGENT: Building task list for {variant} / {disease}")
     tasks = build_task_list(variant, disease, criteria, gene_symbol)
-    total_tasks = sum(len(phase_tasks) for phase_tasks in tasks.values())
-    print(f"PLAN AGENT: {total_tasks} task(s) generated")
     return tasks

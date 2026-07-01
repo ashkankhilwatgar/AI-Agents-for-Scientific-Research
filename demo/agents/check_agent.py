@@ -128,25 +128,9 @@ def run_check(task_output: dict) -> dict:
     result = check_format(task_output)
 
     if result["pass"]:
-        print("CHECK AGENT: Output passed formatting check")
         return task_output
 
-    print(f"CHECK AGENT: {len(result['issues'])} formatting issue(s) found:")
-    for issue in result["issues"]:
-        print(f"  - {issue}")
-
     corrected, fixes = fix_formatting(task_output)
-# 
-    print(f"CHECK AGENT: Applied {len(fixes)} fix(es):")
-    for fix in fixes:
-        print(f"  - {fix}")
-
-    # verify fixes resolved all issues
-    recheck = check_format(corrected)
-    if not recheck["pass"]:
-        print("CHECK AGENT: Warning — some issues could not be fixed automatically:")
-        for issue in recheck["issues"]:
-            print(f"  - {issue}")
 
     return corrected
 
@@ -156,9 +140,6 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     # TEST 1: Clean output — should pass with no fixes
     # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 1: Clean output — expect pass, no fixes")
-    print("="*60)
 
     clean_output = {
         "criterion": "PM2",
@@ -172,14 +153,10 @@ if __name__ == "__main__":
     }
 
     result = run_check(clean_output)
-    print(json.dumps(result, indent=2))
 
     # -------------------------------------------------------------------------
     # TEST 2: applies is string — should be coerced to boolean
     # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 2: applies as string — expect fix applied")
-    print("="*60)
 
     string_applies_output = {
         "criterion": "PM2",
@@ -193,14 +170,10 @@ if __name__ == "__main__":
     }
 
     result = run_check(string_applies_output)
-    print(json.dumps(result, indent=2))
 
     # -------------------------------------------------------------------------
     # TEST 3: Missing fields — should be added as None
     # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 3: Missing fields — expect fields added as None")
-    print("="*60)
 
     missing_fields_output = {
         "criterion": "PM2",
@@ -210,14 +183,10 @@ if __name__ == "__main__":
     }
 
     result = run_check(missing_fields_output)
-    print(json.dumps(result, indent=2))
 
     # -------------------------------------------------------------------------
     # TEST 4: Empty string fields — should be set to None
     # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 4: Empty string fields — expect None")
-    print("="*60)
 
     empty_fields_output = {
         "criterion": "PM2",
@@ -231,14 +200,10 @@ if __name__ == "__main__":
     }
 
     result = run_check(empty_fields_output)
-    print(json.dumps(result, indent=2))
 
     # -------------------------------------------------------------------------
     # TEST 5: Error field present on complete output — should be removed
     # -------------------------------------------------------------------------
-    print("\n" + "="*60)
-    print("TEST 5: Spurious error field — expect removal")
-    print("="*60)
 
     spurious_error_output = {
         "criterion": "PM2",
@@ -253,4 +218,3 @@ if __name__ == "__main__":
     }
 
     result = run_check(spurious_error_output)
-    print(json.dumps(result, indent=2))

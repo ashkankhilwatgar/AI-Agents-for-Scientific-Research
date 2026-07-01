@@ -6,7 +6,19 @@ from urllib.parse import quote
 from config import NCBI_API_KEY
 from config import NCBI_EMAIL
 import os
+
+# metapub checks the NCBI_API_KEY *environment variable* directly — config.py
+# only defines it as a plain Python constant, which metapub never sees. This
+# MUST run before `import metapub` below: metapub/eutils reads the env var
+# once at import time to configure its shared client, so setting it afterward
+# (as this used to do) is a no-op — which is why the "NCBI_API_KEY was not
+# set" warning kept appearing even after that fix was "applied." setdefault()
+# so an explicitly `export`ed shell value always wins over this.
+if NCBI_API_KEY:
+    os.environ.setdefault("NCBI_API_KEY", NCBI_API_KEY)
+
 import requests
+import threading
 from metapub import PubMedFetcher, FindIt
 from pathlib import Path
 import time
@@ -608,9 +620,8 @@ def build_variant_label(vi: VariantInfo) -> str:
     """
     Build a simple, LLM-friendly "variant of interest" string.
     """
-    print("build_variant_label ", "vi type", type(vi))
 
-    # print("build variant label: ", vi.name)
+    # log("build variant label: ", vi.name)
     return (
         f"{vi.name}, "
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
@@ -620,7 +631,23 @@ def build_variant_label(vi: VariantInfo) -> str:
 # LitVar2 
 # =============================================================================
 
-FETCHER = PubMedFetcher()
+# PubMedFetcher wraps a local on-disk (SQLite-backed) cache. A single shared
+# instance used from multiple threads at once (one per concurrently-running
+# variant — see run_pipeline_batch in pipeline.py) can hit that cache
+# concurrently in ways SQLite connections aren't built for, which can hang a
+# thread indefinitely rather than raising a catchable error. Giving each
+# thread its own PubMedFetcher (and therefore its own cache connection) avoids
+# that — call get_fetcher() instead of using a module-level FETCHER directly.
+_fetcher_local = threading.local()
+
+
+def get_fetcher() -> PubMedFetcher:
+    """Returns a PubMedFetcher unique to the calling thread."""
+    fetcher = getattr(_fetcher_local, "fetcher", None)
+    if fetcher is None:
+        fetcher = PubMedFetcher()
+        _fetcher_local.fetcher = fetcher
+    return fetcher
 
 def query_litvar2_publications(variant_id: str) -> Set[str]:
     """
@@ -632,16 +659,12 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
     """
     try:
         encoded_variant = quote(variant_id, safe='')
-        print("litvar 2 encoded variant that is send to the server: ")
-        print(encoded_variant)
 
         url = f"{LITVAR2_API_BASE}/variant/get/litvar@{encoded_variant}%23%23/publications"
-        print(f"   Querying LitVar2: {variant_id}...")
 
         resp = requests.get(url, timeout=30)
 
         if not resp.ok:
-            print(f"   Warning: LitVar2 returned status {resp.status_code} for '{variant_id}'")
             return set()
 
         data = resp.json()
@@ -670,15 +693,9 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
                                 pmids.add(str(item))
                     break
 
-        if pmids:
-            print(f"   Found {len(pmids)} publications for '{variant_id}'")
-        else:
-            print(f"   No publications found for '{variant_id}'")
-
         return pmids
 
-    except Exception as e:
-        print(f"   Warning: LitVar2 query failed for '{variant_id}': {e}")
+    except Exception:
         return set()
 
 
@@ -692,13 +709,6 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
     # Validate rsid exists
     rsid = vi.rsid
     if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
-        print("\n" + "="*80)
-        print("ERROR: LitVar2 requires an rsID to query publications.")
-        print("="*80)
-        print("\nWe apologize, but LitVar2 only works with rsID identifiers.")
-        print("The variant does not have a valid rsID available.")
-        print("Please provide a variant with a known rsID or use an alternative method.")
-        print("\n" + "="*80)
         sys.exit(1)
     
     pmids = query_litvar2_publications(rsid)
@@ -711,25 +721,22 @@ def pubmed_fetch_details(pmids: List[str]) -> Dict[str, CandidatePaper]:
 
     Uses:
         from metapub import PubMedFetcher
-        article = FETCHER.article_by_pmid(pmid)
+        article = get_fetcher().article_by_pmid(pmid)
     """
     if not pmids:
         return {}
 
     result: Dict[str, CandidatePaper] = {}
-
-    print(f"   Fetching details for {len(pmids)} papers from PubMed via metapub...")
+    fetcher = get_fetcher()
 
     for pmid in pmids:
         pmid_str = str(pmid)
         try:
-            article = FETCHER.article_by_pmid(pmid_str)
-        except Exception as e:
-            print(f"   Warning: metapub failed for PMID {pmid_str}: {e}")
+            article = fetcher.article_by_pmid(pmid_str)
+        except Exception:
             continue
 
         if article is None:
-            print(f"   Warning: no article object returned for PMID {pmid_str}")
             continue
 
         title = article.title or ""
@@ -824,15 +831,14 @@ def fetch_pdf_url(pmid: str) -> str:
             return finder.url
         
         # Fallback: try Unpaywall via DOI
-        article = FETCHER.article_by_pmid(pmid)
+        article = get_fetcher().article_by_pmid(pmid)
         if article and hasattr(article, "doi") and article.doi:
             url = check_open_access_from_doi(article.doi)
             if url:
                 return url
         
         return ""
-    except Exception as e:
-        print(f"   Warning: Failed to find PDF URL for PMID {pmid}: {e}")
+    except Exception:
         return ""
 
 def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional[str]:
@@ -857,7 +863,6 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
     
     # Check if already exists
     if pdf_path.exists():
-        print(f"   [→] PDF already exists for PMID {pmid}")
         return str(pdf_path)
     
     # Get URL if not provided
@@ -865,7 +870,6 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
         url = fetch_pdf_url(pmid)
     
     if not url:
-        print(f"   [✗] No PDF URL found for PMID {pmid}")
         return None
     
     try:
@@ -881,11 +885,9 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
             with open(pdf_path, 'wb') as f:
                 f.write(response.read())
         
-        print(f"   [✓] Downloaded PDF for PMID {pmid}")
         return str(pdf_path)
         
-    except Exception as e:
-        print(f"   [✗] Failed to download PDF for PMID {pmid}: {e}")
+    except Exception:
         return None
 
 
@@ -943,12 +945,8 @@ def llm_filter_functional_papers(
     """
     functional: List[FunctionalPaper] = []
 
-    print(f"   Filtering {len(candidate_papers)} papers for functional evidence...")
 
     for i, p in enumerate(candidate_papers, 1):
-        if i % 10 == 0:
-            print(f"   Processed {i}/{len(candidate_papers)} papers...")
-
         # Build user prompt with paper details
         user_prompt = f"""Analyze this paper for functional evidence:
 
@@ -999,8 +997,7 @@ Based on the system instructions, respond in JSON with keys:
                         justification=parsed.get("justification", "").strip(),
                     )
                 )
-        except Exception as e:
-            print(f"   Warning: LLM filtering failed for PMID {p.pmid}: {e}")
+        except Exception:
             continue
 
     return functional
@@ -1103,13 +1100,11 @@ Do NOT add any text outside the JSON object.
         content = resp.text
         
         if not content:
-            print(f"   Warning: Empty response for PDF extraction PMID {pmid}")
             return []
         
         return _parse_pdf_extraction_response(pmid, content)
         
-    except Exception as e:
-        print(f"   Warning: Gemini PDF extraction failed for PMID {pmid}: {e}")
+    except Exception:
         return []
 
 
@@ -1164,8 +1159,7 @@ def fetch_full_text_or_abstract(pmid: str) -> str:
         text = re.sub(r"<.*?>", " ", xml_text)
         text = re.sub(r"\s+", " ", text)
         return text
-    except Exception as e:
-        print(f"   Warning: Failed to fetch text for PMID {pmid}: {e}")
+    except Exception:
         return ""
 
 def _extract_from_abstract(
@@ -1267,8 +1261,7 @@ Extract functional experiments for this variant and return as JSON.
             )
         return experiments
         
-    except Exception as e:
-        print(f"   Warning: Abstract extraction failed for PMID {pmid}: {e}")
+    except Exception:
         return []
 
 
@@ -1298,10 +1291,8 @@ def llm_extract_experiments(
     """
     experiments: List[FunctionalExperiment] = []
 
-    print(f"   Extracting experiments from {len(functional_papers)} functional papers...")
 
     for i, fp in enumerate(functional_papers, 1):
-        print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
         
         # # Check if PDF exists
         # pdf_path = None
@@ -1346,59 +1337,41 @@ def analyze_variant(
     """
 
     vi = VariantInfo(name=variant)
-    print("variant info: variant nmae")
-    print(vi.name)
-    print("variant info, vi type")
-    print(type(vi))
 
     vep_info: Optional[Dict[str, Any]] = None
     try:
         vep_info = annotate_variant(variant)
 
-        print("VEP annotation successful")
-        print("VEP info: ")
-        print(vep_info)
 
         if vep_info:
-            print("   VEP annotation obtained.")
-            print("")
             enrich_with_vep(vi, vep_info)
-            print("Enriching successful")
-        else:
-            print("   VEP returned no annotation.")
-    except Exception as e:
-        print(f"   Warning: VEP annotation failed: {e}")
+    except Exception:
+        pass
 
     variant_label = build_variant_label(vi)
-    print(f"\n   Variant label for LLM prompts: {variant_label}")
-    print("   Identifiers to query in LitVar2:")
 
     # 2. Query LitVar2 for PMIDs
-    print("Step 2: Querying LitVar2 for publications...")
     pmids = query_litvar2(vi)
-    print(f"   Total unique PMIDs from LitVar2: {len(pmids)}")
 
     # 3. Fetch paper details from PubMed via metapub
-    print("\nStep 3: Fetching paper details from PubMed...")
     candidate_papers = build_candidate_list(pmids)
-    print(f"   Retrieved details for {len(candidate_papers)} papers")
 
     # 4. Filter for functional papers (high-sensitivity screening)
-    # print("\nStep 4: Filtering for functionally relevant papers...")
+    # log("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
-    # print(f"   Identified {len(functional_papers)} functionally relevant papers")
+    # log(f"   Identified {len(functional_papers)} functionally relevant papers")
 
     # # 4b. Download PDFs for functional papers (if enabled)
     # downloaded_pdfs = {}
     # if download_pdfs and pdf_path and functional_papers:
-    #     print("\nStep 4b: Downloading PDFs for functional papers...")
+    #     log("\nStep 4b: Downloading PDFs for functional papers...")
     #     functional_pmids = [fp.pmid for fp in functional_papers]
     #     downloaded_pdfs = download_pdfs_for_papers(
     #         functional_pmids,
     #         pdf_path,
     #         max_downloads=max_pdf_downloads,
     #     )
-    #     print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
+    #     log(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
         
     #     # Update functional papers with PDF paths
     #     for fp in functional_papers:
@@ -1406,7 +1379,7 @@ def analyze_variant(
     #             fp.pdf_path = downloaded_pdfs[fp.pmid]
 
     # 5. Extract experiments 
-    # print("\nStep 5: Extracting functional experiments...")
+    # log("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
         variant_label,
