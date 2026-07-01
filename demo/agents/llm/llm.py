@@ -68,9 +68,16 @@ def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatMod
             temperature=temperature
         )
     elif provider == "google_genai":
+        # Explicitly pass the Cloud Console key rather than letting the SDK
+        # implicitly read GOOGLE_API_KEY — Google issues both AI Studio (free
+        # tier) and Cloud Console (billing-enabled) keys in the identical
+        # "AIzaSy..." format, so an ambiguous shared env var name makes it
+        # impossible to tell which one is actually being used. Naming it
+        # explicitly here means we always hit the billed project.
         return init_chat_model(
             model=model,
             model_provider="google_genai",
+            api_key=os.getenv("GOOGLE_CLOUD_API_KEY"),
             rate_limiter=_get_rate_limiter(f"google_genai:{model}", GEMINI_REQUESTS_PER_MINUTE),
             temperature=temperature
         )
