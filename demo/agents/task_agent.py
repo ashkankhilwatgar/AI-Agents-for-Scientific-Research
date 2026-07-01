@@ -19,6 +19,8 @@ from pydantic import BaseModel
 from .llm.response_schema import TaskInterpretation, ToolDecision
 from typing import TypeVar
 
+ToolResults: TypeAlias = dict[str, dict[str, Any]]
+
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 
@@ -995,7 +997,7 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
         gene = get_gene_from_transcript(variant.split(":")[0])
     if gene:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
-    elif task.get("gene_symbol"):
+    elif gene_symbol:
         gene = gene_symbol
         print(f"TASK AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 

@@ -35,20 +35,24 @@ GENE_DB = {
     # ── VCEP genes — cspec_id required for VCEP dispatch ──────────────────────
     "ACVRL1": {
         "cspec_id":           "GN135",
+        "transcripts":        ["NM_000020"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "ACVRL1 causes HHT type 2 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     "ENG": {
         "cspec_id":           "GN136",
+        "transcripts":        ["NM_001114753"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "ENG causes HHT type 1 via haploinsufficiency; frameshift, nonsense, and splice variants are well-established pathogenic mechanisms.",
     },
     # ── Non-VCEP genes — lof_mechanism and pm1_critical_regions only ──────────
     "SPAST": {
+        "transcripts":        ["NM_014946"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "SPAST causes SPG4 (Hereditary Spastic Paraplegia type 4) via haploinsufficiency. ClinGen haploinsufficiency score: 3 (sufficient evidence). Frameshift, nonsense, and canonical splice variants are the predominant disease-causing mechanism.",
     },
     "LDLR": {
+        "transcripts":        ["NM_000527"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "LDLR causes Familial Hypercholesterolemia via haploinsufficiency; frameshift, nonsense, and canonical splice variants account for ~30% of pathogenic LDLR alleles and are well-established disease-causing mechanisms.",
         "pm1_critical_regions": [
@@ -57,6 +61,7 @@ GENE_DB = {
         ],
     },
     "BRCA1": {
+        "transcripts":        ["NM_007294"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "BRCA1 causes Hereditary Breast and Ovarian Cancer via haploinsufficiency; frameshift, nonsense, and canonical splice variants are well-established pathogenic mechanisms.",
         "pm1_critical_regions": [
@@ -65,6 +70,7 @@ GENE_DB = {
         ],
     },
     "TP53": {
+        "transcripts":        ["NM_000546"],
         "lof_mechanism":      True,
         "lof_mechanism_note": "TP53 causes Li-Fraumeni Syndrome via haploinsufficiency and dominant negative mechanisms; frameshift, nonsense, and canonical splice variants are established pathogenic mechanisms.",
         "pm1_critical_regions": [
@@ -2280,7 +2286,18 @@ def query(criterion: str, gene: str | None = None, disease: str | None = None) -
     # ACMG_PLANRAG_DB entries do not use gene_data; this block is a no-op for them.
     gene_data = entry.get("gene_data")
     if gene_data is not None:
-        resolved_gene = gene if (gene and gene in gene_data) else next(iter(gene_data))
+        default_gene = next(iter(gene_data))
+        resolved_gene = gene if (gene and gene in gene_data) else default_gene
+        if resolved_gene == default_gene and gene != default_gene:
+            # gene was None (couldn't be resolved) or not in this criterion's
+            # gene_data — silently defaulting can produce a plausible-looking
+            # but WRONG answer (e.g. applying ACVRL1's critical regions to an
+            # ENG variant), so surface it instead of failing silently.
+            print(
+                f"PLANRAG WARNING: gene '{gene}' not resolved for {key} — "
+                f"defaulting to '{default_gene}' rules. Verify gene detection "
+                f"upstream if this variant is not in {default_gene}."
+            )
         entry.update(gene_data[resolved_gene])
         entry["resolved_gene"] = resolved_gene
 

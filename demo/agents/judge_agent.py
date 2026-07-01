@@ -108,7 +108,7 @@ Some important rules:
     return result
 
 
-def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_count: int = 0) -> tuple[dict, dict]:
+def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symbol: str | None = None, retry_count: int = 0) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py.
     Receives validated task output from Debug agent.
@@ -119,9 +119,17 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
 
     # Detect gene so gene-specific planrag rules (PVS1, PM1 boundaries) are
     # used as ground truth when the judge evaluates the task agent's reasoning.
+    # Falls back to the VEP-resolved gene_symbol (same as task_agent.run_task)
+    # when the transcript isn't mapped in GENE_DB, so the Judge checks against
+    # the same gene-specific rules the Task agent actually used.
     gene = None
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
+    if gene:
+        print(f"JUDGE AGENT: Detected gene {gene} from transcript")
+    elif gene_symbol:
+        gene = gene_symbol
+        print(f"JUDGE AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 
     disease = task.get("disease")
     rag_entry = query(criterion, gene=gene, disease=disease)

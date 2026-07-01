@@ -138,12 +138,13 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     }
 
 
-def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> Task:
+def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> Tasks:
     """
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.
     """
     print(f"PLAN AGENT: Building task list for {variant} / {disease}")
     tasks = build_task_list(variant, disease, criteria, gene_symbol)
-    print(f"PLAN AGENT: {len(tasks)} task(s) generated")
+    total_tasks = sum(len(phase_tasks) for phase_tasks in tasks.values())
+    print(f"PLAN AGENT: {total_tasks} task(s) generated")
     return tasks
