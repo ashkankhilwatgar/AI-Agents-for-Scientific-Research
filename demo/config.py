@@ -29,11 +29,11 @@ NCBI_EMAIL = "sli1@hamilton.edu"
 
 MODELS = {
     "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "task":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
     "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "judge": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
     "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "functional_evidence": {"provider": "google_genai", "model": "gemini-2.5-flash"}
+    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
 }
 
 
