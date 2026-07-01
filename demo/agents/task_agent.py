@@ -5,246 +5,245 @@ import json
 from tools.vep import annotate_variant
 from tools.clinvar import search_clinvar, search_clinvar_for_codon, search_clinvar_for_variant_ps4, search_clinvar_for_exact_variant
 from tools.gnomad import query_gnomad, query_gnomad_gene_constraint
-from tools.utils import hgvs_to_gnomad_format, parse_json_response
+from tools.utils import hgvs_to_gnomad_format
 from tools.computational import query_revel_spliceai, query_spliceai
 from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical_region
 from tools.pubmed import search_pubmed
 from tools.erepo import search_erepo_by_position, search_erepo_for_variant
 from tools.lovd import search_lovd_for_variant
 from data.planrag import query, get_gene_from_transcript, GENE_DB
-from .llm import invoke_llm
+from .llm.llm import create_llm
 from typing import Optional, Any, TypeAlias
 from config import MODELS
-# from pipeline import ToolResults
-ToolResults: TypeAlias = dict[str, dict[str, Any]]
-
-
+from pydantic import BaseModel
+from .llm.response_schema import TaskInterpretation, ToolDecision
+from typing import TypeVar
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 
-def _annotate_gnomad_frequency(result: dict) -> dict:
-    """
-    Pre-computes frequency threshold verdicts on a gnomAD result dict and injects
-    a '_computed' summary so the LLM reads pre-verified verdicts rather than
-    performing floating-point comparisons itself (LLMs reliably mis-compare
-    scientific notation, e.g. concluding 5.3e-05 >= 1e-04).
+# def _annotate_gnomad_frequency(result: dict) -> dict:
+#     """
+#     Pre-computes frequency threshold verdicts on a gnomAD result dict and injects
+#     a '_computed' summary so the LLM reads pre-verified verdicts rather than
+#     performing floating-point comparisons itself (LLMs reliably mis-compare
+#     scientific notation, e.g. concluding 5.3e-05 >= 1e-04).
 
-    Adds '_computed' with:
-        pm2_applies, ba1_applies, bs1_applies, bs2_check_ac_hom, verdicts (str)
-    """
-    if "error" in result or not result.get("found", True):
-        result = dict(result)
-        result["_computed"] = {
-            "absent_from_gnomad": True,
-            "total_ac": 0,
-            "max_subpop_af": 0.0,
-            "popmax_faf": 0.0,
-            "ac_hom": 0,
-            "pm2_applies": True,
-            "ba1_applies": False,
-            "bs1_applies": False,
-            "bs2_check_ac_hom": False,
-            "verdicts": (
-                "Variant ABSENT from gnomAD. "
-                "PM2: APPLIES (absent). BA1: DOES NOT APPLY. "
-                "BS1: DOES NOT APPLY. BS2: ac_hom=0 → DOES NOT APPLY for dominant."
-            ),
-        }
-        return result
+#     Adds '_computed' with:
+#         pm2_applies, ba1_applies, bs1_applies, bs2_check_ac_hom, verdicts (str)
+#     """
+#     if "error" in result or not result.get("found", True):
+#         result = dict(result)
+#         result["_computed"] = {
+#             "absent_from_gnomad": True,
+#             "total_ac": 0,
+#             "max_subpop_af": 0.0,
+#             "popmax_faf": 0.0,
+#             "ac_hom": 0,
+#             "pm2_applies": True,
+#             "ba1_applies": False,
+#             "bs1_applies": False,
+#             "bs2_check_ac_hom": False,
+#             "verdicts": (
+#                 "Variant ABSENT from gnomAD. "
+#                 "PM2: APPLIES (absent). BA1: DOES NOT APPLY. "
+#                 "BS1: DOES NOT APPLY. BS2: ac_hom=0 → DOES NOT APPLY for dominant."
+#             ),
+#         }
+#         return result
 
-    result = dict(result)
-    total_ac   = result.get("total_ac", 0) or 0
-    popmax_faf = result.get("popmax_faf", 0.0) or 0.0
-    ac_hom     = result.get("ac_hom", 0) or 0
+#     result = dict(result)
+#     total_ac   = result.get("total_ac", 0) or 0
+#     popmax_faf = result.get("popmax_faf", 0.0) or 0.0
+#     ac_hom     = result.get("ac_hom", 0) or 0
 
-    # Compute max raw subpopulation AF for reference only (not used for PM2 decision).
-    # Raw per-population AC/AN can be misleading for rare variants — a single allele
-    # in a small subpopulation cohort inflates AF (e.g. AC=1, AN=3663 → AF=2.73e-4
-    # even when overall AF is 4.7e-6). gnomAD's popmax_faf already accounts for this
-    # sampling uncertainty and is the recommended metric for clinical variant filtering.
-    all_subpop_afs = []
-    for src_key in ("exome", "genome"):
-        src = result.get(src_key) or {}
-        for pop in src.get("populations", []):
-            ac_p = pop.get("ac") or 0
-            an_p = pop.get("an") or 0
-            if an_p > 0:
-                all_subpop_afs.append(ac_p / an_p)
+#     # Compute max raw subpopulation AF for reference only (not used for PM2 decision).
+#     # Raw per-population AC/AN can be misleading for rare variants — a single allele
+#     # in a small subpopulation cohort inflates AF (e.g. AC=1, AN=3663 → AF=2.73e-4
+#     # even when overall AF is 4.7e-6). gnomAD's popmax_faf already accounts for this
+#     # sampling uncertainty and is the recommended metric for clinical variant filtering.
+#     all_subpop_afs = []
+#     for src_key in ("exome", "genome"):
+#         src = result.get(src_key) or {}
+#         for pop in src.get("populations", []):
+#             ac_p = pop.get("ac") or 0
+#             an_p = pop.get("an") or 0
+#             if an_p > 0:
+#                 all_subpop_afs.append(ac_p / an_p)
 
-    max_subpop_af = max(all_subpop_afs) if all_subpop_afs else 0.0
-    absent = total_ac == 0
+#     max_subpop_af = max(all_subpop_afs) if all_subpop_afs else 0.0
+#     absent = total_ac == 0
 
-    # Threshold decisions (computed in Python — not delegated to LLM)
-    # PM2 uses popmax_faf (gnomAD filtering allele frequency, 95% CI upper bound)
-    # rather than raw max subpopulation AF. popmax_faf is gnomAD's own recommended
-    # metric for clinical filtering and accounts for sampling uncertainty in small
-    # population cohorts that would otherwise inflate raw per-population AFs.
-    pm2_applies = absent or (popmax_faf < 0.0001)  # threshold: 1e-4
-    ba1_applies = popmax_faf >= 0.05
-    bs1_applies = (not ba1_applies) and (popmax_faf > 0.01)
-    ac_hom_present = ac_hom > 0
+#     # Threshold decisions (computed in Python — not delegated to LLM)
+#     # PM2 uses popmax_faf (gnomAD filtering allele frequency, 95% CI upper bound)
+#     # rather than raw max subpopulation AF. popmax_faf is gnomAD's own recommended
+#     # metric for clinical filtering and accounts for sampling uncertainty in small
+#     # population cohorts that would otherwise inflate raw per-population AFs.
+#     pm2_applies = absent or (popmax_faf < 0.0001)  # threshold: 1e-4
+#     ba1_applies = popmax_faf >= 0.05
+#     bs1_applies = (not ba1_applies) and (popmax_faf > 0.01)
+#     ac_hom_present = ac_hom > 0
 
-    result["_computed"] = {
-        "absent_from_gnomad": absent,
-        "total_ac": total_ac,
-        "max_subpop_af": max_subpop_af,
-        "popmax_faf": popmax_faf,
-        "ac_hom": ac_hom,
-        "pm2_applies": pm2_applies,
-        "ba1_applies": ba1_applies,
-        "bs1_applies": bs1_applies,
-        "bs2_check_ac_hom": ac_hom_present,
-        "verdicts": (
-            f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
-            f"  PM2 (threshold: popmax_FAF < 0.0001): popmax_FAF={popmax_faf:.6e} "
-            f"→ {'APPLIES' if pm2_applies else 'DOES NOT APPLY'}\n"
-            f"    (raw max subpop AF={max_subpop_af:.6e} — for reference only; "
-            f"popmax_FAF used for decision to account for sampling uncertainty)\n"
-            f"  BA1 (threshold: popmax_FAF >= 0.05): popmax_FAF={popmax_faf:.6f} "
-            f"→ {'APPLIES' if ba1_applies else 'DOES NOT APPLY'}\n"
-            f"  BS1 (threshold: popmax_FAF > 0.01): popmax_FAF={popmax_faf:.6f} "
-            f"→ {'APPLIES' if bs1_applies else 'DOES NOT APPLY'}\n"
-            f"  BS2: ac_hom={ac_hom} → {'present, check inheritance' if ac_hom_present else 'absent → DOES NOT APPLY for dominant/X-linked'}"
-        ),
-    }
-    return result
-
-
-def _annotate_gnomad_gene_constraint(result: dict) -> dict:
-    """
-    Pre-computes PP2/BP1 threshold verdicts on a gnomAD gene constraint result
-    and injects a '_computed' summary so the LLM reads pre-verified verdicts.
-
-    PP2 uses an objective threshold (mis_z >= 3.09) — computed here in Python.
-    BP1 requires clinical knowledge of disease mechanism, so constraint metrics
-    are provided with interpretation hints for the LLM.
-    """
-    if "error" in result:
-        return result
-
-    result = dict(result)
-    mis_z        = result.get("mis_z")
-    pLI          = result.get("pLI")
-    oe_lof_upper = result.get("oe_lof_upper")
-    oe_mis       = result.get("oe_mis")
-
-    pp2_threshold_met  = mis_z is not None and mis_z >= 3.09
-    lof_intolerant     = (pLI is not None and pLI >= 0.9) or (oe_lof_upper is not None and oe_lof_upper <= 0.35)
-    missense_tolerated = oe_mis is not None and oe_mis >= 0.8
-
-    mis_z_str        = f"{mis_z:.4f}"        if mis_z        is not None else "N/A"
-    pLI_str          = f"{pLI:.6f}"          if pLI          is not None else "N/A"
-    oe_lof_upper_str = f"{oe_lof_upper:.4f}" if oe_lof_upper is not None else "N/A"
-    oe_mis_str       = f"{oe_mis:.4f}"       if oe_mis       is not None else "N/A"
-
-    result["_computed"] = {
-        "pp2_threshold_met":  pp2_threshold_met,
-        "lof_intolerant":     lof_intolerant,
-        "missense_tolerated": missense_tolerated,
-        "verdicts": (
-            f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
-            f"  PP2 (threshold: mis_z >= 3.09): mis_z={mis_z_str} "
-            f"→ {'THRESHOLD MET — PP2 applies IF missense is a known disease mechanism' if pp2_threshold_met else 'THRESHOLD NOT MET — PP2 does NOT apply'}\n"
-            f"  BP1 constraint profile: pLI={pLI_str}, LOEUF={oe_lof_upper_str}, oe_mis={oe_mis_str}\n"
-            f"    LOF intolerant (pLI>=0.9 or LOEUF<=0.35): {lof_intolerant} "
-            f"→ {'LOF-constrained gene — LOF likely causes disease; BP1 could apply if missense not primary mechanism' if lof_intolerant else 'Gene tolerates LOF — BP1 unlikely (LOF not primary disease mechanism)'}\n"
-            f"    Missense tolerated (oe_mis>=0.8): {missense_tolerated} "
-            f"→ {'missense common in healthy population → supports BP1 if LOF is primary disease mechanism' if missense_tolerated else 'missense constrained → gene does not tolerate missense → BP1 unlikely'}"
-        ),
-    }
-    return result
+#     result["_computed"] = {
+#         "absent_from_gnomad": absent,
+#         "total_ac": total_ac,
+#         "max_subpop_af": max_subpop_af,
+#         "popmax_faf": popmax_faf,
+#         "ac_hom": ac_hom,
+#         "pm2_applies": pm2_applies,
+#         "ba1_applies": ba1_applies,
+#         "bs1_applies": bs1_applies,
+#         "bs2_check_ac_hom": ac_hom_present,
+#         "verdicts": (
+#             f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
+#             f"  PM2 (threshold: popmax_FAF < 0.0001): popmax_FAF={popmax_faf:.6e} "
+#             f"→ {'APPLIES' if pm2_applies else 'DOES NOT APPLY'}\n"
+#             f"    (raw max subpop AF={max_subpop_af:.6e} — for reference only; "
+#             f"popmax_FAF used for decision to account for sampling uncertainty)\n"
+#             f"  BA1 (threshold: popmax_FAF >= 0.05): popmax_FAF={popmax_faf:.6f} "
+#             f"→ {'APPLIES' if ba1_applies else 'DOES NOT APPLY'}\n"
+#             f"  BS1 (threshold: popmax_FAF > 0.01): popmax_FAF={popmax_faf:.6f} "
+#             f"→ {'APPLIES' if bs1_applies else 'DOES NOT APPLY'}\n"
+#             f"  BS2: ac_hom={ac_hom} → {'present, check inheritance' if ac_hom_present else 'absent → DOES NOT APPLY for dominant/X-linked'}"
+#         ),
+#     }
+#     return result
 
 
-def _annotate_spliceai(result: dict) -> dict:
-    """
-    Pre-computes PP3/BP4 threshold verdicts on a revel_spliceai result dict and
-    injects a '_computed' summary so the LLM reads pre-verified verdicts rather
-    than re-examining individual score values (LLMs systematically fail to read
-    score arrays correctly, e.g. concluding DS_DL=0.99 does not exceed 0.2).
+# def _annotate_gnomad_gene_constraint(result: dict) -> dict:
+#     """
+#     Pre-computes PP2/BP1 threshold verdicts on a gnomAD gene constraint result
+#     and injects a '_computed' summary so the LLM reads pre-verified verdicts.
 
-    Thresholds computed:
-      PP3: REVEL >= 0.644 (ClinGen SVI calibrated) OR any SpliceAI score >= 0.2
-      BP4: REVEL <= 0.290 (ACMG) / <= 0.15 (HHT VCEP) AND all SpliceAI scores <= 0.1
-    """
-    if "error" in result:
-        return result
+#     PP2 uses an objective threshold (mis_z >= 3.09) — computed here in Python.
+#     BP1 requires clinical knowledge of disease mechanism, so constraint metrics
+#     are provided with interpretation hints for the LLM.
+#     """
+#     if "error" in result:
+#         return result
 
-    result = dict(result)
+#     result = dict(result)
+#     mis_z        = result.get("mis_z")
+#     pLI          = result.get("pLI")
+#     oe_lof_upper = result.get("oe_lof_upper")
+#     oe_mis       = result.get("oe_mis")
 
-    revel   = result.get("revel_score")
-    ds_ag   = result.get("DS_AG")
-    ds_al   = result.get("DS_AL")
-    ds_dg   = result.get("DS_DG")
-    ds_dl   = result.get("DS_DL")
+#     pp2_threshold_met  = mis_z is not None and mis_z >= 3.09
+#     lof_intolerant     = (pLI is not None and pLI >= 0.9) or (oe_lof_upper is not None and oe_lof_upper <= 0.35)
+#     missense_tolerated = oe_mis is not None and oe_mis >= 0.8
 
-    # Collect non-None SpliceAI scores
-    scores = {k: v for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al),
-                                  ("DS_DG", ds_dg), ("DS_DL", ds_dl)] if v is not None}
+#     mis_z_str        = f"{mis_z:.4f}"        if mis_z        is not None else "N/A"
+#     pLI_str          = f"{pLI:.6f}"          if pLI          is not None else "N/A"
+#     oe_lof_upper_str = f"{oe_lof_upper:.4f}" if oe_lof_upper is not None else "N/A"
+#     oe_mis_str       = f"{oe_mis:.4f}"       if oe_mis       is not None else "N/A"
 
-    above_02     = {k: v for k, v in scores.items() if v >= 0.2}   # PP3 trigger
-    above_01     = {k: v for k, v in scores.items() if v > 0.1}    # BP4 fail
-    spliceai_max = max(scores.values()) if scores else None
+#     result["_computed"] = {
+#         "pp2_threshold_met":  pp2_threshold_met,
+#         "lof_intolerant":     lof_intolerant,
+#         "missense_tolerated": missense_tolerated,
+#         "verdicts": (
+#             f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
+#             f"  PP2 (threshold: mis_z >= 3.09): mis_z={mis_z_str} "
+#             f"→ {'THRESHOLD MET — PP2 applies IF missense is a known disease mechanism' if pp2_threshold_met else 'THRESHOLD NOT MET — PP2 does NOT apply'}\n"
+#             f"  BP1 constraint profile: pLI={pLI_str}, LOEUF={oe_lof_upper_str}, oe_mis={oe_mis_str}\n"
+#             f"    LOF intolerant (pLI>=0.9 or LOEUF<=0.35): {lof_intolerant} "
+#             f"→ {'LOF-constrained gene — LOF likely causes disease; BP1 could apply if missense not primary mechanism' if lof_intolerant else 'Gene tolerates LOF — BP1 unlikely (LOF not primary disease mechanism)'}\n"
+#             f"    Missense tolerated (oe_mis>=0.8): {missense_tolerated} "
+#             f"→ {'missense common in healthy population → supports BP1 if LOF is primary disease mechanism' if missense_tolerated else 'missense constrained → gene does not tolerate missense → BP1 unlikely'}"
+#         ),
+#     }
+#     return result
 
-    spliceai_pp3_fires   = bool(above_02)
-    spliceai_bp4_passes  = bool(scores) and not above_01   # all present scores <= 0.1
 
-    # REVEL threshold decisions (all computed here — not delegated to LLM)
-    revel_pp3_applies      = revel is not None and revel >= 0.644
-    revel_bp4_acmg_passes  = revel is not None and revel <= 0.290
-    revel_bp4_hht_passes   = revel is not None and revel <= 0.15
+# def _annotate_spliceai(result: dict) -> dict:
+#     """
+#     Pre-computes PP3/BP4 threshold verdicts on a revel_spliceai result dict and
+#     injects a '_computed' summary so the LLM reads pre-verified verdicts rather
+#     than re-examining individual score values (LLMs systematically fail to read
+#     score arrays correctly, e.g. concluding DS_DL=0.99 does not exceed 0.2).
 
-    # Build human-readable scores display line
-    scores_display = ", ".join(
-        f"{k}={'N/A' if v is None else f'{v:.4f}'}"
-        for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al), ("DS_DG", ds_dg), ("DS_DL", ds_dl)]
-    )
+#     Thresholds computed:
+#       PP3: REVEL >= 0.644 (ClinGen SVI calibrated) OR any SpliceAI score >= 0.2
+#       BP4: REVEL <= 0.290 (ACMG) / <= 0.15 (HHT VCEP) AND all SpliceAI scores <= 0.1
+#     """
+#     if "error" in result:
+#         return result
 
-    # SpliceAI PP3 verdict
-    if spliceai_pp3_fires:
-        splice_pp3_str = f"FIRES — triggering score(s): {', '.join(f'{k}={v:.4f}' for k, v in above_02.items())}"
-    elif spliceai_max is not None:
-        splice_pp3_str = f"DOES NOT FIRE (max score={spliceai_max:.4f}, all < 0.2)"
-    else:
-        splice_pp3_str = "N/A (SpliceAI scores not available)"
+#     result = dict(result)
 
-    # SpliceAI BP4 verdict
-    if not scores:
-        splice_bp4_str = "N/A (SpliceAI scores not available)"
-    elif spliceai_bp4_passes:
-        splice_bp4_str = f"PASSES (all scores <= 0.1, max={spliceai_max:.4f})"
-    else:
-        splice_bp4_str = f"FAILS — score(s) above 0.1: {', '.join(f'{k}={v:.4f}' for k, v in above_01.items())}"
+#     revel   = result.get("revel_score")
+#     ds_ag   = result.get("DS_AG")
+#     ds_al   = result.get("DS_AL")
+#     ds_dg   = result.get("DS_DG")
+#     ds_dl   = result.get("DS_DL")
 
-    # REVEL verdict helpers
-    def _revel_verdict(applies: bool | None, label: str) -> str:
-        if revel is None:
-            return "N/A (REVEL not available)"
-        return f"{'APPLIES' if applies else 'DOES NOT APPLY'} (score={revel:.4f})"
+#     # Collect non-None SpliceAI scores
+#     scores = {k: v for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al),
+#                                   ("DS_DG", ds_dg), ("DS_DL", ds_dl)] if v is not None}
 
-    def _revel_bp4_verdict(passes: bool | None, threshold_str: str) -> str:
-        if revel is None:
-            return "N/A"
-        return f"{'PASSES' if passes else 'FAILS'} (score={revel:.4f})"
+#     above_02     = {k: v for k, v in scores.items() if v >= 0.2}   # PP3 trigger
+#     above_01     = {k: v for k, v in scores.items() if v > 0.1}    # BP4 fail
+#     spliceai_max = max(scores.values()) if scores else None
 
-    result["_computed"] = {
-        "spliceai_pp3_fires":    spliceai_pp3_fires,
-        "spliceai_bp4_passes":   spliceai_bp4_passes,
-        "revel_pp3_applies":     revel_pp3_applies,
-        "revel_bp4_acmg_passes": revel_bp4_acmg_passes,
-        "revel_bp4_hht_passes":  revel_bp4_hht_passes,
-        "verdicts": (
-            f"COMPUTED VERDICTS — read these directly, do NOT re-examine or recompute from raw scores:\n"
-            f"  SpliceAI scores: {scores_display}\n"
-            f"  PP3 SpliceAI (any score >= 0.2): {splice_pp3_str}\n"
-            f"  BP4 SpliceAI (all scores <= 0.1): {splice_bp4_str}\n"
-            f"  REVEL score: {'N/A' if revel is None else f'{revel:.4f}'}\n"
-            f"  PP3 REVEL (>= 0.644): {_revel_verdict(revel_pp3_applies, '>=0.644')}\n"
-            f"  BP4 REVEL ACMG threshold (<= 0.290): {_revel_bp4_verdict(revel_bp4_acmg_passes, '<=0.290')}\n"
-            f"  BP4 REVEL HHT threshold (<= 0.15):   {_revel_bp4_verdict(revel_bp4_hht_passes, '<=0.15')}"
-        ),
-    }
-    return result
+#     spliceai_pp3_fires   = bool(above_02)
+#     spliceai_bp4_passes  = bool(scores) and not above_01   # all present scores <= 0.1
+
+#     # REVEL threshold decisions (all computed here — not delegated to LLM)
+#     revel_pp3_applies      = revel is not None and revel >= 0.644
+#     revel_bp4_acmg_passes  = revel is not None and revel <= 0.290
+#     revel_bp4_hht_passes   = revel is not None and revel <= 0.15
+
+#     # Build human-readable scores display line
+#     scores_display = ", ".join(
+#         f"{k}={'N/A' if v is None else f'{v:.4f}'}"
+#         for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al), ("DS_DG", ds_dg), ("DS_DL", ds_dl)]
+#     )
+
+#     # SpliceAI PP3 verdict
+#     if spliceai_pp3_fires:
+#         splice_pp3_str = f"FIRES — triggering score(s): {', '.join(f'{k}={v:.4f}' for k, v in above_02.items())}"
+#     elif spliceai_max is not None:
+#         splice_pp3_str = f"DOES NOT FIRE (max score={spliceai_max:.4f}, all < 0.2)"
+#     else:
+#         splice_pp3_str = "N/A (SpliceAI scores not available)"
+
+#     # SpliceAI BP4 verdict
+#     if not scores:
+#         splice_bp4_str = "N/A (SpliceAI scores not available)"
+#     elif spliceai_bp4_passes:
+#         splice_bp4_str = f"PASSES (all scores <= 0.1, max={spliceai_max:.4f})"
+#     else:
+#         splice_bp4_str = f"FAILS — score(s) above 0.1: {', '.join(f'{k}={v:.4f}' for k, v in above_01.items())}"
+
+#     # REVEL verdict helpers
+#     def _revel_verdict(applies: bool | None, label: str) -> str:
+#         if revel is None:
+#             return "N/A (REVEL not available)"
+#         return f"{'APPLIES' if applies else 'DOES NOT APPLY'} (score={revel:.4f})"
+
+#     def _revel_bp4_verdict(passes: bool | None, threshold_str: str) -> str:
+#         if revel is None:
+#             return "N/A"
+#         return f"{'PASSES' if passes else 'FAILS'} (score={revel:.4f})"
+
+#     result["_computed"] = {
+#         "spliceai_pp3_fires":    spliceai_pp3_fires,
+#         "spliceai_bp4_passes":   spliceai_bp4_passes,
+#         "revel_pp3_applies":     revel_pp3_applies,
+#         "revel_bp4_acmg_passes": revel_bp4_acmg_passes,
+#         "revel_bp4_hht_passes":  revel_bp4_hht_passes,
+#         "verdicts": (
+#             f"COMPUTED VERDICTS — read these directly, do NOT re-examine or recompute from raw scores:\n"
+#             f"  SpliceAI scores: {scores_display}\n"
+#             f"  PP3 SpliceAI (any score >= 0.2): {splice_pp3_str}\n"
+#             f"  BP4 SpliceAI (all scores <= 0.1): {splice_bp4_str}\n"
+#             f"  REVEL score: {'N/A' if revel is None else f'{revel:.4f}'}\n"
+#             f"  PP3 REVEL (>= 0.644): {_revel_verdict(revel_pp3_applies, '>=0.644')}\n"
+#             f"  BP4 REVEL ACMG threshold (<= 0.290): {_revel_bp4_verdict(revel_bp4_acmg_passes, '<=0.290')}\n"
+#             f"  BP4 REVEL HHT threshold (<= 0.15):   {_revel_bp4_verdict(revel_bp4_hht_passes, '<=0.15')}"
+#         ),
+#     }
+#     return result
 
 
 def _annotate_gnomad_frequency(result: dict) -> dict:
@@ -487,12 +486,22 @@ def _annotate_spliceai(result: dict) -> dict:
 #     return response.json()["response"]
 
 
-def call_task_agent(prompt: str) -> str:
-    response = invoke_llm(
+def call_task_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
+    """
+    Invoke the task LLM and return its response as a structured Pydantic object.
+
+    The output_schema defines the expected response shape. Because
+    with_structured_output() is used, the returned value is an instance of that
+    schema, not a raw chat message and not response.content.
+    """
+    llm = create_llm(
         model=MODELS["task"]["model"],
         provider=MODELS["task"]["provider"],
-        human_messsage=prompt
+        temperature=0
     )
+    structured_llm = llm.with_structured_output(output_schema)
+    response = structured_llm.invoke([{"role": "user", "content": prompt}])
+    
     return response
 
 
@@ -526,15 +535,16 @@ You have access to the following tools:
 - lovd: queries the Leiden Open Variation Database for variant observations across labs. Use for PS4 when ClinVar and ERepo have no proband data.
 - functional_evidence: queries the functional evidence tool for functional experiments & functional assays. Use for PS3 and BS3.
 
-Respond ONLY with a JSON object in this exact format, no explanation:
-{{
-    "tool": "<clinvar | gnomad | gnomad_gene | revel_spliceai | spliceai | vep | pubmed | erepo | lovd>",
-    "reason": "<one sentence why this tool applies to {criterion}>"
-}}"""
-    raw = call_task_agent(prompt)
+Use the provided output schema.
+
+Important rules:
+- The "tool" field shoule be the best tool for evaluating {criterion}
+- In the "reason" field, you should give a brief explanation of why you choose that tool.
+"""
+    result = call_task_agent(prompt, ToolDecision).model_dump()
 
     # raw = call_ollama(prompt)
-    return parse_json_response(raw)
+    return result
 
 
 def run_tool(
@@ -885,28 +895,27 @@ Evidence retrieved:
 {rag_context}{feedback_block}
 Based on this evidence, determine whether criterion {criterion} applies.
 
-Respond ONLY with a JSON object in this exact format, no explanation:
-IMPORTANT: "applies" must be an unquoted JSON boolean (true or false), not a string. Do not wrap it in quotes.
-NOTE: Only include the "error" field if status is "error". Omit it entirely when status is "complete".
-{{
-    "criterion": "{criterion}",
-    "evidence": "<concise summary of raw evidence>",
-    "reasoning": "<how evidence maps to criterion>",
-    "applies": <true | false>,{strength_note}
-    "tool_used": "{tool_used}",
-    "tool_input": "{tool_input}",
-    "disease": "{disease}",
-    "status": "<complete | error>"
-}}"""
-    raw = call_task_agent(prompt)
+Use the provided output schema.
 
+Important rules:
+- The evidence field should be a concise summary of the raw evidence.
+- The reasoning field should explain how the evidence maps to criterion {criterion}.
+- The applies field must reflect whether the criterion applies.
+- Use status="complete" if the interpretation succeeds.
+- Use status="error" only if the task cannot be completed.
+
+{strength_note}
+"""
+    result = {
+        "criterion": criterion,
+    }
+    result.update(call_task_agent(prompt, TaskInterpretation).model_dump())
     # raw = call_ollama(prompt)
-    result = parse_json_response(raw)
+    # result = parse_json_response(raw)
 
     # enforce tool_used, tool_input, criterion, disease — never trust the LLM to set these correctly
     result["tool_used"] = tool_used
     result["tool_input"] = tool_input
-    result["criterion"] = criterion
     result["disease"] = disease
 
     # enforce applied_strength for fixed-strength criteria

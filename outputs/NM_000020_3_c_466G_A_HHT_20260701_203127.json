@@ -1,0 +1,151 @@
+{
+  "variant": "NM_000020.3:c.466G>A",
+  "disease": "HHT",
+  "timestamp": "20260701_203127",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.466G>A is present in gnomAD with a total allele count (AC) of 48. The allele frequency (AF) in the exome 'remaining' subpopulation is 0.00003312 (2/60382), in the exome 'nfe' subpopulation is 0.00003957 (44/1111984), in the exome 'afr' subpopulation is 0.00002987 (1/33474), and in the genome 'nfe' subpopulation is 0.00001470 (1/68024). Many other subpopulations have an AF of 0.",
+      "reasoning": "The variant is not absent from gnomAD (Step 1). The total allele count (AC) across all gnomAD populations is 48, which is not less than 6 (Step 2). However, the allele frequency in several gnomAD subpopulations, such as exome 'remaining' (0.00003312), exome 'nfe' (0.00003957), exome 'afr' (0.00002987), and genome 'nfe' (0.00001470), is less than the threshold of 0.00004. Therefore, based on Step 3 of the classification rules, PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.466G>A has a Popmax FAF of 2.999e-05 in gnomAD.",
+      "reasoning": "The Popmax FAF for the variant is 2.999e-05 (0.00002999). This value is less than the BA1 threshold of 0.01. Therefore, criterion BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The gnomAD database reports a Popmax FAF of 2.999e-05 (0.00002999) and a total homozygote count (ac_hom) of 0 for the variant NM_000020.3:c.466G>A.",
+      "reasoning": "Following the BS1 classification rules:\nSTEP 1: BA1 does not apply as the Popmax FAF (0.00002999) is not >= 0.01.\nSTEP 2: BS1_Strong via the homozygote route does not apply because the Popmax FAF (0.00002999) is not > 0.0008.\nSTEP 3: BS1_Strong via the FAF route does not apply because the Popmax FAF (0.00002999) is not > 0.002.\nSTEP 4: BS1_Supporting does not apply because the Popmax FAF (0.00002999) is not > 0.0008. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.466G>A results in a missense change p.Glu156Lys in the ACVRL1 gene.",
+      "reasoning": "The variant causes an amino acid change at protein position 156 (p.Glu156Lys). According to the PM1 criterion rules for ACVRL1, PM1 applies if the residue is located within specific critical regions: glycine-rich loop (209-216), phosphate anchor (229), C-helix E (242), catalytic loop (329-335), metal-binding loop (348-351), or the BMP10 interaction cluster (40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). The variant's position 156 does not fall into any of these defined critical regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: no data; PubMed: 0 articles found",
+      "reasoning": "The ClinVar query for the HHT VCEP expert panel submission for this variant returned no data. A subsequent search in PubMed for case reports also yielded 0 articles. Therefore, the total proband count is 0. According to the PS4 rules, if the proband count is 0, PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "HHT (c.466G>A OR p.Glu156Lys OR p.E156K) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Gene symbol could not be determined for ERepo lookup \u2014 add this gene to GENE_DB in planrag.py"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_000020.3:c.466G>A.",
+      "reasoning": "According to Shortcut A of the PS3 classification rules, if there are no experiments, PS3 does not apply. Since the retrieved evidence contains an empty list of experiments, criterion PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "The REVEL score is 0.245, which does not meet the PP3 threshold of >=0.644. The maximum SpliceAI score is 0.000, which does not meet the PP3 threshold of >=0.2.",
+      "reasoning": "The variant NM_000020.3:c.466G>A is a missense variant. According to the pre-computed verdicts, PP3 REVEL does not apply because the score (0.245) is below the threshold of 0.644. Similarly, PP3 SpliceAI does not fire because the maximum score (0.000) is below the threshold of 0.2. Therefore, criterion PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.245. SpliceAI scores (DS_AG, DS_AL, DS_DG, DS_DL) are all 0.0. The pre-computed verdicts indicate that 'BP4 REVEL HHT threshold (<= 0.15)' FAILS, while 'BP4 SpliceAI (all scores <= 0.1)' PASSES.",
+      "reasoning": "The variant is a missense variant, so BRANCH A of the BP4 classification rules applies. Step 1 requires 'BP4 REVEL HHT threshold (<= 0.15): PASSES'. However, the evidence from '_computed.verdicts' explicitly states 'BP4 REVEL HHT threshold (<= 0.15): FAILS (score=0.2450)'. Since both conditions in BRANCH A must be true for BP4 to apply, and the first condition fails, criterion BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Gene symbol could not be determined for ERepo lookup \u2014 add this gene to GENE_DB in planrag.py"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The functional_evidence tool returned no experiments for the variant NM_000020.3:c.466G>A.",
+      "reasoning": "According to the BS3 classification rules, if there are no experiments, BS3 does not apply (Shortcut B). The `functional_evidence` tool returned an empty list of experiments, indicating no functional evidence is available to support normal protein function for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT"
+    }
+  ]
+}

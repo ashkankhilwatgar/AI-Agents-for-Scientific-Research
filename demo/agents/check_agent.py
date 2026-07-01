@@ -2,7 +2,8 @@ import json
 from config import MODELS
 import requests
 from typing import Optional
-from .llm import invoke_llm
+# from .llm.llm import create_llm
+from .llm.llm import invoke_llm
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -30,13 +31,13 @@ REQUIRED_FIELDS = [
 
 
 
-def call_judge_agent(prompt: str) -> str:
-    response = invoke_llm(
-        model=MODELS["check"]["model"],
-        provider=MODELS["check"]["provider"],
-        human_messsage=prompt,
-    )
-    return response
+# def call_judge_agent(prompt: str,) -> str:
+#     response = invoke_llm(
+#         model=MODELS["check"]["model"],
+#         provider=MODELS["check"]["provider"],
+#         human_messsage=prompt,
+#     )
+#     return response
 
 
 # def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:

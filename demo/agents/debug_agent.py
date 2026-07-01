@@ -3,11 +3,13 @@ import json
 # from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from config import RETRY_LIMIT
 from agents.task_agent import run_task
-from tools.utils import parse_json_response
-from .llm import invoke_llm
+# from tools.utils import parse_json_response
+from .llm.llm import create_llm
 from typing import Optional
 from config import MODELS
 from typing import Any, TypeAlias
+from pydantic import BaseModel
+from .llm.response_schema import CheckTechnicalResult
 
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
 
@@ -33,13 +35,24 @@ ToolResults: TypeAlias = dict[str, dict[str, Any]]
 #     return invoke_llm("judge_agent", prompt)
 
 
-def call_debug_agent(prompt: str) -> str:
-    response = invoke_llm(
+def call_debug_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
+    """
+    Invoke the task LLM and return its response as a structured Pydantic object.
+
+    The output_schema defines the expected response shape. Because
+    with_structured_output() is used, the returned value is an instance of that
+    schema, not a raw chat message and not response.content.
+    """
+    llm = create_llm(
         model=MODELS["debug"]["model"],
         provider=MODELS["debug"]["provider"],
-        human_messsage=prompt
+        temperature=0
     )
+    structured_llm = llm.with_structured_output(output_schema)
+    response = structured_llm.invoke([{"role": "user", "content": prompt}])
+    
     return response
+
     
 
 def print_task_summary(task_output: dict) -> None:
@@ -93,19 +106,17 @@ The following are NOT technical errors — do not flag these:
 - A criterion not applying (applies: false) based on available evidence — this is a valid scientific conclusion, not a technical failure
 - Evidence showing a variant is absent from a database — absence is valid evidence
 
-Task output:
-{json.dumps(task_output, indent=2)}
+You should follow the output schema
 
-Respond ONLY with a JSON object in this exact format, no explanation:
-{{
-    "pass": <true | false>,
-    "error_type": "technical",
-    "feedback": "<if pass is false: specific instruction for the Task agent to fix the error. If pass is true: null>"
-}}"""
-    raw = call_debug_agent(prompt)
+Some important rules: 
+- The pass_ field is True when there are no technical errors, and False otherwise.
+- The error_type field must explain why the pass_ field is True or False.
+- If the output does not pass, the feedback field must contain guidance for the downstream task agent on how to fix the error.
+"""
+    result = call_debug_agent(prompt, CheckTechnicalResult).model_dump()
 
     # raw = call_ollama(prompt)
-    return parse_json_response(raw)
+    return result
 
 
 _REQUIRED_FIELDS = {"criterion", "applies", "reasoning", "evidence",
@@ -162,7 +173,7 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
         # Slow path: genuine structural problem — ask LLM for specific feedback
         result = check_technical(task_output)
 
-        if result["pass"]:
+        if result["past"]:
             return task_output, tool_cache_update
 
         print(f"DEBUG AGENT: Technical error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
@@ -182,7 +193,7 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
         return task_output, tool_cache_update
 
     result = check_technical(task_output)
-    if result["pass"]:
+    if result["past"]:
         return task_output, tool_cache_update
 
     return {

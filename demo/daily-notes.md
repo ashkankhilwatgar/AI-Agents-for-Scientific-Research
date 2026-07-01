@@ -101,6 +101,9 @@ python3 -m pipeline --variant "NM_014858.4:c.1676G>A" --disease "ACMG"
   - Round 2: PM2_supporting, PS4_moderare, PP3 -> Correct; PM5, PS1 -> failed
   - Round 3: PM2_supporting, PS4_moderare, PP3 -> Correct; PM5, PS1 -> failed
 
+07/01/2026
+Let the agents always produce structured output by feeding it an output schema. 
+
 
 
 

@@ -3,12 +3,14 @@ import json
 # from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from config import RETRY_LIMIT
 from agents.task_agent import run_task
-from tools.utils import parse_json_response
+# from tools.utils import parse_json_response
 from data.planrag import query, get_gene_from_transcript
-from .llm import invoke_llm
+from .llm.llm import create_llm
 from typing import Optional, TypeAlias, Any
 from config import MODELS
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
+from pydantic import BaseModel
+from .llm.response_schema import CheckReasoningResult
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -31,12 +33,22 @@ ToolResults: TypeAlias = dict[str, dict[str, Any]]
 # def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
 #     return invoke_llm("judge_agent", prompt)
 
-def call_judge_agent(prompt: str) -> str:
-    response = invoke_llm(
+def call_judge_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
+    """
+    Invoke the task LLM and return its response as a structured Pydantic object.
+
+    The output_schema defines the expected response shape. Because
+    with_structured_output() is used, the returned value is an instance of that
+    schema, not a raw chat message and not response.content.
+    """
+    llm = create_llm(
         model=MODELS["judge"]["model"],
         provider=MODELS["judge"]["provider"],
-        human_messsage=prompt
+        temperature=0
     )
+    structured_llm = llm.with_structured_output(output_schema)
+    response = structured_llm.invoke([{"role": "user", "content": prompt}])
+    
     return response
 
 def check_reasoning(task_output: dict, rag_entry: dict | None = None) -> dict:
@@ -83,16 +95,17 @@ The following are NOT reasoning errors — do not flag these:
 Task output:
 {json.dumps(task_output, indent=2)}
 
-Respond ONLY with a JSON object in this exact format, no explanation:
-{{
-    "pass": <true | false>,
-    "error_type": "reasoning",
-    "feedback": "<if pass is false: specific instruction for the Task agent to fix the error. If pass is true: null>"
-}}"""
-    raw = call_judge_agent(prompt)
+You should follow the output schema
+
+Some important rules: 
+- The pass_ field is True when there are no reasoning errors, and False otherwise.
+- The error_type field must explain why the pass_ field is True or False.
+- If the output does not pass, the feedback field must contain guidance for the downstream task agent on how to fix the error.
+"""
+    result = call_judge_agent(prompt, CheckReasoningResult).model_dump()
 
     # raw = call_ollama(prompt)
-    return parse_json_response(raw)
+    return result
 
 
 def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_count: int = 0) -> tuple[dict, dict]:
@@ -120,19 +133,19 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
     while retry_count < RETRY_LIMIT:
         result = check_reasoning(task_output, rag_entry)
 
-        if result["pass"]:
+        if result["past"]:
             return task_output, tool_cache_update
 
         print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
         print(f"Feedback: {result['feedback']}")
 
         # get new output from Task agent with correction feedback
-        task_output, tool_cache_update = run_task(task, tool_results=tool_result, feedback=result["feedback"])
+        task_output, tool_cache_update = run_task(task, gene_symbol= gene, tool_results=tool_result, feedback=result["feedback"])
         retry_count += 1
 
     # check the final retry output before giving up
     result = check_reasoning(task_output, rag_entry)
-    if result["pass"]:
+    if result["past"]:
         return task_output, tool_cache_update
 
     return {

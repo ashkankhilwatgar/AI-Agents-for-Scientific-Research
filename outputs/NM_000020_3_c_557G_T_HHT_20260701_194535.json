@@ -1,0 +1,42 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260701_194535",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "evidence": "The variant NM_000020.3:c.557G>T is found in gnomAD with a total allele count (AC) of 1 across all populations.",
+      "reasoning": "According to the PM2_SUPPORTING classification rules, if the total allele count (AC) across all gnomAD populations is less than 6, the criterion applies. The retrieved evidence shows a total AC of 1, which is less than 6. Therefore, PM2_SUPPORTING applies.",
+      "applies": true,
+      "strength_note": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "criterion": "PM2_SUPPORTING",
+      "disease": "HHT",
+      "applied_strength": "supporting"
+    }
+  ]
+}

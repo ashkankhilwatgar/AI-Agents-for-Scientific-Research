@@ -66,47 +66,47 @@ def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatMod
     
 
 
-def invoke_llm(
-        model: str,
-        provider: str,
-        human_messsage: str,
-        system_message: Optional[str] = None,
-        temperature: float = 0,
-) -> str:
-    """
+# def invoke_llm(
+#         model: str,
+#         provider: str,
+#         human_messsage: str,
+#         system_message: Optional[str] = None,
+#         temperature: float = 0,
+# ) -> str:
+#     """
 
-    Create an LLM, send it a prompt, and return the model's text response.
+#     Create an LLM, send it a prompt, and return the model's text response.
 
-    Parameters
-    ----------
-    model : str
-        Model name to use.
-    provider : str
-        Backend/provider name passed into create_llm().
-    human_messsage : str
-        The user's task/question/prompt.
-        Note: this variable currently has a typo in its name:
-        "messsage" instead of "message".
-    system_message : str, optional
-        Optional instruction that tells the model how to behave.
-    temperature : float, optional
-        Controls randomness in the model response.
+#     Parameters
+#     ----------
+#     model : str
+#         Model name to use.
+#     provider : str
+#         Backend/provider name passed into create_llm().
+#     human_messsage : str
+#         The user's task/question/prompt.
+#         Note: this variable currently has a typo in its name:
+#         "messsage" instead of "message".
+#     system_message : str, optional
+#         Optional instruction that tells the model how to behave.
+#     temperature : float, optional
+#         Controls randomness in the model response.
 
-    Returns
-    -------
-    str
-        The content of the model's response message.
+#     Returns
+#     -------
+#     str
+#         The content of the model's response message.
 
-    """
-    llm = create_llm(provider, model, temperature)
+#     """
+#     llm = create_llm(provider, model, temperature)
 
-    message = [HumanMessage(human_messsage)]
-    if system_message:
-        message.append(SystemMessage(system_message))
+#     message = [HumanMessage(human_messsage)]
+#     if system_message:
+#         message.append(SystemMessage(system_message))
     
-    response = llm.invoke(message)
+#     response = llm.invoke(message)
 
-    return response.content
+#     return response.content
 
     
 

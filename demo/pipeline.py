@@ -419,8 +419,6 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     # ── PLAN AGENT ────────────────────────────
     tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
 
-    print(tasks)
-
     if not tasks:
         print("PIPELINE: Plan agent returned no tasks. Exiting.")
         return [], {}

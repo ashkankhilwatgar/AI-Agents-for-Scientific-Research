@@ -2,8 +2,8 @@ import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL
 from data.planrag import query
-from tools.utils import parse_json_response
-from .llm import invoke_llm
+# from tools.utils import parse_json_response
+from .llm.llm import invoke_llm
 from typing import Optional, TypeAlias
 from config import MODELS
 from data.planrag import get_gene_from_transcript

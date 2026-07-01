@@ -232,8 +232,8 @@ PLANRAG_DB = {
         ),
         "threshold": "PS4_Strong: 4+ probands; PS4_Moderate: 2-3 probands; PS4_Supporting: 1 proband; variant must also meet PM2_Supporting",
         "instructions": (
-            "PM2_Supporting has already been confirmed as met — do not re-evaluate it.\n"
-            "Query ClinVar for the HHT VCEP expert panel submission for this variant.\n"
+            "If PM2_Supporting has already been confirmed as met — do not re-evaluate it.\n"
+            "If not, Query ClinVar for the HHT VCEP expert panel submission for this variant.\n"
             "The submission comment contains the proband count reported by submitting labs.\n"
             "If the variant is not in ClinVar or has no proband count, fall back to PubMed.\n"
             "\n"
@@ -871,7 +871,7 @@ PLANRAG_DB = {
         "acmg_category": "Benign",
         "strength": "supporting",
         "automation": "not_automatable",
-        "tool": None,
+        "tool": "functional_evidence",
         "phase": 4,
         "depends_on": ["PS3"],
         "description": (
