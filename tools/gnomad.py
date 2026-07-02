@@ -1,9 +1,35 @@
 import requests
 import time
+import threading
+
+try:
+    from config import GNOMAD_REQUESTS_PER_MINUTE
+except Exception:  # keep the tool importable/usable if config isn't on the path
+    GNOMAD_REQUESTS_PER_MINUTE = 60
 
 GNOMAD_URL = "https://gnomad.broadinstitute.org/api"
 MAX_RETRIES = 3
 RETRY_DELAY = 2
+
+# ── Global gnomAD throttle ────────────────────────────────────────────────────
+# In batch mode many variants run concurrently (see run_batch in pipeline.py),
+# and gnomAD's public API 429s when their queries burst in together. This gate
+# enforces a minimum spacing between gnomAD request STARTS across ALL threads, so
+# the combined batch stays under ~GNOMAD_REQUESTS_PER_MINUTE. It only serializes
+# the (fast) request kickoff, not the whole call, so it barely affects latency.
+_gnomad_lock = threading.Lock()
+_gnomad_last_call = 0.0
+
+
+def _throttle_gnomad() -> None:
+    global _gnomad_last_call
+    min_interval = 60.0 / max(GNOMAD_REQUESTS_PER_MINUTE, 1)
+    with _gnomad_lock:
+        now = time.monotonic()
+        wait = min_interval - (now - _gnomad_last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _gnomad_last_call = time.monotonic()
 
 def query_gnomad(variant: str, dataset: str = "gnomad_r4") -> dict:
     query = """
@@ -59,6 +85,7 @@ def query_gnomad(variant: str, dataset: str = "gnomad_r4") -> dict:
 
     for attempt in range(MAX_RETRIES):
         try:
+            _throttle_gnomad()
             response = requests.post(GNOMAD_URL, json=payload, timeout=15)
 
             if response.status_code in (429, 500, 503):
@@ -164,6 +191,7 @@ def query_gnomad_gene_constraint(gene_symbol: str) -> dict:
 
     for attempt in range(MAX_RETRIES):
         try:
+            _throttle_gnomad()
             response = requests.post(GNOMAD_URL, json=payload, timeout=15)
 
             if response.status_code in (429, 500, 503):

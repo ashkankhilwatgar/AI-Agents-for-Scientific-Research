@@ -12,6 +12,14 @@ load_dotenv(override=True)
 NCBI_API_KEY = "cfe8c362c0505fe8ea3f0f9893d80c3f8208"
 NCBI_EMAIL = "sli1@hamilton.edu"
 
+# metapub (used by PS3/PS4 PubMed lookups) reads the NCBI key from the
+# environment, not from this module. Export it here so metapub picks it up and
+# runs authenticated (higher NCBI rate limit) instead of warning "NCBI_API_KEY
+# was not set" and throttling. Respect an already-set env value if present.
+import os as _os
+_os.environ.setdefault("NCBI_API_KEY", NCBI_API_KEY)
+_os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
+
 
 # If you think the functional evidence tools is too slow, you can 
 # switch to a smaller model for functional evidence. However, note that
@@ -47,6 +55,14 @@ RETRY_LIMIT=2
 # protects against runaway bursts without serializing the parallel calls.
 # Lower it if you start seeing 429s.
 GEMINI_REQUESTS_PER_MINUTE = 300
+
+# gnomAD's public GraphQL API has no published rate limit, but returns HTTP 429
+# when several variants' PM2/BA1/BS1 (and gene-constraint) queries land at the
+# same instant — which happens routinely in batch mode where variants run
+# concurrently. This throttles gnomAD request STARTS globally across all threads
+# (see the shared limiter in tools/gnomad.py). Lower it if 429s persist; raise
+# it if runs feel slow and you're not seeing 429s.
+GNOMAD_REQUESTS_PER_MINUTE = 60
 
 
 
