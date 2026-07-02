@@ -128,25 +128,25 @@ def run_check(task_output: dict) -> dict:
     result = check_format(task_output)
 
     if result["pass"]:
-        print("CHECK AGENT: Output passed formatting check")
+        # print("CHECK AGENT: Output passed formatting check")
         return task_output
 
-    print(f"CHECK AGENT: {len(result['issues'])} formatting issue(s) found:")
-    for issue in result["issues"]:
-        print(f"  - {issue}")
+    # print(f"CHECK AGENT: {len(result['issues'])} formatting issue(s) found:")
+    # for issue in result["issues"]:
+    #     print(f"  - {issue}")
 
     corrected, fixes = fix_formatting(task_output)
 # 
-    print(f"CHECK AGENT: Applied {len(fixes)} fix(es):")
-    for fix in fixes:
-        print(f"  - {fix}")
+    # print(f"CHECK AGENT: Applied {len(fixes)} fix(es):")
+    # for fix in fixes:
+    #     print(f"  - {fix}")
 
-    # verify fixes resolved all issues
-    recheck = check_format(corrected)
-    if not recheck["pass"]:
-        print("CHECK AGENT: Warning — some issues could not be fixed automatically:")
-        for issue in recheck["issues"]:
-            print(f"  - {issue}")
+    # # verify fixes resolved all issues
+    # recheck = check_format(corrected)
+    # if not recheck["pass"]:
+    #     print("CHECK AGENT: Warning — some issues could not be fixed automatically:")
+    #     for issue in recheck["issues"]:
+    #         print(f"  - {issue}")
 
     return corrected
 

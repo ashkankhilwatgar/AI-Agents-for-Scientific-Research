@@ -115,26 +115,55 @@ class PerCriterionState(TypedDict):
     gene_symbol: str | None
 
 # ==================================
+# Helper Function for Printing  
+# Results After Each Phase
+# ==================================
+
+def format_result(result: dict[str, Any]) -> str:
+    """
+    Format a single criterion result
+    """
+    if result.get("status") and result.get("status") == "error":
+        return f"""CRITERION: {result.get("criterion", "unknown criterion")}
+ERROR: {result.get("error", "unknown error")}"""
+        
+    return f"""CRITERION: {result["criterion"]}
+APPLIED: {result.get("applies", "unknown")}
+EVIDENCE: {result.get("evidence", "unknown")}
+REASONING: {result.get("reasoning", "unknown")}
+TOOL USED: {result.get("tool_used", "unknown")}"""
+
+
+# ==================================
 # Langgraph Nodes
 # ==================================
 
 def fan_in_after_phase_1(state: OverallState):
     """
-    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
-
-    Acts as a barrier node after parallel criterion execution, allowing the graph
-    to merge results before proceeding to the next phase.
+    Fan-in node that aggregates and logs Phase 1 results.
+    This function acts as a synchronization barrier after parallel execution.
+    It collects results, formats a structured summary, and print outputs
+    for debugging/traceability purposes.
 
     Returns:
-        Empty dict to trigger state continuation without modification.
+        Empty dict (LangGraph convention for no state mutation here)
     """
-    phase1_tasks = state["tasks"]["phase1"]
-    phase1_criterions = [task["criterion"] for task in phase1_tasks]
+    phase1_tasks = state.get("tasks", {}).get("phase1", {})
+    phase1_criterions = [task.get("criterion") for task in phase1_tasks]
+    
+    phase1_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase1_criterions]
     
     print(f"\n{'-'*60}")
     print("PHASE 1 COMPLETE")
     print(f"CHECKED: {', '.join(phase1_criterions)}")
-    print(f"\n{'-'*60}")
+
+    # --------------- LOGGING ----------------
+    for result in phase1_results:
+        print(f"{"*"*60}")
+        result_formatted = format_result(result)
+        print(result_formatted)
+    print(f"{'-'*60}")
+        
     return {}
 
 def fan_in_after_phase_2(state: OverallState):
@@ -147,13 +176,22 @@ def fan_in_after_phase_2(state: OverallState):
     Returns:
         Empty dict to trigger state continuation without modification.
     """
-    phase2_tasks = state["tasks"]["phase2"]
-    phase2_criterions = [task["criterion"] for task in phase2_tasks]
-
+    phase2_tasks = state.get("tasks", {}).get("phase2", {})
+    phase2_criterions = [task.get("criterion") for task in phase2_tasks]
+    
+    phase2_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase2_criterions]
+    
     print(f"\n{'-'*60}")
     print("PHASE 2 COMPLETE")
     print(f"CHECKED: {', '.join(phase2_criterions)}")
-    print(f"\n{'-'*60}")
+
+    # --------------- LOGGING ----------------
+    for result in phase2_results:
+        print(f"{"*"*60}")
+        result_formatted = format_result(result)
+        print(result_formatted)
+    print(f"{'-'*60}")
+
     return {}
 
 def fan_in_after_phase_3(state: OverallState):
@@ -166,13 +204,48 @@ def fan_in_after_phase_3(state: OverallState):
     Returns:
         Empty dict to trigger state continuation without modification.
     """
-    phase3_tasks = state['tasks']["phase3"]
-    phase3_criterions = [task["criterion"] for task in phase3_tasks]
-
+    phase3_tasks = state.get("tasks", {}).get("phase3", {})
+    phase3_criterions = [task.get("criterion") for task in phase3_tasks]
+    
+    phase3_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase3_criterions]
+    
     print(f"\n{'-'*60}")
     print("PHASE 3 COMPLETE")
     print(f"CHECKED: {', '.join(phase3_criterions)}")
+
+    # --------------- LOGGING ----------------
+    for result in phase3_results:
+        print(f"{"*"*60}")
+        result_formatted = format_result(result)
+        print(result_formatted)
+    print(f"{'-'*60}")
+    return {}
+
+def fan_in_after_phase_4(state: OverallState):
+    """
+    Fan-in node that synchronizes phase completion in the LangGraph pipeline.
+
+    Acts as a barrier node after parallel criterion execution, allowing the graph
+    to merge results before proceeding to the next phase.
+
+    Returns:
+        Empty dict to trigger state continuation without modification.
+    """
+    phase4_tasks = state.get("tasks", {}).get("phase4", {})
+    phase4_criterions = [task.get("criterion") for task in phase4_tasks]
+    
+    phase4_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase4_criterions]
+    
     print(f"\n{'-'*60}")
+    print("PHASE 4 COMPLETE")
+    print(f"CHECKED: {', '.join(phase4_criterions)}")
+
+    # --------------- LOGGING ----------------
+    for result in phase4_results:
+        print(f"{"*"*60}")
+        result_formatted = format_result(result)
+        print(result_formatted)
+    print(f"{'-'*60}")
     return {}
 
 def process_criterion(state: PerCriterionState):
@@ -225,9 +298,9 @@ def process_criterion(state: PerCriterionState):
         
         return {"criterion_results": {criterion.upper().replace("-", "_"): skipped_entry}}        
 
-    print(f"\n{'─'*60}")
-    print(f"PIPELINE: Processing criterion {criterion}")
-    print(f"{'─'*60}")
+    # print(f"\n{'─'*60}")
+    # print(f"PIPELINE: Processing criterion {criterion}")
+    # print(f"{'─'*60}")
 
     # ── DEBUG AGENT (runs Task agent internally) ──
     # print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
@@ -257,7 +330,7 @@ def process_criterion(state: PerCriterionState):
     # print(f"\n[3/3] CHECK AGENT — validating formatting")
     final_output = run_check(judge_output)
 
-    print(f"\nPIPELINE: {criterion} complete")
+    # print(f"\nPIPELINE: {criterion} complete")
     return {
         "criterion_results": {criterion.upper().replace("-", "_"): final_output},
         "tool_results": tool_cache_update
@@ -336,6 +409,7 @@ def build_graph():
     graph_builder.add_node("process_phase_3_criterion", process_criterion)
     graph_builder.add_node("fan_in_after_phase_3", fan_in_after_phase_3)
     graph_builder.add_node("process_phase_4_criterion", process_criterion)
+    graph_builder.add_node("fan_in_after_phase_4", fan_in_after_phase_4)
 
     # EDGES
     graph_builder.add_conditional_edges(START, fan_out_before_phase_1)
@@ -345,7 +419,8 @@ def build_graph():
     graph_builder.add_conditional_edges("fan_in_after_phase_2", fan_out_before_phase_3)
     graph_builder.add_edge("process_phase_3_criterion", "fan_in_after_phase_3")
     graph_builder.add_conditional_edges("fan_in_after_phase_3", fan_out_before_phase_4)
-    graph_builder.add_edge("process_phase_4_criterion", END)
+    graph_builder.add_edge("process_phase_4_criterion", "fan_in_after_phase_4")
+    graph_builder.add_edge("fan_in_after_phase_4", END)
 
     # COMPILE
     graph = graph_builder.compile()

@@ -136,8 +136,8 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
     disease = task.get("disease")
     rag_entry = query(criterion, gene=gene, disease=disease)
 
-    if rag_entry is None:
-        print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
+    # if rag_entry is None:
+    #     print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
     tool_cache_update = {}
 
     while retry_count < RETRY_LIMIT:
@@ -146,8 +146,8 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
         if result["past"]:
             return task_output, tool_cache_update
 
-        print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
-        print(f"Feedback: {result['feedback']}")
+        # print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
+        # print(f"Feedback: {result['feedback']}")
 
         # get new output from Task agent with correction feedback
         task_output, tool_cache_update = run_task(task, gene_symbol= gene, tool_results=tool_result, feedback=result["feedback"])

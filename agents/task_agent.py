@@ -18,6 +18,7 @@ from config import MODELS
 from pydantic import BaseModel
 from .llm.response_schema import TaskInterpretation, ToolDecision
 from typing import TypeVar
+# from pipeline import ToolResults
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -561,23 +562,25 @@ def run_tool(
     tool = tool_decision["tool"]
     input_value = variant
 
-    print(f"DEBUG - tool: {tool}, input: {input_value}")
+    # print(f"DEBUG - tool: {tool}, input: {input_value}")
 
     if tool == "clinvar":
         criterion = (rag_entry or {}).get("criterion", "")
         if criterion == "PS4":
             # PS4: ClinVar VCEP SCV first (contains proband count), PubMed fallback
             cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
-            print(f"DEBUG - PS4: querying ClinVar VCEP SCV for {input_value}")
+            # print(f"DEBUG - PS4: querying ClinVar VCEP SCV for {input_value}")
             clinvar_ps4 = search_clinvar_for_variant_ps4(input_value)
 
             if "error" in clinvar_ps4:
-                print(f"DEBUG - ClinVar PS4 lookup error: {clinvar_ps4['error']}, trying ERepo")
+                # print(f"DEBUG - ClinVar PS4 lookup error: {clinvar_ps4['error']}, trying ERepo")
+                pass
             elif clinvar_ps4.get("found") and clinvar_ps4.get("proband_count", 0) > 0:
-                print(f"DEBUG - ClinVar PS4: {clinvar_ps4['proband_count']} proband(s) in HHT VCEP SCV")
+                # print(f"DEBUG - ClinVar PS4: {clinvar_ps4['proband_count']} proband(s) in HHT VCEP SCV")
                 return clinvar_ps4, f"ClinVar VCEP SCV for {input_value}"
             else:
-                print(f"DEBUG - ClinVar PS4: no proband count in SCV, trying ERepo")
+                # print(f"DEBUG - ClinVar PS4: no proband count in SCV, trying ERepo")
+                pass
 
             # ERepo fallback — VCEP curated evidence may contain proband count
             # even when the ClinVar SCV comment field is empty
@@ -585,7 +588,7 @@ def run_tool(
             if "error" not in erepo_ps4 and erepo_ps4.get("found"):
                 proband_count = erepo_ps4.get("proband_count")
                 classification = erepo_ps4.get("classification") or ""
-                print(f"DEBUG - ERepo PS4: variant found | classification: {classification} | proband_count: {proband_count}")
+                # print(f"DEBUG - ERepo PS4: variant found | classification: {classification} | proband_count: {proband_count}")
 
                 # If proband_count is not explicitly stated in the evidence notes,
                 # infer it from the VCEP classification: P/LP requires patient-level evidence,
@@ -593,7 +596,7 @@ def run_tool(
                 if not proband_count:
                     if any(c in classification for c in ("Pathogenic", "Likely Pathogenic")):
                         proband_count = 1
-                        print(f"DEBUG - ERepo PS4: proband_count inferred as 1 from VCEP {classification} classification")
+                        # print(f"DEBUG - ERepo PS4: proband_count inferred as 1 from VCEP {classification} classification")
 
                 # Only return ERepo as a PS4 source if we have usable proband data.
                 # If classification is VUS (or other non-P/LP) and no explicit proband count,
@@ -613,16 +616,18 @@ def run_tool(
                         ),
                     }, f"ERepo for {input_value}"
                 else:
-                    print(f"DEBUG - ERepo PS4: classification '{classification}' with no proband count — falling through to LOVD")
+                    # print(f"DEBUG - ERepo PS4: classification '{classification}' with no proband count — falling through to LOVD")
+                    pass
             else:
-                print(f"DEBUG - ERepo PS4: variant not found, trying LOVD")
+                # print(f"DEBUG - ERepo PS4: variant not found, trying LOVD")
+                pass
 
             # LOVD fallback — observation database across participating labs
             # Times_reported = number of independent lab submissions (proxy for probands)
             lovd_ps4 = search_lovd_for_variant(gene, cdna_change)
             if "error" not in lovd_ps4 and lovd_ps4.get("found"):
                 times_reported = lovd_ps4.get("times_reported")
-                print(f"DEBUG - LOVD PS4: variant found | times_reported: {times_reported}")
+                # print(f"DEBUG - LOVD PS4: variant found | times_reported: {times_reported}")
                 if times_reported and times_reported > 0:
                     return {
                         "found": True,
@@ -637,7 +642,8 @@ def run_tool(
                         ),
                     }, f"LOVD for {input_value}"
             else:
-                print(f"DEBUG - LOVD PS4: variant not found, falling back to PubMed")
+                # print(f"DEBUG - LOVD PS4: variant not found, falling back to PubMed")
+                pass
 
             # PubMed fallback with protein + nucleotide notation
             disease_label = disease or "HHT"
@@ -655,7 +661,7 @@ def run_tool(
             else:
                 pubmed_query = f"{gene_label} {cdna_change} {disease_label}"
             result = search_pubmed(pubmed_query)
-            print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+            # print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
             return result, pubmed_query
         elif criterion in ("PP5", "BP6"):
             # PP5/BP6 require exact variant classification from ClinVar,
@@ -680,7 +686,7 @@ def run_tool(
             return {"error": "Gene symbol required for gene-level constraint query — add this gene to GENE_DB in planrag.py"}, input_value
         gene_result = query_gnomad_gene_constraint(gene)
         gene_result = _annotate_gnomad_gene_constraint(gene_result)
-        print(f"DEBUG - gnomad_gene: {gene} | mis_z={gene_result.get('mis_z')} | pLI={gene_result.get('pLI')} | LOEUF={gene_result.get('oe_lof_upper')}")
+        # print(f"DEBUG - gnomad_gene: {gene} | mis_z={gene_result.get('mis_z')} | pLI={gene_result.get('pLI')} | LOEUF={gene_result.get('oe_lof_upper')}")
         return gene_result, gene
 
     elif tool == "revel_spliceai":
@@ -691,9 +697,9 @@ def run_tool(
             input_value = converted
         revel_result = query_revel_spliceai(input_value)
         revel_result = _annotate_spliceai(revel_result)
-        print(f"DEBUG - revel_spliceai: REVEL={revel_result.get('revel_score')} | "
-              f"DS_AG={revel_result.get('DS_AG')} DS_AL={revel_result.get('DS_AL')} "
-              f"DS_DG={revel_result.get('DS_DG')} DS_DL={revel_result.get('DS_DL')}")
+        # print(f"DEBUG - revel_spliceai: REVEL={revel_result.get('revel_score')} | "
+        #       f"DS_AG={revel_result.get('DS_AG')} DS_AL={revel_result.get('DS_AL')} "
+        #       f"DS_DG={revel_result.get('DS_DG')} DS_DL={revel_result.get('DS_DL')}")
         return revel_result, input_value
 
     elif tool == "spliceai":
@@ -722,24 +728,26 @@ def run_tool(
                 if query_cdna not in c.get("hgvs", "")
             ]
             after = len(result["classifications"])
-            print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
+            # print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
         else:
-            print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+            # print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {len(result.get('classifications', []))}")
+            pass
 
         # ClinVar fallback — if ERepo has no other variants at this codon,
         # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
         if not result.get("classifications"):
             ref_aa = vep_result.get("amino_acid_ref")
             if ref_aa:
-                print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
+                # print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
                 clinvar_result = search_clinvar_for_codon(
                     gene_label, codon_position, ref_aa, query_cdna
                 )
                 if "error" not in clinvar_result:
-                    print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
+                    # print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
                     result = clinvar_result
                 else:
-                    print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+                    # print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+                    pass
 
         # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
         # Done here deterministically so the LLM never has to reason about it.
@@ -755,10 +763,10 @@ def run_tool(
                     diff_aa.append(c)
             result["same_aa_classifications"] = same_aa
             result["different_aa_classifications"] = diff_aa
-            print(
-                f"DEBUG - erepo AA split: same_aa={len(same_aa)} (PS1), "
-                f"different_aa={len(diff_aa)} (PM5)"
-            )
+            # print(
+            #     f"DEBUG - erepo AA split: same_aa={len(same_aa)} (PS1), "
+            #     f"different_aa={len(diff_aa)} (PM5)"
+            # )
 
         return result, f"{gene_label} position {codon_position}"
 
@@ -780,7 +788,7 @@ def run_tool(
         else:
             pubmed_query = f"{gene_label} {cdna_change} {disease_label}"
         result = search_pubmed(pubmed_query)
-        print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
+        # print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
         return result, pubmed_query
 
     elif tool == "vep":
@@ -810,14 +818,14 @@ def run_tool(
                 # check_pm1_critical_region expects {"ranges": [...], "discrete": [...]}
                 # GENE_DB stores a flat list of range dicts — wrap it into that shape.
                 critical_regions = {"ranges": gene_regions, "discrete": []}
-                print(f"DEBUG - vep/PM1: using GENE_DB critical regions for {gene} "
-                      f"({len(gene_regions)} region(s))")
+                # print(f"DEBUG - vep/PM1: using GENE_DB critical regions for {gene} "
+                #       f"({len(gene_regions)} region(s))")
 
         if codon_position is not None and critical_regions is not None:
             pm1_check = check_pm1_critical_region(codon_position, critical_regions)
             vep_result["in_critical_region"] = pm1_check["in_critical_region"]
             vep_result["pm1_region_name"] = pm1_check["region_name"]
-            print(f"DEBUG - vep/PM1: codon {codon_position} | in_critical_region={pm1_check['in_critical_region']} | region={pm1_check['region_name']}")
+            # print(f"DEBUG - vep/PM1: codon {codon_position} | in_critical_region={pm1_check['in_critical_region']} | region={pm1_check['region_name']}")
         return vep_result, input_value
     
     elif tool == "functional_evidence":
@@ -839,9 +847,9 @@ def interpret_evidence(
     tool_used: str,
     tool_input: str,
     evidence: dict,
-    rag_entry: dict = None,
-    feedback: str = None,
-    variant_type: str = None
+    rag_entry: dict | None = None,
+    feedback: str | None = None,
+    variant_type: str | None = None
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
