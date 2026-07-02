@@ -1,0 +1,192 @@
+{
+  "variant": "NM_000295.5:c.1096G>A",
+  "disease": "Alpha-1 antitrypsin deficiency",
+  "timestamp": "20260629_143331",
+  "classification": "Benign",
+  "rule_matched": "\u22652 Strong benign",
+  "scoring": {
+    "classification": "Benign",
+    "rule_matched": "\u22652 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 2,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong",
+      "BS2": "benign_strong",
+      "PS4": "supporting",
+      "PM5": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "BS1",
+      "BS2",
+      "PS4",
+      "PM5",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "AF=0.016249 in gnomAD exome, popmax_FAF=0.01967236 in NFE population.",
+      "reasoning": "The variant is present in gnomAD with an AF of 0.016249 and a popmax_FAF of 0.01967236, which exceeds the threshold of 0.0001 for PM2 criterion.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.01967236 in gnomAD, with the maximum frequency observed in the non-Finnish European (NFE) population.",
+      "reasoning": "The Popmax FAF of 0.01967236 is less than the threshold of 0.05 required for criterion BA1 to apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.01967236 in gnomAD, and the variant has an allele count of 25605 with 263 homozygous alleles.",
+      "reasoning": "The Popmax FAF (0.01967236) is greater than 0.01 but less than 0.05, meeting the BS1 threshold criteria. The variant does not meet BA1 criteria as its Popmax FAF is below 0.05.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "tool_used": "gnomad",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) in gnomAD is 263.",
+      "reasoning": "For a recessive disorder like Alpha-1 antitrypsin deficiency, the presence of healthy homozygotes in gnomAD suggests that this variant may not be fully penetrant or deleterious. The ac_hom count is greater than zero, indicating the presence of individuals who are homozygous for this variant and presumably healthy.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete",
+      "applied_strength": "benign_strong"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Variant observed 1 time(s) in LOVD (Leiden Open Variation Database).",
+      "reasoning": "The variant was found once, which is insufficient to meet the threshold for PS4_Strong or PS4_Moderate. It meets the criteria for PS4_Supporting.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000295.5:c.1096G>A",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_000295.5:c.1096G>A is a missense variant resulting in p.Glu366Lys, but the evidence does not contain 'in_critical_region'.",
+      "reasoning": "The VEP tool did not provide information about whether the variant falls within a critical region of the protein. Without this information and without additional knowledge indicating that position 366 is part of a well-established critical domain or hotspot for Alpha-1 antitrypsin deficiency, PM1 cannot be applied.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000295.5:c.1096G>A",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000295.5(SERPINA1):c.1097A>G (p.Glu366Gly) and NM_000295.5(SERPINA1):c.1096G>C (p.Glu366Gln), both classified as Likely pathogenic by ClinVar.",
+      "reasoning": "There are two different amino acid substitutions at the same codon position 366, both classified as Likely Pathogenic from a reputable source (ClinVar). This meets the threshold for PM5_Strong. However, since there is no mention of PM1 applying here, we maintain PM5_Strong.",
+      "applies": true,
+      "applied_strength": "strong",
+      "tool_used": "erepo",
+      "tool_input": "SERPINA1 position 366",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "clinvar reports two variants NM_000295.5(SERPINA1):c.1097A>G (p.Glu366Gly) and NM_000295.5(SERPINA1):c.1096G>C (p.Glu366Gln), both classified as Likely pathogenic, but none with identical amino acid change to query variant c.1096G>A.",
+      "reasoning": "same_aa_classifications list is empty; no variants have the exact same amino acid change as the query variant. Therefore, PS1 does not apply.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "SERPINA1 position 366",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.686, SpliceAI scores (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0)",
+      "reasoning": "According to the computed verdicts, PP3 REVEL (>= 0.644): APPLIES as the REVEL score is 0.686 which is above the threshold of 0.644 for missense variants.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "NM_000295.4(SERPINA1):c.[1096G>A;35T>C], Pathogenic, criteria provided, single submitter, star_rating 1, reputable_source false",
+      "reasoning": "The variant is found in ClinVar with a classification of 'Pathogenic', but the source is not reputable (star_rating < 2). Therefore, PP5 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000295.5:c.1096G>A",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.686, SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "For missense variant, BP4 requires REVEL <= 0.29 and SpliceAI <= 0.1. REVEL score is 0.686 (FAILS), so BP4 does not apply despite passing the SpliceAI condition.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "14-94378610-C-T",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "NM_000295.4(SERPINA1):c.[1096G>A;35T>C], classification: Pathogenic, review_status: criteria provided, single submitter, star_rating: 1, reputable_source: false",
+      "reasoning": "The variant NM_000295.4(SERPINA1):c.[1096G>A;35T>C] is classified as pathogenic and does not meet the threshold of being Benign or Likely benign by a reputable source (star_rating >= 2).",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000295.5:c.1096G>A",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP2",
+      "evidence": "mis_z=-0.7002, pLI=8.773683322434977e-07, oe_lof=0.8265, oe_mis=1.0728",
+      "reasoning": "The mis_z score is -0.7002 which does not meet the threshold of 3.09 for PP2 criterion.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad_gene",
+      "tool_input": "SERPINA1",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP1",
+      "evidence": "pLI: 8.773683322434977e-07, LOEUF (oe_lof_upper): 1.1901133649798687, oe_mis: 1.0727737798450645",
+      "reasoning": "The gene SERPINA1 is not LOF-intolerant (pLI < 0.9 and LOEUF > 0.35). Missense variants are relatively common in the healthy population (oe_mis >= 0.8), suggesting that missense mutations can be tolerated. Alpha-1 antitrypsin deficiency primarily results from null or severely reduced function alleles, but missense variants can also contribute to disease pathogenesis.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad_gene",
+      "tool_input": "SERPINA1",
+      "disease": "Alpha-1 antitrypsin deficiency",
+      "status": "complete"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "variant": "17-31095318-G-A",
+  "disease": "Neurofibromatosis type 1",
+  "timestamp": "20260629_153111",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 1
+    },
+    "bucket_detail": {
+      "PM2": "moderate",
+      "BP7": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2",
+      "BP7"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "Variant absent from gnomAD entirely (no gnomAD data at all)",
+      "reasoning": "The variant is not present in any subpopulation of gnomAD, meeting the threshold for PM2 criterion.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete",
+      "applied_strength": "moderate"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant absent from gnomAD with popmax_FAF=0.000000",
+      "reasoning": "The variant is not present in the gnomAD database, and the maximum population allele frequency (popmax FAF) is 0. The threshold for BA1 is a popmax FAF >= 0.05.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.0 in gnomAD for the variant 17-31095318-G-A.",
+      "reasoning": "The Popmax FAF value (0.0) does not meet the threshold of >0.01 and <0.05 required by BS1 criterion.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for the variant is 0 in gnomAD exome and genome data. The variant is not present in any population subset of gnomAD.",
+      "reasoning": "Since ac_hom is 0, there are no healthy homozygotes reported in gnomAD for this variant. This does not contradict the fully penetrant dominant nature of Neurofibromatosis type 1.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Multiple case reports and studies discussing the variant's association with NF1, but no specific statistical data or OR/RR values provided.",
+      "reasoning": "No direct evidence meeting PS4 criteria thresholds (OR/RR > 5.0) was found in the retrieved articles. The evidence does not provide sufficient case-control study results to apply PS4_Strong. There are multiple unrelated patients with the same phenotype, but they are not absent from controls as required by the criterion.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NF1 17-31095318-G-A Neurofibromatosis type 1",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score not available, SpliceAI scores (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0) all below 0.2.",
+      "reasoning": "Since the variant is likely missense or synonymous/intronic and REVEL score is not available, we check SpliceAI scores. None of the SpliceAI scores meet the threshold (>= 0.2).",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "{\"found\": false, \"classification\": null, \"review_status\": null, \"star_rating\": 0, \"reputable_source\": false}",
+      "reasoning": "The variant was not found in ClinVar. Therefore, PP5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score not available, SpliceAI scores all <= 0.1.",
+      "reasoning": "For a missense variant, BP4 requires both REVEL <= 0.290 and SpliceAI scores <= 0.1. Since the REVEL score is not available, BP4 cannot be applied despite SpliceAI passing the threshold.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "{\"found\": false, \"classification\": null, \"review_status\": null, \"star_rating\": 0, \"reputable_source\": false}",
+      "reasoning": "The variant was not found in ClinVar. Therefore, BP6 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP7",
+      "evidence": "DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "All four SpliceAI delta scores are <= 0.1, meeting the BP7 threshold for synonymous or intronic variants.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "tool_used": "spliceai",
+      "tool_input": "17-31095318-G-A",
+      "disease": "Neurofibromatosis type 1",
+      "status": "complete"
+    }
+  ]
+}

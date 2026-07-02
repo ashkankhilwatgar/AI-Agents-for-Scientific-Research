@@ -1,0 +1,107 @@
+{
+  "variant": "2-32063791-C-T",
+  "disease": "ACMG",
+  "timestamp": "20260629_145600",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS2": "benign_strong"
+    },
+    "applied_criteria": [
+      "BS2"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "AF=0.0008 in gnomAD exome, popmax_FAF=0.00205937 in mid population",
+      "reasoning": "popmax_FAF (0.00205937) is greater than the threshold of 0.0001 for PM2 criterion.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF in gnomAD exome is 0.00205937, and in genome is 0.00082212.",
+      "reasoning": "The Popmax FAF (0.00205937) is less than the threshold of 0.05 for criterion BA1.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.00205937 in gnomAD exome, < 0.01 (1%)",
+      "reasoning": "The Popmax FAF is less than the threshold of 0.01 for BS1 criterion.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for variant 2-32063791-C-T is 4 in gnomAD. The maximum subpopulation allele frequency (popmax_faf) is 0.00205937, indicating a low but detectable presence of homozygotes.",
+      "reasoning": "The criterion BS2 applies when there are healthy homozygote carriers present in the general population for dominant or X-linked disorders. Since ac_hom > 0 and no specific inheritance pattern is provided, we assume this variant could be relevant to a dominant disorder where the presence of homozygotes suggests reduced penetrance or non-penetrance.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete",
+      "applied_strength": "benign_strong"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Multiple case reports and studies in PubMed indicate the presence of SPAST variants associated with hereditary spastic paraplegia (HSP) but do not provide specific OR/RR values or control group comparisons for variant 2-32063791-C-T.",
+      "reasoning": "No direct evidence from case-control studies providing OR/RR > 5.0 with CI excluding 1.0 was found. However, there are multiple unrelated patients reported with the same phenotype (HSP) associated with SPAST variants but not specifically for variant 2-32063791-C-T.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "SPAST 2-32063791-C-T ACMG",
+      "disease": "ACMG",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "{\"found\": false, \"classification\": null, \"review_status\": null, \"star_rating\": 0, \"reputable_source\": false}",
+      "reasoning": "The variant was not found in ClinVar. Therefore, PP5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "{\"found\": false, \"classification\": null, \"review_status\": null, \"star_rating\": 0, \"reputable_source\": false}",
+      "reasoning": "The variant was not found in ClinVar. Therefore, BP6 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "2-32063791-C-T",
+      "disease": "ACMG",
+      "status": "complete"
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "variant": "NM_000053.4:c.3207C>A",
+  "disease": "Wilson disease",
+  "timestamp": "20260629_134311",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PS4": "supporting",
+      "PM5": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PS4",
+      "PM5",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "AF <0.0001 in any gnomAD subpopulation, popmax_FAF=0.00142621",
+      "reasoning": "The variant's population maximum frequency (popmax_FAF) is 0.00142621 which is greater than the threshold of 0.0001 for PM2 criterion.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.001426 in gnomAD for the variant NM_000053.4:c.3207C>A.",
+      "reasoning": "The Popmax FAF (0.001426) is less than the threshold of 0.05, so BA1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF: 0.001426 in gnomAD, max subpop AF: 0.03125",
+      "reasoning": "Popmax FAF is less than 0.01 (1%), so BS1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for the variant NM_000053.4:c.3207C>A in gnomAD is 1, indicating at least one individual is a homozygote.",
+      "reasoning": "For recessive disorders like Wilson disease, if ac_hom > 0 in gnomAD, BS2 likely applies as the presence of healthy homozygotes suggests reduced penetrance or variable expressivity. However, without additional clinical information on these individuals' health status, this is flagged as inconclusive.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "Variant observed 1 time(s) in LOVD (Leiden Open Variation Database). LOVD is an observation database \u2014 Times_reported reflects independent lab submissions, not VCEP-curated pathogenicity.",
+      "reasoning": "The variant has been observed once in a patient with Wilson disease. According to the PS4 criteria, this qualifies as PS4_Supporting evidence since it involves 1 patient with the same phenotype.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000053.4:c.3207C>A",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_000053.4:c.3207C>A is a missense variant resulting in p.His1069Gln, but no information about critical regions or known benign variation at this position.",
+      "reasoning": "The evidence does not contain 'in_critical_region' field to indicate if the variant falls within a critical functional domain. Without specific evidence of the variant being in a well-established critical region and without known benign variants at this codon, PM1 cannot be applied conservatively.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_000053.4:c.3207C>A",
+      "disease": "Wilson disease",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_000053.4(ATP7B):c.3206A>T (p.His1069Leu) classified as Likely pathogenic and NM_000053.4(ATP7B):c.3206A>G (p.His1069Arg) classified as Pathogenic",
+      "reasoning": "There are two different P/LP missense changes at the same codon, meeting the threshold for PM5_Strong.",
+      "applies": true,
+      "applied_strength": "strong",
+      "tool_used": "erepo",
+      "tool_input": "ATP7B position 1069",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "NM_000053.4:c.3206A>T (p.His1069Leu) - Likely pathogenic, NM_000053.4:c.3206A>G (p.His1069Arg) - Pathogenic",
+      "reasoning": "same_aa_classifications is empty; no identical amino acid change evidence available.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "erepo",
+      "tool_input": "ATP7B position 1069",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.909, SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "According to the computed verdicts, PP3 REVEL (>= 0.644) applies as the score is 0.909 which is above the threshold.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "NM_000053.4(ATP7B):c.3402del (p.Ala1135fs) classified as Pathogenic with star_rating 2 and reputable_source true.",
+      "reasoning": "The variant NM_000053.4:c.3207C>A was not found in ClinVar, but a similar variant NM_000053.4(ATP7B):c.3402del (p.Ala1135fs) is classified as Pathogenic with star_rating 2 and reputable_source true. However, PP5 requires the exact variant to be found in ClinVar.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000053.4:c.3207C>A",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.909, SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "For missense variant, BP4 requires REVEL <= 0.29 and SpliceAI <= 0.1. REVEL score is 0.909 (FAILS), so BP4 does not apply despite passing the SpliceAI condition.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "13-51944145-G-T",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "{\"found\": true, \"classification\": \"Pathogenic\", \"review_status\": \"criteria provided, multiple submitters, no conflicts\", \"star_rating\": 2, \"reputable_source\": true}",
+      "reasoning": "The variant NM_000053.4:c.3207C>A was found in ClinVar with a pathogenic classification and reputable source (star_rating >= 2). However, the classification is not 'Benign' or 'Likely benign', so BP6 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_000053.4:c.3207C>A",
+      "disease": "Wilson disease",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP2",
+      "evidence": "mis_z=0.0432, oe_lof=0.9505, oe_mis=0.9976",
+      "reasoning": "The gnomAD gene missense Z-score (mis_z) is 0.0432 which does not meet the threshold of \u2265 3.09 for PP2 criterion.",
+      "applies": false,
+      "tool_used": "gnomad_gene",
+      "tool_input": "ATP7B",
+      "disease": "Wilson disease",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BP1",
+      "evidence": "pLI: 8.165224835886041e-37, LOEUF (oe_lof_upper): 1.1113014940714083, oe_mis: 0.9976593483660171",
+      "reasoning": "The gene ATP7B is LOF-tolerant (pLI < 0.9 and LOEUF > 0.35) and missense variants are relatively common in the healthy population (oe_mis = 0.9976). Wilson disease primarily results from loss-of-function mutations, but missense variants can also be pathogenic.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad_gene",
+      "tool_input": "ATP7B",
+      "disease": "Wilson disease",
+      "status": "complete"
+    }
+  ]
+}

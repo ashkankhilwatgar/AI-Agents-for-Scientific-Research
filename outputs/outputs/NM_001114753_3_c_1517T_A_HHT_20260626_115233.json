@@ -1,0 +1,135 @@
+{
+  "variant": "NM_001114753.3:c.1517T>A",
+  "disease": "HHT",
+  "timestamp": "20260626_115233",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate",
+      "PP3": "supporting",
+      "PS1": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3",
+      "PS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Total allele count (AC) is 1, and the maximum subpopulation allele frequency is 7.913896802785692e-05 in ASJ_XX.",
+      "reasoning": "Step 1: Variant not absent from gnomAD.\nStep 2: Total AC < 6, applies PM2_SUPPORTING.\nStep 3: Not reached as Step 2 already determined applicability.",
+      "applies": true,
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "supporting"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.0 in gnomAD for the variant NM_001114753.3:c.1517T>A.",
+      "reasoning": "The Popmax FAF value (0.0) is less than the threshold of 0.01, therefore BA1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.0, total allele count (ac) is 1, and there are no homozygotes (ac_hom=0).",
+      "reasoning": "The Popmax FAF value is below the threshold for BS1_Supporting or BS1_Strong criteria. There are also no homozygous individuals reported.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant NM_001114753.3:c.1517T>A results in a missense change from Leu to His at position 506 (p.Leu506His).",
+      "reasoning": "The variant residue is not located within the critical positions specified for PM1: BMP9 binding sites {278, 282}, LP/P-classified cysteines {207, 363, 382, 412, 549}, or disulfide-bond cysteines {350, 394}.",
+      "applies": false,
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: found; proband_count: 2, phenotype consistent with HHT.",
+      "reasoning": "The variant NM_001114753.3:c.1517T>A has been reported in 2 probands with a phenotype consistent with HHT, meeting the PS4_Moderate criteria.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1517T>A",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "NM_001114753.3(ENG):c.1517T>C (p.Leu506Pro) classified as Pathogenic/Likely pathogenic in ClinVar, but needs to be confirmed using HHT VCEP rules.",
+      "reasoning": "The evidence provided does not specify that the classification was made according to HHT VCEP rules. Therefore, it cannot be used to apply PM5 criterion directly.",
+      "applies": false,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 506",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.8800, SpliceAI scores: DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000",
+      "reasoning": "PP3 REVEL (>= 0.644): APPLIES; PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE",
+      "applies": true,
+      "applied_strength": "supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.88, SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "For missense variant, BP4 requires REVEL <= 0.15 and SpliceAI <= 0.1. REVEL score is 0.88 (fails), SpliceAI scores are all 0.0 (passes). Since one condition fails, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "NM_001114753.3:c.1517T>C (p.Leu506Pro) classified as Pathogenic/Likely pathogenic by ClinVar.",
+      "reasoning": "The same_aa_classifications list contains a variant with the identical amino acid change p.Leu506Pro, which is classified as Pathogenic/Likely pathogenic. This satisfies PS1 criteria.",
+      "applies": true,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 506",
+      "disease": "HHT",
+      "status": "complete",
+      "applied_strength": "strong"
+    }
+  ]
+}

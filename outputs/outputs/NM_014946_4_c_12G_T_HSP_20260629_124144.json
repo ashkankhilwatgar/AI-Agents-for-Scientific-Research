@@ -1,0 +1,142 @@
+{
+  "variant": "NM_014946.4:c.12G>T",
+  "disease": "HSP",
+  "timestamp": "20260629_124144",
+  "classification": "Likely Benign",
+  "rule_matched": "\u22652 Supporting benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "\u22652 Supporting benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 2
+    },
+    "bucket_detail": {
+      "BP4": "benign_supporting",
+      "BP7": "benign_supporting"
+    },
+    "applied_criteria": [
+      "BP4",
+      "BP7"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2",
+      "evidence": "AF < 0.0001 in any gnomAD subpopulation, max AF = 0.00011773 (AMR_XX)",
+      "reasoning": "The maximum allele frequency in the AMR_XX population is 0.00011773, which exceeds the PM2 threshold of 0.0001.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF is 0.0 in gnomAD for the variant NM_014946.4:c.12G>T.",
+      "reasoning": "The Popmax FAF value is below the threshold of 5% (0.05) required by BA1 criterion, hence it does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.0 in gnomAD for the variant NM_014946.4:c.12G>T.",
+      "reasoning": "The Popmax FAF value is below the threshold of 0.01, therefore BS1 does not apply.",
+      "applies": false,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "BS2",
+      "evidence": "Total homozygote count (ac_hom) for the variant NM_014946.4:c.12G>T is 0 in both exome and genome data from gnomAD.",
+      "reasoning": "Since ac_hom is 0, there are no healthy homozygotes reported in the general population for this variant, which is consistent with a fully penetrant dominant disease like HSP.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "gnomad",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "No relevant case-level evidence found in ClinVar for SPAST c.12G>T and HSP.",
+      "reasoning": "There is no statistical data or case reports available that meet the PS4 criteria threshold of OR/RR > 5.0 with CI not including 1.0, nor are there multiple unrelated patients with the same phenotype absent from controls.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "SPAST c.12G>T HSP",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score not available, SpliceAI scores (DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000) all below 0.2",
+      "reasoning": "Since the variant is not missense and REVEL score is unavailable, we check SpliceAI scores for PP3 application. As none of the SpliceAI scores meet or exceed the threshold of 0.2, PP3 does not apply.",
+      "applies": false,
+      "tool_used": "revel_spliceai",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete",
+      "applied_strength": null
+    },
+    {
+      "criterion": "PP5",
+      "evidence": "NM_014946.4(SPAST):c.12G>T (p.Pro4=) classified as Likely benign with star_rating 1 and reputable_source false.",
+      "reasoning": "The variant is not classified as Pathogenic or Likely pathogenic, and the source does not meet the threshold of a reputable source (star_rating < 2).",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_014946.4:c.12G>T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "revel_score: null, DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0",
+      "reasoning": "REVEL score is not available (N/A), so BP4 REVEL ACMG threshold cannot be evaluated. However, SpliceAI scores are all <= 0.1, satisfying the condition for synonymous/intronic variants.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "tool_used": "revel_spliceai",
+      "tool_input": "2-32063843-G-T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP6",
+      "evidence": "NM_014946.4(SPAST):c.12G>T (p.Pro4=), classification: Likely benign, review_status: criteria provided, single submitter, star_rating: 1, reputable_source: false",
+      "reasoning": "The variant is classified as 'Likely benign' but the source is not reputable due to a low star rating of 1. Therefore, BP6 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "tool_used": "clinvar",
+      "tool_input": "NM_014946.4:c.12G>T",
+      "disease": "HSP",
+      "status": "complete"
+    },
+    {
+      "criterion": "BP7",
+      "evidence": "{\"DS_AG\": 0.0, \"DS_AL\": 0.0, \"DS_DG\": 0.0, \"DS_DL\": 0.0}",
+      "reasoning": "All four SpliceAI delta scores are <= 0.1 and the variant is a synonymous or intronic variant.",
+      "applies": true,
+      "tool_used": "spliceai",
+      "tool_input": "NM_014946.4:c.12G>T",
+      "disease": "HSP",
+      "status": "complete",
+      "applied_strength": "benign_supporting"
+    }
+  ]
+}
