@@ -1,0 +1,109 @@
+{
+  "variant": "NM_000020.3:c.1390del",
+  "disease": "HHT",
+  "timestamp": "20260702_110353",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.1390del was not found in gnomAD.",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, if the variant is entirely absent from gnomAD, then the criterion applies. The evidence clearly states that the variant was not found in gnomAD, satisfying Step 1 of the rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.1390del was not found in gnomAD, resulting in a Popmax FAF of 0.0.",
+      "reasoning": "Criterion BA1 applies if the Popmax FAF is greater than or equal to 0.01. The retrieved evidence shows that the variant is absent from gnomAD, and its Popmax FAF is 0.0. Therefore, the threshold for BA1 is not met, and the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant was not found in gnomAD, resulting in a Popmax FAF of 0.0 and 0 homozygotes.",
+      "reasoning": "The variant was not found in gnomAD, leading to a Popmax FAF of 0.0. According to the BS1 classification rules: 1. BA1 does not apply as Popmax FAF (0.0) is not >= 0.01. 2. BS1_Strong via homozygote route does not apply as Popmax FAF (0.0) is not > 0.0008 and <= 0.002, and homozygote count (0) is not >= 2. 3. BS1_Strong via FAF route does not apply as Popmax FAF (0.0) is not > 0.002 and < 0.01. 4. BS1_Supporting does not apply as Popmax FAF (0.0) is not > 0.0008 and <= 0.002. Therefore, criterion BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920770-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No entries found; PubMed: 0 articles found",
+      "reasoning": "The variant NM_000020.3:c.1390del was queried in ClinVar for HHT, and no entries were found, resulting in a proband count of 0. According to the PS4 classification rules, if the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "HHT (c.1390del OR p.Leu464X OR p.L464X) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_000020.3:c.1390del in ACVRL1 is a frameshift variant at codon position 464, resulting in a premature stop codon (p.Leu464X).",
+      "reasoning": "The variant is a frameshift variant at codon position 464. According to the ACVRL1 PVS1 Decision Tree for NONSENSE OR FRAMESHIFT variants, the NMD boundary is codon 442. Since the codon position (464) is greater than 442, the variant is not predicted to undergo NMD. The critical region boundary is codon 490. Since the codon position (464) is less than or equal to 490, the truncated/altered region is considered critical to protein function. Therefore, PVS1_Strong applies.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The functional_evidence tool returned an empty list of experiments.",
+      "reasoning": "According to Shortcut A of the PS3 classification rules, if there are no experiments, PS3 does not apply. The retrieved evidence contains no functional experiments.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved from the tool.",
+      "reasoning": "According to Shortcut B of the BS3 classification rules, if there are no experiments, BS3 does not apply. The functional_evidence tool returned an empty list of experiments.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1390del",
+      "disease": "HHT"
+    }
+  ]
+}

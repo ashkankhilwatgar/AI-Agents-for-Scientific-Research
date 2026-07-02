@@ -1,4 +1,4 @@
-from demo.tools.functional_evidence import analyze_variant
+from tools.functional_evidence import analyze_variant
 
 def main():
     variant = "NM_022168.4:c.1641+1G>C"

@@ -159,7 +159,7 @@ def fan_in_after_phase_1(state: OverallState):
 
     # --------------- LOGGING ----------------
     for result in phase1_results:
-        print(f"{"*"*60}")
+        print("*" * 60)
         result_formatted = format_result(result)
         print(result_formatted)
     print(f"{'-'*60}")
@@ -187,7 +187,7 @@ def fan_in_after_phase_2(state: OverallState):
 
     # --------------- LOGGING ----------------
     for result in phase2_results:
-        print(f"{"*"*60}")
+        print("*" * 60)
         result_formatted = format_result(result)
         print(result_formatted)
     print(f"{'-'*60}")
@@ -215,7 +215,7 @@ def fan_in_after_phase_3(state: OverallState):
 
     # --------------- LOGGING ----------------
     for result in phase3_results:
-        print(f"{"*"*60}")
+        print("*" * 60)
         result_formatted = format_result(result)
         print(result_formatted)
     print(f"{'-'*60}")
@@ -242,7 +242,7 @@ def fan_in_after_phase_4(state: OverallState):
 
     # --------------- LOGGING ----------------
     for result in phase4_results:
-        print(f"{"*"*60}")
+        print("*" * 60)
         result_formatted = format_result(result)
         print(result_formatted)
     print(f"{'-'*60}")

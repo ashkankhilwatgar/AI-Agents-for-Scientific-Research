@@ -1,3 +1,3 @@
-from demo.pipeline import process_criterion
+from pipeline import process_criterion
 
 

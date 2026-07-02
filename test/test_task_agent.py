@@ -1,4 +1,4 @@
-from demo.agents.task_agent import run_task
+from agents.task_agent import run_task
 
 
 if __name__ == "__main__":
