@@ -3,8 +3,9 @@ from urllib.parse import quote
 import time
 
 ENSEMBL_URL = "https://rest.ensembl.org"
-MAX_RETRIES = 3
-RETRY_DELAY = 2  # seconds between retries
+MAX_RETRIES = 5           # Ensembl is flaky on indels/delins; give it more tries
+RETRY_DELAY = 2           # base seconds between retries (multiplied per attempt = exponential backoff)
+REQUEST_TIMEOUT = 30      # seconds; 15s was too short and caused read timeouts in batch runs
 
 # Single-letter to three-letter amino acid code conversion
 AA_1TO3 = {
@@ -53,17 +54,17 @@ def _check_repeat_region(data: list) -> bool:
     ext = f"/overlap/region/human/{chrom}:{start}-{end}?feature=repeat"
     last_error = "No attempts completed"
 
-    for _ in range(MAX_RETRIES):
+    for attempt in range(MAX_RETRIES):
         try:
             r = requests.get(
                 ENSEMBL_URL + ext,
                 headers={"Content-Type": "application/json"},
-                timeout=15
+                timeout=REQUEST_TIMEOUT
             )
 
             if r.status_code in (429, 500, 503):
                 last_error = f"HTTP {r.status_code}"
-                time.sleep(RETRY_DELAY)
+                time.sleep(RETRY_DELAY * (attempt + 1))
                 continue
 
             if r.status_code != 200:
@@ -188,18 +189,18 @@ def annotate_variant(variant: str) -> dict:
 
     last_error = "No attempts completed"
 
-    for _ in range(MAX_RETRIES):
+    for attempt in range(MAX_RETRIES):
         try:
             response = requests.get(
                 url,
                 headers={"Content-Type": "application/json"},
-                timeout=15,
+                timeout=REQUEST_TIMEOUT,
                 params={"refseq": 1}
             )
 
             if response.status_code in (429, 500, 503):
                 last_error = f"HTTP {response.status_code}"
-                time.sleep(RETRY_DELAY)
+                time.sleep(RETRY_DELAY * (attempt + 1))
                 continue
 
             if response.status_code != 200:
@@ -305,7 +306,9 @@ def annotate_variant(variant: str) -> dict:
             return result
 
         except requests.RequestException as e:
+            # includes read timeouts — back off before retrying in case Ensembl is overloaded
             last_error = str(e)
+            time.sleep(RETRY_DELAY * (attempt + 1))
             continue
 
     return {"error": f"Variant annotation API failed after {MAX_RETRIES} retries: {last_error}"}

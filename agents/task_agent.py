@@ -1010,7 +1010,11 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
         gene = get_gene_from_transcript(variant.split(":")[0])
     if gene:
         print(f"TASK AGENT: Detected gene {gene} from transcript")
-    elif task.get("gene_symbol"):
+    elif gene_symbol:
+        # Fall back to the VEP-resolved gene symbol (passed in as a parameter) when the
+        # transcript isn't mapped in GENE_DB. Previously this checked task.get("gene_symbol"),
+        # which the plan agent doesn't set — so ERepo (PS1/PM5) always errored for
+        # ACVRL1/ENG even though the gene was known.
         gene = gene_symbol
         print(f"TASK AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")
 

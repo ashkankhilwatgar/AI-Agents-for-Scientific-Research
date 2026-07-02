@@ -1,0 +1,5 @@
+variation_id,clinvar_accession,hgvs_cdna,hgvs_protein,gene,variant_type,gt_classification,gt_classification_short,review_status,review_stars,num_submitters,condition,clinvar_url,gt_criteria_applied,gt_criteria_not_met,erepo_source,ca_id,summary_desc
+3719861,VCV003719861,NM_001114753.3:c.144_145dup,p.Val49fs,ENG,frameshift,Pathogenic,P,"criteria provided, single submitter",1,1,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/3719861/,,,FALSE,,
+426033,VCV000426033,NM_000020.3:c.1390del,p.Gly463_Leu464insTer,ACVRL1,nonsense,Pathogenic,P,no assertion criteria provided,0,1,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/426033/,,,FALSE,,
+655621,VCV000655621,NM_000020.3:c.651G>A,p.Trp217Ter,ACVRL1,nonsense,Pathogenic,P,"criteria provided, multiple submitters, no conflicts",2,4,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/655621/,,,FALSE,,
+3712257,VCV003712257,NM_001114753.3:c.520C>T,p.Gln174Ter,ENG,nonsense,Pathogenic,P,"criteria provided, single submitter",1,1,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/3712257/,,,FALSE,,

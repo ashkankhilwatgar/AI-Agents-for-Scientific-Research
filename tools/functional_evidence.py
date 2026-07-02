@@ -691,18 +691,17 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
     
     Raises SystemExit if rsid is not available.
     """
-    # Validate rsid exists
+    # Validate rsid exists. LitVar2 can only be queried by rsID; when a variant
+    # has none (common for indels/frameshifts), there is simply no functional
+    # literature to retrieve. Return an empty set so PS3/BS3 evaluate as
+    # "no experiments found -> not applied" (the intended convention). Do NOT
+    # sys.exit() here: this runs inside a LangGraph worker thread, and SystemExit
+    # is not caught by `except Exception`, so it silently kills the whole
+    # (batch) process instead of failing just this one criterion.
     rsid = vi.rsid
     if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
-        # print("\n" + "="*80)
-        # print("ERROR: LitVar2 requires an rsID to query publications.")
-        # print("="*80)
-        # print("\nWe apologize, but LitVar2 only works with rsID identifiers.")
-        # print("The variant does not have a valid rsID available.")
-        # print("Please provide a variant with a known rsID or use an alternative method.")
-        # print("\n" + "="*80)
-        sys.exit(1)
-    
+        return set()
+
     pmids = query_litvar2_publications(rsid)
     return pmids
 

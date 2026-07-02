@@ -657,16 +657,37 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
     print("\n" + "="*60)
 
 
-def save_results(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> str:
+def _safe_variant_name(variant: str) -> str:
+    """Filesystem-safe version of a variant string."""
+    return variant.replace(":", "_").replace(">", "_").replace(".", "_").replace("/", "_")
+
+
+def save_results(
+    variant: str,
+    disease: str,
+    results: list[dict],
+    scoring_result: dict = None,
+    output_dir: str = "outputs",
+    timestamped: bool = True,
+) -> str:
     """
-    Saves full JSON results to a timestamped output file.
+    Saves full JSON results to an output file inside ``output_dir``.
+
+    Single-variant mode uses a timestamped filename (preserves history).
+    Batch mode (``timestamped=False``) uses a deterministic filename
+    (``<safe_variant>_<disease>.json``) so re-running against the same folder
+    can detect and skip variants that already completed.
+
     Returns the file path.
     """
-    os.makedirs("outputs", exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_variant = variant.replace(":", "_").replace(">", "_").replace(".", "_")
-    filename = f"outputs/{safe_variant}_{disease}_{timestamp}.json"
+    safe_variant = _safe_variant_name(variant)
+    if timestamped:
+        filename = os.path.join(output_dir, f"{safe_variant}_{disease}_{timestamp}.json")
+    else:
+        filename = os.path.join(output_dir, f"{safe_variant}_{disease}.json")
 
     output = {
         "variant": variant,
@@ -684,6 +705,124 @@ def save_results(variant: str, disease: str, results: list[dict], scoring_result
     return filename
 
 
+# ==================================
+# Batch mode (CSV input, variants run SEQUENTIALLY)
+# ==================================
+
+def run_batch(
+    csv_path: str,
+    output_dir: str = None,
+    disease_default: str = None,
+    variant_col: str = "hgvs_cdna",
+    disease_col: str = "condition",
+) -> str:
+    """
+    Runs the full pipeline over every variant in a CSV, ONE VARIANT AT A TIME.
+
+    Variants are processed sequentially; criterion-level parallelism still
+    happens inside each variant via the existing LangGraph fan-out. One JSON
+    file is written per variant into a per-run batch folder, plus a
+    batch_summary.json.
+
+    - Per-variant errors are isolated: a failure becomes an error file/summary
+      row and the batch continues with the next variant.
+    - Resumable: pass an existing output_dir to skip variants already written.
+
+    Returns the batch output folder path.
+    """
+    import csv
+
+    # One folder per batch run (unless an existing one is passed in, enabling resume).
+    if output_dir is None:
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = os.path.join("outputs", f"batch_{stamp}")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # ── Read variants from CSV ────────────────────────────────────────────────
+    rows = []
+    with open(csv_path, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        if variant_col not in fieldnames:
+            raise ValueError(
+                f"CSV is missing the variant column '{variant_col}'. "
+                f"Columns found: {fieldnames}"
+            )
+        for row in reader:
+            variant = (row.get(variant_col) or "").strip()
+            if not variant:
+                continue
+            disease = (row.get(disease_col) or "").strip() if disease_col in fieldnames else ""
+            disease = disease or disease_default
+            if not disease:
+                raise ValueError(
+                    f"No disease for variant {variant}: CSV has no '{disease_col}' value "
+                    f"and no --disease default was provided."
+                )
+            rows.append((variant, disease))
+
+    total = len(rows)
+    print(f"\nBATCH: {total} variant(s) from {csv_path}")
+    print(f"BATCH: output folder -> {output_dir}")
+    print("BATCH: running variants sequentially (criteria still run in parallel)\n")
+
+    summary = []
+    for i, (variant, disease) in enumerate(rows, start=1):
+        safe = _safe_variant_name(variant)
+        target = os.path.join(output_dir, f"{safe}_{disease}.json")
+
+        if os.path.exists(target):
+            print(f"BATCH: [{i}/{total}] skip (already done) {variant}")
+            summary.append({"variant": variant, "disease": disease,
+                            "status": "skipped_existing", "file": target})
+        else:
+            try:
+                results, scoring_result = run_pipeline(variant, disease)
+                path = save_results(variant, disease, results, scoring_result,
+                                    output_dir=output_dir, timestamped=False)
+                res = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "ok",
+                    "classification": (scoring_result or {}).get("classification"),
+                    "rule_matched": (scoring_result or {}).get("rule_matched"),
+                    "file": path,
+                }
+                print(f"BATCH: [{i}/{total}] {variant} -> ok ({res['classification']})")
+            except (Exception, SystemExit) as e:  # isolate: one variant must not kill the batch
+                # Catch SystemExit too: a stray sys.exit() inside a tool (it runs
+                # in a LangGraph worker thread) would otherwise bypass `except
+                # Exception` and silently terminate the whole batch. KeyboardInterrupt
+                # (BaseException, not caught here) still stops the run as expected.
+                res = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "error",
+                    "error": f"{type(e).__name__}: {e}",
+                }
+                errfile = os.path.join(output_dir, f"{safe}_{disease}.error.json")
+                with open(errfile, "w") as fh:
+                    json.dump(res, fh, indent=2)
+                res["file"] = errfile
+                print(f"BATCH: [{i}/{total}] {variant} -> ERROR: {res['error']}")
+            summary.append(res)
+
+        # Write summary incrementally so an interruption doesn't lose progress.
+        with open(os.path.join(output_dir, "batch_summary.json"), "w") as fh:
+            json.dump({
+                "csv": csv_path,
+                "total": total,
+                "completed": i,
+                "results": summary,
+            }, fh, indent=2)
+
+    ok = sum(1 for r in summary if r["status"] == "ok")
+    errs = sum(1 for r in summary if r["status"] == "error")
+    skipped = sum(1 for r in summary if r["status"] == "skipped_existing")
+    print(f"\nBATCH COMPLETE: {ok} ok, {errs} error, {skipped} skipped -> {output_dir}\n")
+    return output_dir
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="LLM-based multi-agent pipeline for ACMG variant classification"
@@ -691,17 +830,63 @@ def main():
     parser.add_argument(
         "--variant",
         type=str,
-        required=True,
-        help="Variant in HGVS or gnomAD format (e.g. NM_000020.3:c.557G>T or 12-51914005-G-T)"
+        default=None,
+        help="Single variant in HGVS or gnomAD format (e.g. NM_000020.3:c.557G>T). "
+             "Use this OR --csv."
+    )
+    parser.add_argument(
+        "--csv",
+        type=str,
+        default=None,
+        help="Path to a CSV of variants to run as a batch (variants run sequentially). "
+             "Use this OR --variant."
     )
     parser.add_argument(
         "--disease",
         type=str,
-        required=True,
-        help="Disease name (e.g. HHT)"
+        default=None,
+        help="Disease name (e.g. HHT). Required for --variant; for --csv it is the fallback "
+             "when a row has no disease column."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Batch mode only: reuse an existing batch folder to resume (skips completed "
+             "variants). Defaults to a new outputs/batch_<timestamp> folder."
+    )
+    parser.add_argument(
+        "--variant-col",
+        type=str,
+        default="hgvs_cdna",
+        help="Batch mode only: CSV column holding the variant (default: hgvs_cdna)."
+    )
+    parser.add_argument(
+        "--disease-col",
+        type=str,
+        default="condition",
+        help="Batch mode only: CSV column holding the disease (default: condition)."
     )
 
     args = parser.parse_args()
+
+    # Exactly one of --variant / --csv must be given.
+    if bool(args.variant) == bool(args.csv):
+        parser.error("Provide exactly one of --variant (single) or --csv (batch).")
+
+    if args.csv:
+        run_batch(
+            csv_path=args.csv,
+            output_dir=args.output_dir,
+            disease_default=args.disease,
+            variant_col=args.variant_col,
+            disease_col=args.disease_col,
+        )
+        return
+
+    # ── Single-variant mode (unchanged behaviour) ─────────────────────────────
+    if not args.disease:
+        parser.error("--disease is required when using --variant.")
 
     results, scoring_result = run_pipeline(args.variant, args.disease)
     print_report(args.variant, args.disease, results, scoring_result)
