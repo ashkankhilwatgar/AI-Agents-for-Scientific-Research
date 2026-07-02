@@ -43,11 +43,49 @@ def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatMod
             temperature=temperature
         )
     elif provider == "google_genai":
-        return init_chat_model(
-            model=model,
-            model_provider="google_genai",
-            temperature=temperature
+        # Backend selection: this project is set up for Vertex AI (billing-enabled,
+        # professor's GCP project), NOT the AI-Studio free-tier Generative Language API.
+        # If we don't force this, langchain_google_genai defaults to the Developer API
+        # whenever GOOGLE_GENAI_USE_VERTEXAI isn't loaded — which silently burns the
+        # 20-requests/day free-tier quota and 429s (RESOURCE_EXHAUSTED / free_tier_requests).
+        # Default to Vertex; allow explicit opt-out with GOOGLE_GENAI_USE_VERTEXAI=false.
+        use_vertex = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").strip().lower() in ("true", "1", "yes")
+
+        # Accept the various key-name variants used in .env.example / by collaborators.
+        api_key = (
+            os.getenv("GOOGLE_API_KEY")
+            or os.getenv("GEMINI_API_KEY")
+            or os.getenv("GOOGLE_CLOUD_API_KEY")
+            or os.getenv("GOOGLE_AI_STUDIO_API_KEY")
         )
+
+        kwargs = {
+            "model": model,
+            "model_provider": "google_genai",
+            "temperature": temperature,
+        }
+        if use_vertex:
+            kwargs["vertexai"] = True
+            # Two Vertex auth modes:
+            #  1. Express mode (API key, an "AQ...." key): works when GOOGLE_API_KEY is in the
+            #     environment and NO project/location is passed. This is the professor's setup
+            #     (export GOOGLE_API_KEY=... + GOOGLE_GENAI_USE_VERTEXAI=True). No ADC needed.
+            #  2. Full Vertex (ADC / service account): used only when GOOGLE_CLOUD_PROJECT is set.
+            # langchain_google_genai reads the express-mode key from the GOOGLE_API_KEY env var,
+            # so make sure it is populated even if the key was provided under an alias.
+            if api_key and not os.getenv("GOOGLE_API_KEY"):
+                os.environ["GOOGLE_API_KEY"] = api_key
+            project = os.getenv("GOOGLE_CLOUD_PROJECT")
+            if project:
+                # Full Vertex mode — requires ADC / service-account credentials.
+                kwargs["project"] = project
+                kwargs["location"] = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
+            # else: leave project/location unset so the SDK uses API-key express mode.
+        else:
+            # Gemini Developer API (API-key) path.
+            if api_key:
+                kwargs["api_key"] = api_key
+        return init_chat_model(**kwargs)
     elif provider == "ollama":
         return init_chat_model(
             model=model,
