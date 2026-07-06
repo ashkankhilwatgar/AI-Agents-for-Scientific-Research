@@ -110,3 +110,46 @@ Let the agents always produce structured output by feeding it an output schema.
 6/29/26
 Ashkan
 Fixed some prompts for a few criterion, got started on incorporation more VCEPs
+
+7/6/26
+SIMON
+* I downgraded my Python version to 3.12 so we no longer need to worry about compatibility issues.
+* I am currently writing the evaluation script.
+  - I created a folder called "evaluation" and added four files inside it (question1.py, question2.py, question3.py, and question4.py). In our shared Google Doc, the professor provides nine questions. I planned a one-file-per-question structure, so I created files for the first four questions, but I have only implemented the code for question 2 so far.
+  - question2.py currently has some logic errors.
+
+Current issues with question2.py
+
+- Issue 1: Confusion matrix
+question2.py currently only handles a binary confusion matrix like this:
+        predicted
+        0   1   
+true    8   0   
+
+However, question 2 requires a multi-class confusion matrix like this:
+
+                  predicted
+            0   1   2   3   4
+
+     0      8   0   1   0   0
+     1      0   7   0   2   0
+true 2      1   0   6   1   0
+     3      0   1   2   9   1
+     4      0   0   0   3   10
+
+This is because question 2 evaluates the overall classification outcome, which includes classes such as benign, likely benign, VUS, likely pathogenic, and pathogenic, rather than a simple binary apply/non-apply decision.
+
+While writing the code, I assumed a binary confusion matrix format, which was incorrect. During testing, I realized that the binary version corresponds to question 1 (single criterion evaluation), while question 2 requires a multi-class confusion matrix for the full pipeline evaluation.
+
+- Issue 2: Currently, question2.py cannot handle cases where the final result contains an error. In such cases, we need to decide whether the pipeline should count it as a mistake.
+
+- There may also be some other syntax issues.
+
+If you try to run the code (although it is not working properly right now), you can use the command: 
+```bash
+python -m evaluation.question2 --gold_answer_csv_filename full_evaluation_dataset.csv --model_output_json_filename outputs/batch_20260706_161031/batch_summary.json --output_dir evaluation/outputs
+```
+
+I'll come backt o question2.py tomorrow morning. If you guys think having one file per question is a bad idea, you can feel free to change/delete question2.py
+
+

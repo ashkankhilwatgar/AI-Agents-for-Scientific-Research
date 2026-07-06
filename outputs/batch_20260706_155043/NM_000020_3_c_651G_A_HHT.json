@@ -1,0 +1,101 @@
+{
+  "variant": "NM_000020.3:c.651G>A",
+  "disease": "HHT",
+  "timestamp": "20260706_155410",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "gnomAD API failed after 3 retries: HTTP 429"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "gnomAD API failed after 3 retries: HTTP 429"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "gnomAD API failed after 3 retries: HTTP 429"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_000020.3:c.651G>A in ACVRL1 is a nonsense variant (p.Trp217Ter) at codon position 217.",
+      "reasoning": "The variant is a nonsense mutation (stop_gained) at codon 217. According to the ACVRL1 PVS1 Decision Tree, nonsense variants predicted to undergo NMD (codon <=442) qualify for PVS1 (Very Strong). Since codon 217 is less than or equal to 442, the variant is predicted to undergo NMD.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional evidence experiments were retrieved for the variant NM_000020.3:c.651G>A.",
+      "reasoning": "According to the PS3 classification rules, if there are no experiments retrieved, PS3 does not apply. The provided evidence shows an empty list for 'experiments'. Therefore, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The functional evidence tool returned an empty list of experiments for the variant NM_000020.3:c.651G>A.",
+      "reasoning": "According to the BS3 classification rules, if there are no functional experiments available, BS3 does not apply (Shortcut B). The `functional_evidence` tool returned an empty list, indicating no functional experiments were found for this variant. Therefore, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    }
+  ]
+}

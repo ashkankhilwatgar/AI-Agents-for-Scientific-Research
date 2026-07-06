@@ -1,0 +1,16 @@
+{
+  "csv": "hht-batches.csv",
+  "total": 10,
+  "completed": 1,
+  "max_concurrency": 5,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.651G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260706_161031/NM_000020_3_c_651G_A_HHT.json"
+    }
+  ]
+}

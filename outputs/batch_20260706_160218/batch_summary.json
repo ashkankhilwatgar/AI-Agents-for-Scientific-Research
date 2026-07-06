@@ -1,0 +1,78 @@
+{
+  "csv": "hht-batches.csv",
+  "total": 10,
+  "completed": 10,
+  "max_concurrency": 5,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.1121G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_1121G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1390del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_1390del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.520C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_001114753_3_c_520C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_001114753_3_c_144_145dup_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.651G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_651G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.593T>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_593T_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.602A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_602A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1388del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_1388del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1470_1471insC",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_001114753_3_c_1470_1471insC_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1450delinsTG",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}",
+      "file": "outputs/batch_20260706_160218/NM_000020_3_c_1450delinsTG_HHT.error.json"
+    }
+  ]
+}

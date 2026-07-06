@@ -1,0 +1,58 @@
+{
+  "csv": "hht-batches.csv",
+  "total": 10,
+  "completed": 7,
+  "max_concurrency": 5,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.1121G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_000020_3_c_1121G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1390del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_000020_3_c_1390del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_001114753_3_c_144_145dup_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.651G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260706_155043/NM_000020_3_c_651G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.602A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_000020_3_c_602A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1470_1471insC",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_001114753_3_c_1470_1471insC_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1450delinsTG",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}",
+      "file": "outputs/batch_20260706_155043/NM_000020_3_c_1450delinsTG_HHT.error.json"
+    }
+  ]
+}

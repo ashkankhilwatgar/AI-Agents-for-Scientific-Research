@@ -1,0 +1,6 @@
+{
+  "variant": "NM_000020.3:c.1390del",
+  "disease": "HHT",
+  "status": "error",
+  "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-3.5-flash' (UNAUTHENTICATED): 401 UNAUTHENTICATED. {'error': {'code': 401, 'message': 'API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials that assert a principal. See https://cloud.google.com/docs/authentication', 'status': 'UNAUTHENTICATED', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'CREDENTIALS_MISSING', 'domain': 'googleapis.com', 'metadata': {'method': 'google.cloud.aiplatform.v1beta1.PredictionService.GenerateContent', 'service': 'aiplatform.googleapis.com'}}]}}"
+}
