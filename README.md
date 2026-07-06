@@ -1,6 +1,8 @@
 # AI-Agents-for-Scientific-Research
 A framework for using LLMs for gene variant interpretation
 
+**Requires Python 3.10+** (recommended: 3.12). Verified to run on 3.11, 3.12, and 3.13.
+
 ## Quick Start
 
 ```bash

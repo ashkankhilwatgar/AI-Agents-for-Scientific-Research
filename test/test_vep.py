@@ -1,4 +1,4 @@
-from demo.tools.vep import annotate_variant
+from tools.vep import annotate_variant
 import pytest
 
 def test_annotate_variant():

@@ -18,8 +18,9 @@ from config import MODELS
 from pydantic import BaseModel
 from .llm.response_schema import TaskInterpretation, ToolDecision
 from typing import TypeVar
+
+# Local type alias (avoids importing from pipeline, which would create a circular import)
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
-# from pipeline import ToolResults
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
