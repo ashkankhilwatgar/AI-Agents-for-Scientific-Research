@@ -319,7 +319,7 @@ def process_criterion(state: PerCriterionState):
 
     # ── JUDGE AGENT ───────────────────────
     # print(f"\n[2/3] JUDGE AGENT — checking reasoning")
-    judge_output, tool_cache_update = run_judge(task, tool_results, debug_output)
+    judge_output, tool_cache_update = run_judge(task, tool_results, debug_output, gene_symbol=gene_symbol)
 
     if judge_output.get("status") == "error":
         # print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")

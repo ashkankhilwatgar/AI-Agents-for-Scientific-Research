@@ -1,0 +1,98 @@
+{
+  "variant": "NM_001114753.3:c.991G>A",
+  "disease": "HHT",
+  "timestamp": "20260707_130107",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.991G>A has a total allele count (AC) of 2 in gnomAD, which is less than 6. Therefore, PM2_SUPPORTING applies based on this evidence.",
+      "reasoning": "According to the ACMG criteria for PM2_SUPPORTING, the criterion applies if the total allele count (AC) across all gnomAD populations is less than 6. In this case, the total AC is 2, which meets the requirement for PM2_SUPPORTING. Thus, the criterion applies based on Step 2 of the classification rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824800-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF for the variant NM_001114753.3:c.991G>A is 3.1e-07, which is significantly less than 0.01 (1%).",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion applies only if the Popmax FAF is greater than or equal to 0.01. Since the Popmax FAF for this variant is 3.1e-07, which is much lower than 0.01, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824800-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The Popmax FAF is 3.1e-07, which is below the thresholds for both BS1_Strong and BS1_Supporting. The homozygote count (ac_hom) is 0, which does not meet the criteria for BS1. Therefore, BS1 does not apply.",
+      "reasoning": "According to the ACMG criteria for BS1, the Popmax FAF must be greater than 0.0008 and less than or equal to 0.002 for BS1_Supporting to apply, or greater than 0.002 and less than 0.01 for BS1_Strong to apply. In this case, the Popmax FAF is 3.1e-07, which does not meet either of these thresholds. Additionally, the homozygote count is 0, which also does not support the application of BS1. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824800-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 10 probands reported; ERepo: N/A; LOVD: N/A; PubMed: 10 articles found.",
+      "reasoning": "The evidence indicates that the NM_001114753.3:c.991G>A variant has been reported in more than 10 probands with a phenotype consistent with HHT, which meets the threshold for PS4_Strong. Since PM2_Supporting has already been confirmed as met, the criterion applies with a strength of strong.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.991G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.991G>A, indicating a lack of evidence to support pathogenicity.",
+      "reasoning": "Since there are no experiments available to evaluate, PS3 does not apply. The absence of any functional evidence means we cannot assess the variant's impact on function, which is necessary for applying this criterion.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.991G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were provided to evaluate the variant NM_001114753.3:c.991G>A for HHT.",
+      "reasoning": "Since there are no experiments available to assess the functional impact of the variant, BS3 does not apply. According to the classification rules, if there are no experiments, BS3 cannot be evaluated and thus does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.991G>A",
+      "disease": "HHT"
+    }
+  ]
+}

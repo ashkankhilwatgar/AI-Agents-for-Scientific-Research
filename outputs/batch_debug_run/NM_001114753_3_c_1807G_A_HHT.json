@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.1807G>A",
+  "disease": "HHT",
+  "timestamp": "20260707_125152",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1807G>A is absent from gnomAD, with a total allele count (AC) of 0 across all populations.",
+      "reasoning": "According to the ACMG criteria for PM2_SUPPORTING, if a variant is absent from gnomAD entirely, it applies. In this case, the variant has a total AC of 0, which means it is not present in any of the gnomAD populations, thus fulfilling the criterion for PM2_SUPPORTING.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF for the variant NM_001114753.3:c.1807G>A is 0.0, which is less than 0.01. Therefore, the criterion BA1 does not apply as it requires a Popmax FAF of at least 0.01 to be considered.",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion applies only if the Popmax FAF is greater than or equal to 0.01. In this case, the Popmax FAF is 0.0, which is below the threshold, indicating that the variant is not common in the population and thus does not meet the criteria for being classified as benign based on frequency. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A has a Popmax FAF of 0.0 and a homozygote count of 0.",
+      "reasoning": "According to the ACMG criteria for BS1, the criterion does not apply because the Popmax FAF is 0.0, which is below the threshold of >0.002 for BS1_Strong and >0.0008 for BS1_Supporting. Additionally, there are no homozygotes (ac_hom = 0), which further confirms that BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A results in a missense change (p.Gly603Arg) in the ENG gene, which is associated with HHT. The variant is not located in any of the critical positions defined for PM1: BMP9 binding sites (278, 282) or cysteine residues (207, 363, 382, 412, 549, 350, 394).",
+      "reasoning": "The variant is a missense change at codon position 603, which does not correspond to any of the specified critical positions for PM1. Therefore, PM1 does not apply as the variant residue is not in the BMP9 binding sites or any of the cysteine residues that are critical for ENG function.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands reported; ERepo: not queried; LOVD: not queried; PubMed: 1 article found.",
+      "reasoning": "The evidence indicates that the NM_001114753.3:c.1807G>A variant has been reported in 4 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia (HHT). According to the ACMG criteria for PS4, since there are 4 probands, this meets the threshold for PS4_Strong, which applies in this case. The variant is classified as likely pathogenic based on the evidence provided, confirming the strength of the association with HHT.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications found for the variant NM_001114753.3:c.1807G>A in the ENG gene, indicating no evidence for PM5.",
+      "reasoning": "The evidence retrieved shows that there are no entries in the different_aa_classifications list, which means there are no different pathogenic or likely pathogenic missense variants at the same codon (603) for the ENG gene. According to the ACMG criteria for PM5, this means that the criterion does not apply as it requires at least one different LP/P missense variant at the same codon.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were provided to evaluate the variant NM_001114753.3:c.1807G>A for HHT.",
+      "reasoning": "Since there are no experiments available to assess the functional impact of the variant, PS3 does not apply. According to the ACMG criteria, PS3 requires evidence from functional experiments that support a pathogenic effect, and the absence of such evidence means the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.876, which is above the threshold of 0.644 for PP3. SpliceAI scores are not available due to a timeout error, but they are not needed since REVEL already applies.",
+      "reasoning": "The evidence shows that the REVEL score of 0.876 meets the threshold for PP3, which requires a score of >=0.644 for missense variants. Therefore, PP3 applies based on the REVEL score alone, and no further evaluation of SpliceAI is necessary.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.876, which fails the BP4 threshold of <=0.15 for HHT. SpliceAI scores are not available due to a timeout error, but BP4 requires all scores to be <=0.1, which cannot be confirmed.",
+      "reasoning": "According to the classification rules for BP4, for a missense variant, both conditions must be satisfied: the REVEL score must be <=0.15 and SpliceAI scores must be <=0.1. The REVEL score of 0.876 fails the first condition, thus BP4 does not apply regardless of the SpliceAI scores, which are unavailable due to an error.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The evidence indicates that there are no entries in the same_aa_classifications for the variant NM_001114753.3:c.1807G>A, meaning there are no established pathogenic variants with the same amino acid change.",
+      "reasoning": "Since the same_aa_classifications list is empty, criterion PS1 does not apply. There are no known pathogenic variants that share the same amino acid change as the query variant, which is a requirement for PS1 to be applicable.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were provided to support benign classification for the variant NM_001114753.3:c.1807G>A.",
+      "reasoning": "Since there are no experiments available, BS3 does not apply. According to the ACMG criteria, if there are no experiments, BS3 cannot be evaluated and thus does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
@@ -11,6 +12,28 @@ from config import MODELS
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
 from pydantic import BaseModel
 from .llm.response_schema import CheckReasoningResult
+
+# Opt-in retry-attempt logging. Off by default — set PIPELINE_DEBUG_LOG=1 to
+# capture each retry attempt's check result/feedback/task_output to a local
+# file for diagnosing retry-limit failures without guesswork.
+_DEBUG_LOG_PATH = os.environ.get("PIPELINE_DEBUG_LOG")
+
+
+def _log_attempt(agent: str, criterion: str, variant: str, attempt: int, result: dict, task_output: dict) -> None:
+    if not _DEBUG_LOG_PATH:
+        return
+    try:
+        with open(_DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "agent": agent,
+                "criterion": criterion,
+                "variant": variant,
+                "attempt": attempt,
+                "check_result": result,
+                "task_output": task_output,
+            }) + "\n")
+    except Exception:
+        pass
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -90,6 +113,16 @@ The following are NOT reasoning errors — do not flag these:
   provided the proband count. Do NOT ask the task agent to change tool_used to "lovd" or "erepo".
 - A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
   is valid if the proband count supports it.
+- CRITICAL — "applies" and "applied_strength" are two SEPARATE, INDEPENDENT fields:
+  "applies" (bool) means the criterion fires at all. "applied_strength" (very_strong/strong/moderate/supporting)
+  is the severity tier at which it fires. applies=true + applied_strength="moderate" is a FULLY CONSISTENT,
+  CORRECT result — it means "this criterion applies, at moderate strength." This is NOT a contradiction.
+  Do NOT flag this combination as an error. Do NOT reason that applies=true implies the strongest tier, and
+  do NOT ask the task agent to flip applies to false just because the strength is sub-maximal. Only flag a
+  real error here if the strength tier itself is wrong for the evidence (e.g. evidence supports 4+ probands
+  but applied_strength is "supporting" instead of "strong") — verify the tier against the rag_entry thresholds
+  before flagging, and if you flag it, give ONE specific corrected (applies, applied_strength) pair and do not
+  reverse that verdict on a later attempt for the same evidence.
 - Evidence showing a variant is absent from a database — absence is valid evidence.
 - The task agent concluding BP1 does NOT apply because the gene causes disease via missense variants.
   BP1 requires that the gene causes disease PRIMARILY through truncating/LOF variants with missense
@@ -118,19 +151,29 @@ Some important rules:
     return result
 
 
-def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_count: int = 0) -> tuple[dict, dict]:
+def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symbol: str | None = None, retry_count: int = 0) -> tuple[dict, dict]:
     """
     Main entry point called by pipeline.py.
     Receives validated task output from Debug agent.
     Checks reasoning, retries Task agent only if reasoning error found.
+
+    gene_symbol should be the pipeline's VEP/NCBI-resolved gene (the same value
+    passed into run_debug). get_gene_from_transcript() below is a transcript→
+    GENE_DB lookup that is currently unpopulated (GENE_DB entries have no
+    "transcripts" list) and always returns None — it is kept only as a
+    secondary check in case GENE_DB is populated in the future, and must never
+    be the sole source of gene resolution here. Without gene_symbol threaded
+    through, the Judge would evaluate reasoning against gene-agnostic/generic
+    rules even when the Task agent correctly applied gene-specific HHT VCEP
+    rules, causing false-positive reasoning errors that no retry can resolve.
     """
     criterion = task.get("criterion")
     variant = task.get("variant", "")
 
-    # Detect gene so gene-specific planrag rules (PVS1, PM1 boundaries) are
-    # used as ground truth when the judge evaluates the task agent's reasoning.
-    gene = None
-    if variant.startswith("NM_") and ":" in variant:
+    # Prefer the pipeline-resolved gene_symbol; fall back to the transcript
+    # lookup only if it's not provided (e.g. direct/legacy callers).
+    gene = gene_symbol
+    if not gene and variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
 
     disease = task.get("disease")
@@ -142,6 +185,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
 
     while retry_count < RETRY_LIMIT:
         result = check_reasoning(task_output, rag_entry)
+        _log_attempt("judge", criterion, variant, retry_count, result, task_output)
 
         if result["past"]:
             return task_output, tool_cache_update
@@ -150,11 +194,12 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, retry_cou
         # print(f"Feedback: {result['feedback']}")
 
         # get new output from Task agent with correction feedback
-        task_output, tool_cache_update = run_task(task, gene_symbol= gene, tool_results=tool_result, feedback=result["feedback"])
+        task_output, tool_cache_update = run_task(task, gene_symbol=gene, tool_results=tool_result, feedback=result["feedback"])
         retry_count += 1
 
     # check the final retry output before giving up
     result = check_reasoning(task_output, rag_entry)
+    _log_attempt("judge", criterion, variant, retry_count, result, task_output)
     if result["past"]:
         return task_output, tool_cache_update
 

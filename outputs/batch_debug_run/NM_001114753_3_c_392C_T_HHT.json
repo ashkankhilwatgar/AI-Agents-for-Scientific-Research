@@ -1,0 +1,90 @@
+{
+  "variant": "NM_001114753.3:c.392C>T",
+  "disease": "HHT",
+  "timestamp": "20260707_131331",
+  "classification": "Benign",
+  "rule_matched": "BA1 stand-alone",
+  "scoring": {
+    "classification": "Benign",
+    "rule_matched": "BA1 stand-alone",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 1,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BA1": "benign_stand_alone"
+    },
+    "applied_criteria": [
+      "BA1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.392C>T has a total allele count (AC) of 4305 in gnomAD, which is greater than 6. Additionally, the allele frequencies in all subpopulations are above 0.00004, with the lowest being 0.001925 in the genome data and 0.002744 in the exome data. Therefore, PM2_SUPPORTING does not apply.",
+      "reasoning": "According to the PM2_SUPPORTING criterion, the variant must either be absent from gnomAD, have a total allele count (AC) of less than 6, or have an allele frequency in any single gnomAD subpopulation of less than 0.00004. In this case, the variant is present in gnomAD with an AC of 4305, which is greater than 6, and all subpopulation allele frequencies are above 0.00004. Thus, the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826641-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF for the variant NM_001114753.3:c.392C>T is 0.02438125, which is greater than 0.01 (1%).",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion applies when the Popmax FAF is greater than or equal to 0.01. Since the Popmax FAF for this variant is 0.02438125, which exceeds the threshold, BA1 applies, indicating that the variant is likely benign.",
+      "applies": true,
+      "applied_strength": "benign_stand_alone",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826641-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The Popmax FAF is 0.02438125, which exceeds the threshold of 0.01 for BS1. The homozygote count is 49, but this does not apply since the FAF is too high.",
+      "reasoning": "According to the ACMG criteria for BS1, the criterion does not apply because the Popmax FAF of 0.02438125 is greater than 0.01. Therefore, BS1 cannot be applied regardless of the homozygote count.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826641-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were provided to evaluate the variant NM_001114753.3:c.392C>T for HHT.",
+      "reasoning": "Since there are no experiments available to assess the functional impact of the variant, PS3 does not apply. The absence of evidence means we cannot support a pathogenic classification based on functional assays.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.392C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.392C>T, indicating a lack of evidence to support benign classification.",
+      "reasoning": "According to the ACMG criteria for BS3, if there are no experiments available, BS3 does not apply. Since no functional evidence was retrieved, the criterion cannot be satisfied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.392C>T",
+      "disease": "HHT"
+    }
+  ]
+}

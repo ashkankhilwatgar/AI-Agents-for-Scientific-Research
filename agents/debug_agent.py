@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 # from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
@@ -12,6 +13,28 @@ from pydantic import BaseModel
 from .llm.response_schema import CheckTechnicalResult
 
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
+
+# Opt-in retry-attempt logging. Off by default — set PIPELINE_DEBUG_LOG=1 to
+# capture each retry attempt's check result/feedback/task_output to a local
+# file for diagnosing retry-limit failures without guesswork.
+_DEBUG_LOG_PATH = os.environ.get("PIPELINE_DEBUG_LOG")
+
+
+def _log_attempt(agent: str, criterion: str, variant: str, attempt: int, result: dict, task_output: dict) -> None:
+    if not _DEBUG_LOG_PATH:
+        return
+    try:
+        with open(_DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "agent": agent,
+                "criterion": criterion,
+                "variant": variant,
+                "attempt": attempt,
+                "check_result": result,
+                "task_output": task_output,
+            }) + "\n")
+    except Exception:
+        pass
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -164,13 +187,18 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
     task_output, tool_cache_update = run_task(task, gene_symbol=gene_symbol, tool_results = tool_results)
     # print_task_summary(task_output)
 
+    criterion = task.get("criterion")
+    variant = task.get("variant", "")
+
     while retry_count < RETRY_LIMIT:
         # Fast path: structurally valid output skips LLM entirely
         if _deterministic_check(task_output):
+            _log_attempt("debug", criterion, variant, retry_count, {"past": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
             return task_output, tool_cache_update
 
         # Slow path: genuine structural problem — ask LLM for specific feedback
         result = check_technical(task_output)
+        _log_attempt("debug", criterion, variant, retry_count, result, task_output)
 
         if result["past"]:
             return task_output, tool_cache_update
@@ -179,8 +207,8 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
         # print(f"Feedback: {result['feedback']}")
 
         task_output, tool_cache_update = run_task(
-            task, 
-            tool_results = tool_results, 
+            task,
+            tool_results = tool_results,
             gene_symbol=gene_symbol,
             feedback=result["feedback"]
         )
@@ -189,9 +217,11 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
 
     # check the final retry output before giving up
     if _deterministic_check(task_output):
+        _log_attempt("debug", criterion, variant, retry_count, {"past": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
         return task_output, tool_cache_update
 
     result = check_technical(task_output)
+    _log_attempt("debug", criterion, variant, retry_count, result, task_output)
     if result["past"]:
         return task_output, tool_cache_update
 
