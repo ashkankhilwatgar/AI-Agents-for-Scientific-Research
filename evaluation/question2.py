@@ -13,7 +13,14 @@ import os
 import json
 from pipeline import _safe_variant_name
 import numpy as np
-from sklearn.metrics import f1_score, recall_score, accuracy_score, confusion_matrix
+from sklearn.metrics import (
+    f1_score, 
+    recall_score, 
+    accuracy_score, 
+    confusion_matrix, 
+    precision_score,
+    classification_report,
+)
 import datetime
 from pathlib import Path
 from typing import Callable
@@ -52,16 +59,15 @@ def load_predictions(batch_summary_path: str) -> pd.DataFrame:
     
     results = payload["results"]
 
-    rows = {}
+    rows = []
     for result in results:
-        print(result)
         if result.get("status") and result.get("status") == "error":
             row = {
                 "variant": result["variant"],
                 "pred_classification": None,
                 "status": "error",
             }
-            rows.update(row)
+            rows.append(row)
             continue
 
         row = {
@@ -69,7 +75,7 @@ def load_predictions(batch_summary_path: str) -> pd.DataFrame:
             "pred_classification": result["classification"],
             "status": "success",
         }
-        rows.update(row)
+        rows.append(row)
 
     return pd.DataFrame(rows)
 
@@ -90,7 +96,7 @@ def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> pd.DataFrame:
     return eval_df
 
 # ========================================================
-# HELPERS TO CALCULATE PRECISION, RECALL, ACCURACY, F1
+# BOOTSTRAP HELPER
 # ========================================================
 def bootstrap_metric(
         predictions: np.ndarray, 
@@ -107,23 +113,23 @@ def bootstrap_metric(
         vals.append(metrics)
     return vals.mean(), vals.std(ddof=1)
 
-def compute_precision(
-        predictions: np.ndarray,
-        classification: np.ndarray
-) -> float:
-    cm = confusion_matrix(classification, predictions, labels=[1, 0])
-    tp = cm[0, 0]
-    fp = cm[1, 0]
-    return tp / (tp + fp)
+# def compute_precision(
+#         predictions: np.ndarray,
+#         classification: np.ndarray
+# ) -> float:
+#     cm = confusion_matrix(classification, predictions, labels=[1, 0])
+#     tp = cm[0, 0]
+#     fp = cm[1, 0]
+#     return tp / (tp + fp)
 
-def compute_specificity(
-        predictions: np.ndarray,
-        classification: np.ndarray
-) -> float:
-    cm = confusion_matrix(classification, predictions, labels=[1, 0])
-    tn = cm[1,1]
-    fn = cm[0,1]
-    return tn / (tn + fn)
+# def compute_specificity(
+#         predictions: np.ndarray,
+#         classification: np.ndarray
+# ) -> float:
+#     cm = confusion_matrix(classification, predictions, labels=[1, 0])
+#     tn = cm[1,1]
+#     fn = cm[0,1]
+#     return tn / (tn + fn)
 
 # ========================================================
 # HELPERS THAT PRINT & SAVE THE RESULT TO A JSON FILE
@@ -187,54 +193,58 @@ def run_question2_evaluation(
     prediction_df = load_predictions(batch_summary_path=bath_summary_json_path)
     combined_df = merge_df(classification_df, prediction_df)
 
-    # ---------------- Compute Statistics ---------------- #
-    accuracy, accuracy_std = bootstrap_metric(
-        predictions=combined_df["pred_classification"].to_numpy(),
-        gold_answers=combined_df["gold_classification"].to_numpy(),
-        metric_function=accuracy_score,
-        num_boots=1000
-    )
+    
 
-    precision, precision_std = bootstrap_metric(
-        predictions=combined_df["pred_classification"].to_numpy(),
-        gold_answers=combined_df["gold_classification"].to_numpy(),
-        metric_function=compute_precision,
-    )
 
-    recall, recall_std = bootstrap_metric(
-        predictions=combined_df["pred_classification"].to_numpy(),
-        gold_answers=combined_df["gold_classification"].to_numpy(),
-        metric_function=recall_score
-    )
 
-    F1, F1_std = bootstrap_metric(
-        predictions=combined_df["pred_classification"].to_numpy(),
-        gold_answers=combined_df["gold_classification"].to_numpy(),
-        metric_function=f1_score
-    )
+    # # ---------------- Compute Statistics ---------------- #
+    # accuracy, accuracy_std = bootstrap_metric(
+    #     predictions=combined_df["pred_classification"].to_numpy(),
+    #     gold_answers=combined_df["gold_classification"].to_numpy(),
+    #     metric_function=accuracy_score,
+    #     num_boots=1000
+    # )
 
-    cm = confusion_matrix(
-        combined_df["gold_classification"].to_numpy(),
-        combined_df["pred_classification"].to_numpy(),
-        labels=[0,1]
-    )
+    # precision, precision_std = bootstrap_metric(
+    #     predictions=combined_df["pred_classification"].to_numpy(),
+    #     gold_answers=combined_df["gold_classification"].to_numpy(),
+    #     metric_function=precision_score,
+    # )
 
-    # ---------------- Printing & Saving Outputs ---------------- #
-    print_results(
-        accuracy,
-        precision,
-        recall,
-        F1,
-        cm,
-    )
+    # recall, recall_std = bootstrap_metric(
+    #     predictions=combined_df["pred_classification"].to_numpy(),
+    #     gold_answers=combined_df["gold_classification"].to_numpy(),
+    #     metric_function=recall_score
+    # )
 
-    save_results(
-        accuracy,
-        precision,
-        recall,
-        F1,
-        output_dir,
-    )
+    # F1, F1_std = bootstrap_metric(
+    #     predictions=combined_df["pred_classification"].to_numpy(),
+    #     gold_answers=combined_df["gold_classification"].to_numpy(),
+    #     metric_function=f1_score
+    # )
+
+    # cm = confusion_matrix(
+    #     combined_df["gold_classification"].to_numpy(),
+    #     combined_df["pred_classification"].to_numpy(),
+    #     labels=[0,1]
+    # )
+
+    # # ---------------- Printing & Saving Outputs ---------------- #
+    # print_results(
+    #     accuracy,
+    #     precision,
+    #     recall,
+    #     F1,
+    #     cm,
+    # )
+
+    # save_results(
+    #     accuracy,
+    #     precision,
+    #     recall,
+    #     F1,
+    #     output_dir,
+    # )
 
 def main():
     parser = argparse.ArgumentParser()

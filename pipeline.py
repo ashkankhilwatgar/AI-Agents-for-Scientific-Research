@@ -16,6 +16,10 @@ import operator
 from typing import Any, TypeAlias
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
 
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
 HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4", "BS3", "PS3"]
@@ -806,8 +810,8 @@ def run_batch(
             res = fut.result()
             summary.append(res)
             done += 1
-            print(f"BATCH: [{done}/{total}] {res['variant']} -> {res['status']}"
-                  + (f" ({res.get('classification')})" if res.get("classification") else ""))
+            console.print(Panel(f"BATCH: [{done}/{total}] {res['variant']} -> {res['status']}"
+                  + (f" ({res.get('classification')})" if res.get("classification") else "")))
             # Write summary incrementally so a crash doesn't lose progress.
             with open(os.path.join(output_dir, "batch_summary.json"), "w") as fh:
                 json.dump({
