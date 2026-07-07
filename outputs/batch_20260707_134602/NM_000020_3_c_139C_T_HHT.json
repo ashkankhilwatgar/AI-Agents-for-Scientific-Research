@@ -1,0 +1,96 @@
+{
+  "variant": "NM_000020.3:c.139C>T",
+  "disease": "HHT",
+  "timestamp": "20260707_135752",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD data shows the variant is present with a total allele count (AC) of 15 (12 in exomes, 3 in genomes). The maximum subpopulation allele frequency (max_subpop_af) is 0.000967, and the popmax FAF is 7.82e-06.",
+      "reasoning": "Following the PM2_SUPPORTING rules: Step 1: The variant is not absent from gnomAD. Step 2: The total allele count (AC = 15) is not less than 6. Step 3: We check if the allele frequency in ANY single gnomAD subpopulation is less than 0.00004. Multiple subpopulations have allele frequencies below 0.00004 (for example, the Finnish population has an AC of 0 and AF of 0.0, and the East Asian exome population has an AF of 1/39320 = 0.0000254). Since there is at least one subpopulation with an allele frequency less than 0.00004, the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.139C>T (12-51913176-C-T) has a popmax filtering allele frequency (FAF95) of 7.82e-06 (0.000782%) in the AMR population of gnomAD.",
+      "reasoning": "To meet the BA1 criterion, the popmax FAF must be greater than or equal to 0.01 (1%). Since the observed popmax FAF is 7.82e-06, which is significantly below the 1% threshold, the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD data shows a popmax FAF of 7.82e-06 (0.00000782) in the Latino/Admixed American (amr) population, with 0 homozygotes (ac_hom = 0) across the dataset.",
+      "reasoning": "Following the BS1 classification rules: Step 1: BA1 does not apply because the popmax FAF (7.82e-06) is less than 0.01. Step 2: The popmax FAF is not within the BS1_Supporting range (>0.0008 and <=0.002) with >=2 homozygotes. Step 3: The popmax FAF is not >0.002 and <0.01, so BS1_Strong via the FAF route does not apply. Step 4: The popmax FAF is not >0.0008 and <=0.002, so BS1_Supporting does not apply. Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "The variant NM_000020.3:c.139C>T was queried across ClinVar, ERepo, LOVD, and PubMed, and no probands with HHT were identified. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.139C>T OR p.Arg47Trp OR p.R47W) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.139C>T.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_000020.3:c.139C>T.",
+      "reasoning": "According to Shortcut B, because there are no functional experiments provided in the evidence, the BS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    }
+  ]
+}

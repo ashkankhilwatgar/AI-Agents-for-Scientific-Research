@@ -154,3 +154,9 @@ I'll come backt o question2.py tomorrow morning. If you guys think having one fi
 python -m evaluation.question2 --gold_answer_csv_filename hht_script_testing_q2.csv --model_output_json_filename outputs/batch_20260707_111441/batch_summary.json --output_dir evaluation/outputs
 
 
+7/7/26
+Ashkan
+I did one case study for 25 variants that our pipeline could absolutely classify, and got a 91% success rate. I changed the code a little bit, but they were minor things.
+Suning created a script for Q3, and I uploaded it here.
+
+

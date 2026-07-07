@@ -1,0 +1,96 @@
+{
+  "variant": "NM_000020.3:c.139C>T",
+  "disease": "HHT",
+  "timestamp": "20260707_142003",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD data shows the variant NM_000020.3:c.139C>T (12-51913176-C-T) is present with a total allele count (AC) of 15 across exomes and genomes. In the subpopulations where the variant is present (AC > 0), the allele frequencies are: exome AMR (2/42400 = 4.72e-5), exome NFE (5/1107326 = 4.52e-6), exome SAS (1/84206 = 1.19e-5), exome EAS (1/39320 = 2.54e-5), exome AFR (1/33384 = 3.00e-5), genome AMR (1/15280 = 6.54e-5), and genome AFR (1/41408 = 2.41e-5).",
+      "reasoning": "The variant is present in gnomAD (total AC = 15, which is >= 6), so we evaluate Step 3. We must check if the allele frequency in any single gnomAD subpopulation where the variant is actually present (AC > 0) is less than 0.00004 (0.004%). Multiple subpopulations where the variant is present meet this threshold: for example, the exome NFE subpopulation has an allele frequency of 4.52e-6 (0.00045%), the exome SAS subpopulation has 1.19e-5 (0.00119%), the exome EAS subpopulation has 2.54e-5 (0.00254%), the exome AFR subpopulation has 3.00e-5 (0.003%), and the genome AFR subpopulation has 2.41e-5 (0.00241%). Since there is at least one subpopulation with a positive allele count where the allele frequency is < 0.00004, PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.139C>T has a popmax filtering allele frequency (FAF95) of 7.82e-06 (0.000782%) in the gnomAD database.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax FAF is greater than or equal to 0.01 (1%). Since the observed Popmax FAF of 7.82e-06 is far below this threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.139C>T has a popmax filtering allele frequency (FAF95) of 7.82e-06 (0.00000782) in the American (amr) population, with 0 homozygotes (ac_hom = 0) in gnomAD.",
+      "reasoning": "Following the step-by-step classification rules: Step 1: BA1 does not apply because the Popmax FAF (7.82e-06) is less than 0.01. Step 2: The Popmax FAF is not within the BS1_Supporting range (>0.0008 and <=0.002) and there are 0 homozygotes, so BS1_Strong via the homozygote route does not apply. Step 3: The Popmax FAF is not >0.002 and <0.01, so BS1_Strong via the FAF route does not apply. Step 4: The Popmax FAF is not >0.0008, so BS1_Supporting does not apply. Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "The variant NM_000020.3:c.139C>T was queried across ClinVar, ERepo, LOVD, and PubMed, and no probands with HHT were identified. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.139C>T OR p.Arg47Trp OR p.R47W) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.139C>T.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence.",
+      "reasoning": "According to Shortcut B, since there are no experiments provided in the functional evidence dictionary, the BS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    }
+  ]
+}

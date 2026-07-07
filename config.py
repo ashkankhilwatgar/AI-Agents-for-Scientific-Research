@@ -55,12 +55,12 @@ _os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
 # }
 
 MODELS = {
-    "plan":  {"provider": "openai", "model": "gpt-4o-mini"},
-    "task":  {"provider": "openai", "model": "gpt-4o-mini"},
-    "debug": {"provider": "openai", "model": "gpt-4o-mini"},
-    "judge": {"provider": "openai", "model": "gpt-4o-mini"},
-    "check": {"provider": "openai", "model": "gpt-4o-mini"},
-    "functional_evidence": {"provider": "openai", "model": "GPT-4o-mini"},
+    "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
+    "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "judge": {"provider": "google_genai", "model": "gemini-3.5-flash"},
+    "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.5-flash"}
 }
 
 
@@ -73,7 +73,17 @@ RETRY_LIMIT=5
 # the Gemini per-minute quota. Raised for the paid Vertex tier so the limiter
 # protects against runaway bursts without serializing the parallel calls.
 # Lower it if you start seeing 429s.
-GEMINI_REQUESTS_PER_MINUTE = 300
+#
+# Raised 300 -> 450 (1.5x, not 2x) on 2026-07-07: task, judge, and
+# functional_evidence were consolidated onto the same model
+# ("gemini-3.5-flash"), and the limiter key is per-model
+# (f"google_genai:{model}" in agents/llm/llm.py), so those three agents now
+# queue behind ONE shared 300/min bucket instead of task having its own.
+# Went with a moderate bump rather than doubling since the real ceiling is
+# Google Cloud's actual Vertex quota for this project, which isn't visible
+# from this codebase — if 429s show up, drop this back toward 300-350 rather
+# than pushing higher.
+GEMINI_REQUESTS_PER_MINUTE = 450
 
 # gnomAD's public GraphQL API has no published rate limit, but returns HTTP 429
 # when several variants' PM2/BA1/BS1 (and gene-constraint) queries land at the
@@ -82,6 +92,16 @@ GEMINI_REQUESTS_PER_MINUTE = 300
 # (see the shared limiter in tools/gnomad.py). Lower it if 429s persist; raise
 # it if runs feel slow and you're not seeing 429s.
 GNOMAD_REQUESTS_PER_MINUTE = 60
+
+# Ensembl's public VEP REST API (tools/vep.py) has no dedicated throttle today,
+# unlike gnomAD above — it just retries on 429/500/503 with backoff. In batch
+# mode, annotate_variant() gets called concurrently across variants/criteria
+# (PVS1, PM1, PM4, erepo lookups, plus the top-level variant-type detection),
+# and Ensembl's public API returns HTTP 500 under burst load the same way
+# gnomAD returns 429. This throttles request STARTS globally across all
+# threads, same pattern as _throttle_gnomad. Lower it if 500s persist; raise
+# it if runs feel slow and you're not seeing 500s.
+ENSEMBL_REQUESTS_PER_MINUTE = 60
 
 
 

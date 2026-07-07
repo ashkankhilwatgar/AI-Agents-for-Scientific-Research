@@ -25,7 +25,3 @@ variation_id,clinvar_accession,hgvs_cdna,hgvs_protein,gene,variant_type,gt_class
  The highest population minor allele frequency in gnomAD v2.1.1 is 0.26% in the African/African American population (BS1_strong). Functional a",Auto* (LLM-based)
 426011,,NM_000020.3:c.293A>G,,ACVRL1,,Likely Pathogenic,LP,reviewed by expert panel,4,1,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/426011/,PM2_Supporting;PS3_Supporting;PS4,,TRUE,CA384898102,"The NM_000020.3: c.293A>G variant in ACVRL1 is a missense variant predicted to cause substitution of asparagine by serine at amino acid 98 (p.Asn98Ser). This variant is absent from gnomAD v2.1.1 (PM2_Supporting). The computational predictor REVEL gives a score of 0.508, which is neither above nor be",Auto* (LLM-based)
 365088,,NM_001114753.3:c.1316A>C,,ENG,,Likely Benign,LB,reviewed by expert panel,4,1,HHT,https://www.ncbi.nlm.nih.gov/clinvar/variation/365088/,BP4;BS3_Supporting;BS1_Supporting,,TRUE,CA5252800,The NM_001114753.3: c.1316A>C variant in ENG is a missense variant predicted to cause substitution of lysine by threonine at amino acid 439 (p.Lys439Thr). The filtering allele frequency (the lower threshold of the 95% CI of 15/10368) of the c.1316A>C variant in ENG is 0.0008918 for Ashkenazi Jewish,Auto* (LLM-based)
-,,,,,,,,,,,,,,,,,,
-Legend:,,,,,,,,,,,,,,,,,,
-Fully Auto,All criteria automated via deterministic tools,,,,,,,,,,,,,,,,,
-Auto* (LLM-based),Automated but includes PS3/BS3 via LLM (less reliable),,,,,,,,,,,,,,,,,

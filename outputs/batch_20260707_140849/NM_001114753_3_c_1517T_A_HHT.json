@@ -1,0 +1,98 @@
+{
+  "variant": "NM_001114753.3:c.1517T>A",
+  "disease": "HHT",
+  "timestamp": "20260707_142235",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1517T>A is present in gnomAD with a total allele count (AC) of 1 across all populations (exome AC = 1, genome AC = 0).",
+      "reasoning": "Following the PM2_SUPPORTING classification rules: Step 1: The variant is not entirely absent from gnomAD. Step 2: The total allele count (AC) across all gnomAD populations is 1, which is less than the threshold of 6 (AC < 6). Therefore, the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1517T>A is present in gnomAD with a total allele count of 1 out of 1,461,814 alleles (allele frequency of 6.84e-07). The popmax filtering allele frequency (FAF95) is 0.0.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax FAF is greater than or equal to 0.01 (1%). Since the Popmax FAF for this variant is 0.0 (which is less than 0.01), the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD exome data shows a total allele count of 1/1,461,814 (AF: 6.84e-07) with 0 homozygotes. The popmax FAF is 0.0.",
+      "reasoning": "Following the BS1 classification rules: Step 1: BA1 does not apply (popmax FAF is 0.0, which is < 0.01). Step 2: The homozygote route for BS1_Strong does not apply (popmax FAF is not in the supporting range and homozygote count is 0). Step 3: BS1_Strong via the FAF route does not apply (popmax FAF is 0.0, which is not > 0.002). Step 4: BS1_Supporting does not apply (popmax FAF is 0.0, which is not > 0.0008). Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands reported (PS4_Moderate); ERepo: No additional probands found; LOVD: No additional probands found; PubMed: 0 articles found.",
+      "reasoning": "The ClinGen HHT VCEP curation for NM_001114753.3:c.1517T>A reports 2 probands with a phenotype consistent with HHT. A comprehensive search of fallback databases (ERepo, LOVD, and PubMed) did not identify any additional unique probands. According to the HHT VCEP specifications for PS4, a count of 2-3 probands meets the threshold for PS4_Moderate.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1517T>A.",
+      "reasoning": "According to the classification rules, if there are no functional experiments available, the PS3 criterion does not apply (Shortcut A). Therefore, PS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence (experiments list is empty).",
+      "reasoning": "According to the classification rules, Shortcut B applies: if there are no experiments, BS3 does not apply. Since the experiments list is empty, we cannot evaluate any functional assays for benign support.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    }
+  ]
+}

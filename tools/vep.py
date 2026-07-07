@@ -1,11 +1,39 @@
 import requests
 from urllib.parse import quote
 import time
+import threading
+
+try:
+    from config import ENSEMBL_REQUESTS_PER_MINUTE
+except Exception:  # keep the tool importable/usable if config isn't on the path
+    ENSEMBL_REQUESTS_PER_MINUTE = 60
 
 ENSEMBL_URL = "https://rest.ensembl.org"
 MAX_RETRIES = 5           # Ensembl is flaky on indels/delins; give it more tries
 RETRY_DELAY = 2           # base seconds between retries (multiplied per attempt = exponential backoff)
 REQUEST_TIMEOUT = 30      # seconds; 15s was too short and caused read timeouts in batch runs
+
+# ── Global Ensembl throttle ────────────────────────────────────────────────────
+# In batch mode many variants/criteria call annotate_variant() concurrently (see
+# run_batch in pipeline.py and the PVS1/PM1/PM4/erepo call sites), and Ensembl's
+# public VEP API returns HTTP 500 when requests burst in together — the same
+# failure mode gnomAD hits with 429 (see tools/gnomad.py). This gate enforces a
+# minimum spacing between Ensembl request STARTS across ALL threads, so the
+# combined batch stays under ~ENSEMBL_REQUESTS_PER_MINUTE. It only serializes
+# the (fast) request kickoff, not the whole call, so it barely affects latency.
+_ensembl_lock = threading.Lock()
+_ensembl_last_call = 0.0
+
+
+def _throttle_ensembl() -> None:
+    global _ensembl_last_call
+    min_interval = 60.0 / max(ENSEMBL_REQUESTS_PER_MINUTE, 1)
+    with _ensembl_lock:
+        now = time.monotonic()
+        wait = min_interval - (now - _ensembl_last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _ensembl_last_call = time.monotonic()
 
 # Single-letter to three-letter amino acid code conversion
 AA_1TO3 = {
@@ -56,6 +84,7 @@ def _check_repeat_region(data: list) -> bool:
 
     for attempt in range(MAX_RETRIES):
         try:
+            _throttle_ensembl()
             r = requests.get(
                 ENSEMBL_URL + ext,
                 headers={"Content-Type": "application/json"},
@@ -191,6 +220,7 @@ def annotate_variant(variant: str) -> dict:
 
     for attempt in range(MAX_RETRIES):
         try:
+            _throttle_ensembl()
             response = requests.get(
                 url,
                 headers={"Content-Type": "application/json"},
@@ -269,29 +299,53 @@ def annotate_variant(variant: str) -> dict:
                 "rsid": rsid
             }
 
-            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly)
+            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly).
+            #
+            # The ref/alt amino acids VEP reports at the FIRST affected codon are only
+            # sufficient to build a valid single-residue HGVS protein notation
+            # ("p.Cys51Gly") for consequences that truly are a single-residue
+            # substitution: missense, nonsense (stop_gained), stop_lost, start_lost.
+            # For frameshift/inframe indel consequences, the real HGVS notation needs
+            # the downstream frame-shifted sequence (e.g. "p.Cys207ProfsTer5"), which
+            # is NOT derivable from amino_acids alone — synthesizing a nonsense-style
+            # "p.Cys207X" for a frameshift is invalid HGVS and silently breaks anything
+            # that text-searches literature/ClinVar/PubMed using this string (it won't
+            # match how the variant is actually reported in those sources). In that
+            # case, prefer VEP's own hgvsp field (which encodes the correct fs
+            # notation) when available, and otherwise leave protein_change unset
+            # rather than emit a misleading value.
+            _SINGLE_RESIDUE_CONSEQUENCES = {
+                "missense_variant", "stop_gained", "stop_lost", "start_lost",
+                "synonymous_variant",
+            }
             aa_raw = tc.get("amino_acids", "")
+            consequence = consequence_terms[0]
             if "/" in aa_raw:
                 ref_1, alt_1 = aa_raw.split("/", 1)
                 ref_3 = AA_1TO3.get(ref_1.strip(), ref_1.strip())
                 alt_3 = AA_1TO3.get(alt_1.strip(), alt_1.strip())
                 result["amino_acid_ref"] = ref_3   # e.g. "Cys"
                 result["amino_acid_alt"] = alt_3   # e.g. "Gly"
-                if result["codon_position"]:
-                    result["protein_change"] = f"p.{ref_3}{result['codon_position']}{alt_3}"  # e.g. "p.Cys51Gly"
-                    result["protein_change_1letter"] = f"p.{ref_1.strip()}{result['codon_position']}{alt_1.strip()}"  # e.g. "p.C51G"
 
-            # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly)
-            aa_raw = tc.get("amino_acids", "")
-            if "/" in aa_raw:
-                ref_1, alt_1 = aa_raw.split("/", 1)
-                ref_3 = AA_1TO3.get(ref_1.strip(), ref_1.strip())
-                alt_3 = AA_1TO3.get(alt_1.strip(), alt_1.strip())
-                result["amino_acid_ref"] = ref_3   # e.g. "Cys"
-                result["amino_acid_alt"] = alt_3   # e.g. "Gly"
-                if result["codon_position"]:
+                if consequence in _SINGLE_RESIDUE_CONSEQUENCES and result["codon_position"]:
                     result["protein_change"] = f"p.{ref_3}{result['codon_position']}{alt_3}"  # e.g. "p.Cys51Gly"
                     result["protein_change_1letter"] = f"p.{ref_1.strip()}{result['codon_position']}{alt_1.strip()}"  # e.g. "p.C51G"
+                elif hgvsp:
+                    # hgvsp is like "NM_000020.3:p.Cys207ProfsTer5" — strip the transcript prefix.
+                    result["protein_change"] = hgvsp.split(":")[-1] if ":" in hgvsp else hgvsp
+                    result["protein_change_1letter"] = None
+                    result["protein_change_note"] = (
+                        f"'{consequence}' is not a single-residue substitution — using VEP's hgvsp "
+                        "instead of synthesizing notation from amino_acids."
+                    )
+                else:
+                    result["protein_change"] = None
+                    result["protein_change_1letter"] = None
+                    result["protein_change_note"] = (
+                        f"'{consequence}' requires frame-shifted/indel HGVS notation that isn't "
+                        "derivable from amino_acids, and VEP returned no hgvsp for this transcript — "
+                        "protein_change left unset rather than emitting invalid notation."
+                    )
 
             # repeat region check — only for in-frame indels (required for PM4)
             indel_consequences = {"inframe_deletion", "inframe_insertion"}
