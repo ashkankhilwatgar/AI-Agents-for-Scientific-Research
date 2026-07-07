@@ -276,12 +276,16 @@ def save_results(
         "precision": precision,
         "recall": recall,
         "F1": f1_score,
-        "failed_variant_count": num_errors,
+        "failed_variant_count": int(num_errors),
         "classification_report": classification_report
     }
 
-    with open(filename, "w") as f:
-        json.dump(output, f, indent = 2)
+    try:
+        with open(filename, "w") as f:
+            json.dump(output, f, indent = 2)
+            print(f"RESULT SAVED TO {filename}")
+    except Exception as e:
+        print("WARNING: Failed to save the result.")
 
 # ========================================================
 # A FUNCTION THAT COMBINES EVERYTHING
@@ -350,7 +354,7 @@ def run_question2_evaluation(
         cm = confusion_matrix(y_true,y_pred,labels=LABELS,)
         classification = classification_report(y_true,y_pred,labels=LABELS,zero_division=0,output_dict=True)
 
-        # ---------------- Printing & Saving Outputs ---------------- #
+        # ---------------- Printing & Saving Outputs ---f------------- #
         print_results(
             accuracy=accuracy,
             precision=macro_precision,
