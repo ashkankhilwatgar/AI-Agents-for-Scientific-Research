@@ -669,16 +669,16 @@ def save_results(
     variant: str,
     disease: str,
     results: list[dict],
-    scoring_result: dict | None = None,
+    scoring_result: dict = None,
     output_dir: str = "outputs",
     timestamped: bool = True,
 ) -> str:
     """
     Saves full JSON results to an output file inside ``output_dir``.
 
-    In single-variant mode the filename is timestamped (preserves history).
-    In batch mode (``timestamped=False``) the filename is deterministic
-    (``<safe_variant>_<disease>.json``) so a re-run against the same folder
+    Single-variant mode uses a timestamped filename (preserves history).
+    Batch mode (``timestamped=False``) uses a deterministic filename
+    (``<safe_variant>_<disease>.json``) so re-running against the same folder
     can detect and skip variants that already completed.
 
     Returns the file path.
@@ -709,35 +709,33 @@ def save_results(
 
 
 # ==================================
-# Batch mode (CSV input, parallel variants)
+# Batch mode (CSV input, variants run SEQUENTIALLY)
 # ==================================
 
 def run_batch(
     csv_path: str,
-    max_concurrency: int = 5,
-    output_dir: str | None = None,
-    disease_default: str | None = None,
+    output_dir: str = None,
+    disease_default: str = None,
     variant_col: str = "hgvs_cdna",
     disease_col: str = "condition",
 ) -> str:
     """
-    Runs the full pipeline over every variant in a CSV, in parallel.
+    Runs the full pipeline over every variant in a CSV, ONE VARIANT AT A TIME.
 
-    Each variant runs the existing (unchanged) per-criterion pipeline; multiple
-    variants run concurrently through a bounded thread pool so total concurrency
-    stays within the shared per-model rate limiters. One JSON file is written per
-    variant into a per-run batch folder, plus a batch_summary.json.
+    Variants are processed sequentially; criterion-level parallelism still
+    happens inside each variant via the existing LangGraph fan-out. One JSON
+    file is written per variant into a per-run batch folder, plus a
+    batch_summary.json.
 
-    - Per-variant errors are isolated: a failure becomes an error file/summary row
-      and the batch continues.
-    - Resumable: if output_dir already contains a variant's file, it is skipped.
+    - Per-variant errors are isolated: a failure becomes an error file/summary
+      row and the batch continues with the next variant.
+    - Resumable: pass an existing output_dir to skip variants already written.
 
     Returns the batch output folder path.
     """
     import csv
-    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    # One folder per batch run (unless an existing one is given, enabling resume).
+    # One folder per batch run (unless an existing one is passed in, enabling resume).
     if output_dir is None:
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_dir = os.path.join("outputs", f"batch_{stamp}")
@@ -769,58 +767,57 @@ def run_batch(
     total = len(rows)
     print(f"\nBATCH: {total} variant(s) from {csv_path}")
     print(f"BATCH: output folder -> {output_dir}")
-    print(f"BATCH: max concurrency = {max_concurrency}\n")
-
-    def _process(variant: str, disease: str) -> dict:
-        safe = _safe_variant_name(variant)
-        target = os.path.join(output_dir, f"{safe}_{disease}.json")
-        if os.path.exists(target):
-            print(f"BATCH: skip (already done) {variant}")
-            return {"variant": variant, "disease": disease, "status": "skipped_existing", "file": target}
-        try:
-            results, scoring_result = run_pipeline(variant, disease)
-            path = save_results(variant, disease, results, scoring_result,
-                                 output_dir=output_dir, timestamped=False)
-            return {
-                "variant": variant,
-                "disease": disease,
-                "status": "ok",
-                "classification": (scoring_result or {}).get("classification"),
-                "rule_matched": (scoring_result or {}).get("rule_matched"),
-                "file": path,
-            }
-        except Exception as e:  # isolate: one variant must not kill the batch
-            err = {
-                "variant": variant,
-                "disease": disease,
-                "status": "error",
-                "error": f"{type(e).__name__}: {e}",
-            }
-            errfile = os.path.join(output_dir, f"{safe}_{disease}.error.json")
-            with open(errfile, "w") as fh:
-                json.dump(err, fh, indent=2)
-            print(f"BATCH: ERROR on {variant} -- {err['error']}")
-            return {**err, "file": errfile}
+    print("BATCH: running variants sequentially (criteria still run in parallel)\n")
 
     summary = []
-    done = 0
-    with ThreadPoolExecutor(max_workers=max_concurrency) as pool:
-        futures = {pool.submit(_process, v, d): v for v, d in rows}
-        for fut in as_completed(futures):
-            res = fut.result()
+    for i, (variant, disease) in enumerate(rows, start=1):
+        safe = _safe_variant_name(variant)
+        target = os.path.join(output_dir, f"{safe}_{disease}.json")
+
+        if os.path.exists(target):
+            print(f"BATCH: [{i}/{total}] skip (already done) {variant}")
+            summary.append({"variant": variant, "disease": disease,
+                            "status": "skipped_existing", "file": target})
+        else:
+            try:
+                results, scoring_result = run_pipeline(variant, disease)
+                path = save_results(variant, disease, results, scoring_result,
+                                    output_dir=output_dir, timestamped=False)
+                res = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "ok",
+                    "classification": (scoring_result or {}).get("classification"),
+                    "rule_matched": (scoring_result or {}).get("rule_matched"),
+                    "file": path,
+                }
+                print(f"BATCH: [{i}/{total}] {variant} -> ok ({res['classification']})")
+            except (Exception, SystemExit) as e:  # isolate: one variant must not kill the batch
+                # Catch SystemExit too: a stray sys.exit() inside a tool (it runs
+                # in a LangGraph worker thread) would otherwise bypass `except
+                # Exception` and silently terminate the whole batch. KeyboardInterrupt
+                # (BaseException, not caught here) still stops the run as expected.
+                res = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "error",
+                    "error": f"{type(e).__name__}: {e}",
+                }
+                errfile = os.path.join(output_dir, f"{safe}_{disease}.error.json")
+                with open(errfile, "w") as fh:
+                    json.dump(res, fh, indent=2)
+                res["file"] = errfile
+                print(f"BATCH: [{i}/{total}] {variant} -> ERROR: {res['error']}")
             summary.append(res)
-            done += 1
-            console.print(Panel(f"BATCH: [{done}/{total}] {res['variant']} -> {res['status']}"
-                  + (f" ({res.get('classification')})" if res.get("classification") else "")))
-            # Write summary incrementally so a crash doesn't lose progress.
-            with open(os.path.join(output_dir, "batch_summary.json"), "w") as fh:
-                json.dump({
-                    "csv": csv_path,
-                    "total": total,
-                    "completed": done,
-                    "max_concurrency": max_concurrency,
-                    "results": summary,
-                }, fh, indent=2)
+
+        # Write summary incrementally so an interruption doesn't lose progress.
+        with open(os.path.join(output_dir, "batch_summary.json"), "w") as fh:
+            json.dump({
+                "csv": csv_path,
+                "total": total,
+                "completed": i,
+                "results": summary,
+            }, fh, indent=2)
 
     ok = sum(1 for r in summary if r["status"] == "ok")
     errs = sum(1 for r in summary if r["status"] == "error")
@@ -844,7 +841,8 @@ def main():
         "--csv",
         type=str,
         default=None,
-        help="Path to a CSV of variants to run as a batch (in parallel). Use this OR --variant."
+        help="Path to a CSV of variants to run as a batch (variants run sequentially). "
+             "Use this OR --variant."
     )
     parser.add_argument(
         "--disease",
@@ -852,12 +850,6 @@ def main():
         default=None,
         help="Disease name (e.g. HHT). Required for --variant; for --csv it is the fallback "
              "when a row has no disease column."
-    )
-    parser.add_argument(
-        "--max-concurrency",
-        type=int,
-        default=5,
-        help="Batch mode only: number of variants to run concurrently (default 5)."
     )
     parser.add_argument(
         "--output-dir",
@@ -888,7 +880,6 @@ def main():
     if args.csv:
         run_batch(
             csv_path=args.csv,
-            max_concurrency=args.max_concurrency,
             output_dir=args.output_dir,
             disease_default=args.disease,
             variant_col=args.variant_col,

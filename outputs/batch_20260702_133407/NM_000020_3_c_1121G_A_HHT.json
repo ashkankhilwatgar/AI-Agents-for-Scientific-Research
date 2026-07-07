@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.1121G>A",
+  "disease": "HHT",
+  "timestamp": "20260702_134450",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 3,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.1121G>A is present in gnomAD with a total allele count (AC) of 4 (2 in exomes, 2 in genomes).",
+      "reasoning": "Following the PM2_SUPPORTING classification rules: Step 1 is false as the variant is present in gnomAD. Step 2 is true because the total allele count (AC) across all gnomAD populations is 4, which is less than the threshold of 6. Therefore, PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916108-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD data shows a total allele count of 4 across exomes and genomes, with a popmax filtering allele frequency (FAF95) of 0.0.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax FAF is greater than or equal to 0.01 (1%). Since the Popmax FAF for this variant is 0.0 (well below the 0.01 threshold), BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916108-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD data shows a total allele count of 4 across exomes and genomes, with 0 homozygotes. The popmax filtering allele frequency (FAF95) is 0.0.",
+      "reasoning": "According to the BS1 classification rules, the popmax FAF must be > 0.0008 to apply BS1_Supporting or > 0.002 to apply BS1_Strong. Since the popmax FAF is 0.0, and there are 0 homozygotes, the variant does not meet the threshold for BS1 at any strength level.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916108-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.1121G>A in ACVRL1 results in the amino acid change p.Arg374Gln (position 374).",
+      "reasoning": "The variant residue is at position 374. According to the PM1 rules for ACVRL1, the critical regions are positions 209-216, 229, 242, 329-335, 348-351, and the BMP10 cluster (40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). Since position 374 does not fall into any of these specified regions, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1121G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data; ERepo: No data; LOVD: No data; PubMed: 1 articles found",
+      "reasoning": "A search of PubMed returned 1 article (PMID: 37901025) describing a single case report of a patient with hereditary hemorrhagic telangiectasia. With 1 proband identified and no other database entries found, PS4 applies at the supporting level.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "HHT (c.1121G>A OR p.Arg374Gln OR p.R374Q) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.1121G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Gene symbol could not be determined for ERepo lookup \u2014 add this gene to GENE_DB in planrag.py"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, if there are no functional experiments, PS3 does not apply (Shortcut A).",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1121G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.654, which is above the threshold of 0.644. SpliceAI scores were not available due to an Ensembl VEP request timeout.",
+      "reasoning": "Following Branch A for missense variants, we evaluate the pre-computed verdicts. The verdict 'PP3 REVEL (>= 0.644): APPLIES' is true because the REVEL score of 0.654 meets the threshold of >= 0.644. Therefore, the PP3 criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51916108-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.654; SpliceAI scores: Not available (Ensembl VEP request failed).",
+      "reasoning": "For a missense variant in HHT, BP4 requires both the REVEL score to be <= 0.15 and all SpliceAI scores to be <= 0.1. Based on the pre-computed verdicts, the REVEL score of 0.654 fails the HHT threshold (<= 0.15). Since this condition is not met, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51916108-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.1121G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Gene symbol could not be determined for ERepo lookup \u2014 add this gene to GENE_DB in planrag.py"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, if there are no experiments, BS3 does not apply (Shortcut B). Since the experiments list is empty, BS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1121G>A",
+      "disease": "HHT"
+    }
+  ]
+}

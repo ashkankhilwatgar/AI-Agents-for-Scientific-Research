@@ -5,13 +5,13 @@
 # Recall
 # F1-score
 
-
+from pipeline import _safe_variant_name
 import pandas as pd
 import argparse
 import sys
 import os
 import json
-from pipeline import _safe_variant_name
+# from pipeline import _safe_variant_name
 import numpy as np
 from sklearn.metrics import (
     f1_score, 
@@ -21,15 +21,70 @@ from sklearn.metrics import (
     precision_score,
     classification_report,
 )
-import datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
+from scipy.stats import bootstrap
+
+LABELS = ["B", "LB", "VUS", "LP", "P"]
+
+
+CLASSIFICATION_MAPPING = {
+    # Guard against lowercase letters in hht-batches.csv
+    "b": "B",
+    "lb": "B",
+    "vus": "VUS",
+    "lp": "LP",
+    "p": "P",
+
+    "benign": "B",
+    "likely benign": "LB",
+    "variant of uncertain significance (vus)": "VUS",
+    "likely pathogenic": "LP",
+    "pathogenic": "P",
+
+    "error": "ERROR"
+}
+
+def normalize_classification_label(raw_label: str) -> str:
+    """Normalize a raw classification label into the standard evaluation label format.
+
+    Args:
+        raw_label: The raw classification string produced by the model or dataset.
+
+    Returns:
+        A normalized label from LABELS or ERROR.
+
+    Raises:
+        ValueError: If the input label is missing or not recognized.
+    """
+    if raw_label is None:
+        raise ValueError("Classification Result Unavailable")
+
+    label = str(raw_label).strip().lower()
+    if label in CLASSIFICATION_MAPPING:
+        return CLASSIFICATION_MAPPING[label]
+    
+    raise ValueError(f"Unknown classification: {raw_label}")
+
+
 
 # ========================================================
 # HELPERS TO LOADING GOLD ANSWERS AND PIPELINE PREDICTIONS
 # ========================================================
 
 def load_gold_answer_df(gold_csv_path: str) -> pd.DataFrame:
+    """Load and preprocess the ground-truth evaluation dataset.
+
+    Args:
+        gold_csv_path: Path to the CSV file containing gold variant classifications.
+
+    Returns:
+        A pandas DataFrame with normalized variant names and renamed evaluation columns.
+
+    Raises:
+        FileNotFoundError: If the gold answer CSV file does not exist.
+    """
     try: 
         gold_df = pd.read_csv(gold_csv_path)
     except FileNotFoundError as e:
@@ -49,6 +104,17 @@ def load_gold_answer_df(gold_csv_path: str) -> pd.DataFrame:
     return gold_df
 
 def load_predictions(batch_summary_path: str) -> pd.DataFrame:
+    """Load model predictions from a batch summary JSON file.
+
+    Args:
+        batch_summary_path: Path to the JSON file containing model batch outputs.
+
+    Returns:
+        A pandas DataFrame containing variants and predicted classifications.
+
+    Raises:
+        FileNotFoundError: If the batch summary JSON file does not exist.
+    """
     try:
         with open(batch_summary_path, "r", encoding="utf-8") as f:
             payload = json.load(f)
@@ -64,8 +130,7 @@ def load_predictions(batch_summary_path: str) -> pd.DataFrame:
         if result.get("status") and result.get("status") == "error":
             row = {
                 "variant": result["variant"],
-                "pred_classification": None,
-                "status": "error",
+                "pred_classification": "ERROR"
             }
             rows.append(row)
             continue
@@ -73,45 +138,54 @@ def load_predictions(batch_summary_path: str) -> pd.DataFrame:
         row = {
             "variant": result["variant"],
             "pred_classification": result["classification"],
-            "status": "success",
         }
         rows.append(row)
 
-    return pd.DataFrame(rows)
+    prediction_df = pd.DataFrame(rows)
+    prediction_df["variant"] = prediction_df["variant"].apply(_safe_variant_name)
 
-def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> pd.DataFrame:
+    return prediction_df
+
+def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
+    """Merge model predictions with gold labels and remove failed predictions.
+
+    Args:
+        pred_df: DataFrame containing model predictions.
+        gold_df: DataFrame containing ground-truth classifications.
+
+    Returns:
+        A tuple containing the merged evaluation DataFrame and the number of failed predictions.
+    """
     eval_df = pred_df.merge(
         gold_df,
         on=["variant"],
         how="left",
     )
 
-    eval_df["pred_classification"] = eval_df["pred_classification"].apply(
-        lambda classification: 1 if classification else 0
-    )
-    eval_df["gold_classification"] = eval_df["gold_classification"].apply(
-        lambda classification: 1 if classification else 0
-    )
+    eval_df["pred_classification"] = eval_df["pred_classification"].apply(normalize_classification_label)
+    eval_df["gold_classification"] = eval_df["gold_classification"].apply(normalize_classification_label)
+    num_errors = (eval_df['pred_classification'] == "ERROR").sum()
 
-    return eval_df
+    eval_df = eval_df.drop(eval_df[eval_df['pred_classification'] == "ERROR"].index)
+    return eval_df, num_errors
 
 # ========================================================
 # BOOTSTRAP HELPER
 # ========================================================
-def bootstrap_metric(
-        predictions: np.ndarray, 
-        gold_answers: np.ndarray,
-        metric_function: Callable,
-        num_boots: int = 1000,
-) -> tuple:
-    rng = np.random.RandomState()
-    vals = []
-    idx = np.arange(len(predictions))
-    for _ in range(num_boots):
-        sample_idx = rng.choice(idx, len(idx), replace=False)
-        metrics = metric_function(predictions[sample_idx], gold_answers[sample_idx])
-        vals.append(metrics)
-    return vals.mean(), vals.std(ddof=1)
+# def bootstrap_metric(
+#         predictions: np.ndarray, 
+#         gold_answers: np.ndarray,
+#         metric_function: Callable,
+#         num_boots: int = 1000,
+# ) -> tuple:
+#     rng = np.random.RandomState()
+#     vals = []
+#     idx = np.arange(len(predictions))
+#     for _ in range(num_boots):
+#         sample_idx = rng.choice(idx, len(idx), replace=False)
+#         metrics = metric_function(predictions[sample_idx], gold_answers[sample_idx])
+#         vals.append(metrics)
+#     return vals.mean(), vals.std(ddof=1)
 
 # def compute_precision(
 #         predictions: np.ndarray,
@@ -140,21 +214,35 @@ def print_results(accuracy: float,
         recall: float,
         f1_score: float,
         confusion_matrix: np.ndarray,
+        num_errors: int
 ) -> None:
-    
-    print(f"{"+"*60}")
+    """Print evaluation metrics and the confusion matrix in a readable format.
+
+    Args:
+        accuracy: Overall classification accuracy.
+        precision: Precision score.
+        recall: Recall score.
+        f1_score: F1 score.
+        confusion_matrix: Confusion matrix generated from predictions.
+        num_errors: Number of variants that failed during prediction.
+    """
+    print(f"{"-"*60}")
     print(f"""accuracy: {accuracy}
 precision: {precision}
 recall: {recall}
 F1: {f1_score}
+number of failed variants: {num_errors}
 """)
     
-    print("\nConfusion Matrix:")
-    print("-----------------")
-    print("             Predicted")
-    print("             Not Met  Met")
-    print(f"Actual Not Met   {confusion_matrix[0][0]:<7} {confusion_matrix[0][1]}")
-    print(f"      Met        {confusion_matrix[1][0]:<7} {confusion_matrix[1][1]}")
+    print("Confusion Matrix:")
+    print("-" * 60)
+    cm_df = pd.DataFrame(
+        confusion_matrix,
+        index=[f"Actual {label}" for label in LABELS],
+        columns=[f"Pred {label}" for label in LABELS],
+    )
+    print(cm_df.to_string())
+    print("-" * 60)
     
 
 def save_results(
@@ -162,19 +250,34 @@ def save_results(
         precision: float,
         recall: float,
         f1_score: float,
+        classification_report: str,
+        num_errors: int,
         output_dir: str,
 ) -> None:
+    """Save evaluation metrics and classification details as a JSON file.
+
+    Args:
+        accuracy: Overall classification accuracy.
+        precision: Precision score.
+        recall: Recall score.
+        f1_score: F1 score.
+        classification_report: Detailed per-class classification metrics.
+        num_errors: Number of failed variant predictions.
+        output_dir: Directory where the JSON output file is saved.
+    """
     time = datetime.now()
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     filename = Path(output_dir) / f"{time.strftime("%Y%m%d_%H%M%S")}.json"
     
     output = {
-        "time": time,
+        "time": str(time),
         "accuracy": accuracy,
         "precision": precision,
         "recall": recall,
         "F1": f1_score,
+        "failed_variant_count": num_errors,
+        "classification_report": classification_report
     }
 
     with open(filename, "w") as f:
@@ -188,16 +291,22 @@ def run_question2_evaluation(
         bath_summary_json_path: str,
         output_dir: str
 ) -> None:
+    """Run the complete Question 2 evaluation pipeline.
+
+    This function loads the gold dataset and model predictions, merges the results,
+    computes classification metrics, prints the evaluation summary, and saves the outputs.
+
+    Args:
+        gold_answer_csv_path: Path to the gold answer CSV file.
+        bath_summary_json_path: Path to the model batch summary JSON file.
+        output_dir: Directory where evaluation results are saved.
+    """
     # ---------------- Loading the data ---------------- #
     classification_df = load_gold_answer_df(gold_csv_path=gold_answer_csv_path)
     prediction_df = load_predictions(batch_summary_path=bath_summary_json_path)
-    combined_df = merge_df(classification_df, prediction_df)
+    combined_df, num_errors = merge_df(prediction_df, classification_df)
 
-    
-
-
-
-    # # ---------------- Compute Statistics ---------------- #
+    # ---------------- Compute Statistics ---------------- #
     # accuracy, accuracy_std = bootstrap_metric(
     #     predictions=combined_df["pred_classification"].to_numpy(),
     #     gold_answers=combined_df["gold_classification"].to_numpy(),
@@ -229,24 +338,47 @@ def run_question2_evaluation(
     #     labels=[0,1]
     # )
 
-    # # ---------------- Printing & Saving Outputs ---------------- #
-    # print_results(
-    #     accuracy,
-    #     precision,
-    #     recall,
-    #     F1,
-    #     cm,
-    # )
+    y_true = combined_df["gold_classification"]
+    y_pred = combined_df["pred_classification"]
 
-    # save_results(
-    #     accuracy,
-    #     precision,
-    #     recall,
-    #     F1,
-    #     output_dir,
-    # )
+    try: 
+        # ---------------- Compute Statistics ---------------- #
+        accuracy = accuracy_score(y_true=y_true,y_pred=y_pred)
+        macro_recall = recall_score(y_true, y_pred,labels=LABELS,average="macro",zero_division=0)
+        macro_precision = precision_score(y_true,y_pred,labels=LABELS,average="macro",zero_division=0)
+        macro_f1 = f1_score(y_true,y_pred,labels=LABELS,average="macro",zero_division=0)
+        cm = confusion_matrix(y_true,y_pred,labels=LABELS,)
+        classification = classification_report(y_true,y_pred,labels=LABELS,zero_division=0,output_dict=True)
+
+        # ---------------- Printing & Saving Outputs ---------------- #
+        print_results(
+            accuracy=accuracy,
+            precision=macro_precision,
+            recall=macro_recall,
+            f1_score=macro_f1,
+            confusion_matrix=cm,
+            num_errors=num_errors,
+        )
+
+        save_results(
+            accuracy=accuracy,
+            precision=macro_precision,
+            recall=macro_recall,
+            f1_score=macro_f1,
+            classification_report=classification,
+            num_errors=num_errors,
+            output_dir=output_dir,
+        )
+
+    except ValueError:
+        print(f"{"-"*60}")
+        print(f"""THE INPUT FILE CONTAINS NO VARIANT OR ALL THE VARIANTS HAVE FAILED
+NOTHING SAVED TO OUTPUT
+{num_errors} / {len(prediction_df)} VARIANTS FAILED """)
+        print(f"{"-"*60}")
 
 def main():
+    """Parse command-line arguments and run the Question 2 evaluation pipeline."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--gold_answer_csv_filename", 
