@@ -1,0 +1,118 @@
+{
+  "variant": "NM_001114753.3:c.1312-3C>G",
+  "disease": "HHT",
+  "timestamp": "20260707_114554",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.1312-3C>G is absent from gnomAD, indicating it is likely rare or novel. Total allele count (AC) is 0, and no subpopulation allele frequencies are available.",
+      "reasoning": "The evidence shows that the variant is absent from gnomAD entirely, which directly satisfies the criteria for PM2_SUPPORTING. According to the classification rules, if a variant is absent from gnomAD, PM2_SUPPORTING applies without further evaluation of allele counts or frequencies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.1312-3C>G is absent from gnomAD with a Popmax FAF of 0.0, indicating it is likely rare or novel.",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion does not apply because the Popmax FAF is 0.0, which is less than the threshold of 0.01 (1%). Therefore, BA1 does not apply as the variant is not present in the population at a frequency that would classify it as benign.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.1312-3C>G is absent from gnomAD with a total allele count of 0 and a maximum subpopulation allele frequency (Popmax FAF) of 0.0.",
+      "reasoning": "According to the ACMG criteria for BS1, the variant must have a Popmax FAF >0.002 and <0.01 or meet the homozygote count criteria. In this case, the Popmax FAF is 0.0, which does not meet the threshold for BS1_Strong or BS1_Supporting. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (5) without resolving reasoning error"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were provided to support the evaluation of PS3 for the variant NM_001114753.3:c.1312-3C>G.",
+      "reasoning": "Since there are no experiments available to evaluate the functional impact of the variant, PS3 does not apply. The absence of any supporting evidence means that we cannot classify this variant as pathogenic based on functional assays.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (5) without resolving reasoning error"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "The variant NM_001114753.3:c.1312-3C>G does not have a REVEL score available and the SpliceAI scores are also not available, leading to a failure in both BP4 conditions.",
+      "reasoning": "According to the BP4 criterion, for a synonymous or intronic variant, SpliceAI scores must be <=0.1. In this case, the SpliceAI scores are not available, which means BP4 does not apply. The evidence indicates that BP4 cannot be satisfied due to the lack of SpliceAI scores.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1312-3C>G, indicating a lack of evidence to support benign classification.",
+      "reasoning": "According to the ACMG criteria for BS3, if there are no experiments available, BS3 does not apply. Since no functional evidence was retrieved, the criterion cannot be satisfied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT"
+    }
+  ]
+}

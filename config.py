@@ -66,7 +66,7 @@ MODELS = {
 
 OLLAMA_BASE_URL="http://150.209.23.239:11434"
 
-RETRY_LIMIT=2
+RETRY_LIMIT=5
 
 # Shared PER MODEL across every concurrently-running LangGraph branch (the
 # limiter in agents/llm/llm.py). Keeps the parallel fan-out from bursting past
