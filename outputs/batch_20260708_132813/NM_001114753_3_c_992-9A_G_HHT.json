@@ -1,0 +1,96 @@
+{
+  "variant": "NM_001114753.3:c.992-9A>G",
+  "disease": "HHT",
+  "timestamp": "20260708_151952",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.992-9A>G was not found in gnomAD (total allele count is 0, absent_from_gnomad is true).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant is absent from gnomAD (found = false, total allele count = 0), PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824455-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.992-9A>G is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824455-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.992-9A>G was not found in gnomAD (Popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, we first check if BA1 applies (Popmax FAF >= 0.01), which it does not. Next, we check for BS1_Strong via the homozygote route (Popmax FAF > 0.0008 and <= 0.002 with >= 2 homozygotes) and the FAF route (Popmax FAF > 0.002 and < 0.01), neither of which are met. Finally, we check for BS1_Supporting (Popmax FAF > 0.0008 and <= 0.002), which is also not met because the variant is absent from gnomAD (Popmax FAF = 0.0). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824455-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Not found/No proband count available in the provided ClinVar search; ERepo: Not found; LOVD: Not found; PubMed: 26 articles found (none of the retrieved abstracts mention the specific variant NM_001114753.3:c.992-9A>G or provide proband counts for it).",
+      "reasoning": "The variant NM_001114753.3:c.992-9A>G was evaluated against the PS4 criterion. No proband counts or clinical case reports linking this specific variant to Hereditary Hemorrhagic Telangiectasia (HHT) were identified in the ClinVar HHT VCEP submissions or the retrieved PubMed literature. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.992-9A>G HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.992-9A>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence for variant NM_001114753.3:c.992-9A>G.",
+      "reasoning": "According to the classification rules, if there are no functional experiments provided (Shortcut B), the BS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.992-9A>G",
+      "disease": "HHT"
+    }
+  ]
+}

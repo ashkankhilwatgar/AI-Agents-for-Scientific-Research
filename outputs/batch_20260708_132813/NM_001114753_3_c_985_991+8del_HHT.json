@@ -1,0 +1,119 @@
+{
+  "variant": "NM_001114753.3:c.985_991+8del",
+  "disease": "HHT",
+  "timestamp": "20260708_145547",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.985_991+8del was not found in the gnomAD database (total allele count = 0).",
+      "reasoning": "According to the classification rules, Step 1 checks if the variant is entirely absent from gnomAD. Since the variant was not found in gnomAD (absent_from_gnomad is true), the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824791-GAGCTGCGGTGAGCAC-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.985_991+8del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax FAF = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824791-GAGCTGCGGTGAGCAC-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.985_991+8del was not found in gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, the variant's popmax FAF is 0.0, which is below the threshold for BS1_Supporting (>0.0008) and BS1_Strong (>0.002). Additionally, there are 0 homozygotes. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127824791-GAGCTGCGGTGAGCAC-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No specific SCV comment or proband count retrieved for NM_001114753.3:c.985_991+8del; ERepo: No data; LOVD: No data; PubMed: 468 articles found, but none of the top retrieved articles (e.g., PMID: 42250987, 42209023, 42182190) contain specific proband counts or case reports for the variant c.985_991+8del.",
+      "reasoning": "The variant NM_001114753.3:c.985_991+8del was evaluated against the PS4 criterion. No specific proband counts could be extracted from the ClinVar HHT VCEP submissions or the retrieved literature search results. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.985_991+8del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.985_991+8del is a deletion spanning the splice donor site (c.991+1 to c.991+8 deleted) of ENG, classified as a splice_donor_variant at codon position 329.",
+      "reasoning": "Loss of function (LOF) is a well-established disease mechanism for ENG in HHT type 1. The variant disrupts the GT-AG splice donor site (c.985_991+8del removes the +1 to +8 region of the intron). The codon position is 329, which is well upstream of the NMD boundary (codon <=594). Disruption of this splice site is predicted to lead to exon skipping or cryptic splicing that disrupts the reading frame and triggers nonsense-mediated decay (NMD). Therefore, according to the ENG PVS1 Decision Tree, PVS1 applies at a Very Strong level.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.985_991+8del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.985_991+8del.",
+      "reasoning": "According to the classification rules, if there are no functional experiments provided (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.985_991+8del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "status": "skipped",
+      "reason": "PVS1 applied \u2014 PP3 is excluded when PVS1 applies"
+    },
+    {
+      "criterion": "BP4",
+      "status": "skipped",
+      "reason": "PVS1 applied \u2014 BP4 is excluded when PVS1 applies"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved data (experiments list is empty).",
+      "reasoning": "According to Shortcut B, because there are no functional experiments provided in the evidence, the BS3 criterion cannot be evaluated or applied. Therefore, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.985_991+8del",
+      "disease": "HHT"
+    }
+  ]
+}

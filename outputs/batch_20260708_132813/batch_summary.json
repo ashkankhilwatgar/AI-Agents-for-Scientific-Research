@@ -1,0 +1,1607 @@
+{
+  "csv": "full_evaluation_dataset.csv",
+  "total": 200,
+  "completed": 200,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_557G_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_466G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_484C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_151T_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_266G_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.293A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_293A_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.139C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_139C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1145G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 2 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1145G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "2 Moderate + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1517T_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1447G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1447G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1268A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1268A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1319T_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.137G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_137G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1807G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1762G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1762G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1645T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "\u22653 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1645T_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1633G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1633G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1586G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1586G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.991G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_991G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.662T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_662T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1711C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1711C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.572G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Benign",
+      "rule_matched": "BA1 stand-alone",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_572G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.392C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Benign",
+      "rule_matched": "BA1 stand-alone",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_392C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.2T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_2T_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1316A_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1844C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1510G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1701del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1312-3C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1961C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1160T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_-9G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1232G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "\u22652 Strong",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1232G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.500C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_500C_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.917C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_917C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1445C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1445C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1348A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1348A_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.88C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_88C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.652C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_652C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.706G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_706G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1377+4A_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.982C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_982C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.998G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "1 Strong + 2 Moderate + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_998G_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.113G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_113G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1217G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1217G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1468C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "\u22652 Strong",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1468C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001278138.2:c.270+3G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001278138_2_c_270+3G_T_HHT.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001077401_2_c_442_444del_HHT.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001077401_2_c_620del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.447G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_447G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_144_145dup_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1390del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1390del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.651G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_651G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.520C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_520C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1121G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1121G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.593T>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_593T_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.602A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_602A_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1388del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1388del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1470_1471insC",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1470_1471insC_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1450delinsTG",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1450delinsTG_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.981del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_981del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.496C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_496C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.200G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_200G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1479_1485del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1479_1485del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.235del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_235del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.872_873del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_872_873del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1665_1671dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1665_1671dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1505del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1505del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.653_654inv",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_653_654inv_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+2T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_523+2T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.15del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_15del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.360C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_360C_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.788A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_788A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1228del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1228del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1513del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1513del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1096del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1096del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1435C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1435C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+296_578del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_523+296_578del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.7dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_7dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1630dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1630dup_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1184G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1184G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.174del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_174del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1157del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1157del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.281_282del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_281_282del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1427dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1427dup_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1280A>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1280A_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.904del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_904del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.100dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_100dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1103T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1103T_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1450C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1450C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1204G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1204G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.774del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_774del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.112G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_112G_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.493C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_493C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.590G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_590G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1852+21C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1852+21C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1209T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1209T_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1247-7T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1247-7T_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1429-13C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1429-13C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1547G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1547G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.915G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_915G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.103G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_103G_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1134+2dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1134+2dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.61C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_61C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.730C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_730C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1748C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1748C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1134+6G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1134+6G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1600C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1600C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-13C>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1312-13C_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1570C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1570C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.185T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_185T_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-3C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1135-3C_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.182G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_182G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.475G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_475G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-3C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_361-3C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1711C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1711C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1271A>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1271A_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.817-3T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_817-3T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.457A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_457A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.712G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_712G_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.32C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_32C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.946G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_946G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1471G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1471G_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.988G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "2 Moderate + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_988G_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1362del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1362del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1195T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1195T_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1460A>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1460A_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1359_1360delinsT",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1359_1360delinsT_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1240A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1240A_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.148T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_148T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.985_991+8del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_985_991+8del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.852_853del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_852_853del_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.404del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_404del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.263dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_263dup_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.526-7C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_526-7C_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1120C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1120C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.199C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_199C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.200G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_200G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.818T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_818T_C_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.772G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_772G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1055C>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1055C_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.632G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "2 Moderate + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_632G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1135G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_000020_3_c_1135G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1687-13C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1687-13C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1272+10G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1272+10G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.687C>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_687C_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1536C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1536C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.720G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_720G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-4C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1135-4C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.220-9G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_220-9G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.579G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_579G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1527C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1527C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1311+13G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1311+13G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-18C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1135-18C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.702G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_702G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1022T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1022T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-20G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_361-20G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.998G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_998G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1395C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1395C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1401C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1401C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.224C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_224C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1215G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1215G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.689+11C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_689+11C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1428+10A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1428+10A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1272+10G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1272+10G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1230C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1230C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.699G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_699G_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.21T>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_21T_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.220-11G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_220-11G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-8C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_361-8C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1680A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1680A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.105G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_105G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.669C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_669C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.689+21_689+22del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_689+21_689+22del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.992-9A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_992-9A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.213C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_213C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1344C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1344C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.524-19G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_524-19G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1500G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1500G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1023C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1023C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.816+19C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_816+19C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1742-12G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1742-12G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1746C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1746C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+18C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_523+18C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.462C>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_462C_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.524-8C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_524-8C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.404C>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_404C_A_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1509C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1509C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1526G>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1526G_C_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.439C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_439C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.107del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_107del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.942del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_942del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1665del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1665del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.229_230del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_229_230del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.747dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_747dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.768_774del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_768_774del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.617dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_617dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1684dup",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "PVS1 + 1 Supporting",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_1684dup_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.835_837del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_835_837del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.754_756del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260708_132813/NM_001114753_3_c_754_756del_HHT.json"
+    }
+  ]
+}

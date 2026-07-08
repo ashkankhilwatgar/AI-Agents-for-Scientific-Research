@@ -1,0 +1,109 @@
+{
+  "variant": "NM_000020.3:c.100dup",
+  "disease": "HHT",
+  "timestamp": "20260708_143040",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.100dup is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 checks if the variant is entirely absent from gnomAD. Since the variant was not found in gnomAD (total AC = 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913137-T-TT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.100dup is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913137-T-TT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.100dup is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "To apply BS1, the variant's popmax filtering allele frequency (FAF) must exceed the threshold of 0.0008. Since the variant is absent from gnomAD (popmax FAF = 0.0, homozygote count = 0), it does not meet the threshold for BS1_Supporting (FAF > 0.0008) or BS1_Strong (FAF > 0.002 or FAF > 0.0008 with >= 2 homozygotes). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913137-T-TT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No specific SCV comment or proband count retrieved for NM_000020.3:c.100dup; ERepo: No data; LOVD: No data; PubMed: 387 articles found, but none of the top retrieved articles contain case reports or proband counts specifically for the ACVRL1 c.100dup variant.",
+      "reasoning": "The variant NM_000020.3:c.100dup was evaluated for the PS4 criterion. A search of ClinVar, ERepo, LOVD, and PubMed did not yield any specific proband counts or case reports confirming this variant in individuals with Hereditary Hemorrhagic Telangiectasia (HHT). Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.100dup HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_000020.3:c.100dup is a frameshift variant in ACVRL1 at codon position 33. Loss of function (LOF) is an established disease mechanism for ACVRL1.",
+      "reasoning": "According to the ACVRL1 PVS1 decision tree, loss of function is a known disease mechanism. The variant is a frameshift variant at codon 33, which is less than or equal to the NMD boundary (codon 442). Therefore, it is predicted to undergo nonsense-mediated decay (NMD), which qualifies for PVS1 at Very Strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.100dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved evidence.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut A), PS3 does not apply. The retrieved functional evidence contains an empty list of experiments.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.100dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence (experiments list is empty).",
+      "reasoning": "According to the classification rules, Shortcut B applies: if there are no experiments, BS3 does not apply. Since the experiments list is empty, we cannot evaluate any functional assays for benign support.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.100dup",
+      "disease": "HHT"
+    }
+  ]
+}

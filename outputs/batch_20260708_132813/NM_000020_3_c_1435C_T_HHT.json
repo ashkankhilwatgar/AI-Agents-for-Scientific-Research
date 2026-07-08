@@ -1,0 +1,111 @@
+{
+  "variant": "NM_000020.3:c.1435C>T",
+  "disease": "HHT",
+  "timestamp": "20260708_142608",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "PVS1": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.1435C>T (12-51920816-C-T) is present in gnomAD with a total allele count (AC) of 3 across all populations.",
+      "reasoning": "According to the PM2_SUPPORTING classification rules, Step 1 is false because the variant is present in gnomAD. Moving to Step 2, the total allele count (AC) is 3, which is less than the threshold of 6. Therefore, the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920816-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.1435C>T (12-51920816-C-T) has a total allele count of 3 in gnomAD exomes, with a popmax filtering allele frequency (FAF95) of 2.999999999999999e-07 (0.00003%) in the Non-Finnish European (nfe) population.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax FAF is greater than or equal to 0.01 (1%). Since the variant's Popmax FAF is 2.999999999999999e-07, which is far below the 0.01 threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920816-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD exome data shows a total allele count of 3 out of 1,461,804 alleles, with 0 homozygotes. The popmax filtering allele frequency (faf95 popmax) is 2.999999999999999e-07 (in the Non-Finnish European population).",
+      "reasoning": "To evaluate BS1, we check the popmax FAF against the specified thresholds. Step 1: BA1 does not apply because the popmax FAF (3.0e-07) is far below 0.01. Step 2: The popmax FAF is not in the BS1_Supporting range (0.0008 to 0.002) with >= 2 homozygotes. Step 3: The popmax FAF is not between 0.002 and 0.01, so BS1_Strong does not apply via the FAF route. Step 4: The popmax FAF is not between 0.0008 and 0.002, so BS1_Supporting does not apply. Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51920816-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No ClinVar HHT VCEP SCV data provided; ERepo: No data; LOVD: 1 proband reported; PubMed: 0 articles found.",
+      "reasoning": "According to the provided LOVD evidence, the variant NM_000020.3:c.1435C>T has been observed in 1 proband. Based on the HHT VCEP rules for PS4, a count of 1 proband qualifies for PS4_Supporting, provided PM2_Supporting is met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000020.3:c.1435C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_000020.3:c.1435C>T (p.Arg479Ter) is a nonsense variant in ACVRL1 at codon position 479.",
+      "reasoning": "According to the ACVRL1 PVS1 Decision Tree, loss-of-function is a known disease mechanism for ACVRL1. The variant is a nonsense variant at codon 479, which is greater than the NMD boundary (codon 442), meaning it is not predicted to undergo nonsense-mediated decay (NMD). However, the codon position is less than or equal to the critical region boundary (codon 490). Therefore, the truncated/altered region is critical to protein function, which maps to PVS1_Strong.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1435C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.1435C>T.",
+      "reasoning": "According to the classification rules, if there are no functional experiments provided, PS3 does not apply (Shortcut A). Therefore, the criterion is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1435C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.1435C>T.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1435C>T",
+      "disease": "HHT"
+    }
+  ]
+}

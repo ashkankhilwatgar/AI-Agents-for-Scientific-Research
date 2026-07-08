@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.224C>T",
+  "disease": "HHT",
+  "timestamp": "20260708_151355",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 1
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.224C>T (gnomAD ID 9-127829823-G-A) is present in gnomAD with a total allele count (AC) of 8 (7 in exomes, 1 in genomes). In exomes, it is present in the AMR subpopulation (AC=2, AN=44724, AF=0.0000447) and the NFE subpopulation (AC=5, AN=1112008, AF=0.0000045). In genomes, it is present in the AMR subpopulation (AC=1, AN=15254, AF=0.0000656).",
+      "reasoning": "Following the PM2_SUPPORTING rules: Step 1: The variant is not absent from gnomAD (total AC = 8). Step 2: The total AC is 8, which is not less than 6. Step 3: We evaluate the allele frequencies in the subpopulations where the variant is actually present. In exomes, the variant is present in NFE with an AF of 0.0000045 (4.5e-6), which is less than the threshold of 0.00004 (4e-5). Because there is at least one subpopulation where the variant is present with an allele frequency < 0.00004, the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829823-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.224C>T (9-127829823-G-A) has a popmax filtering allele frequency (FAF95) of 7.41e-06 (0.000741%) in the American (amr) population in gnomAD.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax FAF is greater than or equal to 0.01 (1%). Since the variant's Popmax FAF is 7.41e-06, which is well below the 0.01 threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829823-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD variant 9-127829823-G-A has a popmax FAF of 7.41e-06 (0.00000741) in the AMR population and 0 homozygotes.",
+      "reasoning": "Following the BS1 classification rules: Step 1: BA1 does not apply (popmax FAF < 0.01). Step 2: The popmax FAF is not in the BS1_Supporting range (7.41e-06 is not > 0.0008), so the homozygote route for BS1_Strong does not apply. Step 3: The popmax FAF is not > 0.002, so BS1_Strong via the FAF route does not apply. Step 4: The popmax FAF is not > 0.0008, so BS1_Supporting does not apply. Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829823-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.224C>T results in the protein change p.Pro75Leu (residue position 75) in the ENG gene.",
+      "reasoning": "According to the HHT VCEP specifications for PM1, the critical residues are BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), and disulfide-bond cysteines (350, 394). The variant residue position is 75, which does not match any of these specified critical positions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.224C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data; ERepo: No data; LOVD: 1 proband reported; PubMed: 0 articles found.",
+      "reasoning": "The variant NM_001114753.3:c.224C>T was evaluated for the PS4 criterion. A search of ClinVar, ERepo, and PubMed yielded no additional proband data. LOVD reports 1 proband with the variant. According to the HHT VCEP rules, a count of 1 proband qualifies for PS4 at a supporting strength level (PS4_Supporting), provided PM2_Supporting is met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_001114753.3:c.224C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The query variant NM_001114753.3:c.224C>T is located at codon 75 of the ENG gene. The tool returned no variants in the 'different_aa_classifications' list.",
+      "reasoning": "According to the PM5 classification rules, the criterion requires at least one different pathogenic or likely pathogenic missense variant at the same codon (found in the 'different_aa_classifications' list). Since this list is empty, there are no qualifying variants to support PM5, and therefore the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 75",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.224C>T.",
+      "reasoning": "According to Shortcut A of the classification rules, if there are no functional experiments provided, the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.224C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.0370, SpliceAI max score: 0.0100 (DS_AL=0.01, DS_AG=0.0, DS_DG=0.0, DS_DL=0.0).",
+      "reasoning": "According to the pre-computed verdicts, the REVEL score of 0.0370 is below the threshold of 0.644 ('PP3 REVEL (>= 0.644): DOES NOT APPLY') and the maximum SpliceAI score of 0.0100 is below the threshold of 0.2 ('PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE'). Therefore, the PP3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127829823-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.037, SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0.",
+      "reasoning": "The variant is evaluated under Branch A (missense variant). According to the pre-computed verdicts, both conditions are met: 'BP4 REVEL HHT threshold (<= 0.15): PASSES' (score=0.0370) and 'BP4 SpliceAI (all scores <= 0.1): PASSES' (max score=0.0100). Since both conditions pass, the BP4 criterion applies.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127829823-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The query variant NM_001114753.3:c.224C>T is located in the ENG gene at codon position 75. The same_aa_classifications list is empty.",
+      "reasoning": "According to the classification rules for PS1, the same_aa_classifications list must be non-empty to proceed. Since the same_aa_classifications list is empty, there are no established pathogenic variants with the identical amino acid change. Therefore, the PS1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 75",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved data for the variant NM_001114753.3:c.224C>T.",
+      "reasoning": "According to the classification rules, if there are no functional experiments available (Shortcut B), the BS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.224C>T",
+      "disease": "HHT"
+    }
+  ]
+}
