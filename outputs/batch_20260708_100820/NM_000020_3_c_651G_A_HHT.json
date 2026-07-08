@@ -1,0 +1,109 @@
+{
+  "variant": "NM_000020.3:c.651G>A",
+  "disease": "HHT",
+  "timestamp": "20260708_101014",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.651G>A was not found in the gnomAD database (total allele count = 0).",
+      "reasoning": "According to the classification rules, Step 1 checks if the variant is entirely absent from gnomAD. Since the variant is absent (total allele count is 0), the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.651G>A is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax FAF = 0.0), the threshold is not met, and BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.651G>A is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "Following the step-by-step rules for BS1: Step 1: BA1 does not apply because the popmax FAF is 0.0 (which is < 0.01). Step 2: The homozygote route for BS1_Strong does not apply because the popmax FAF is not in the supporting range and the homozygote count is 0. Step 3: BS1_Strong via the FAF route does not apply because the popmax FAF is 0.0 (not > 0.002 and < 0.01). Step 4: BS1_Supporting does not apply because the popmax FAF is 0.0 (not > 0.0008 and <= 0.002). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914464-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "A search for the ACVRL1 variant c.651G>A (p.Trp217Ter) in ClinVar, LOVD, and PubMed yielded no proband counts or case reports. Since the total proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.651G>A OR p.Trp217Ter OR p.W217*) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_000020.3:c.651G>A (p.Trp217Ter) is a nonsense variant in ACVRL1 at codon position 217. Loss of function is an established mechanism of disease for ACVRL1.",
+      "reasoning": "According to the ACVRL1 PVS1 decision tree, nonsense variants predicted to undergo nonsense-mediated decay (NMD) at or before codon 442 qualify for PVS1 at Very Strong strength. Since this variant is at codon 217 (<= 442), it is predicted to undergo NMD, and thus PVS1 applies at very_strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.651G>A.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence for variant NM_000020.3:c.651G>A.",
+      "reasoning": "According to Shortcut B, because there are no functional experiments provided in the evidence, the BS3 criterion cannot be evaluated or applied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.651G>A",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -151,7 +151,7 @@ python -m evaluation.question2 --gold_answer_csv_filename full_evaluation_datase
 ```
 
 I'll come backt o question2.py tomorrow morning. If you guys think having one file per question is a bad idea, you can feel free to change/delete question2.py
-python -m evaluation.question2 --gold_answer_csv_filename hht_script_testing_q2.csv --model_output_json_filename outputs/batch_20260707_111441/batch_summary.json --output_dir evaluation/outputs
+python -m evaluation.question1 --gold_answer_csv_filename hht-batches.csv --model_output_json_filename outputs/batch_20260708_100820/batch_summary.json --output_dir evaluation/outputs
 
 
 7/7/26
@@ -223,5 +223,20 @@ Actual P         0        0         0        2       1
   * There is problem with the final classification logic. For the second variant, same applied criterion have different final classification.
   * PS3 also failed once. Maybe we also need to work on that (PS3 is the one that we use llm to read anstract of papers, so this can be unstable. I am satisfied with 1/25 error rate, but maybe there are also other undetected reasoning errors w/ PS3 while we are evaluating other variants.)
   * Seems that criterions that we cannot check didn't cause a problem here. Maybe VCEP expert panels also didn't check those criterions that are deemed uncheckable.
+
+
+7/8/26
+Ashkan
+
+ {
+    "variant_name": "NM_000020.3:c.1348A>G",
+    "correct_or_not": false,
+    "gold_classification": "Likely Benign",
+    "predicted_classification": "Variant of Uncertain Significance (VUS)",
+    "golden_criterion": ["BS1"],
+    "predicted_criterion": ["BS1"]
+  },
+
+  for this failed classification, the pipeline applied BS1 at a supporting level, which comes out as VUS in the final classification. 
 
 
