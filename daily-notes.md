@@ -151,7 +151,7 @@ python -m evaluation.question2 --gold_answer_csv_filename full_evaluation_datase
 ```
 
 I'll come backt o question2.py tomorrow morning. If you guys think having one file per question is a bad idea, you can feel free to change/delete question2.py
-python -m evaluation.question1 --gold_answer_csv_filename hht-batches.csv --model_output_json_filename outputs/batch_20260708_100820/batch_summary.json --output_dir evaluation/outputs
+python -m evaluation.question2 --gold_answer_csv_filename full_evaluation_dataset.csv --model_output_json_filename outputs/batch_20260708_132813/batch_summary.json --output_dir evaluation/outputs
 
 
 7/7/26
