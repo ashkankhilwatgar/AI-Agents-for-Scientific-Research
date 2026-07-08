@@ -193,14 +193,14 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
     while retry_count < RETRY_LIMIT:
         # Fast path: structurally valid output skips LLM entirely
         if _deterministic_check(task_output):
-            _log_attempt("debug", criterion, variant, retry_count, {"past": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
+            _log_attempt("debug", criterion, variant, retry_count, {"passed": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
             return task_output, tool_cache_update
 
         # Slow path: genuine structural problem — ask LLM for specific feedback
         result = check_technical(task_output)
         _log_attempt("debug", criterion, variant, retry_count, result, task_output)
 
-        if result["past"]:
+        if result["passed"]:
             return task_output, tool_cache_update
 
         # print(f"DEBUG AGENT: Technical error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
@@ -217,12 +217,12 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
 
     # check the final retry output before giving up
     if _deterministic_check(task_output):
-        _log_attempt("debug", criterion, variant, retry_count, {"past": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
+        _log_attempt("debug", criterion, variant, retry_count, {"passed": True, "error_type": "deterministic_check_passed", "feedback": None}, task_output)
         return task_output, tool_cache_update
 
     result = check_technical(task_output)
     _log_attempt("debug", criterion, variant, retry_count, result, task_output)
-    if result["past"]:
+    if result["passed"]:
         return task_output, tool_cache_update
 
     return {
