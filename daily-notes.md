@@ -159,4 +159,69 @@ Ashkan
 I did one case study for 25 variants that our pipeline could absolutely classify, and got a 91% success rate. I changed the code a little bit, but they were minor things.
 Suning created a script for Q3, and I uploaded it here.
 
+7/8/26 Simon
+I take a look at the case study and try to analyze the result. Here is what I get:
+
+- By the way here is the result of Ashkan's case study
+
+accuracy: 0.84
+precision: 0.9136363636363637
+recall: 0.7980952380952381
+F1: 0.8177777777777777
+number of failed variants: 0
+
+Confusion Matrix:
+            Pred B  Pred LB  Pred VUS  Pred LP  Pred P
+Actual B         1        0         0        0       0
+Actual LB        0        4         1        0       0
+Actual VUS       0        0         9        0       0
+Actual LP        0        0         1        6       0
+Actual P         0        0         0        2       1
+
+- Precision is higher than recall. Precision is higher when most of the variants are actually pathogenic/benign/etc... when our prototype said it is pathogenic/benign/etc... Recall is higher when our prototype can identify most of the pathogenic/benign/etc... variants. Precision is higher than recall means our model is more conservative than comprehensive, which means our prototype hesitate to say a variant is pathogenic/benign/etc... But when it indeed says so, it is mostly correct.
+- Therefore, I take a look at the variants. There are four variants that are incorrectly classified:
+
+```json
+[
+  {
+    "variant_name": "NM_001114753.3:c.1701del",
+    "correct_or_not": false,
+    "gold_classification": "Pathogenic",
+    "predicted_classification": "Likely Pathogenic",
+    "golden_criterion": ["PVS1", "PM2_supporting", "PS4_supporting"],
+    "predicted_criterion": ["PVS1", "PM2_supporting"]
+  },
+  {
+    "variant_name": "NM_000020.3:c.1348A>G",
+    "correct_or_not": false,
+    "gold_classification": "Likely Benign",
+    "predicted_classification": "Variant of Uncertain Significance (VUS)",
+    "golden_criterion": ["BS1"],
+    "predicted_criterion": ["BS1"]
+  },
+  {
+    "variant_name": "NM_000020.3:c.1217G>A",
+    "correct_or_not": false,
+    "gold_classification": "Pathogenic",
+    "predicted_classification": "Likely Pathogenic",
+    "golden_criterion": ["PVS1", "PM2_Supporting", "PS4_Supporting"],
+    "predicted_criterion": ["PVS1", "PM2_Supporting"]
+
+  },
+  {
+    "variant_name": "NM_000020.3:c.293A>G",
+    "correct_or_not": false,
+    "gold_classification": "Likely Pathogenic",
+    "predicted_classification": "Variant of Uncertain Significance (VUS)",
+    "golden_criterion": ["PM2_Supporting", "PS3_Supporting", "PS4"],
+    "predicted_criterion":["PM2_SUPPORTING", "PS4"]
+  }
+]
+```
+- Seems that the problems are 
+  * There is problem with PS4. We failed at PS4 three times.
+  * There is problem with the final classification logic. For the second variant, same applied criterion have different final classification.
+  * PS3 also failed once. Maybe we also need to work on that (PS3 is the one that we use llm to read anstract of papers, so this can be unstable. I am satisfied with 1/25 error rate, but maybe there are also other undetected reasoning errors w/ PS3 while we are evaluating other variants.)
+  * Seems that criterions that we cannot check didn't cause a problem here. Maybe VCEP expert panels also didn't check those criterions that are deemed uncheckable.
+
 

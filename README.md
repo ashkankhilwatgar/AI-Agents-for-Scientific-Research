@@ -13,8 +13,20 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your own api keys
 
-# 3. Run analysis
+# 3. Run single variant analysis
 python -m pipeline --variant "NM_000020.3:c.557G>T" --disease "HHT"
+
+# 4. Run batch analysis
+
+```bash
+python -m pipeline --csv hht-batches.csv
 ```
+
+## Run Evaluation
+
+```bash
+python -m evaluation.question2 --gold_answer_csv_filename hht_script_2.csv --model_output_json_filename outputs/batch_20260707_125513/batch_summary.json --output_dir evaluation/outputs
+```
+
 
 
