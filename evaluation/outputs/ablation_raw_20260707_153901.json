@@ -1,0 +1,110 @@
+{
+  "full": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "gold": "LP",
+      "pred": "LP"
+    }
+  ],
+  "no_debug": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "gold": "LP",
+      "pred": "P"
+    }
+  ],
+  "no_judge": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "gold": "LP",
+      "pred": "P"
+    }
+  ],
+  "task_only": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "gold": "LP",
+      "pred": "P"
+    }
+  ]
+}

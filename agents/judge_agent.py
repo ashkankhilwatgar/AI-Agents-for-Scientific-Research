@@ -187,7 +187,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         result = check_reasoning(task_output, rag_entry)
         _log_attempt("judge", criterion, variant, retry_count, result, task_output)
 
-        if result["past"]:
+        if result["pass"]:
             return task_output, tool_cache_update
 
         # print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
@@ -200,7 +200,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
     # check the final retry output before giving up
     result = check_reasoning(task_output, rag_entry)
     _log_attempt("judge", criterion, variant, retry_count, result, task_output)
-    if result["past"]:
+    if result["pass"]:
         return task_output, tool_cache_update
 
     return {

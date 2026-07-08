@@ -117,7 +117,7 @@ def process_criterion_ablation(state: PerCriterionState, mode: str):
         }
 
     if mode in ("full", "no_debug"):
-        final_intermediate, tool_cache_update2 = run_judge(task, tool_results, intermediate)
+        final_intermediate, tool_cache_update2 = run_judge(task, tool_results, intermediate, gene_symbol=gene_symbol)
         tool_cache_update.update(tool_cache_update2)
         if final_intermediate.get("status") == "error":
             return {
