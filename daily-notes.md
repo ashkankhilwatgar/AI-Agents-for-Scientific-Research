@@ -239,4 +239,8 @@ Ashkan
 
   for this failed classification, the pipeline applied BS1 at a supporting level, which comes out as VUS in the final classification. 
 
+7/9
+I copied Simon's case study fo all 200 variants, but only included the 48 variants that actually have criteria that apply to them. The results changed a bit.The accuracy was about 94%.
+I also ran the pipeline on all 200 variants for the ablation study, so that will take around 8 hours. 
 
+python -m evaluation.question1 --gold_answer_csv_filename applied_only_evaluation_dataset.csv --model_output_json_filename outputs/batch_20260708_132813/batch_summary.json --output_dir evaluation/outputs
