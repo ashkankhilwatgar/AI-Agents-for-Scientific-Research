@@ -1,0 +1,111 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260707_162903",
+  "classification": "Pathogenic",
+  "rule_matched": "PVS1 + \u22652 Supporting",
+  "scoring": {
+    "classification": "Pathogenic",
+    "rule_matched": "PVS1 + \u22652 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001077401.2:c.620del is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001077401.2:c.620del is absent from gnomAD (popmax_faf = 0.0, total allele count = 0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001077401.2:c.620del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "Following the step-by-step classification rules: Step 1: BA1 does not apply because the Popmax FAF is 0.0 (which is < 0.01). Step 2: BS1_Strong via the homozygote route does not apply because the Popmax FAF is not in the supporting range and the homozygote count is 0 (not >= 2). Step 3: BS1_Strong via the FAF route does not apply because the Popmax FAF is 0.0 (not > 0.002 and < 0.01). Step 4: BS1_Supporting does not apply because the Popmax FAF is 0.0 (not > 0.0008 and <= 0.002). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Not queried; ERepo: 1 proband inferred from VCEP classification; LOVD: Not queried; PubMed: 0 articles found",
+      "reasoning": "The ClinGen ERepo evidence indicates a proband count of 1 inferred from the VCEP classification. According to the classification rules for PS4, a proband count of 1 maps to the PS4_Supporting strength level.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001077401.2:c.620del is a frameshift variant in ACVRL1 at codon position 207. Loss-of-function (LOF) is an established disease mechanism for ACVRL1 in HHT type 2.",
+      "reasoning": "According to the ACVRL1 PVS1 decision tree, LOF is a known disease mechanism. The variant is a frameshift variant at codon 207, which is less than or equal to the NMD boundary threshold of codon 442 (codon <= 442). Therefore, the variant is predicted to undergo nonsense-mediated decay (NMD), which warrants the application of PVS1 at Very Strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to Shortcut A of the classification rules, if there are no experiments, PS3 does not apply. Since the experiments list is empty, the criterion is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence for the variant NM_001077401.2:c.620del.",
+      "reasoning": "According to Shortcut B, because there are no functional experiments available in the retrieved data, the BS3 criterion cannot be evaluated or applied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    }
+  ]
+}

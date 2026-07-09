@@ -1,0 +1,151 @@
+{
+  "variant": "NM_001114753.3:c.1319T>G",
+  "disease": "HHT",
+  "timestamp": "20260707_125021",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.1319T>G is absent from gnomAD, with a total allele count of 0 and no allele frequency in any subpopulation.",
+      "reasoning": "The evidence shows that the variant is absent from gnomAD entirely, which directly satisfies the criteria for PM2_SUPPORTING. According to the ACMG guidelines, if a variant is absent from gnomAD, PM2_SUPPORTING applies without further evaluation of allele counts or frequencies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.1319T>G is absent from gnomAD with a Popmax FAF of 0.0, indicating it is likely rare or novel.",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion does not apply because the Popmax FAF is 0.0, which is less than the required threshold of 0.01 (1%). Therefore, BA1 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.1319T>G is absent from gnomAD with a total allele count of 0 and a maximum subpopulation allele frequency (Popmax FAF) of 0.0.",
+      "reasoning": "According to the ACMG criteria for BS1, the variant must have a Popmax FAF >0.0008 and <=0.002 to apply as BS1_Supporting, or >0.002 and <0.01 to apply as BS1_Strong. In this case, the Popmax FAF is 0.0, which does not meet the thresholds for either BS1_Strong or BS1_Supporting. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1319T>G results in a missense change (p.Val440Gly) in the ENG gene, which is associated with HHT. The variant is not located in any of the critical positions defined for PM1, which include BMP9 binding sites (278, 282) and specific cysteine residues (207, 363, 382, 412, 549, 350, 394).",
+      "reasoning": "The variant is a missense change at position 440, which does not fall within the specified critical positions for PM1. Therefore, PM1 does not apply as the variant residue is not in BMP9 binding sites or any of the cysteine residues that are classified as LP/P or critical for ENG function.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (5) without resolving reasoning error"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications were found for the variant NM_001114753.3:c.1319T>G in the ENG gene, indicating no evidence for PM5.",
+      "reasoning": "The evidence retrieved shows that the 'different_aa_classifications' list is empty, meaning there are no different pathogenic or likely pathogenic missense variants at the same codon (codon 440) for the variant in question. According to the ACMG criteria for PM5, this means that the criterion does not apply as it requires at least one different LP/P missense variant at the same codon to be considered.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 440",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.1319T>G, indicating a lack of evidence to support pathogenicity.",
+      "reasoning": "Since there are no experiments available to evaluate, PS3 does not apply. The absence of any supporting evidence means we cannot classify this variant as pathogenic based on functional assays.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "The REVEL score is 0.385, which is below the threshold of 0.644 for PP3. The SpliceAI scores indicate that none are above the threshold of 0.2, with the maximum score being 0.13. Therefore, neither REVEL nor SpliceAI criteria for PP3 are met.",
+      "reasoning": "According to the ACMG criteria for PP3, the evidence must meet specific thresholds for either REVEL or SpliceAI. In this case, the REVEL score of 0.385 does not meet the required threshold of 0.644, and the SpliceAI scores do not meet the threshold of 0.2. Therefore, PP3 does not apply due to insufficient evidence from both sources.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "The REVEL score is not available, and the SpliceAI scores indicate DS_AG=0.13, which is above the threshold of 0.1 for BP4. Therefore, BP4 does not apply.",
+      "reasoning": "According to the classification rules for BP4, for missense variants, both conditions must be satisfied: the REVEL score must be <=0.15 and all SpliceAI scores must be <=0.1. In this case, the REVEL score is not available, and the SpliceAI score DS_AG=0.13 fails the second condition. Since either condition failing means BP4 does not apply, the criterion does not apply here.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "No entries in same_aa_classifications for the variant NM_001114753.3:c.1319T>G.",
+      "reasoning": "The same_aa_classifications list is empty, indicating that there are no established pathogenic variants with the same amino acid change as the query variant. Therefore, criterion PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 440",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1319T>G, indicating a lack of evidence to support benign classification.",
+      "reasoning": "According to the ACMG criteria for BS3, if there are no experiments available, BS3 does not apply. Since no functional evidence was retrieved, the criterion cannot be satisfied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    }
+  ]
+}

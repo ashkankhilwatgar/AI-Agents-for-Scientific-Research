@@ -1,0 +1,157 @@
+{
+  "variant": "NM_000020.3:c.1120C>T",
+  "disease": "HHT",
+  "timestamp": "20260708_145859",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 3,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "supporting",
+      "PM5": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PM5",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.1120C>T (12-51916107-C-T) is present in gnomAD with a total allele count (AC) of 3 (2 in exomes, 1 in genomes) and 0 homozygotes.",
+      "reasoning": "According to the PM2_SUPPORTING classification rules, Step 1 is false because the variant is present in gnomAD. Moving to Step 2, the total allele count (AC) across all gnomAD populations is 3, which is less than the threshold of 6. Therefore, PM2_SUPPORTING applies based on Step 2.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916107-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.1120C>T (12-51916107-C-T) has a total allele count of 3 in gnomAD, with a popmax filtering allele frequency (FAF95) of 0.0.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax FAF is greater than or equal to 0.01 (1%). Since the Popmax FAF for this variant is 0.0 (which is less than 0.01), the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916107-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.1120C>T has a total allele count of 3 across gnomAD exomes and genomes, with 0 homozygotes. The popmax filtering allele frequency (FAF) is 0.0.",
+      "reasoning": "Following the BS1 classification rules: Step 1: BA1 does not apply because the Popmax FAF (0.0) is less than 0.01. Step 2: The homozygote route for BS1_Strong does not apply because the Popmax FAF is not within the 0.0008 to 0.002 range, and there are 0 homozygotes. Step 3: BS1_Strong via the FAF route does not apply because the Popmax FAF (0.0) is not between 0.002 and 0.01. Step 4: BS1_Supporting does not apply because the Popmax FAF (0.0) is not between 0.0008 and 0.002. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916107-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.1120C>T results in the protein change p.Arg374Trp (R374W) in the ACVRL1 gene. The codon position is 374.",
+      "reasoning": "According to the PM1 classification rules for ACVRL1, the critical regions are defined as positions 209-216, 229, 242, 329-335, 348-351, and the BMP10 cluster (positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). The variant residue position is 374, which does not fall into any of these specified critical regions or clusters. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1120C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Not found; ERepo: Not found; LOVD: 1 proband reported; PubMed: 0 articles found",
+      "reasoning": "The variant NM_000020.3:c.1120C>T was queried across the required sources. No ClinVar HHT VCEP SCV or ERepo entries were found. LOVD reports 1 proband with the variant. According to the HHT VCEP rules for PS4, a count of 1 proband qualifies for PS4_Supporting, provided PM2_Supporting is met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000020.3:c.1120C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "Three different missense variants at codon 374 of ACVRL1 are classified as Pathogenic or Likely Pathogenic in ClinVar: p.Arg374Gly (Likely pathogenic), p.Arg374Pro (Likely pathogenic), and p.Arg374Gln (Pathogenic).",
+      "reasoning": "The query variant NM_000020.3:c.1120C>T results in a missense change at codon 374 (p.Arg374Trp). There are three distinct missense variants at the same codon (p.Arg374Gly, p.Arg374Pro, and p.Arg374Gln) that are classified as Pathogenic or Likely Pathogenic. According to the HHT VCEP rules for PM5, having 2 or more different Pathogenic/Likely Pathogenic missense variants at the same codon qualifies for PM5 at a Strong strength level.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 374",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved evidence for the variant NM_000020.3:c.1120C>T.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1120C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.7040, SpliceAI max score: 0.0000. Pre-computed verdict indicates 'PP3 REVEL (>= 0.644): APPLIES'.",
+      "reasoning": "According to the classification rules for a missense variant (Branch A), PP3 applies if either the REVEL score is >= 0.644 or the SpliceAI score is >= 0.2. Based on the pre-computed verdicts, 'PP3 REVEL (>= 0.644): APPLIES' is true because the REVEL score is 0.7040, which meets the threshold. Therefore, the PP3 criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51916107-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.704 and SpliceAI scores are all 0.0 (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0).",
+      "reasoning": "According to the classification rules for a missense variant in HHT, BP4 requires both REVEL <= 0.15 and SpliceAI <= 0.1. Based on the pre-computed verdicts, 'BP4 REVEL HHT threshold (<= 0.15)' FAILS (score=0.7040), while 'BP4 SpliceAI (all scores <= 0.1)' PASSES. Since both conditions must be met (AND logic) for a missense variant, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51916107-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The query variant is NM_000020.3:c.1120C>T (p.Arg374Cys). The tool returned no variants in the 'same_aa_classifications' list (same_aa_classifications is empty). The 'different_aa_classifications' list contains other missense changes at codon 374 (p.Arg374Gly, p.Arg374Pro, p.Arg374Gln) classified as Pathogenic or Likely Pathogenic.",
+      "reasoning": "According to the classification rules for PS1, only variants with the identical alternative amino acid change (found in the 'same_aa_classifications' list) can be used to support PS1. Since the 'same_aa_classifications' list is empty, there is no established pathogenic variant with the same amino acid change as the query variant. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 374",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.1120C>T.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, we cannot evaluate any supports_benign evidence, and BS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1120C>T",
+      "disease": "HHT"
+    }
+  ]
+}

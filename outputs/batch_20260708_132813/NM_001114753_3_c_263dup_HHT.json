@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.263dup",
+  "disease": "HHT",
+  "timestamp": "20260708_145652",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.263dup is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829784-TTTT-TTTTT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.263dup is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829784-TTTT-TTTTT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.263dup is absent from gnomAD (Popmax FAF = 0.0, total allele count = 0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, the variant must have a Popmax FAF > 0.0008 to meet the threshold for BS1_Supporting, or > 0.002 for BS1_Strong. Since the variant is absent from gnomAD (Popmax FAF = 0.0, ac_hom = 0), it does not meet any of the thresholds for BS1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829784-TTTT-TTTTT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No specific VCEP submission comment or proband count retrieved; ERepo: No data; LOVD: No data; PubMed: 468 articles found, but none of the top retrieved articles (e.g., PMID 42250987, 42209023, 42182190, 42106885, 41989642, 41915210, 41891344, 41795626, 41756958, 41728146) provide a confirmed proband count for the specific variant NM_001114753.3:c.263dup.",
+      "reasoning": "The variant NM_001114753.3:c.263dup was evaluated against the PS4 criteria. No specific proband count could be extracted from the ClinVar HHT VCEP submissions or the retrieved literature search results. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.263dup HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_001114753.3:c.263dup is a frameshift variant in the ENG gene, occurring at codon position 88. Loss-of-function (LOF) is a well-established disease mechanism for ENG in hereditary hemorrhagic telangiectasia (HHT) type 1.",
+      "reasoning": "According to the ENG PVS1 decision tree (CSpec GN136 v1.1.0), loss-of-function is a known disease mechanism for ENG. The variant is a frameshift variant at codon 88, which is well upstream of the NMD boundary (codon <=594). Therefore, it is predicted to undergo nonsense-mediated decay (NMD), qualifying for the maximum strength level of PVS1 (Very Strong).",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.263dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.263dup.",
+      "reasoning": "According to the classification rules for PS3, if there are no functional experiments (Shortcut A), the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.263dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules (Shortcut B), if there are no experiments, BS3 does not apply. Since the experiments list is empty, BS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.263dup",
+      "disease": "HHT"
+    }
+  ]
+}

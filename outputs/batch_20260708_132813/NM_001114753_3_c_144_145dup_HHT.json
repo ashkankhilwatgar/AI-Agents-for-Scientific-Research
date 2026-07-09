@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.144_145dup",
+  "disease": "HHT",
+  "timestamp": "20260708_141300",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.144_145dup was not found in gnomAD (total allele count = 0, absent_from_gnomad = true).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant is absent from gnomAD (total allele count is 0), PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is absent from gnomAD (popmax_faf = 0.0, total_ac = 0).",
+      "reasoning": "According to the classification rules for BA1, the criterion applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the BS1 classification rules, we first check if BA1 applies (popmax FAF >= 0.01), which it does not. Next, we check for BS1_Strong via the homozygote route (popmax FAF > 0.0008 and <= 0.002 with >= 2 homozygotes) and the FAF route (popmax FAF > 0.002 and < 0.01), neither of which are met. Finally, we check for BS1_Supporting (popmax FAF > 0.0008 and <= 0.002), which is also not met because the popmax FAF is 0.0. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127843168-CC-CCCC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No submission found (0 results); ERepo: No data; LOVD: No data; PubMed: 0 articles found",
+      "reasoning": "The variant NM_001114753.3:c.144_145dup was searched across ClinVar, ERepo, LOVD, and PubMed, yielding no proband data or case reports. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.144_145dup HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_001114753.3:c.144_145dup is a frameshift variant in the ENG gene at codon position 48. Loss-of-function (LOF) is a well-established disease mechanism for ENG in hereditary hemorrhagic telangiectasia (HHT) type 1.",
+      "reasoning": "According to the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0), loss-of-function is a known disease mechanism for ENG. The variant is a frameshift variant located at codon 48, which is well upstream of the nonsense-mediated decay (NMD) boundary (codon <=594). Because it is predicted to undergo NMD, the PVS1 criterion applies at the Very Strong strength level.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.144_145dup.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, BS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.144_145dup",
+      "disease": "HHT"
+    }
+  ]
+}

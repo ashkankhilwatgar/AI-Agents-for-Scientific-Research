@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.2T>G",
+  "disease": "HHT",
+  "timestamp": "20260707_113958",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.2T>G is absent from gnomAD, with a total allele count of 0 and no allele frequency in any subpopulation.",
+      "reasoning": "The variant is absent from gnomAD entirely, which directly satisfies the criteria for PM2_SUPPORTING. According to the ACMG guidelines, if a variant is absent from gnomAD, PM2_SUPPORTING applies without further evaluation of allele counts or frequencies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.2T>G is absent from gnomAD with a Popmax FAF of 0.0, indicating it is likely rare or novel.",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion does not apply because the Popmax FAF is 0.0, which is less than the required threshold of 0.01 (1%). Therefore, BA1 does not apply as the variant is not present in the population at a frequency that would classify it as benign.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.2T>G is absent from gnomAD with a total allele count of 0 and a maximum population allele frequency (Popmax FAF) of 0.0.",
+      "reasoning": "According to the ACMG criteria for BS1, the variant must have a Popmax FAF >0.0008 and <=0.002 or meet the homozygote count criteria. In this case, the Popmax FAF is 0.0, which does not meet the criteria for either BS1_Strong or BS1_Supporting. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands reported; ERepo: not queried; LOVD: not queried; PubMed: 4 articles found.",
+      "reasoning": "The evidence indicates that the NM_001114753.3:c.2T>G variant has been reported in 4 probands with a phenotype consistent with HHT, which meets the threshold for PS4_Strong. Since PM2_Supporting has already been confirmed as met, the criterion PS4 applies with strong strength.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": null,
+      "tool_input": null,
+      "disease": "HHT",
+      "status": "error",
+      "error": "Judge agent exceeded retry limit (5) without resolving reasoning error"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.2T>G, indicating a lack of evidence to support pathogenicity.",
+      "reasoning": "Since there are no experiments available to evaluate, PS3 does not apply. The absence of any supporting evidence means we cannot classify the variant as pathogenic based on functional assays.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.2T>G, indicating a lack of evidence to support benign classification.",
+      "reasoning": "According to the ACMG criteria for BS3, if there are no experiments available, BS3 does not apply. Since no functional evidence was retrieved, the criterion cannot be satisfied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    }
+  ]
+}

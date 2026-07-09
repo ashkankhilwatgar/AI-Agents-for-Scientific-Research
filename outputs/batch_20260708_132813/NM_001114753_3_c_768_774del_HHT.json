@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.768_774del",
+  "disease": "HHT",
+  "timestamp": "20260708_152853",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.768_774del is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is entirely absent from gnomAD. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825273-GTAGGGGG-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.768_774del is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825273-GTAGGGGG-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.768_774del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, the variant must meet specific popmax FAF thresholds to qualify for BS1_Supporting (FAF > 0.0008 and <= 0.002) or BS1_Strong (FAF > 0.002 and < 0.01, or FAF in supporting range with >= 2 homozygotes). Since the variant is absent from gnomAD (popmax FAF = 0.0, homozygotes = 0), it does not meet any of these thresholds. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825273-GTAGGGGG-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No submission found (0 results); ERepo: No data; LOVD: No data; PubMed: 0 articles found",
+      "reasoning": "The variant NM_001114753.3:c.768_774del was searched across ClinVar, ERepo, LOVD, and PubMed, but no records or case reports describing probands with this variant were identified. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.768_774del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.768_774del is a frameshift variant in ENG at codon position 256. Loss of function (LOF) is a known disease mechanism for ENG (HHT type 1 via haploinsufficiency).",
+      "reasoning": "According to the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0), nonsense or frameshift variants predicted to undergo nonsense-mediated decay (NMD) (codon <= 594) qualify for PVS1 at Very Strong strength. Since this frameshift variant occurs at codon 256, which is well upstream of the NMD boundary (codon 594), it is predicted to undergo NMD, and thus PVS1 applies at very_strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.768_774del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to Shortcut A of the classification rules, if there are no experiments, PS3 does not apply. Since the experiments list is empty, the criterion is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.768_774del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, Shortcut B applies because there are no experiments in the provided dataset. Therefore, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.768_774del",
+      "disease": "HHT"
+    }
+  ]
+}

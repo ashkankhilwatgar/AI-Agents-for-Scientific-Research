@@ -1,0 +1,125 @@
+{
+  "time": "2026-07-09 13:54:23.738177",
+  "accuracy": 0.9711538461538461,
+  "precision": 1.0,
+  "recall": 0.9666666666666667,
+  "F1": 0.9830508474576272,
+  "num_scored": 104,
+  "num_criterion_errors": 3,
+  "num_no_gold_label": 1728,
+  "num_unmatched_variants": 0,
+  "num_variant_errors": 0,
+  "classification_report": {
+    "False": {
+      "precision": 0.8235294117647058,
+      "recall": 1.0,
+      "f1-score": 0.9032258064516129,
+      "support": 14.0
+    },
+    "True": {
+      "precision": 1.0,
+      "recall": 0.9666666666666667,
+      "f1-score": 0.9830508474576272,
+      "support": 90.0
+    },
+    "accuracy": 0.9711538461538461,
+    "macro avg": {
+      "precision": 0.9117647058823529,
+      "recall": 0.9833333333333334,
+      "f1-score": 0.9431383269546201,
+      "support": 104.0
+    },
+    "weighted avg": {
+      "precision": 0.9762443438914027,
+      "recall": 0.9711538461538461,
+      "f1-score": 0.9723051688606638,
+      "support": 104.0
+    }
+  },
+  "per_criterion": {
+    "BA1": {
+      "n": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "BP4": {
+      "n": 4,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "BS1": {
+      "n": 8,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PM1": {
+      "n": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PM2_SUPPORTING": {
+      "n": 34,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PM4": {
+      "n": 1,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PM5": {
+      "n": 4,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PP3": {
+      "n": 28,
+      "accuracy": 0.9642857142857143,
+      "precision": 1.0,
+      "recall": 0.9411764705882353,
+      "F1": 0.9696969696969697
+    },
+    "PS1": {
+      "n": 1,
+      "accuracy": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "F1": 0.0
+    },
+    "PS3": {
+      "n": 1,
+      "accuracy": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "F1": 0.0
+    },
+    "PS4": {
+      "n": 14,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    },
+    "PVS1": {
+      "n": 3,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "F1": 1.0
+    }
+  }
+}

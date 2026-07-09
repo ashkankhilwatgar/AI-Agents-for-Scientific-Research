@@ -1,0 +1,111 @@
+{
+  "variant": "NM_001114753.3:c.2T>G",
+  "disease": "HHT",
+  "timestamp": "20260708_135112",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PVS1": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.2T>G is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.2T>G is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.2T>G is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, the variant's popmax FAF (0.0) is below the threshold for BS1_Supporting (>0.0008) and BS1_Strong (>0.002). Additionally, there are no homozygotes (ac_hom = 0). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Found (reported in >4 probands with a phenotype consistent with HHT); ERepo: Not found; LOVD: Not found; PubMed: 3 articles found (PMID: 12920067, 32300199, 15024723).",
+      "reasoning": "The ClinGen HHT VCEP submission comment indicates that the NM_001114753.3:c.2T>G variant has been reported in >4 probands with a phenotype consistent with HHT. According to the classification rules, a proband count of 4 or more qualifies for PS4 at a Strong strength level (PS4_Strong). All fallback sources were queried and documented as required.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.2T>G (p.Met1Arg) is a start_lost variant in the ENG gene.",
+      "reasoning": "According to the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0), loss of function is a known disease mechanism for ENG. For initiation codon (start_lost) variants, if there is no known alternative start codon in other ENG transcripts, the criterion applies at a moderate strength level (PVS1_Moderate).",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "According to the classification rules, Shortcut A applies because there are no experiments in the retrieved functional evidence. Therefore, the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.2T>G.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    }
+  ]
+}

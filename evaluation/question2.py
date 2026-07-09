@@ -32,16 +32,27 @@ LABELS = ["B", "LB", "VUS", "LP", "P"]
 CLASSIFICATION_MAPPING = {
     # Guard against lowercase letters in hht-batches.csv
     "b": "B",
-    "lb": "B",
+    "lb": "LB",
     "vus": "VUS",
     "lp": "LP",
     "p": "P",
 
     "benign": "B",
     "likely benign": "LB",
+    "uncertain significance": "VUS",
+    "variant of uncertain significance": "VUS",
     "variant of uncertain significance (vus)": "VUS",
     "likely pathogenic": "LP",
     "pathogenic": "P",
+
+    # ClinVar "conflicting evidence" combo labels — collapsed to the
+    # less-severe/likely-* side per common ClinVar convention. Revisit if
+    # a stricter treatment (e.g. treat as a distinct/excluded class) is
+    # preferred for this evaluation.
+    "benign/likely benign": "LB",
+    "b/lb": "LB",
+    "pathogenic/likely pathogenic": "LP",
+    "p/lp": "LP",
 
     "error": "ERROR"
 }
@@ -162,11 +173,26 @@ def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
         how="left",
     )
 
+    # Guard against predicted variants that have no matching gold row (NaN
+    # gold_classification after the left-merge). Drop these before label
+    # normalization, since normalize_classification_label would otherwise
+    # raise ValueError on NaN and crash the whole evaluation run.
+    unmatched_mask = eval_df["gold_classification"].isna()
+    num_unmatched = int(unmatched_mask.sum())
+    if num_unmatched:
+        print(
+            f"WARNING: {num_unmatched} predicted variant(s) had no matching "
+            f"gold row and will be excluded from evaluation: "
+            f"{eval_df.loc[unmatched_mask, 'variant'].tolist()}"
+        )
+    eval_df = eval_df.loc[~unmatched_mask].copy()
+
     eval_df["pred_classification"] = eval_df["pred_classification"].apply(normalize_classification_label)
     eval_df["gold_classification"] = eval_df["gold_classification"].apply(normalize_classification_label)
     num_errors = (eval_df['pred_classification'] == "ERROR").sum()
 
     eval_df = eval_df.drop(eval_df[eval_df['pred_classification'] == "ERROR"].index)
+    num_errors += num_unmatched
     return eval_df, num_errors
 
 # ========================================================
@@ -276,12 +302,16 @@ def save_results(
         "precision": precision,
         "recall": recall,
         "F1": f1_score,
-        "failed_variant_count": num_errors,
+        "failed_variant_count": int(num_errors),
         "classification_report": classification_report
     }
 
-    with open(filename, "w") as f:
-        json.dump(output, f, indent = 2)
+    try:
+        with open(filename, "w") as f:
+            json.dump(output, f, indent = 2)
+            print(f"RESULT SAVED TO {filename}")
+    except Exception as e:
+        print("WARNING: Failed to save the result.")
 
 # ========================================================
 # A FUNCTION THAT COMBINES EVERYTHING
@@ -350,7 +380,7 @@ def run_question2_evaluation(
         cm = confusion_matrix(y_true,y_pred,labels=LABELS,)
         classification = classification_report(y_true,y_pred,labels=LABELS,zero_division=0,output_dict=True)
 
-        # ---------------- Printing & Saving Outputs ---------------- #
+        # ---------------- Printing & Saving Outputs ---f------------- #
         print_results(
             accuracy=accuracy,
             precision=macro_precision,

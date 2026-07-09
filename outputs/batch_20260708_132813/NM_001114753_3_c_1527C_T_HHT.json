@@ -1,0 +1,133 @@
+{
+  "variant": "NM_001114753.3:c.1527C>T",
+  "disease": "HHT",
+  "timestamp": "20260708_150807",
+  "classification": "Likely Benign",
+  "rule_matched": "\u22652 Supporting benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "\u22652 Supporting benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 2
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "BP4": "benign_supporting",
+      "BP7": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "BP4",
+      "BP7"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1527C>T (9-127818279-G-A) is present in gnomAD with a total allele count (AC) of 3 across all populations (exome data).",
+      "reasoning": "Following the PM2_SUPPORTING classification rules: Step 1: The variant is not absent from gnomAD (total AC = 3). Step 2: The total allele count (AC) across all gnomAD populations is 3, which is less than 6. This satisfies the threshold for PM2_SUPPORTING.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818279-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1527C>T (9-127818279-G-A) has a total allele count of 3 in gnomAD, with a popmax filtering allele frequency (FAF95) of 7.41e-06 (0.000741%) in the American (amr) population.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the popmax FAF is greater than or equal to 0.01 (1%). Since the popmax FAF for this variant is 7.41e-06, which is far below the 0.01 threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818279-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.1527C>T (9-127818279-G-A) has a popmax filtering allele frequency (FAF95) of 7.41e-06 (0.00000741) in the Admixed American (amr) population, with 0 homozygotes in gnomAD.",
+      "reasoning": "Following the step-by-step rules: Step 1: BA1 does not apply (popmax FAF 7.41e-06 is < 0.01). Step 2: The popmax FAF is not in the BS1_Supporting range (7.41e-06 is not > 0.0008), so the homozygote route for BS1_Strong does not apply. Step 3: The popmax FAF is not > 0.002 and < 0.01, so BS1_Strong via the FAF route does not apply. Step 4: The popmax FAF is not > 0.0008 and <= 0.002, so BS1_Supporting does not apply. Therefore, BS1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818279-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No specific VCEP submission comment or proband count retrieved; ERepo: No data; LOVD: No data; PubMed: 10 articles found, none of which report individual proband counts or case-control data for the specific variant NM_001114753.3:c.1527C>T.",
+      "reasoning": "The variant NM_001114753.3:c.1527C>T was evaluated against the PS4 criterion. No proband counts or case-control data for this specific variant could be extracted from ClinVar, ERepo, LOVD, or the retrieved PubMed literature. Since the total proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.1527C>T HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.1527C>T.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1527C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0. REVEL score is not available.",
+      "reasoning": "According to the pre-computed verdicts, REVEL is not available, and SpliceAI does not fire for PP3 because the maximum score is 0.05, which is below the threshold of 0.2. Therefore, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818279-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "NM_001114753.3:c.1527C>T is a synonymous variant (p.Gly509Gly) with SpliceAI scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0 (max score = 0.05). REVEL score is not available.",
+      "reasoning": "According to the classification rules for HHT, this is a synonymous variant, which falls under Branch B (Synonymous/intronic variant). Branch B requires only the SpliceAI condition to be met. The pre-computed verdict shows 'BP4 SpliceAI (all scores <= 0.1): PASSES' (max score is 0.05, which is <= 0.1). Therefore, BP4 applies as a supporting benign criterion.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818279-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP7",
+      "evidence": "SpliceAI delta scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0. The variant is NM_001114753.3:c.1527C>T, which is a synonymous variant (p.Gly509=).",
+      "reasoning": "According to the classification rules for BP7, the criterion applies to synonymous or intronic variants where all four SpliceAI delta scores are <= 0.1. For NM_001114753.3:c.1527C>T, the variant is synonymous and all four SpliceAI delta scores (DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0) are less than or equal to 0.1. Therefore, BP7 applies.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "spliceai",
+      "tool_input": "NM_001114753.3:c.1527C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1527C>T.",
+      "reasoning": "According to the classification rules, if there are no functional experiments available, BS3 does not apply (Shortcut B). Since the experiments list is empty, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1527C>T",
+      "disease": "HHT"
+    }
+  ]
+}

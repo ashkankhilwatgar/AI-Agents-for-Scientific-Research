@@ -1,0 +1,120 @@
+{
+  "variant": "NM_000020.3:c.1247-7T>G",
+  "disease": "HHT",
+  "timestamp": "20260708_143713",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.1247-7T>G is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules for PM2_SUPPORTING, Step 1 asks if the variant is entirely absent from gnomAD. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51918978-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.1247-7T>G is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax FAF = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51918978-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.1247-7T>G is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "Following the step-by-step rules: Step 1: BA1 does not apply because the Popmax FAF is 0.0 (which is < 0.01). Step 2: BS1_Strong via the homozygote route does not apply because the Popmax FAF is not in the range of > 0.0008 and <= 0.002, and the homozygote count is 0 (which is < 2). Step 3: BS1_Strong via the FAF route does not apply because the Popmax FAF is 0.0 (which is not > 0.002 and < 0.01). Step 4: BS1_Supporting does not apply because the Popmax FAF is 0.0 (which is not > 0.0008 and <= 0.002). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51918978-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Not found in provided search results; ERepo: Not found; LOVD: Not found; PubMed: 28 articles found, but none of the retrieved abstracts (e.g., PMID 41162588, 38225712) provide evidence of probands carrying the specific NM_000020.3:c.1247-7T>G variant.",
+      "reasoning": "The variant NM_000020.3:c.1247-7T>G was evaluated against the PS4 criterion. No probands carrying this specific variant were identified in the ClinVar HHT VCEP submissions or the retrieved PubMed literature. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.1247-7T>G HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.1247-7T>G.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1247-7T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI scores: DS_AG=1.0000, DS_AL=0.9000, DS_DG=0.0000, DS_DL=0.0000. REVEL score is not available.",
+      "reasoning": "The variant NM_000020.3:c.1247-7T>G is an intronic variant, so Branch B of the classification rules applies. According to the pre-computed verdicts, 'PP3 SpliceAI (any score >= 0.2): FIRES' is true, triggered by DS_AG=1.0000 and DS_AL=0.9000. Therefore, the PP3 criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51918978-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI scores: DS_AG=1.0, DS_AL=0.9, DS_DG=0.0, DS_DL=0.0. REVEL score is not available.",
+      "reasoning": "The variant NM_000020.3:c.1247-7T>G is an intronic variant, which falls under Branch B (Synonymous or intronic variant). According to the pre-computed verdicts, 'BP4 SpliceAI (all scores <= 0.1)' FAILS because the DS_AG score is 1.0 and the DS_AL score is 0.9, both of which are above the 0.1 threshold. Therefore, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51918978-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved data for variant NM_000020.3:c.1247-7T>G.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, we cannot evaluate any functional assays supporting a benign effect.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1247-7T>G",
+      "disease": "HHT"
+    }
+  ]
+}

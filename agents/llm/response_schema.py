@@ -32,7 +32,7 @@ StrengthNote = Literal[
 # OUTPUT SCHEMAS
 # =========================================
 class CheckTechnicalResult(BaseModel):
-    past: bool = Field(
+    passed: bool = Field(
         description="""Whether there are any technical error in the task output, including 
         tool call failures, missing data, API errors, malformed outputs, or status=error. 
             True if there are NO technical error. False if any technical error is detected."""
@@ -48,7 +48,7 @@ class CheckTechnicalResult(BaseModel):
     )
 
 class CheckReasoningResult(BaseModel):
-    past: bool = Field(
+    passed: bool = Field(
         description="""Whether the reasoning in the task output is correct. 
             True if there are NO reasoning errors in tool selection, evidence interpretation, 
             or criterion mapping. False if any reasoning error is detected."""

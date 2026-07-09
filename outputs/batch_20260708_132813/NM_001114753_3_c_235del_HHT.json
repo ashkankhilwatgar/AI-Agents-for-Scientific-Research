@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.235del",
+  "disease": "HHT",
+  "timestamp": "20260708_142048",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.235del is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules, Step 1 checks if the variant is entirely absent from gnomAD. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829812-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.235del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the classification rules, BA1 applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax FAF = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829812-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.235del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the classification rules for BS1, the variant must have a popmax FAF > 0.0008 to meet the threshold for BS1_Supporting, or > 0.002 for BS1_Strong. Since the variant is absent from gnomAD (popmax FAF = 0.0, homozygote count = 0), it does not meet any of the thresholds for BS1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127829812-CC-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: Not found/No data; ERepo: Not found; LOVD: Not found; PubMed: 468 articles found, but none of the retrieved top articles provide specific proband counts for the ENG c.235del variant.",
+      "reasoning": "The variant NM_001114753.3:c.235del was evaluated using the fallback PubMed search and ClinVar/ERepo/LOVD queries. No specific probands harboring this exact variant were identified in the retrieved literature or database summaries. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.235del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.235del is a frameshift variant in ENG (codon 79). Loss-of-function (haploinsufficiency) is a well-established mechanism for ENG in HHT type 1.",
+      "reasoning": "The variant is a frameshift variant located at codon 79, which is well upstream of the NMD boundary (codon 594). Because it is predicted to undergo nonsense-mediated decay (NMD) in a gene where loss-of-function is a known disease mechanism, it meets the criteria for PVS1 at very strong strength according to the ENG PVS1 Decision Tree.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.235del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.235del.",
+      "reasoning": "According to the classification rules for PS3, Shortcut A applies because there are no functional experiments available in the retrieved evidence. Therefore, the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.235del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.235del.",
+      "reasoning": "According to the classification rules, Shortcut B applies because there are no functional experiments available in the retrieved evidence. Therefore, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.235del",
+      "disease": "HHT"
+    }
+  ]
+}

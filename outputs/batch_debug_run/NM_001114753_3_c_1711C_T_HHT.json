@@ -1,0 +1,86 @@
+{
+  "variant": "NM_001114753.3:c.1711C>T",
+  "disease": "HHT",
+  "timestamp": "20260707_130643",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {},
+    "applied_criteria": [],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1711C>T has a total allele count (AC) of 49 in gnomAD, which is greater than 6. Additionally, the allele frequencies in all subpopulations are above 0.00004, with the lowest being 0.00005 in the 'nfe' population. Therefore, PM2_SUPPORTING does not apply.",
+      "reasoning": "According to the ACMG criteria for PM2_SUPPORTING, the criterion applies if the total allele count (AC) is less than 6 or if the allele frequency in any single gnomAD subpopulation is less than 0.00004. In this case, the total AC is 49, which is greater than 6, and all subpopulation allele frequencies are above 0.00004. Therefore, PM2_SUPPORTING does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817179-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF for the variant NM_001114753.3:c.1711C>T is 0.000259, which is less than the threshold of 0.01 (1%). Therefore, BA1 does not apply.",
+      "reasoning": "According to the ACMG criteria for BA1, the criterion applies only if the Popmax FAF is greater than or equal to 0.01. In this case, the Popmax FAF is 0.000259, which is significantly lower than 0.01, indicating that the variant is not common in the population. Thus, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817179-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The Popmax FAF is 0.000259, which is less than 0.0008, and the homozygote count (ac_hom) is 0.",
+      "reasoning": "According to the ACMG criteria for BS1, the criterion does not apply because the Popmax FAF is not greater than 0.0008, which is required for BS1_Supporting. Additionally, there are no homozygotes (ac_hom = 0), which means the homozygote route for BS1_Strong also does not apply. Therefore, BS1 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817179-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were provided to support the pathogenicity of the variant NM_001114753.3:c.1711C>T for HHT.",
+      "reasoning": "According to the ACMG PS3 criterion, there must be functional evidence supporting the pathogenicity of the variant. Since there are no experiments available, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1711C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were provided to evaluate the variant NM_001114753.3:c.1711C>T for HHT.",
+      "reasoning": "Since there are no experiments available to assess the functional impact of the variant, BS3 does not apply. According to the ACMG criteria, if there are no experiments, BS3 cannot be supported, and thus it is not applicable in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1711C>T",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.1157del",
+  "disease": "HHT",
+  "timestamp": "20260708_142828",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1157del is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to the classification rules, Step 1 asks if the variant is absent from gnomAD entirely. Since the variant was not found in gnomAD (absent_from_gnomad is true, total allele count is 0), PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820015-CCC-CC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1157del is absent from gnomAD (total allele count = 0, popmax_faf = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since this variant is absent from gnomAD (popmax_faf = 0.0), it does not meet the threshold, and therefore BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820015-CCC-CC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.1157del is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "The variant is absent from gnomAD. Following the step-by-step rules: Step 1: BA1 does not apply (FAF is 0.0, which is < 0.01). Step 2: BS1_Strong via homozygote route does not apply (homozygote count is 0, which is < 2). Step 3: BS1_Strong via FAF route does not apply (FAF is 0.0, which is not > 0.002). Step 4: BS1_Supporting does not apply (FAF is 0.0, which is not > 0.0008). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820015-CCC-CC",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No specific SCV comment or proband count retrieved; ERepo: No data; LOVD: No data; PubMed: 10 articles found, but none reported clinical case details or proband counts for the specific variant NM_001114753.3:c.1157del.",
+      "reasoning": "The variant NM_001114753.3:c.1157del was evaluated using the fallback PubMed search and ClinVar query. No specific proband counts or clinical case reports detailing patients with this exact variant were identified in the retrieved literature or database queries. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.1157del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant NM_001114753.3:c.1157del is a frameshift variant in ENG at codon position 386. Loss-of-function (LOF) is a well-established disease mechanism for ENG (HHT type 1) via haploinsufficiency.",
+      "reasoning": "According to the ENG PVS1 Decision Tree (CSpec GN136 v1.1.0), nonsense or frameshift variants predicted to undergo nonsense-mediated decay (NMD) (codon <= 594) qualify for PVS1 at Very Strong strength. Since this frameshift variant occurs at codon 386 (which is <= 594), it is predicted to undergo NMD, and thus PVS1 applies at very_strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1157del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.1157del.",
+      "reasoning": "According to the classification rules, if there are no functional experiments (Shortcut A), the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1157del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_001114753.3:c.1157del.",
+      "reasoning": "According to the classification rules, if there are no experiments (Shortcut B), BS3 does not apply. Since the experiments list is empty, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1157del",
+      "disease": "HHT"
+    }
+  ]
+}
