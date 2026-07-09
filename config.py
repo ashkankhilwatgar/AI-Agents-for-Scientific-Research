@@ -35,14 +35,14 @@ _os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
 #     "functional_evidence": {"provider": "ollama", "model": "deepseek-r1:32b"}
 # }
 
-# MODELS = {
-#     "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
-#     "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
-#     "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-#     "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
-#     "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-#     "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
-# }
+MODELS = {
+    "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
+    "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
+    "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
+}
 
 
 # MODELS = {
@@ -54,14 +54,14 @@ _os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
 #     "functional_evidence": {"provider": "google_genai", "model": "gemini-2.5-flash"}
 # }
 
-MODELS = {
-    "plan":  {"provider": "openai", "model": "gpt-4o-mini"},
-    "task":  {"provider": "openai", "model": "gpt-4o-mini"},
-    "debug": {"provider": "openai", "model": "gpt-4o-mini"},
-    "judge": {"provider": "openai", "model": "gpt-4o-mini"},
-    "check": {"provider": "openai", "model": "gpt-4o-mini"},
-    "functional_evidence": {"provider": "openai", "model": "GPT-4o-mini"},
-}
+# MODELS = {
+#     "plan":  {"provider": "openai", "model": "gpt-4o-mini"},
+#     "task":  {"provider": "openai", "model": "gpt-4o-mini"},
+#     "debug": {"provider": "openai", "model": "gpt-4o-mini"},
+#     "judge": {"provider": "openai", "model": "gpt-4o-mini"},
+#     "check": {"provider": "openai", "model": "gpt-4o-mini"},
+#     "functional_evidence": {"provider": "openai", "model": "GPT-4o-mini"},
+# }
 
 
 OLLAMA_BASE_URL="http://150.209.23.239:11434"

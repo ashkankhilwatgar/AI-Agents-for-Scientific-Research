@@ -1,0 +1,6 @@
+{
+  "variant": "NM_001114753.3:c.1505del",
+  "disease": "HHT",
+  "status": "error",
+  "error": "ConnectError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)"
+}
