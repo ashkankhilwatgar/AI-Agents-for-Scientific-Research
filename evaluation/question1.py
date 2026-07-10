@@ -66,21 +66,6 @@ def normalize_criterion_name(raw_criterion: str) -> str:
     """
     return str(raw_criterion).strip().upper().replace("-", "_").replace(" ", "_")
 
-def remove_strength(raw_criterion: set[str]) -> str:
-    """Remove an optional strength suffix from an ACMG/AMP criterion name.
-
-    Args:
-        raw_criterion: A criterion label such as "PM2_SUPPORTING" or "PVS1".
-
-    Returns:
-        The base criterion name in uppercase, such as "PM2" or "PVS1".
-    """
-    return {
-        criterion if criterion == "PM2_SUPPORTING" 
-        else criterion.split("_")[0].strip().upper()   
-        for criterion in raw_criterion    
-    }
-
 
 def parse_criteria_list(raw_value) -> set:
     """Parse a semicolon-separated criteria column from the gold CSV into a set of
@@ -141,8 +126,8 @@ def load_gold_answer_df(gold_csv_path: str) -> pd.DataFrame:
             )
 
     gold_df["variant_key"] = gold_df["variant"].apply(_safe_variant_name)
-    gold_df["gold_applied"] = gold_df["gt_criteria_applied"].apply(parse_criteria_list).apply(remove_strength)
-    gold_df["gold_not_met"] = gold_df["gt_criteria_not_met"].apply(parse_criteria_list).apply(remove_strength)
+    gold_df["gold_applied"] = gold_df["gt_criteria_applied"].apply(parse_criteria_list)
+    gold_df["gold_not_met"] = gold_df["gt_criteria_not_met"].apply(parse_criteria_list)
 
     return gold_df.set_index("variant_key")
  
@@ -318,7 +303,7 @@ number of whole-variant failures excluded: {num_variant_errors}
     print("-" * 60)
 
 
-def  print_per_criterion_breakdown(scored_df: pd.DataFrame) -> None:
+def print_per_criterion_breakdown(scored_df: pd.DataFrame) -> None:
     """Print per-criterion accuracy/precision/recall/F1 so individual weak criteria
     can be identified.
 
@@ -327,7 +312,7 @@ def  print_per_criterion_breakdown(scored_df: pd.DataFrame) -> None:
     """
     print("\nPer-criterion breakdown:")
     print("-" * 60)
-    print(f"{'Criterion':<20} {'N':>5} {'Accuracy':>10} {'Precision':>10} {'Recall':>10} {'F1':>10}")
+    print(f"{'Criterion':<20} {'N':>5} {'Applied':>8} {'Accuracy':>10} {'Precision':>10} {'Recall':>10} {'F1':>10}")
     for criterion, group in scored_df.groupby("criterion"):
         y_true = group["gold_applies"].astype(bool)
         y_pred = group["pred_applies"].astype(bool)
@@ -335,7 +320,8 @@ def  print_per_criterion_breakdown(scored_df: pd.DataFrame) -> None:
         prec = precision_score(y_true, y_pred, zero_division=0)
         rec = recall_score(y_true, y_pred, zero_division=0)
         f1 = f1_score(y_true, y_pred, zero_division=0)
-        print(f"{criterion:<20} {len(group):>5} {acc:>10.3f} {prec:>10.3f} {rec:>10.3f} {f1:>10.3f}")
+        num_applied = int(y_true.sum())
+        print(f"{criterion:<20} {len(group):>5} {num_applied:>8} {acc:>10.3f} {prec:>10.3f} {rec:>10.3f} {f1:>10.3f}")
     print("-" * 60)
 
 
@@ -443,15 +429,11 @@ def run_question1_evaluation(
 
     per_criterion = {}
     for criterion, group in scored_df.groupby("criterion"):
-        if criterion == "BS3":
-            print(f"{"+"* 100}")
-            print("pm2_supporting predictions: ")
-            print(group)
-            print(f"{"+"* 100}")
         gt = group["gold_applies"].astype(bool)
         pt = group["pred_applies"].astype(bool)
         per_criterion[criterion] = {
             "n": int(len(group)),
+            "applied": int(gt.sum()),
             "accuracy": accuracy_score(gt, pt),
             "precision": precision_score(gt, pt, zero_division=0),
             "recall": recall_score(gt, pt, zero_division=0),
