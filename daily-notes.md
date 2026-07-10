@@ -244,3 +244,7 @@ I copied Simon's case study fo all 200 variants, but only included the 48 varian
 I also ran the pipeline on all 200 variants for the ablation study, so that will take around 8 hours. 
 
 python -m evaluation.question1 --gold_answer_csv_filename applied_only_evaluation_dataset.csv --model_output_json_filename outputs/batch_20260708_132813/batch_summary.json --output_dir evaluation/outputs
+
+7/10 Simon
+
+Continue doing case study + cleaning up the file sturcture. See my case studies at case_studies/jul_10/case_study_summary.md

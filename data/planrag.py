@@ -558,7 +558,7 @@ PLANRAG_DB = {
             "(different substitution, P/LP per HHT VCEP rules):\n"
             "  - >=2 → PM5_Strong. Set applied_strength=strong.\n"
             "    RULE: do NOT combine PM5_Strong with PM1. If PM1 also applies, downgrade to Moderate.\n"
-            "  - 1   → PM5_Moderate. Set applied_strength=moderate.\n"
+            "  - =1   → PM5_Moderate. Set applied_strength=moderate.\n"
             "\n"
             "STEP 3: Could the query variant affect splicing rather than the amino acid?\n"
             "  - YES → note caveat in evidence.\n"

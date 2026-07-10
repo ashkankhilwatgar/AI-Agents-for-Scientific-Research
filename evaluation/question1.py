@@ -66,6 +66,21 @@ def normalize_criterion_name(raw_criterion: str) -> str:
     """
     return str(raw_criterion).strip().upper().replace("-", "_").replace(" ", "_")
 
+def remove_strength(raw_criterion: set[str]) -> str:
+    """Remove an optional strength suffix from an ACMG/AMP criterion name.
+
+    Args:
+        raw_criterion: A criterion label such as "PM2_SUPPORTING" or "PVS1".
+
+    Returns:
+        The base criterion name in uppercase, such as "PM2" or "PVS1".
+    """
+    return {
+        criterion if criterion == "PM2_SUPPORTING" 
+        else criterion.split("_")[0].strip().upper()   
+        for criterion in raw_criterion    
+    }
+
 
 def parse_criteria_list(raw_value) -> set:
     """Parse a semicolon-separated criteria column from the gold CSV into a set of
@@ -126,8 +141,8 @@ def load_gold_answer_df(gold_csv_path: str) -> pd.DataFrame:
             )
 
     gold_df["variant_key"] = gold_df["variant"].apply(_safe_variant_name)
-    gold_df["gold_applied"] = gold_df["gt_criteria_applied"].apply(parse_criteria_list)
-    gold_df["gold_not_met"] = gold_df["gt_criteria_not_met"].apply(parse_criteria_list)
+    gold_df["gold_applied"] = gold_df["gt_criteria_applied"].apply(parse_criteria_list).apply(remove_strength)
+    gold_df["gold_not_met"] = gold_df["gt_criteria_not_met"].apply(parse_criteria_list).apply(remove_strength)
 
     return gold_df.set_index("variant_key")
  
@@ -135,7 +150,7 @@ def load_criterion_predictions(batch_summary_path: str) -> pd.DataFrame:
     """Load per-criterion predictions from a batch output directory, given the path
     to that directory's batch_summary.json (as written by pipeline.run_batch).
 
-    The per-criterion detail lives in the individual per-variant JSON files that sit
+    The per-criterion detail lives in the individual per-variant JSON files that sit1
     alongside batch_summary.json (batch_summary.json itself only has the final
     classification per variant), so this reads every "*.json" file in the same
     directory.
@@ -428,6 +443,11 @@ def run_question1_evaluation(
 
     per_criterion = {}
     for criterion, group in scored_df.groupby("criterion"):
+        if criterion == "BS3":
+            print(f"{"+"* 100}")
+            print("pm2_supporting predictions: ")
+            print(group)
+            print(f"{"+"* 100}")
         gt = group["gold_applies"].astype(bool)
         pt = group["pred_applies"].astype(bool)
         per_criterion[criterion] = {
