@@ -191,48 +191,33 @@ def compute_metrics(y_true, y_pred):
 
 # ── Main evaluation loop ──────────────────────────────────────────────────────
 
-def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: str):
-    gold_df = load_gold_df(gold_csv_path)
+def run_single_mode(gold_df: pd.DataFrame, mode: str) -> list:
+    """Run one ablation mode over the whole gold_df and return its preds list."""
+    print(f"\n{'='*60}")
+    print(f"ABLATION MODE: {mode.upper()}")
+    print(f"{'='*60}")
+    preds = []
 
-    if variant_ids:
-        gold_df = gold_df[gold_df["variation_id"].isin(variant_ids)].reset_index(drop=True)
+    for _, row in gold_df.iterrows():
+        variant = row["variant"]
+        disease = row.get("disease", "HHT")
+        gold = normalize(row["gold_classification_short"])
 
-    os.makedirs(output_dir, exist_ok=True)
+        print(f"\n  [{mode}] {variant}...")
+        try:
+            scoring = run_pipeline_ablation(variant, disease, mode)
+            pred = normalize(scoring.get("classification", "ERROR"))
+        except Exception as e:
+            print(f"  ERROR: {e}")
+            pred = "ERROR"
 
-    all_results = {}
+        preds.append({"variant": variant, "gold": gold, "pred": pred})
+        print(f"  gold={gold}  pred={pred}")
 
-    for mode in ABLATION_MODES:
-        print(f"\n{'='*60}")
-        print(f"ABLATION MODE: {mode.upper()}")
-        print(f"{'='*60}")
-        preds = []
+    return preds
 
-        for _, row in gold_df.iterrows():
-            variant = row["variant"]
-            disease = row.get("disease", "HHT")
-            gold = normalize(row["gold_classification_short"])
 
-            print(f"\n  [{mode}] {variant}...")
-            try:
-                scoring = run_pipeline_ablation(variant, disease, mode)
-                pred = normalize(scoring.get("classification", "ERROR"))
-            except Exception as e:
-                print(f"  ERROR: {e}")
-                pred = "ERROR"
-
-            preds.append({"variant": variant, "gold": gold, "pred": pred})
-            print(f"  gold={gold}  pred={pred}")
-
-        all_results[mode] = preds
-
-    # save raw results
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    raw_path = Path(output_dir) / f"ablation_raw_{timestamp}.json"
-    with open(raw_path, "w") as f:
-        json.dump(all_results, f, indent=2)
-    print(f"\nRaw results saved to {raw_path}")
-
-    # print comparison table
+def print_summary_table(all_results: dict) -> dict:
     print(f"\n{'='*60}")
     print("ABLATION STUDY RESULTS")
     print(f"{'='*60}")
@@ -241,6 +226,8 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
 
     summary = {}
     for mode in ABLATION_MODES:
+        if mode not in all_results:
+            continue
         preds = all_results[mode]
         y_true = [p["gold"] for p in preds]
         y_pred = [p["pred"] for p in preds]
@@ -259,9 +246,55 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
         else:
             print(f"{mode:<12} {'ALL FAILED':>52}")
 
-    summary_path = Path(output_dir) / f"ablation_summary_{timestamp}.json"
+    return summary
+
+
+def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: str,
+                              modes: list = None, run_id: str = None):
+    """
+    Runs one or more ablation modes and saves results.
+
+    If `modes` is a single mode (list of length 1), this saves a per-mode raw
+    JSON file (ablation_raw_<mode>_<run_id>.json) instead of the combined
+    summary table, so that separate invocations (one per mode) can later be
+    merged with merge_ablation_results.py.
+    """
+    modes = modes or ABLATION_MODES
+    gold_df = load_gold_df(gold_csv_path)
+
+    if variant_ids:
+        gold_df = gold_df[gold_df["variation_id"].isin(variant_ids)].reset_index(drop=True)
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    run_id = run_id or datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    all_results = {}
+    for mode in modes:
+        all_results[mode] = run_single_mode(gold_df, mode)
+
+    if len(modes) < len(ABLATION_MODES):
+        # Partial run (single mode, run individually) — save a per-mode file
+        # for later merging, and skip the combined summary table/JSON.
+        mode = modes[0]
+        raw_path = Path(output_dir) / f"ablation_raw_{mode}_{run_id}.json"
+        with open(raw_path, "w") as f:
+            json.dump(all_results, f, indent=2)
+        print(f"\nRaw results for mode '{mode}' saved to {raw_path}")
+        print(f"Run ID: {run_id}  (use this with merge_ablation_results.py once all 4 modes are done)")
+        return
+
+    # Full run (all modes in one process) — original combined behavior.
+    raw_path = Path(output_dir) / f"ablation_raw_{run_id}.json"
+    with open(raw_path, "w") as f:
+        json.dump(all_results, f, indent=2)
+    print(f"\nRaw results saved to {raw_path}")
+
+    summary = print_summary_table(all_results)
+
+    summary_path = Path(output_dir) / f"ablation_summary_{run_id}.json"
     with open(summary_path, "w") as f:
-        json.dump({"timestamp": timestamp, "modes": summary}, f, indent=2)
+        json.dump({"timestamp": run_id, "modes": summary}, f, indent=2)
     print(f"\nSummary saved to {summary_path}")
 
 
@@ -273,6 +306,13 @@ def main():
     parser.add_argument("--variation_ids", type=str, default=None,
                         help="Comma-separated variation IDs to test (default: all)")
     parser.add_argument("--output_dir", type=str, default="evaluation/outputs")
+    parser.add_argument("--mode", type=str, default=None, choices=ABLATION_MODES,
+                        help="Run only this single ablation mode (for splitting the "
+                             "study into separate invocations). Default: run all 4 modes.")
+    parser.add_argument("--run_id", type=str, default=None,
+                        help="Shared run identifier so per-mode outputs from separate "
+                             "invocations can be merged later. If omitted, one is generated "
+                             "(print it down and reuse it for the other 3 modes).")
     args = parser.parse_args()
 
     variant_ids = None
@@ -283,6 +323,8 @@ def main():
         gold_csv_path=args.gold_answer_csv_filename,
         variant_ids=variant_ids,
         output_dir=args.output_dir,
+        modes=[args.mode] if args.mode else None,
+        run_id=args.run_id,
     )
 
 

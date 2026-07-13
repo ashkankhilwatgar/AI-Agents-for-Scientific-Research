@@ -1,0 +1,1004 @@
+{
+  "full": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.293A>G",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.139C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1145G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1517T>A",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1447G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1268A>G",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1319T>G",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.137G>C",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1807G>A",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1762G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1645T>G",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1633G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1586G>A",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.991G>A",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.662T>C",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1711C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.572G>A",
+      "gold": "B",
+      "pred": "B"
+    },
+    {
+      "variant": "NM_001114753.3:c.392C>T",
+      "gold": "B",
+      "pred": "B"
+    },
+    {
+      "variant": "NM_001114753.3:c.2T>G",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1316A>C",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1844C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1510G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1701del",
+      "gold": "P",
+      "pred": "P"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-3C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1961C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1160T>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.-9G>A",
+      "gold": "VUS",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_000020.3:c.1232G>A",
+      "gold": "P",
+      "pred": "P"
+    },
+    {
+      "variant": "NM_000020.3:c.500C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.917C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1445C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_000020.3:c.1348A>G",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.88C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.652C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_000020.3:c.706G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1377+4A>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.982C>T",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.998G>T",
+      "gold": "P",
+      "pred": "P"
+    },
+    {
+      "variant": "NM_000020.3:c.113G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1217G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1468C>T",
+      "gold": "P",
+      "pred": "P"
+    },
+    {
+      "variant": "NM_001278138.2:c.270+3G>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001077401.2:c.442_444del",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001077401.2:c.620del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.447G>C",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.144_145dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1390del",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.651G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.520C>T",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1121G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.593T>A",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.602A>G",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1388del",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1470_1471insC",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1450delinsTG",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.981del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.496C>T",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.200G>C",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1479_1485del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.235del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.872_873del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1665_1671dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1505del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.653_654inv",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+2T>C",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.15del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.360C>G",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.788A>G",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1228del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1513del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1096del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1435C>T",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+296_578del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.7dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1630dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1184G>A",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.174del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1157del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.281_282del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1427dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1280A>T",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.904del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.100dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1103T>C",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1450C>T",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1204G>A",
+      "gold": "P",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.774del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.112G>T",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.493C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.590G>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1852+21C>T",
+      "gold": "VUS",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1209T>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1247-7T>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1429-13C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1547G>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.915G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.103G>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1134+2dup",
+      "gold": "VUS",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.61C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.730C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1748C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1134+6G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1600C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-13C>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1570C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.185T>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-3C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.182G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.475G>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-3C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1711C>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1271A>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.817-3T>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.457A>G",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.712G>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.32C>T",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.946G>A",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1471G>C",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.988G>C",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1362del",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1195T>C",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1460A>C",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1359_1360delinsT",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1240A>G",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.148T>C",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.985_991+8del",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.852_853del",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.404del",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.263dup",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.526-7C>G",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1120C>T",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.199C>T",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.200G>A",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.818T>C",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.772G>A",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.1055C>A",
+      "gold": "LP",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_000020.3:c.632G>A",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_000020.3:c.1135G>A",
+      "gold": "LP",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1687-13C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1272+10G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.687C>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1536C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.720G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-4C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.220-9G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.579G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1527C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1311+13G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1135-18C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.702G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1022T>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-20G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.998G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1395C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1401C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.224C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1215G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.689+11C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1428+10A>G",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1272+10G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1230C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.699G>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.21T>C",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.220-11G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.361-8C>G",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1680A>G",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.105G>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.669C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.689+21_689+22del",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.992-9A>G",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.213C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1344C>G",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.524-19G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1500G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1023C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.816+19C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1742-12G>A",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1746C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.523+18C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.462C>A",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.524-8C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.404C>A",
+      "gold": "B",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.1509C>T",
+      "gold": "LB",
+      "pred": "LB"
+    },
+    {
+      "variant": "NM_001114753.3:c.1526G>C",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.439C>T",
+      "gold": "LB",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.107del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.942del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.1665del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.229_230del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.747dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.768_774del",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.617dup",
+      "gold": "P",
+      "pred": "P"
+    },
+    {
+      "variant": "NM_001114753.3:c.1684dup",
+      "gold": "P",
+      "pred": "LP"
+    },
+    {
+      "variant": "NM_001114753.3:c.835_837del",
+      "gold": "VUS",
+      "pred": "VUS"
+    },
+    {
+      "variant": "NM_001114753.3:c.754_756del",
+      "gold": "P",
+      "pred": "VUS"
+    }
+  ]
+}
