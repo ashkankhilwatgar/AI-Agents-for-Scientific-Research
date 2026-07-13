@@ -86,12 +86,13 @@ class TaskInterpretation(BaseModel):
 
     applies: bool = Field(
         description="""Whether the criterion applies based on the evidence. Must be a real boolean,
-        not a string"""
+        not a string. If the status is error, set applies to false."""
     )
 
     applied_strength: StrengthNote | None = Field(
         description=""""Strength level for the criterion if it applies. 
-        Use None when the criterion does not apply."""
+        Use None when the criterion does not apply. If the status is error, 
+        set applied_strength to None."""
     )
 
     status: Literal["complete", "error"] = Field(

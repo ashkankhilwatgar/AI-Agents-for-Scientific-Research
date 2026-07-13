@@ -110,7 +110,8 @@ The following are NOT reasoning errors — do not flag these:
 - PS4 tool_used field showing "clinvar" even when the underlying evidence came from ERepo, LOVD, or PubMed.
   The "clinvar" tool internally runs a ClinVar → ERepo → LOVD → PubMed fallback chain for PS4.
   tool_used="clinvar" is always the correct value for PS4 regardless of which fallback source
-  provided the proband count. Do NOT ask the task agent to change tool_used to "lovd" or "erepo".
+  provided the proband count. Do NOT ask the task agent to change tool_used to "lovd" or "erepo". Doing so is BAD 
+  and unacceptable.
 - A criterion applying at a lower strength than the maximum possible (e.g. PS4_Supporting instead of PS4_Strong)
   is valid if the proband count supports it.
 - CRITICAL — "applies" and "applied_strength" are two SEPARATE, INDEPENDENT fields:
@@ -141,7 +142,7 @@ Task output:
 You should follow the output schema
 
 Some important rules: 
-- The pass_ field is True when there are no reasoning errors, and False otherwise.
+- The past field is True when there are no reasoning errors, and False otherwise.
 - The error_type field must explain why the pass_ field is True or False.
 - If the output does not pass, the feedback field must contain guidance for the downstream task agent on how to fix the error.
 """

@@ -1,13 +1,6 @@
-from agents.task_agent import run_task
+import agents.task_agent as task_agent
 
-
-if __name__ == "__main__":
-    task = {
-        "criterion": "PM2_SUPPORTING",
-        "variant": "NM_000020.3:c.557G>T",
-        "disease": "HHT",
-        "tool": "gnomad",
-        "instructions": (
+PLANRAG_INSTRUCTIONS = (
             "Query gnomAD for the variant. Retrieve total allele count (AC) and per-subpopulation allele frequencies.\n"
             "Do NOT use Popmax FAF for this criterion — PM2 uses raw AC and subpopulation AF only.\n"
             "\n"
@@ -24,14 +17,103 @@ if __name__ == "__main__":
             "  - ALL subpopulation AFs >= 0.00004 → PM2_Supporting does NOT apply. Set applies=false.\n"
             "\n"
             "Record in evidence: which step triggered the decision and the exact values used."
-        ),
-        "hht_modification": "Supporting strength only; threshold: <6 total alleles in gnomAD OR <0.00004 in any subpopulation",
-        "strength_override": "supporting",
+        )
+
+def test_run_task(monkeypatch):
+    """
+    Regression test: when tool_result returns an error, run_task should:
+
+    1. Avoid sending failed evidence to interpret_evidence.
+    2. Run the tool again
+    """
+
+    task = {
+        "criterion": "PM2_SUPPORTING",
+        "variant": "NM_000020.3:c.557G>T",
+        "disease": "HHT",
+        "tool": "gnomad",
+        "instructions": PLANRAG_INSTRUCTIONS
     }
-    result = run_task(
-        task=task,
-        tool_results=None,
+
+    tool_results = {"gnomad": {"evidence": {"error": f"ClinVar search failed after ..."}, "actual_input": "actual_input"}}
+
+    def fake_select_tool(
+            criterion, 
+            variant, 
+            disease = None, 
+            feedback = None
+    ):
+        return {
+            "tool": "gnomad",
+            "description": "planrag specifies that we should use this tool"
+        }
+    
+    monkeypatch.setattr(
+        task_agent,
+        "select_tool",
+        fake_select_tool
+    )
+
+    run_tool_calls = []
+
+    fake_actual_input = "NM_000020.3:c.557G>T"
+    fake_evidence = "This is fake evidence"
+    
+    def fake_run_tool(
+        tool_decision: dict, 
+        variant: str, 
+        rag_entry: dict | None = None, 
+        gene: str | None = None, 
+        disease: str | None = None
+    ):
+        run_tool_calls.append(
+            {
+                "tool_decision": "gnomad",
+            }
+        )
+        return fake_evidence, fake_actual_input
+    
+    monkeypatch.setattr(
+        task_agent,
+        "run_tool",
+        fake_run_tool
+    )
+
+    def fake_interpret_evidence(
+        criterion: str,
+        variant: str,
+        disease: str,
+        tool_used: str,
+        tool_input: str,
+        evidence: dict,
+        rag_entry: dict | None = None,
+        feedback: str | None = None,
+        variant_type: str | None = None  
+    ):
+        return {
+            "evidence": fake_evidence,
+            "reasoning": "fake_reasoning",
+            "applies": True,
+            "applied_strength": "MODERATE",
+            "status": "complete"
+        }
+    
+    monkeypatch.setattr(
+        task_agent,
+        "interpret_evidence",
+        fake_interpret_evidence
+    )
+
+    result, tool_cache_update = task_agent.run_task(
+        task = task,
+        tool_results=tool_results,
         gene_symbol=None
     )
 
-    print(result)
+    assert len(run_tool_calls) == 1
+    assert tool_cache_update == {
+        "gnomad": {
+            "evidence": fake_evidence,
+            "actual_input": fake_actual_input
+        }
+    }

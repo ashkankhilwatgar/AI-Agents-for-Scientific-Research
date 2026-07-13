@@ -248,3 +248,6 @@ python -m evaluation.question1 --gold_answer_csv_filename applied_only_evaluatio
 7/10 Simon
 
 Continue doing case study + cleaning up the file sturcture. See my case studies at case_studies/jul_10/case_study_summary.md
+
+7/13 SIMON
+IMPORVE THE TOOL RESULT CACHING SO THAT IF IN THE PREVIOUS PHASE THE TOOL RESULT IS "ERROR" IN CURRENT PHASE WE WILL RUN THE TOOL AGAIN INSTEAD OF BLINDLY USE THE "ERROR" RESULT. ALSO DID A CASE STDUY ON PS3 & BS3 (SEE case_studies/jul_13/bs3_ps3_case_study.ipynb)\

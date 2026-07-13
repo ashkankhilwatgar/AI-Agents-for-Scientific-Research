@@ -1043,13 +1043,16 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
             "status": "error",
             "error": tool_decision["error"],
         }, tool_cache_update
+    
+    selected_tool = tool_decision["tool"]
+    cached_result = tool_results.get(selected_tool) if tool_results else None
 
-    if tool_results is not None and tool_decision["tool"] in tool_results:
-        evidence = tool_results[tool_decision["tool"]]["evidence"]
-        actual_input = tool_results[tool_decision["tool"]]["actual_input"]
+    if cached_result and "error" not in cached_result.get("evidence", {}):
+        evidence = cached_result["evidence"]
+        actual_input = cached_result["actual_input"]
     else: 
         evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
-        tool_cache_update[tool_decision["tool"]] = {"evidence": evidence, "actual_input" : actual_input}
+        tool_cache_update[selected_tool] = {"evidence": evidence, "actual_input" : actual_input}
 
     if "error" in evidence:
         return {

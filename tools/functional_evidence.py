@@ -16,6 +16,8 @@ import re
 import urllib.request
 from agents.llm.llm import invoke_llm
 from config import MODELS
+from pprint import pprint
+import re
 
 
 
@@ -616,9 +618,137 @@ def build_variant_label(vi: VariantInfo) -> str:
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
     )
 
-# =============================================================================
-# LitVar2 
-# =============================================================================
+# def restore_hgvs_notation(variant: str) -> str:
+#     """
+#     Convert a filename-safe variant name back to HGVS notation.
+
+#     Example:
+#         NM_000020_3_c_1445C_T -> NM_000020.3:c.1445C>T
+#     """
+#     pattern = re.compile(
+#         r"^(?P<accession>[A-Z]+_\d+)_"  # NM_000020_
+#         r"(?P<version>\d+)_"            # 3_
+#         r"(?P<sequence_type>[cgnmpr])_" # c_
+#         r"(?P<position>.+?)_"           # 1445C_
+#         r"(?P<alternate>[A-Za-z*]+)$"   # T
+#     )
+
+#     match = pattern.fullmatch(variant.strip())
+
+#     if match is None:
+#         raise ValueError(f"Unsupported variant format: {variant!r}")
+
+#     return (
+#         f"{match.group('accession')}.{match.group('version')}:"
+#         f"{match.group('sequence_type')}."
+#         f"{match.group('position')}>{match.group('alternate')}"
+#     )
+
+# # =============================================================================
+# # Literature Query Functions 
+# # =============================================================================
+
+# def query_pubtator(vi: VariantInfo) -> set[str]:
+#     """
+#     Query pubTator using hvgs variant name.
+#     Returns a set of all unique PMIDs found.
+#     """
+#     endpoint = "https://www.ncbi.nlm.nih.gov/research/pubtator3-api/search/"
+#     pmids = set()
+#     page = 1
+
+#     print("+++++++++++++++++++++++++++++++++++++++")
+#     print("varinat:", vi.name)
+#     print("+++++++++++++++++++++++++++++++++++++++")
+
+#     try:
+#         while True:
+#             response = requests.get(
+#                 endpoint,
+#                 params={
+#                     "text": restore_hgvs_notation(vi.name),
+#                     "page": 1
+#                 },
+#                 timeout=30
+#             )
+
+#             if not response.ok:
+#                 return set()
+
+#             data = response.json()
+#             results = data.get("results")
+
+#             if not isinstance(results, list):
+#                 return set()
+            
+#             for result in results:
+#                 pmid = result.get("PMID") or result.get("PMID")
+#                 if pmid is not None:
+#                     pmids.add(str(pmid))
+
+            
+#             total_pages = int(data.get("total_pages", 1))
+#             if page >= total_pages:
+#                 break
+        
+#         return pmids
+            
+#     except Exception as e:
+#         return set()
+    
+# def query_pubmed_Esearch(vi: VariantInfo) -> set:
+#     """
+#     Query pubTator using hvgs variant name.
+#     Returns a set of all unique PMIDs found.
+#     """
+#     endpoint = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+#     pmids = set()
+
+#     try:
+#         resp = requests.get(
+#             endpoint,
+#             params={
+#                 "db": "pubmed",
+#                 "term": restore_hgvs_notation(vi.name),
+#                 "retmode": "json",
+#                 "retmax": 10_000
+#             }
+#         )
+
+#         data = resp.json()
+
+#         if isinstance(data, dict):
+#             idlist = data.get("esearchresult", {}).get("idlist", [])
+#             if idlist and isinstance(idlist, list):
+#                 for pmid in idlist:
+#                     pmids.add(str(pmid))
+        
+#         return pmids
+    
+#     except Exception as e:
+#         return set()
+
+def query_litvar2(vi: VariantInfo) -> Set[str]:
+    """
+    Query LitVar2 using rsid only.
+    Returns a set of all unique PMIDs found.
+    
+    Raises SystemExit if rsid is not available.
+    """
+    # Validate rsid exists. LitVar2 can only be queried by rsID; when a variant
+    # has none (common for indels/frameshifts), there is simply no functional
+    # literature to retrieve. Return an empty set so PS3/BS3 evaluate as
+    # "no experiments found -> not applied" (the intended convention). Do NOT
+    # sys.exit() here: this runs inside a LangGraph worker thread, and SystemExit
+    # is not caught by `except Exception`, so it silently kills the whole
+    # (batch) process instead of failing just this one criterion.
+    rsid = vi.rsid
+    if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
+        print(f"No RSID available for the variant {vi.name}")
+        return set()
+
+    pmids = query_litvar2_publications(rsid)
+    return pmids
 
 FETCHER = PubMedFetcher()
 
@@ -682,29 +812,6 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
     except Exception as e:
         # print(f"   Warning: LitVar2 query failed for '{variant_id}': {e}")
         return set()
-
-
-def query_litvar2(vi: VariantInfo) -> Set[str]:
-    """
-    Query LitVar2 using rsid only.
-    Returns a set of all unique PMIDs found.
-    
-    Raises SystemExit if rsid is not available.
-    """
-    # Validate rsid exists. LitVar2 can only be queried by rsID; when a variant
-    # has none (common for indels/frameshifts), there is simply no functional
-    # literature to retrieve. Return an empty set so PS3/BS3 evaluate as
-    # "no experiments found -> not applied" (the intended convention). Do NOT
-    # sys.exit() here: this runs inside a LangGraph worker thread, and SystemExit
-    # is not caught by `except Exception`, so it silently kills the whole
-    # (batch) process instead of failing just this one criterion.
-    rsid = vi.rsid
-    if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
-        return set()
-
-    pmids = query_litvar2_publications(rsid)
-    return pmids
-
 
 def pubmed_fetch_details(pmids: List[str]) -> Dict[str, CandidatePaper]:
     """
@@ -1380,6 +1487,11 @@ def analyze_variant(
     # 2. Query LitVar2 for PMIDs
     # print("Step 2: Querying LitVar2 for publications...")
     pmids = query_litvar2(vi)
+
+    # if not pmids:
+    #     pmids = query_pubtator(vi)
+    #     if not pmids:
+    #         pmids = query_pubmed_Esearch(vi)
     # print(f"   Total unique PMIDs from LitVar2: {len(pmids)}")
 
     # 3. Fetch paper details from PubMed via metapub

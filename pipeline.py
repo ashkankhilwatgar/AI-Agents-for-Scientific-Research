@@ -669,7 +669,7 @@ def save_results(
     variant: str,
     disease: str,
     results: list[dict],
-    scoring_result: dict = None,
+    scoring_result: dict | None = None,
     output_dir: str = "outputs",
     timestamped: bool = True,
 ) -> str:
@@ -714,8 +714,8 @@ def save_results(
 
 def run_batch(
     csv_path: str,
-    output_dir: str = None,
-    disease_default: str = None,
+    output_dir: str | None = None,
+    disease_default: str | None = None,
     variant_col: str = "hgvs_cdna",
     disease_col: str = "condition",
 ) -> str:

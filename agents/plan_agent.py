@@ -142,6 +142,14 @@ def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None
     """
     Main entry point called by pipeline.py.
     Returns a list of task dicts for the Task agent to execute.
+
+    task = {
+            "criterion": criterion,
+            "variant": variant,
+            "disease": disease,
+            "tool": rag_entry["tool"],
+            "instructions": rag_entry["instructions"],
+        }
     """
     print(f"PLAN AGENT: Building task list for {variant} / {disease}")
     tasks = build_task_list(variant, disease, criteria, gene_symbol)

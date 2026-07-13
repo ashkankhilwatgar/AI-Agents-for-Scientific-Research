@@ -85,11 +85,21 @@ def parse_criteria_list(raw_value) -> set:
         return set()
 
     return {
-        normalize_criterion_name(token)
+        remove_strength(normalize_criterion_name(token))
         for token in raw_value.split(";")
         if token.strip()
     }
 
+def remove_strength(criterion: str) -> str:
+    """Remove the strength suffix of a criterion.
+
+    Args:
+        criterion: A criterion label such as "BS3_MODERATE"
+
+    Returns:
+        The criterion name without the strength suffix, such as "BS3"
+    """
+    return criterion.split("_")[0].strip()
 
 # ========================================================
 # HELPERS TO LOAD GOLD ANSWERS AND PIPELINE PREDICTIONS
