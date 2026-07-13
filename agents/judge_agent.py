@@ -35,34 +35,10 @@ def _log_attempt(agent: str, criterion: str, variant: str, attempt: int, result:
     except Exception:
         pass
 
-# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
-
-
-# def call_ollama(prompt: str) -> str:
-#     payload = {
-#         "model": MODELS["judge"],
-#         "prompt": prompt,
-#         "stream": False,
-#         "keep_alive": -1,
-#         "options": {
-#             "temperature": 0,
-#             "num_predict": 2048
-#         }
-#     }
-#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-#     response.raise_for_status()
-#     return response.json()["response"]
-
-# def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-#     return invoke_llm("judge_agent", prompt)
 
 def call_judge_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     """
     Invoke the task LLM and return its response as a structured Pydantic object.
-
-    The output_schema defines the expected response shape. Because
-    with_structured_output() is used, the returned value is an instance of that
-    schema, not a raw chat message and not response.content.
     """
     llm = create_llm(
         model=MODELS["judge"]["model"],
@@ -71,14 +47,76 @@ def call_judge_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     )
     structured_llm = llm.with_structured_output(output_schema)
     response = structured_llm.invoke([{"role": "user", "content": prompt}])
-    
     return response
+
+
+# ── Criterion-specific guardrails ─────────────────────────────────────────────
+# Injected into every Judge prompt to prevent hallucinated rejection reasons.
+# Each entry contains rules that are EXPLICITLY prohibited from being flagged.
+CRITERION_GUARDRAILS = {
+    "PS4": """
+PS4 GUARDRAIL (HHT VCEP):
+PS4 evidence source for HHT VCEP is PubMed case reports, ClinVar, ERepo, or LOVD.
+The pipeline runs a ClinVar → ERepo → LOVD → PubMed fallback chain internally.
+tool_used="clinvar" is always the correct value for PS4 regardless of which source provided the proband count.
+
+Valid rejection reasons for PS4:
+  1. Proband count was miscounted from the retrieved evidence
+  2. PM2_Supporting precondition was not checked
+  3. Duplicate patients were not excluded
+  4. The applies field contradicts the proband count
+
+DO NOT reject PS4 for any of the following:
+  - Missing ERepo queries (already handled internally by the fallback chain)
+  - Missing LOVD queries (already handled internally by the fallback chain)
+  - tool_used being "clinvar" instead of "erepo" or "lovd" — do NOT ask the task agent to change tool_used
+  - PubMed being the only source cited — this is valid when ERepo/LOVD/ClinVar returned no results
+  - Evidence mentioning an alternate molecular basis or BP5 language — that is a separate criterion
+If the Task agent found probands and counted them correctly, the output is CORRECT.
+""",
+    "PM2_SUPPORTING": """
+PM2_SUPPORTING GUARDRAIL (HHT VCEP):
+Threshold is <6 total alleles in gnomAD OR <0.00004 (0.004%) in any gnomAD subpopulation.
+DO NOT apply the generic ACMG threshold of AF < 0.001 — that is wrong for HHT VCEP.
+If variant is absent from gnomAD entirely, PM2_Supporting APPLIES (applies=true).
+DO NOT flag as error if the Task agent correctly concludes PM2_Supporting applies for a rare/absent variant.
+""",
+    "BA1": """
+BA1 GUARDRAIL (HHT VCEP):
+BA1 applies ONLY when Popmax FAF >= 0.01 (1%).
+A LOW frequency means BA1 does NOT apply — applies=false is the CORRECT result for rare variants.
+DO NOT flag as error if the Task agent correctly concludes BA1 does not apply for a rare variant.
+""",
+    "BS1": """
+BS1 GUARDRAIL (HHT VCEP):
+BS1_Strong: Popmax FAF > 0.002 and < 0.01
+BS1_Supporting: Popmax FAF > 0.0008 and <= 0.002
+DO NOT use the generic ACMG BS1 threshold. Only flag if the threshold comparison itself is wrong.
+""",
+    "BP4": """
+BP4 GUARDRAIL (HHT VCEP):
+For missense variants: REVEL <= 0.15 AND SpliceAI <= 0.1 — BOTH required (AND logic, not OR).
+For synonymous/intronic: SpliceAI <= 0.1 only.
+DO NOT reject if the Task agent correctly applied AND logic for missense.
+DO NOT require REVEL for synonymous/intronic variants.
+""",
+    "PP3": """
+PP3 GUARDRAIL (HHT VCEP):
+For missense variants: REVEL >= 0.644 OR SpliceAI >= 0.2 — OR logic, either one alone is sufficient.
+For synonymous/intronic: SpliceAI >= 0.2 only.
+DO NOT reject if the Task agent correctly applied OR logic for missense.
+DO NOT require both REVEL and SpliceAI to both meet threshold for PP3 to apply.
+""",
+}
+
 
 def check_reasoning(task_output: dict, rag_entry: dict | None = None) -> dict:
     """
     Evaluates Task agent output for reasoning errors.
     Returns a pass/fail dict with feedback if failed.
     """
+    criterion = task_output.get("criterion", "")
+
     rag_context = ""
     if rag_entry:
         rag_context = f"""
@@ -87,12 +125,16 @@ The following classification rules apply to this criterion:
 Use these rules as the ground truth when evaluating whether the applies field is correct.
 """
 
+    # inject criterion-specific guardrail if one exists
+    guardrail = CRITERION_GUARDRAILS.get(criterion, "")
+    guardrail_block = f"\nCRITERION-SPECIFIC RULES (these override general reasoning rules):\n{guardrail}" if guardrail else ""
+
     prompt = f"""You are a reasoning validator for a variant classification pipeline.
 You are an expert bioinformatician with deep knowledge of ACMG variant classification criteria.
 
 You will be given the output of a variant classification task. Your job is to check
 for reasoning errors only — not technical issues.
-{rag_context}
+{rag_context}{guardrail_block}
 Reasoning errors include:
 - The wrong tool was used for the criterion being evaluated
   (e.g. using ClinVar instead of gnomAD for a population frequency criterion like PM2)
@@ -147,8 +189,6 @@ Some important rules:
 - If the output does not pass, the feedback field must contain guidance for the downstream task agent on how to fix the error.
 """
     result = call_judge_agent(prompt, CheckReasoningResult).model_dump()
-
-    # raw = call_ollama(prompt)
     return result
 
 
@@ -158,21 +198,19 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
     Receives validated task output from Debug agent.
     Checks reasoning, retries Task agent only if reasoning error found.
 
+    On retry limit exhaustion, returns the last complete output rather than
+    nulling everything — preserving partial evidence is better than applies=None.
+
     gene_symbol should be the pipeline's VEP/NCBI-resolved gene (the same value
     passed into run_debug). get_gene_from_transcript() below is a transcript→
     GENE_DB lookup that is currently unpopulated (GENE_DB entries have no
     "transcripts" list) and always returns None — it is kept only as a
     secondary check in case GENE_DB is populated in the future, and must never
-    be the sole source of gene resolution here. Without gene_symbol threaded
-    through, the Judge would evaluate reasoning against gene-agnostic/generic
-    rules even when the Task agent correctly applied gene-specific HHT VCEP
-    rules, causing false-positive reasoning errors that no retry can resolve.
+    be the sole source of gene resolution here.
     """
     criterion = task.get("criterion")
     variant = task.get("variant", "")
 
-    # Prefer the pipeline-resolved gene_symbol; fall back to the transcript
-    # lookup only if it's not provided (e.g. direct/legacy callers).
     gene = gene_symbol
     if not gene and variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
@@ -180,9 +218,12 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
     disease = task.get("disease")
     rag_entry = query(criterion, gene=gene, disease=disease)
 
-    # if rag_entry is None:
-    #     print(f"JUDGE AGENT: No PlanRAG entry found for {criterion}, proceeding without rules context")
     tool_cache_update = {}
+
+    # track best complete output across all attempts — used if retry limit is hit
+    last_complete_output = None
+    if task_output.get("status") == "complete" and task_output.get("applies") is not None:
+        last_complete_output = task_output
 
     while retry_count < RETRY_LIMIT:
         result = check_reasoning(task_output, rag_entry)
@@ -191,11 +232,13 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         if result["passed"]:
             return task_output, tool_cache_update
 
-        # print(f"JUDGE AGENT: Reasoning error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
-        # print(f"Feedback: {result['feedback']}")
-
         # get new output from Task agent with correction feedback
         task_output, tool_cache_update = run_task(task, gene_symbol=gene, tool_results=tool_result, feedback=result["feedback"])
+
+        # update best complete output after each retry
+        if task_output.get("status") == "complete" and task_output.get("applies") is not None:
+            last_complete_output = task_output
+
         retry_count += 1
 
     # check the final retry output before giving up
@@ -203,6 +246,21 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
     _log_attempt("judge", criterion, variant, retry_count, result, task_output)
     if result["passed"]:
         return task_output, tool_cache_update
+
+    # update last_complete_output one final time
+    if task_output.get("status") == "complete" and task_output.get("applies") is not None:
+        last_complete_output = task_output
+
+    # return last complete output rather than nulling everything —
+    # a flagged-but-complete result is better than applies=None causing LP→VUS
+    if last_complete_output is not None:
+        print(f"JUDGE AGENT: Retry limit hit for {criterion} — returning last complete output "
+              f"(applies={last_complete_output.get('applies')}) with warning flag")
+        last_complete_output["judge_warning"] = (
+            f"Judge agent exceeded retry limit ({RETRY_LIMIT}); "
+            f"output returned as-is with unresolved reasoning concerns"
+        )
+        return last_complete_output, tool_cache_update
 
     return {
         "criterion": task.get("criterion"),
@@ -215,34 +273,3 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         "status": "error",
         "error": f"Judge agent exceeded retry limit ({RETRY_LIMIT}) without resolving reasoning error"
     }, tool_cache_update
-
-
-# if __name__ == "__main__":
-
-#     DEMO_TASK = {
-#         "criterion": "PM2_SUPPORTING",
-#         "variant": "NM_000020.3:c.557G>T",
-#         "disease": "HHT",
-#         "tool": "gnomad"
-#     }
-
-#     # -------------------------------------------------------------------------
-#     # TEST 1: Clean output — Judge agent should pass it through without retrying
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 1: Clean output — expect pass=true, no retry")
-#     print("="*60)
-
-#     clean_output = {
-#         "criterion": "PM2_SUPPORTING",
-#         "evidence": "Exome AC: 1, AN: 1461514, AF: 6.842e-07",
-#         "reasoning": "Total allele count is 1 which is less than 6, PM2_Supporting applies",
-#         "applies": True,
-#         "tool_used": "gnomad",
-#         "tool_input": "12-51914005-G-T",
-#         "disease": "HHT",
-#         "status": "complete"
-#     }
-
-#     result = run_judge(DEMO_TASK, clean_output)
-#     print(json.dumps(result, indent=2))
