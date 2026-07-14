@@ -1,11 +1,12 @@
 from tools.functional_evidence import analyze_variant
-from tools.functional_evidence import query_pubtator
+from pprint import pprint
+
 
 def main():
-    variant = "NM_022168.4:c.1641+1G>C"
+    variant = "NM_001114753.3:c.1844C>T"
     results = analyze_variant(variant=variant)
-    for result in results["experiments"]:
-        print(result)
+    
+
 
 
 

@@ -14,10 +14,11 @@ import json
 # from langchain_google_genai import ChatGoogleGenerativeAI
 import re
 import urllib.request
-from agents.llm.llm import invoke_llm
+from agents.llm.llm import create_llm, invoke_llm
 from config import MODELS
 from pprint import pprint
 import re
+from langchain_core.messages import HumanMessage, SystemMessage
 
 
 
@@ -26,73 +27,195 @@ import re
 # System Prompts
 # =============================================================================
 ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT = """
-You are a clinical variant interpretation curator performing an abstract-level screen for ACMG/AMP PS3/BS3 relevance.
+You are a clinical variant interpretation curator performing a high-sensitivity, abstract-level screen for papers that contain variant functional experiments.
 
-Goal
-Decide ONLY whether the abstract contains ANY experimental (wet-lab) functional evidence about the effect of one or more genetic variants/mutations/alleles/mutants on gene product function (protein or RNA) or a disease-relevant functional pathway/output.
+CRITICAL SCOPE RULE
 
-Output
-Return ONLY: is_functional = true or false, and a brief justification.
+The unit being classified is the PAPER OR ABSTRACT AS A WHOLE.
+You are NOT deciding whether the paper contains functional evidence for a particular query variant.
+A target variant may be supplied elsewhere in the input for retrieval purposes. Ignore that target variant when assigning `is_functional`.
+Do not compare the variants tested in the abstract with the query variant.
+Return `is_functional = true` when the abstract reports a qualifying functional experiment for ANY genetic variant, mutation, allele, or mutant, even when:
+- the query variant is not tested;
+- the query variant is not mentioned;
+- only other variants are tested;
+- the specific variant identities are not given;
+- the paper would not provide direct PS3 or BS3 evidence for the query variant.
+Never return `is_functional = false` solely because the target or query variant is absent from the experiments.
 
-Bias / sensitivity requirement (important)
-This screen is intentionally high-sensitivity. If there is reasonable doubt, classify as true so the paper can be reviewed downstream.
-Default to true whenever BOTH (i) variant/mutant language and (ii) any wet-lab functional assay signal are present, even if details are sparse.
+GOAL
 
-Classify is_functional = true if the abstract shows BOTH:
+Decide only whether the abstract contains ANY experimental wet-lab functional evidence about the effect of one or more genetic variants, mutations, alleles, or mutants on:
+- protein function or behavior;
+- RNA function or processing; or
+- a disease-relevant cellular pathway or functional output.
+This is a paper-level retrieval screen. It is not the downstream variant-matching or PS3/BS3 application step.
 
-A) Variant-or-mutant subject (broad; exact IDs NOT required)
-Any of the following counts:
-- Specific variant(s) listed (HGVS, rsID, amino-acid change, "c."/"p.", etc.)
-- "patient mutations/variants", "disease-causing mutations", "mutant alleles", "allelic series"
-- "mutant constructs", "site-directed mutants", "missense mutants", "variant panel", "mutagenesis"
-- Engineered or edited variant models (knock-in, CRISPR-introduced variant, engineered mutant protein)
-- Patient-derived samples where the abstract links results to the mutation(s) (even broadly)
+OUTPUT
 
-AND
+Return only:
+is_functional = true or false
+and a brief justification describing the experimental assay and outcome.
+Do not discuss whether the query variant was tested unless necessary to clarify that this does not affect the paper-level classification.
 
-B) Wet-lab functional assay + outcome statement
-There is an experimental functional readout and the abstract states an outcome for the variant(s), including qualitative direction.
-Examples of outcome language: reduced/abolished/impaired, increased/gain, altered, disrupted, restored/rescued, mislocalized, unstable, no difference/normal, defective splicing, NMD, truncated protein with loss of activity, etc.
+SENSITIVITY REQUIREMENT
 
-Count as functional evidence (any wet-lab) if the abstract includes one or more of:
+This screen is intentionally high-sensitivity.
+When there is reasonable doubt, return `is_functional = true` so the paper can be reviewed downstream.
+Default to true whenever the abstract contains both:
+(A). A variant or mutant subject
+and
+(B). A wet-lab functional assay with a reported outcome.
 
-1) Protein/biochemical function (in vitro or cellular)
-- Enzymatic activity/kinetics, catalytic function, substrate turnover
-- Binding/interaction/complex formation
-- Protein stability/folding/degradation/half-life
-- Localization/trafficking/secretion
-- Channel transport, receptor/signaling output, post-translational effects tied to function
+CONDITION A: VARIANT OR MUTANT SUBJECT
 
-2) Cell-based functional consequences
-- Reporter assays, pathway activity, electrophysiology, transport flux
-- Rescue/complementation (WT vs mutant; mutant fails to rescue or rescue restores)
-- Mechanistic cellular phenotypes tied to function (e.g., DNA repair capacity, metabolic function, stress sensitivity) with mutant-vs-WT comparison
+Any of the following satisfies this condition:
+- one or more specific variants, such as an HGVS name, rsID, nucleotide change, or amino-acid substitution;
+- patient mutations or variants;
+- disease-causing mutations;
+- mutant alleles;
+- an allelic series;
+- mutant constructs;
+- site-directed mutants;
+- missense mutants;
+- a variant panel;
+- mutagenesis;
+- engineered mutant proteins;
+- CRISPR-introduced or knock-in variants;
+- patient-derived samples whose experimental results are linked to mutations.
+The tested variants do not need to match any query variant.
 
-3) RNA-level functional assays attributable to a variant
-- Splicing assays (patient RNA/cDNA, RT-PCR, minigene) showing aberrant splicing
-- mRNA stability / nonsense-mediated decay (NMD) experimentally shown
-- Translation/processing efficiency when experimentally measured
+CONDITION B: WET-LAB FUNCTIONAL ASSAY AND OUTCOME
 
-4) Model systems with variant-level manipulation
-- Knock-in/engineered variant models with functional or disease-relevant phenotypes and a variant-linked readout
+The abstract must describe an experimental functional measurement and report an outcome for one or more variants or mutants.
+Qualifying outcomes include:
+- reduced, abolished, or impaired function;
+- increased activity or gain of function;
+- altered or disrupted function;
+- restored or rescued function;
+- abnormal or normal localization;
+- defective or normal trafficking;
+- increased or decreased stability;
+- degradation or altered half-life;
+- defective or normal splicing;
+- nonsense-mediated decay;
+- altered binding;
+- abnormal signaling;
+- no difference from wild type;
+- another experimentally observed effect on protein, RNA, cellular, or pathway function.
 
-5) Patient-derived functional assays (allow, even if confounded)
-- Enzyme activity, electrophysiology, pathway output, splicing defects measured in patient cells/tissue, when the abstract links findings to the mutation(s)
+QUALIFYING FUNCTIONAL EXPERIMENTS
 
-Strong "bias-to-1" tie-breakers
-Return true if ANY of the following patterns appear:
-- ("mutation/variant/mutant/allele") + a wet-lab assay keyword (activity, assay, measured, functional, reporter, localization, stability, splicing, RT-PCR, minigene, NMD, electrophysiology, rescue)
-- The abstract claims functional impact for mutations ("mutations impair function", "variants reduce activity", "mutants show defective splicing"), even without numbers.
+1. Protein or biochemical experiments
+- enzymatic activity or kinetics;
+- catalytic function;
+- substrate turnover;
+- protein binding or interaction;
+- complex formation;
+- protein folding;
+- protein stability;
+- degradation or half-life;
+- localization;
+- trafficking;
+- secretion;
+- receptor activity;
+- signaling output;
+- channel activity;
+- transport activity;
+- experimentally measured post-translational processing.
 
-Return is_functional = false ONLY when it is clearly NOT functional variant testing:
-- Purely in silico/computational prediction with no wet-lab experiment
-- Pure genetic association/segregation/case reports/phenotype-only with no functional readout
-- Gene/pathway biology experiments (KO/overexpression/mechanism) that do NOT test variants/mutant constructs
-- Expression/omics profiling alone (RNA-seq, differential expression) without variant-linked functional RNA/protein consequences
-  (Exception: explicit variant-driven splicing or experimentally shown NMD/mRNA instability)
+2. Cell-based experiments
+- reporter assays;
+- pathway-activity assays;
+- electrophysiology;
+- transport or flux measurements;
+- rescue or complementation experiments;
+- mutant-versus-wild-type comparisons;
+- disease-relevant cellular phenotypes linked to a mutant.
 
-Final rule
-If you can point to (A) any variant/mutant subject AND (B) any wet-lab functional readout with an outcome claim, output true. Otherwise output false.
+3. RNA-level experiments
+- RT-PCR or patient RNA experiments showing altered splicing;
+- minigene splicing assays;
+- experimentally demonstrated nonsense-mediated decay;
+- mRNA stability measurements;
+- experimentally measured RNA processing or translation effects.
+
+4. Variant model systems
+- knock-in models;
+- CRISPR-engineered variants;
+- engineered variant organisms or cells;
+- variant-linked functional or disease-relevant phenotypes.
+
+5. Patient-derived experiments
+- enzyme activity;
+- electrophysiology;
+- signaling or pathway output;
+- splicing defects;
+- other functional measurements in patient cells or tissues when linked to mutations.
+
+STRONG TRUE-CLASSIFICATION RULES
+
+Return `is_functional = true` when any of the following patterns is present:
+- mutation, variant, mutant, or allele language together with an experimental assay involving activity, localization, trafficking, stability, binding, signaling, splicing, RT-PCR, minigene, NMD, electrophysiology, rescue, or another functional measurement;
+- the abstract states that mutations impair, reduce, increase, alter, disrupt, restore, or preserve function;
+- mutant proteins are experimentally expressed and their cellular behavior is measured;
+- some tested mutants show an abnormal result while other tested mutants show normal or different results.
+RETURN FALSE ONLY WHEN CLEARLY NON-FUNCTIONAL
+Return `is_functional = false` only when the abstract clearly lacks variant-level wet-lab functional testing, such as:
+- purely computational or in-silico predictions;
+- genetic association or segregation analysis without a functional experiment;
+- case reports or patient phenotypes without a functional readout;
+- gene knockout or ordinary gene overexpression experiments that do not test variants or mutant constructs;
+- expression or omics profiling alone without a variant-linked functional consequence;
+- a review, commentary, or methods proposal without reported variant functional results.
+
+IMPORTANT DISTINCTION
+
+The following two questions are different:
+1. Does this paper contain any variant functional experiments?
+2. Does this paper contain functional evidence for the query variant?
+
+You are answering only Question 1.
+
+EXAMPLE 1
+
+The query variant is T615M. The abstract experimentally tests L32R, V49F, C53R, and other mutants and reports defective protein trafficking.
+
+Output:
+is_functional = true
+
+Justification:
+The abstract reports wet-lab trafficking experiments for multiple mutant proteins. The absence of T615M does not affect this paper-level classification.
+
+EXAMPLE 2
+
+The abstract mentions T615M only in patients and provides computational pathogenicity predictions, with no wet-lab assay.
+
+Output:
+is_functional = false
+
+Justification:
+The abstract does not report an experimental functional measurement.
+
+EXAMPLE 3
+
+The abstract experimentally tests ten mutants and finds that eight have impaired activity while two behave like wild type.
+
+Output:
+is_functional = true
+
+Justification:
+Both damaging and normal experimental outcomes count as variant functional evidence.
+
+FINAL DECISION RULE
+
+Before answering, ask:
+1. Does the abstract mention or experimentally create any variant, mutation, allele, or mutant?
+2. Does it report any wet-lab functional assay and an outcome for at least one of them?
+
+If both answers are yes, return `is_functional = true`.
+Do not check whether the tested variant matches the query variant.
+Never return false merely because the query variant was not tested.
 """
 
 
@@ -742,10 +865,16 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
     # sys.exit() here: this runs inside a LangGraph worker thread, and SystemExit
     # is not caught by `except Exception`, so it silently kills the whole
     # (batch) process instead of failing just this one criterion.
+    
     rsid = vi.rsid
     if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
         print(f"No RSID available for the variant {vi.name}")
         return set()
+    
+    print(f"{"-"*100}")
+    print("RSID: ")
+    print(rsid)
+    print(f"{"-"*100}")
 
     pmids = query_litvar2_publications(rsid)
     return pmids
@@ -762,19 +891,24 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
     """
     try:
         encoded_variant = quote(variant_id, safe='')
-        # print("litvar 2 encoded variant that is send to the server: ")
-        # print(encoded_variant)
+        print("litvar 2 encoded variant that is send to the server: ")
+        print(encoded_variant)
 
         url = f"{LITVAR2_API_BASE}/variant/get/litvar@{encoded_variant}%23%23/publications"
-        # print(f"   Querying LitVar2: {variant_id}...")
+        print(f"   Querying LitVar2: {url}...")
 
         resp = requests.get(url, timeout=30)
 
         if not resp.ok:
-            # print(f"   Warning: LitVar2 returned status {resp.status_code} for '{variant_id}'")
+            print(f"   Warning: LitVar2 returned status {resp.status_code} for '{variant_id}'")
             return set()
 
         data = resp.json()
+
+        # print(f"{"-"*100}")
+        # print("litvar2 data returned: ")
+        # pprint(data)
+        # print(f"{"-"*100}")
 
         pmids = set()
 
@@ -1061,7 +1195,6 @@ def llm_filter_functional_papers(
         # Build user prompt with paper details
         user_prompt = f"""Analyze this paper for functional evidence:
 
-Variant of interest: {variant_label}
 PMID: {p.pmid}
 Title: {p.title}
 Abstract: {p.abstract}
@@ -1069,6 +1202,7 @@ Abstract: {p.abstract}
 Based on the system instructions, respond in JSON with keys:
 - "is_functional": true/false
 - "justification": short string (1-3 sentences explaining your decision).
+- "pmid": {p.pmid}
 """
 
         try:
@@ -1099,6 +1233,11 @@ Based on the system instructions, respond in JSON with keys:
             content = content.replace("```", "")
             
             parsed = json.loads(content)
+
+            print(f"{"="*100}")
+            print("functional_experiment result:")
+            pprint(parsed)
+            print(f"{"="*100}")
 
             if parsed.get("is_functional"):
                 functional.append(
@@ -1161,26 +1300,33 @@ def _parse_pdf_extraction_response(
     
     return experiments
 
-def _extract_from_pdf_gemini(
+def _extract_from_pdf(
     pmid: str,
     variant_label: str,
-    pdf_path: str,
     title: str,
+    pdf_path: str
 ) -> List[FunctionalExperiment]:
     """
-    Extract experiments from PDF using Google's Gemini API with file upload.
+    Extract experiments from full-text PDF using the comprehensive schema.
     
-    Gemini supports PDF files via the upload_file method.
+    Supports multiple extraction modes:
+    - Agentic: Uses OCR, layout detection, and VLM tools (page-by-page)
+    - Simple: Uses provider-specific PDF upload APIs
+    
+    Supports multiple LLM providers for simple mode:
+    - OpenAI: Uses file upload with responses API
+    - Anthropic/Claude: Uses base64-encoded PDF with messages API
+    - Gemini: Uses file upload with generative AI API
     """
     try:
-        import os
-        import google.generativeai as genai
+        # import os
+        # import google.generativeai as genai
         
-        # Configure the API
-        genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+        # # Configure the API
+        # genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
         
         # Upload the PDF file
-        uploaded_file = genai.upload_file(pdf_path, mime_type="application/pdf")
+        # uploaded_file = genai.upload_file(pdf_path, mime_type="application/pdf")
         
         user_prompt = f"""TARGET_VARIANT: {variant_label}
 
@@ -1196,53 +1342,68 @@ Do NOT add any text outside the JSON object.
 """
         
         # Create the model and generate content
-        model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash",
-            system_instruction=PDF_EXTRACTION_SYSTEM_PROMPT,
+        # model = genai.GenerativeModel(
+        #     model_name="gemini-2.5-flash",
+        #     system_instruction=PDF_EXTRACTION_SYSTEM_PROMPT,
+        # )
+        
+        # resp = model.generate_content(
+        #     [uploaded_file, user_prompt],
+        #     generation_config=genai.types.GenerationConfig(
+        #         temperature=0,
+        #         response_mime_type="application/json",
+        #     ),
+        # )
+
+        # url = fetch_pdf_url(pmid=pmid)
+
+        model = create_llm(
+            provider=MODELS["functional_evidence"]["provider"],
+            model=MODELS["functional_evidence"]["model"],
         )
-        
-        resp = model.generate_content(
-            [uploaded_file, user_prompt],
-            generation_config=genai.types.GenerationConfig(
-                temperature=0,
-                response_mime_type="application/json",
-            ),
-        )
-        
-        content = resp.text
-        
-        if not content:
-            print(f"   Warning: Empty response for PDF extraction PMID {pmid}")
-            return []
-        
-        return _parse_pdf_extraction_response(pmid, content)
+
+        messages = [
+            SystemMessage(content=PDF_EXTRACTION_SYSTEM_PROMPT),
+            HumanMessage(
+                content=[
+                    {"type": "text","text": user_prompt},
+                    {"type": "file","url": pdf_path, "mime_type": "application/pdf"},
+                ]
+            )
+        ]
+
+        resp = model.invoke(messages)
+
+        content = resp.content
+
+        return _parse_pdf_extraction_response(pmid, pdf_path)
         
     except Exception as e:
-        print(f"   Warning: Gemini PDF extraction failed for PMID {pmid}: {e}")
+        print(f"   Warning: PDF extraction failed for PMID {pmid}: {e}")
         return []
 
 
 
-def _extract_from_pdf(
-    pmid: str,
-    variant_label: str,
-    pdf_path: str,
-    title: str,
-) -> List[FunctionalExperiment]:
-    """
-    Extract experiments from full-text PDF using the comprehensive schema.
+# def _extract_from_pdf(
+#     pmid: str,
+#     variant_label: str,
+#     pdf_path: str,
+#     title: str,
+# ) -> List[FunctionalExperiment]:
+#     """
+#     Extract experiments from full-text PDF using the comprehensive schema.
     
-    Supports multiple extraction modes:
-    - Agentic: Uses OCR, layout detection, and VLM tools (page-by-page)
-    - Simple: Uses provider-specific PDF upload APIs
+#     Supports multiple extraction modes:
+#     - Agentic: Uses OCR, layout detection, and VLM tools (page-by-page)
+#     - Simple: Uses provider-specific PDF upload APIs
     
-    Supports multiple LLM providers for simple mode:
-    - OpenAI: Uses file upload with responses API
-    - Anthropic/Claude: Uses base64-encoded PDF with messages API
-    - Gemini: Uses file upload with generative AI API
-    """
-    # Let's use the Gemini-based extraction for now. 
-    return _extract_from_pdf_gemini(pmid, variant_label, pdf_path, title)
+#     Supports multiple LLM providers for simple mode:
+#     - OpenAI: Uses file upload with responses API
+#     - Anthropic/Claude: Uses base64-encoded PDF with messages API
+#     - Gemini: Uses file upload with generative AI API
+#     """
+#     # Let's use the Gemini-based extraction for now. 
+#     return _extract_from_pdf_gemini(pmid, variant_label, pdf_path, title)
 
 
 def entrez_get(endpoint: str, params: Dict) -> requests.Response:
@@ -1380,7 +1541,6 @@ Extract functional experiments for this variant and return as JSON.
         # print(f"   Warning: Abstract extraction failed for PMID {pmid}: {e}")
         return []
 
-
 def llm_extract_experiments(
     functional_papers: List[FunctionalPaper],
     variant_label: str,
@@ -1407,26 +1567,30 @@ def llm_extract_experiments(
     """
     experiments: List[FunctionalExperiment] = []
 
+    pdf_dir = Path("tools/functional_papers")
+
     # print(f"   Extracting experiments from {len(functional_papers)} functional papers...")
 
     for i, fp in enumerate(functional_papers, 1):
         # print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
         
-        # # Check if PDF exists
+        # # # Check if PDF exists
         # pdf_path = None
-        # if pdf_dir:
-        #     candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
-        #     if candidate_pdf.exists():
-        #         pdf_path = str(candidate_pdf)
-        #         fp.pdf_path = pdf_path
+        # if not pdf_dir.exists():
+        #     pdf_dir.mkdir(parents=True, exist_ok=True)
+            
+        # candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
+        # if candidate_pdf.exists():
+        #     pdf_path = str(candidate_pdf)
+        #     fp.pdf_path = pdf_path
         
         # # Try PDF-based extraction first if available
         # if pdf_path:
-        #     extracted = _extract_from_pdf(fp.pmid, variant_label, pdf_path, fp.title)
+        #     extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
         #     if extracted:
         #         experiments.extend(extracted)
         #         continue
-        
+            
         # Fallback to abstract-based extraction
         extracted = _extract_from_abstract(fp.pmid, variant_label, fp.title)
         experiments.extend(extracted)
@@ -1464,6 +1628,11 @@ def analyze_variant(
     try:
         vep_info = annotate_variant(variant)
 
+        print(f"{"-"*100}")
+        print("VEP info: ")
+        print(vep_info)
+        print(f"{"-"*100}")
+
         # print("VEP annotation successful")
         # print("VEP info: ")
         # print(vep_info)
@@ -1486,7 +1655,17 @@ def analyze_variant(
 
     # 2. Query LitVar2 for PMIDs
     # print("Step 2: Querying LitVar2 for publications...")
+    print(f"{"-"*100}")
+    print("vi: ")
+    pprint(asdict(vi))
+    print(f"{"-"*100}")
+
     pmids = query_litvar2(vi)
+
+    print(f"{"-"*100}")
+    print("pmids: ")
+    print(pmids)
+    print(f"{"-"*100}")
 
     # if not pmids:
     #     pmids = query_pubtator(vi)
@@ -1499,27 +1678,36 @@ def analyze_variant(
     candidate_papers = build_candidate_list(pmids)
     # print(f"   Retrieved details for {len(candidate_papers)} papers")
 
+    print(f"{"-"*100}")
+    print("candidate_papers: ")
+    pprint([asdict(paper) for paper in candidate_papers])
+    print(f"{"-"*100}")
+
     # 4. Filter for functional papers (high-sensitivity screening)
     # print("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
+    print(f"{"-"*100}")
+    print("functional_papers: ")
+    pprint([asdict(paper) for paper in functional_papers])
+    print(f"{"-"*100}")
     # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
-    # # 4b. Download PDFs for functional papers (if enabled)
+    # # # 4b. Download PDFs for functional papers (if enabled)
     # downloaded_pdfs = {}
-    # if download_pdfs and pdf_path and functional_papers:
-    #     print("\nStep 4b: Downloading PDFs for functional papers...")
-    #     functional_pmids = [fp.pmid for fp in functional_papers]
-    #     downloaded_pdfs = download_pdfs_for_papers(
-    #         functional_pmids,
-    #         pdf_path,
-    #         max_downloads=max_pdf_downloads,
-    #     )
-    #     print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
+    # pdf_path = "tools/functional_papers"
+    # # if download_pdfs and pdf_path and functional_papers:
+    # # print("\nStep 4b: Downloading PDFs for functional papers...")
+    # functional_pmids = [fp.pmid for fp in functional_papers]
+    # downloaded_pdfs = download_pdfs_for_papers(
+    #     functional_pmids,
+    #     pdf_path,
+    # )
+    # # print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
         
     #     # Update functional papers with PDF paths
-    #     for fp in functional_papers:
-    #         if fp.pmid in downloaded_pdfs:
-    #             fp.pdf_path = downloaded_pdfs[fp.pmid]
+    # for fp in functional_papers:
+    #     if fp.pmid in downloaded_pdfs:
+    #         fp.pdf_path = downloaded_pdfs[fp.pmid]
 
     # 5. Extract experiments 
     # print("\nStep 5: Extracting functional experiments...")
@@ -1527,5 +1715,11 @@ def analyze_variant(
         functional_papers,
         variant_label,
     )
+
+    print(f"{"=" * 100}")
+    print("RESULT: ")
+    pprint(experiments)
+    print(f"{"=" * 100}")
+
 
     return {"experiments": [asdict(e) for e in experiments]}
