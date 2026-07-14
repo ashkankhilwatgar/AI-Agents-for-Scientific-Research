@@ -251,3 +251,6 @@ Continue doing case study + cleaning up the file sturcture. See my case studies 
 
 7/13 SIMON
 IMPORVE THE TOOL RESULT CACHING SO THAT IF IN THE PREVIOUS PHASE THE TOOL RESULT IS "ERROR" IN CURRENT PHASE WE WILL RUN THE TOOL AGAIN INSTEAD OF BLINDLY USE THE "ERROR" RESULT. ALSO DID A CASE STDUY ON PS3 & BS3 (SEE case_studies/jul_13/bs3_ps3_case_study.ipynb)\
+
+7/14 Ashkan
+I created the UI, it can be run like this: venv/bin/python -m gui.server. Note that it takes about 3 minutes for everything to load, and if you actually want to classify a variant, it takes like 30 minutes. There is a cache result for every variant already classified, and those can be loaded.

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HHT ACMG Classifier — Demo</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">HHT</span>
+        <div>
+          <h1>ACMG Variant Classifier</h1>
+          <p class="sub">Hereditary Hemorrhagic Telangiectasia &middot; ACVRL1 / ENG &middot; ClinGen VCEP (GN135/GN136)</p>
+        </div>
+      </div>
+      <div class="loader">
+        <label>Cached variant
+          <select id="cached-select"><option value="">— loading —</option></select>
+        </label>
+        <button id="load-cached" class="btn">Load</button>
+        <span class="or">or</span>
+        <label>Run live
+          <input id="live-variant" type="text" placeholder="NM_000020.3:c.557G&gt;T" />
+        </label>
+        <button id="run-live" class="btn btn-secondary">Run pipeline</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="status-bar" class="status-bar hidden"></div>
+
+  <main class="layout">
+    <!-- LEFT: criteria -->
+    <section class="col criteria-col">
+      <div class="panel">
+        <h2>Automatable criteria <span class="hint">evaluated by the pipeline</span></h2>
+        <p class="panel-note">Checkboxes are pre-set from the automated run, but you can freely toggle any of them. Scoring updates live.</p>
+        <div id="automatable-list" class="criteria-list"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Manual-input criteria <span class="hint">require patient data</span></h2>
+        <p class="panel-note">These need patient-specific data the pipeline can't fetch. Enter data in the panel on the right, then toggle apply/not-apply yourself.</p>
+        <div id="manual-list" class="criteria-list"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Excluded criteria <span class="hint">not applicable per HHT VCEP</span></h2>
+        <div id="excluded-list" class="criteria-list excluded"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: scoring + evidence + manual entry -->
+    <section class="col side-col">
+      <div class="panel scoring-panel" id="scoring-panel">
+        <h2>Live classification</h2>
+        <div class="verdict" id="verdict">
+          <span class="verdict-label" id="verdict-label">—</span>
+          <span class="verdict-rule" id="verdict-rule">Load a variant to begin</span>
+        </div>
+        <div class="buckets" id="buckets"></div>
+        <div class="notes" id="incompat-notes"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Manual data entry</h2>
+        <p class="panel-note">Pick a manual criterion and enter the patient data its rule requires (synthetic is fine). The text becomes that criterion's evidence.</p>
+        <label class="block-label">Criterion
+          <select id="manual-select"></select>
+        </label>
+        <div id="manual-requirement" class="requirement"></div>
+        <textarea id="manual-text" rows="5" placeholder="Enter patient data / evidence here…"></textarea>
+        <button id="manual-save" class="btn">Save evidence</button>
+      </div>
+
+      <div class="panel">
+        <h2>Evidence</h2>
+        <label class="block-label">Criterion
+          <select id="evidence-select"></select>
+        </label>
+        <div id="evidence-body" class="evidence-body">Select a criterion to view its evidence.</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
