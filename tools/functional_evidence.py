@@ -19,6 +19,9 @@ from config import MODELS
 from pprint import pprint
 import re
 from langchain_core.messages import HumanMessage, SystemMessage
+import base64
+from pydantic import BaseModel
+from agents.llm.response_schema import FunctionalPaperFiltering, FunctionalExperiments
 
 
 
@@ -39,7 +42,7 @@ Return `is_functional = true` when the abstract reports a qualifying functional 
 - the query variant is not tested;
 - the query variant is not mentioned;
 - only other variants are tested;
-- the specific variant identities are not given;
+- the specific variant identities are not given; abstract reports a qualifying functional experiment for ANY genetic variant, mutation, allele, or mutant
 - the paper would not provide direct PS3 or BS3 evidence for the query variant.
 Never return `is_functional = false` solely because the target or query variant is absent from the experiments.
 
@@ -329,20 +332,22 @@ EXCLUDE:
 - Results where variants are pooled and no individual variant result is given.
 
 For each experiment, record:
-- What the assay is (assay)
+- What the assay is (assay_type)
 - The system used (system)
-- How the variant material was obtained (variant_material)
+# - How the variant material was obtained (variant_material)
 - The measured endpoint (readout)
-- The explicit comparator (normal_comparator: WT/healthy/threshold)
-- The functional direction and any numbers (result.direction and
-  result.effect_size_and_stats)
+# - The explicit comparator (normal_comparator: WT/healthy/threshold)
+- The functional direction and any numbers (effect_direction and
+  effect_size_and_stats)
 - Controls and validation details (controls_and_validation)
 - Authors' explicit conclusion about the variant (authors_conclusion)
-- Where it appears (where_in_paper)
-- Limitations stated in the paper (caveats)
-- Exact variant label in the paper (paper_variant_label)
-- How strongly you link that label to the TARGET_VARIANT
-  (variant_link_confidence).
+- Functional Impact compared to the normal comparator (normal_comparator: WT/healthy/threshold)
+  (effect_direction)
+# - Where it appears (where_in_paper)
+# - Limitations stated in the paper (caveats)
+# - Exact variant label in the paper (paper_variant_label)
+# - How strongly you link that label to the TARGET_VARIANT
+#   (variant_link_confidence).
 
 If you find NO functional assay on the matched variant:
 - experiments = []
@@ -350,23 +355,23 @@ If you find NO functional assay on the matched variant:
 - overall_evidence.evidence_strength = "not_clear"
 - State this in overall_evidence.basis.
 
-────────────────────────────────────
-3. PS3 / BS3 / not_clear
-────────────────────────────────────
-Definitions:
-- PS3: Variant shows a functionally abnormal result (for example vs. a normal comparator),
-consistent with a damaging effect and disease mechanism.
-- BS3: Variant shows functionally normal result (for example vs. a normal comparator).
-- not_clear: unclear direction, conflicting or insufficient information.
+# ────────────────────────────────────
+# 3. PS3 / BS3 / not_clear
+# ────────────────────────────────────
+# Definitions:
+# - PS3: Variant shows a functionally abnormal result (for example vs. a normal comparator),
+# consistent with a damaging effect and disease mechanism.
+# - BS3: Variant shows functionally normal result (for example vs. a normal comparator).
+# - not_clear: unclear direction, conflicting or insufficient information.
 
-Strength (very_strong / strong / moderate / supporting / not_clear):
-- supporting: comparator present + basic controls described (WT ± positive/null) but limited validation
-- moderate: well-established assay with clear controls/replication and/or multiple validation controls described
-- strong/very_strong: the paper provides rigorous clinical validation/calibration supporting high confidence
-  (e.g., multiple known benign/pathogenic controls with clear thresholds or explicit calibration).
+# Strength (very_strong / strong / moderate / supporting / not_clear):
+# - supporting: comparator present + basic controls described (WT ± positive/null) but limited validation
+# - moderate: well-established assay with clear controls/replication and/or multiple validation controls described
+# - strong/very_strong: the paper provides rigorous clinical validation/calibration supporting high confidence
+#   (e.g., multiple known benign/pathogenic controls with clear thresholds or explicit calibration).
 
-If evidence_level = "not_clear":
-- evidence_strength MUST be "not_clear".
+# If evidence_level = "not_clear":
+# - evidence_strength MUST be "not_clear".
 
 ────────────────────────────────────
 4. SUMMARY
@@ -595,24 +600,31 @@ VARIANT_FUNCTIONAL_SCHEMA = {
 }
 
 
-# # =============================================================================
-# # LLMs (This is temporary). We have to rewrite the entire llm calling logic later
-# # =============================================================================
+# =============================================================================
+# LLM WRAPPER
+# =============================================================================
 
-# # For now let's use a web api for this function. I will change it after rewrite the llm wrapper logic
-# def get_llm() -> Any:
-#     """
-#     Initialize and return the appropriate LLM based on LLM_PROVIDER config.
-#     """
-#     return ChatGoogleGenerativeAI(
-#         model = "gemini-2.5-flash",
-#         temperature = 0,
-#        #  api_key = your_google_api_key_here    When you guys are running this file, uncomment this line and replace your_google_api_key_here with the google genai api key in the shared google doc
-#        )
+def call_functional_llm(
+        user_prompt: str | list, 
+        system_prompt: str, 
+        output_schema: type[BaseModel]
+) -> dict:
+    llm = create_llm(
+        provider=MODELS["functional_evidence"]["provider"],
+        model=MODELS["functional_evidence"]["model"],
+    )
 
-# # Initialize LLM on module import
-# LLM = get_llm()
+    structured_llm = llm.with_structured_output(output_schema)
 
+    messages = [
+        SystemMessage(system_prompt),
+        HumanMessage(user_prompt),
+    ]
+
+    resp = structured_llm.invoke(messages).model_dump()
+
+    return resp
+         
 
 # =============================================================================
 # Config
@@ -695,10 +707,6 @@ class FunctionalExperiment:
     controls_validity: str
     authors_conclusion: str
     evaluation: str
-
-
-
-
 
 # =============================================================================
 # VEP tools
@@ -1123,11 +1131,11 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
             with open(pdf_path, 'wb') as f:
                 f.write(response.read())
         
-        # print(f"   [✓] Downloaded PDF for PMID {pmid}")
+        print(f"   [✓] Downloaded PDF for PMID {pmid}")
         return str(pdf_path)
         
     except Exception as e:
-        # print(f"   [✗] Failed to download PDF for PMID {pmid}: {e}")
+        print(f"   [✗] Failed to download PDF for PMID {pmid}: {e}")
         return None
 
 
@@ -1162,6 +1170,8 @@ def download_pdfs_for_papers(
         pdf_path = download_pdf(pmid, pdf_dir)
         if pdf_path:
             downloaded[pmid] = pdf_path
+
+        print(f"DOWNLOADING FOR PMID: {pmid}")
         
         # Rate limiting
         time.sleep(0.5)
@@ -1199,10 +1209,14 @@ PMID: {p.pmid}
 Title: {p.title}
 Abstract: {p.abstract}
 
-Based on the system instructions, respond in JSON with keys:
-- "is_functional": true/false
-- "justification": short string (1-3 sentences explaining your decision).
-- "pmid": {p.pmid}
+Make sure you follow the output schema.
+
+Some useful notes regarding the output schema:
+- is_functional takes a boolean value. It is true when you think the paper contains a functional experiment 
+after reading the abstract. Note that the functional experiment does not necessarily need to be related to 
+any specific variant. is_functional is true when any functional experiment is present
+- justification is where you explains why do you make this decision in is_functional. You should aim to be 
+concise, yet do not omit any important clues that let you made the decision.
 """
 
         try:
@@ -1211,42 +1225,49 @@ Based on the system instructions, respond in JSON with keys:
             
 
             
-            content = invoke_llm(
-                model=MODELS["functional_evidence"]["model"],
-                provider=MODELS["functional_evidence"]["provider"],
-                human_messsage=user_prompt,
-                system_message=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT
+            # content = invoke_llm(
+            #     model=MODELS["functional_evidence"]["model"],
+            #     provider=MODELS["functional_evidence"]["provider"],
+            #     human_messsage=user_prompt,
+            #     system_message=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT
+            # )
+
+            content = call_functional_llm(
+                user_prompt=user_prompt, 
+                system_prompt=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT,
+                output_schema=FunctionalPaperFiltering
             )
 
-            # # resp.content can be a string or a list of content parts
-            # content = resp.content
-            if isinstance(content, list):
-                # LangChain sometimes returns a list of dicts with "text"
-                content = "".join(
-                    part.get("text", "")
-                    for part in content
-                    if isinstance(part, dict)
-                )
+            # # # resp.content can be a string or a list of content parts
+            # # content = resp.content
+            # if isinstance(content, list):
+            #     # LangChain sometimes returns a list of dicts with "text"
+            #     content = "".join(
+            #         part.get("text", "")
+            #         for part in content
+            #         if isinstance(part, dict)
+            #     )
 
-            # Clean up potential markdown code blocks
-            content = re.sub(r"```(?:json)?", "", content).strip()
-            content = content.replace("```", "")
+            # # Clean up potential markdown code blocks
+            # content = re.sub(r"```(?:json)?", "", content).strip()
+            # content = content.replace("```", "")
             
-            parsed = json.loads(content)
+            # parsed = json.loads(content)
 
-            print(f"{"="*100}")
-            print("functional_experiment result:")
-            pprint(parsed)
-            print(f"{"="*100}")
+            # print(f"{"="*100}")
+            # print("functional_experiment result:")
+            # pprint(parsed)
+            # print(f"{"="*100}")
 
-            if parsed.get("is_functional"):
-                functional.append(
-                    FunctionalPaper(
-                        pmid=p.pmid,
-                        title=p.title,
-                        justification=parsed.get("justification", "").strip(),
+            if isinstance(content, dict):
+                if content.get("is_functional"):
+                    functional.append(
+                        FunctionalPaper(
+                            pmid=p.pmid,
+                            title=p.title,
+                            justification=content.get("justification", "").strip(),
+                        )
                     )
-                )
         except Exception as e:
             # print(f"   Warning: LLM filtering failed for PMID {p.pmid}: {e}")
             continue
@@ -1255,7 +1276,7 @@ Based on the system instructions, respond in JSON with keys:
 
 def _parse_pdf_extraction_response(
     pmid: str,
-    content: str,
+    content: dict,
 ) -> List[FunctionalExperiment]:
     """
     Parse JSON response from PDF extraction and convert to FunctionalExperiment objects.
@@ -1263,17 +1284,17 @@ def _parse_pdf_extraction_response(
     Common helper for all providers.
     """
     # Clean up potential markdown code blocks
-    content = re.sub(r"```(?:json)?", "", content).strip()
-    content = content.replace("```", "")
+    # content = re.sub(r"```(?:json)?", "", content).strip()
+    # content = content.replace("```", "")
     
-    parsed = json.loads(content)
+    # parsed = json.loads(content)
     
     experiments = []
-    for exp in parsed.get("experiments", []):
-        result = exp.get("result", {})
+    for exp in content.get("experiments", []):
+        # result = exp.get("result", {})
         
         # Map direction to evaluation
-        direction = result.get("direction", "unclear")
+        direction = exp.get("effect_direction", "unclear")
         if direction == "functionally_abnormal":
             evaluation = "supports_pathogenic"
             effect_dir = "loss_of_function"
@@ -1287,11 +1308,11 @@ def _parse_pdf_extraction_response(
         experiments.append(
             FunctionalExperiment(
                 pmid=pmid,
-                assay_type=exp.get("assay", "") or "",
+                assay_type=exp.get("assay_type", "") or "",
                 system=exp.get("system", "") or "",
                 readout=exp.get("readout", "") or "",
                 effect_direction=effect_dir,
-                magnitude_stats=result.get("effect_size_and_stats", "") or "",
+                magnitude_stats=exp.get("effect_size_and_stats", "") or "",
                 controls_validity=exp.get("controls_and_validation", "") or "",
                 authors_conclusion=exp.get("authors_conclusion", "") or "",
                 evaluation=evaluation,
@@ -1337,8 +1358,7 @@ Follow the system instructions to:
 - Extract all plausible variant-level functional experiments for that variant,
 - Summarize PS3/BS3 evidence and strength.
 
-Return ONLY valid JSON that matches the schema exactly.
-Do NOT add any text outside the JSON object.
+Make sure you follow the output schema
 """
         
         # Create the model and generate content
@@ -1357,26 +1377,48 @@ Do NOT add any text outside the JSON object.
 
         # url = fetch_pdf_url(pmid=pmid)
 
-        model = create_llm(
-            provider=MODELS["functional_evidence"]["provider"],
-            model=MODELS["functional_evidence"]["model"],
+        # model = create_llm(
+        #     provider=MODELS["functional_evidence"]["provider"],
+        #     model=MODELS["functional_evidence"]["model"],
+        # )
+
+        with open(pdf_path, "rb") as f:
+            base64_string = base64.b64encode(f.read()).decode("utf-8")
+
+        # messages = [
+        #     SystemMessage(content=PDF_EXTRACTION_SYSTEM_PROMPT),
+        #     HumanMessage(
+        #         content=[
+        #             {"type": "text","text": user_prompt},
+        #             {"type": "file","base64": base64_string, "mime_type": "application/pdf"},
+        #         ]
+        #     )
+        # ]
+
+        # resp = model.invoke(messages)
+
+        resp = call_functional_llm(
+            user_prompt=[{"type": "text","text": user_prompt},
+                    {"type": "file","base64": base64_string, "mime_type": "application/pdf"},],
+            system_prompt=PDF_EXTRACTION_SYSTEM_PROMPT,
+            output_schema=FunctionalExperiments
         )
 
-        messages = [
-            SystemMessage(content=PDF_EXTRACTION_SYSTEM_PROMPT),
-            HumanMessage(
-                content=[
-                    {"type": "text","text": user_prompt},
-                    {"type": "file","url": pdf_path, "mime_type": "application/pdf"},
-                ]
-            )
-        ]
+        # content = resp.content
 
-        resp = model.invoke(messages)
+        # print(f"{"=" * 100}")
+        # print(f"MODEL RESPONSE FOR PMID {pmid}")
+        # print(content)
+        # print(f"{"=" * 100}")
 
-        content = resp.content
-
-        return _parse_pdf_extraction_response(pmid, pdf_path)
+        # if content and isinstance(content, list):
+        #     content = content[0]
+            
+        #     if content and isinstance(content, dict):
+        #         text = content.get("text", "")
+        return _parse_pdf_extraction_response(pmid, resp)
+        
+        # return []
         
     except Exception as e:
         print(f"   Warning: PDF extraction failed for PMID {pmid}: {e}")
@@ -1495,44 +1537,62 @@ Extract functional experiments for this variant and return as JSON.
         
         # content = resp.content
 
-        content = invoke_llm(
-            model=MODELS["functional_evidence"]["model"],
-            provider=MODELS["functional_evidence"]["provider"],
-            system_message=system_prompt,
-            human_messsage=user_prompt
+        # content = invoke_llm(
+        #     model=MODELS["functional_evidence"]["model"],
+        #     provider=MODELS["functional_evidence"]["provider"],
+        #     system_message=system_prompt,
+        #     human_messsage=user_prompt
+        # )
+
+
+        # if isinstance(content, list):
+        #     content = "".join(
+        #         part.get("text", "")
+        #         for part in content
+        #         if isinstance(part, dict)
+        #     )
+        
+        # # Clean up potential markdown
+        # content = re.sub(r"```(?:json)?", "", content).strip()
+        # content = content.replace("```", "")
+        
+        # parsed = json.loads(content)
+
+        resp = call_functional_llm(
+            user_prompt=user_prompt,
+            system_prompt=system_prompt,
+            output_schema=FunctionalExperiments
         )
-
-
-        if isinstance(content, list):
-            content = "".join(
-                part.get("text", "")
-                for part in content
-                if isinstance(part, dict)
-            )
         
-        # Clean up potential markdown
-        content = re.sub(r"```(?:json)?", "", content).strip()
-        content = content.replace("```", "")
-        
-        parsed = json.loads(content)
-        
-        exp_list = parsed.get("experiments", [])
+        exp_list = resp.get("experiments", [])
         if not isinstance(exp_list, list):
             return []
         
         experiments = []
         for e in exp_list:
+
+            direction = e.get("effect_direction", "unclear")
+            if direction == "functionally_abnormal":
+                evaluation = "supports_pathogenic"
+                effect_dir = "loss_of_function"
+            elif direction == "functionally_normal":
+                evaluation = "supports_benign"
+                effect_dir = "no_effect_vs_wildtype"
+            else:
+                evaluation = "ambiguous"
+                effect_dir = "ambiguous"  
+
             experiments.append(
                 FunctionalExperiment(
                     pmid=pmid,
                     assay_type=e.get("assay_type", ""),
                     system=e.get("system", ""),
                     readout=e.get("readout", ""),
-                    effect_direction=e.get("effect_direction", ""),
-                    magnitude_stats=e.get("magnitude_stats", ""),
-                    controls_validity=e.get("controls_validity", ""),
+                    effect_direction=effect_dir,
+                    magnitude_stats=e.get("effect_size_and_stats", ""),
+                    controls_validity=e.get("controls_and_validation", ""),
                     authors_conclusion=e.get("authors_conclusion", ""),
-                    evaluation=e.get("evaluation", ""),
+                    evaluation=evaluation,
                 )
             )
         return experiments
@@ -1542,6 +1602,7 @@ Extract functional experiments for this variant and return as JSON.
         return []
 
 def llm_extract_experiments(
+        
     functional_papers: List[FunctionalPaper],
     variant_label: str,
 ) -> List[FunctionalExperiment]:
@@ -1574,24 +1635,30 @@ def llm_extract_experiments(
     for i, fp in enumerate(functional_papers, 1):
         # print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
         
-        # # # Check if PDF exists
-        # pdf_path = None
-        # if not pdf_dir.exists():
-        #     pdf_dir.mkdir(parents=True, exist_ok=True)
+        # # Check if PDF exists
+        pdf_path = None
+        if not pdf_dir.exists():
+            pdf_dir.mkdir(parents=True, exist_ok=True)
             
-        # candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
-        # if candidate_pdf.exists():
-        #     pdf_path = str(candidate_pdf)
-        #     fp.pdf_path = pdf_path
+        candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
+        if candidate_pdf.exists():
+            pdf_path = str(candidate_pdf)
+            fp.pdf_path = pdf_path
         
-        # # Try PDF-based extraction first if available
-        # if pdf_path:
-        #     extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
-        #     if extracted:
-        #         experiments.extend(extracted)
-        #         continue
+        # Try PDF-based extraction first if available
+        if pdf_path:
+            extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
+            if extracted:
+                print(f"{"=" * 100}")
+                print(f"Extracting {fp.pmid} from pdf")
+                print(f"{"=" * 100}")
+                experiments.extend(extracted)
+                continue
             
         # Fallback to abstract-based extraction
+        print(f"{"=" * 100}")
+        print(f"Extracting {fp.pmid} from abstract")
+        print(f"{"=" * 100}")
         extracted = _extract_from_abstract(fp.pmid, variant_label, fp.title)
         experiments.extend(extracted)
 
@@ -1692,22 +1759,22 @@ def analyze_variant(
     print(f"{"-"*100}")
     # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
-    # # # 4b. Download PDFs for functional papers (if enabled)
-    # downloaded_pdfs = {}
-    # pdf_path = "tools/functional_papers"
-    # # if download_pdfs and pdf_path and functional_papers:
-    # # print("\nStep 4b: Downloading PDFs for functional papers...")
-    # functional_pmids = [fp.pmid for fp in functional_papers]
-    # downloaded_pdfs = download_pdfs_for_papers(
-    #     functional_pmids,
-    #     pdf_path,
-    # )
-    # # print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
+    # # 4b. Download PDFs for functional papers (if enabled)
+    downloaded_pdfs = {}
+    pdf_path = "tools/functional_papers"
+    # if download_pdfs and pdf_path and functional_papers:
+    # print("\nStep 4b: Downloading PDFs for functional papers...")
+    functional_pmids = [fp.pmid for fp in functional_papers]
+    downloaded_pdfs = download_pdfs_for_papers(
+        functional_pmids,
+        pdf_path,
+    )
+    print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
         
-    #     # Update functional papers with PDF paths
-    # for fp in functional_papers:
-    #     if fp.pmid in downloaded_pdfs:
-    #         fp.pdf_path = downloaded_pdfs[fp.pmid]
+        # Update functional papers with PDF paths
+    for fp in functional_papers:
+        if fp.pmid in downloaded_pdfs:
+            fp.pdf_path = downloaded_pdfs[fp.pmid]
 
     # 5. Extract experiments 
     # print("\nStep 5: Extracting functional experiments...")
@@ -1723,3 +1790,10 @@ def analyze_variant(
 
 
     return {"experiments": [asdict(e) for e in experiments]}
+
+
+
+if __name__ == "__main__":
+    # Example usage
+    variant = "NM_001114753.3:c.1844C>T"  # Example variant
+    result = analyze_variant(variant)

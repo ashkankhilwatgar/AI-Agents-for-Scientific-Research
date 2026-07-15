@@ -1,0 +1,145 @@
+{
+  "variant": "NM_001114753.3:c.1844C>T",
+  "disease": "HHT",
+  "timestamp": "20260715_140308",
+  "classification": "Likely Benign",
+  "rule_matched": "1 Strong benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "1 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong"
+    },
+    "applied_criteria": [
+      "BS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1844C>T (9-127815951-G-A) is present in gnomAD with a total allele count (AC) of 3,197 (exome AC = 2,985, genome AC = 212). The allele frequency in the non-Finnish European (nfe) subpopulation is 0.0024 (2,704/1,105,776 in exomes) and 0.0024 (162/68,014 in genomes), with other subpopulations also showing frequencies well above 0.00004.",
+      "reasoning": "Following the PM2_SUPPORTING classification rules: Step 1: The variant is not absent from gnomAD. Step 2: The total allele count (3,197) is not less than 6. Step 3: The allele frequencies in multiple major subpopulations (e.g., nfe, fin, sas) are significantly higher than the 0.00004 (0.004%) threshold. Therefore, the variant is too common in the general population to meet the PM2_SUPPORTING criterion.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1844C>T (9-127815951-G-A) has a popmax filtering allele frequency (FAF95) of 0.00236811 (0.24%) in the non-Finnish European (nfe) population of gnomAD.",
+      "reasoning": "According to the BA1 classification rules, the popmax FAF must be greater than or equal to 0.01 (1%) to apply. Since the variant's popmax FAF is 0.00236811, which is less than 0.01, the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD variant 9-127815951-G-A has a popmax FAF (faf95 popmax) of 0.00236811 (in the non-Finnish European population) and a total homozygote count (ac_hom) of 2.",
+      "reasoning": "Following the classification rules: Step 1: BA1 does not apply because the Popmax FAF (0.00236811) is less than 0.01. Step 2: The homozygote route for BS1_Strong is not evaluated because the Popmax FAF is not in the BS1_Supporting range (it is > 0.002). Step 3: The Popmax FAF of 0.00236811 is greater than 0.002 and less than 0.01, which satisfies the FAF route threshold for BS1_Strong. Therefore, BS1 applies at a benign_strong strength level.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1844C>T results in the protein change p.Ser615Leu (codon position 615) in the ENG gene.",
+      "reasoning": "According to the HHT VCEP rules for PM1, the variant residue must be located in specific critical positions: BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), or disulfide-bond cysteines (350, 394). The variant is at codon position 615, which does not match any of these specified critical positions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The tool returned no variants in the 'different_aa_classifications' list for codon 615 of the ENG gene.",
+      "reasoning": "According to the HHT VCEP rules for PM5, the criterion requires at least one different pathogenic or likely pathogenic missense variant at the same codon (found in 'different_aa_classifications'). Since this list is empty, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 615",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "A single functional experiment (PMID: 22022569) evaluated the subcellular localization of the S615L mutant (c.1844C>T) in HeLa cells. The experiment showed that the mutant had predominant plasma membrane localization similar to wild-type endoglin, resulting in an 'ambiguous' evaluation.",
+      "reasoning": "According to the classification rules, we first group experiments by their evaluation. The only available experiment has an evaluation of 'ambiguous'. Following Shortcut B, since there are no experiments with an evaluation of 'supports_pathogenic', the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.1880 and SpliceAI max score is 0.1000 (DS_DG=0.1000, others 0.0000).",
+      "reasoning": "According to the pre-computed verdicts, the variant does not meet the PP3 threshold for REVEL (score 0.1880 is < 0.644) and does not meet the PP3 threshold for SpliceAI (max score 0.1000 is < 0.2). Therefore, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.188 and SpliceAI max score is 0.1000 (DS_DG=0.1, DS_AG=0.0, DS_AL=0.0, DS_DL=0.0).",
+      "reasoning": "According to the classification rules for HHT, a missense variant requires both REVEL <= 0.15 and SpliceAI <= 0.1 to satisfy BP4. Based on the pre-computed verdicts, 'BP4 REVEL HHT threshold (<= 0.15)' FAILS (score=0.1880), while 'BP4 SpliceAI (all scores <= 0.1)' PASSES. Since both conditions must be met (AND logic) for a missense variant, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The tool returned no same amino acid classifications (same_aa_classifications is empty) for the ENG codon position 615.",
+      "reasoning": "According to the classification rules for PS1, the same_aa_classifications list must be non-empty to proceed. Since there are no established pathogenic or likely pathogenic variants with the identical amino acid change at this position, the PS1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 615",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "A functional study (PMID: 22022569) evaluated the subcellular localization of the Endoglin S615L mutant (c.1844C>T) in HeLa cells and found that it localized to the plasma membrane similarly to wild-type endoglin.",
+      "reasoning": "The single available functional experiment for the c.1844C>T (S615L) variant has an evaluation of 'ambiguous' and an effect direction of 'ambiguous'. According to the classification rules, experiments evaluated as 'ambiguous' do not support BS3. Since there are no experiments with an evaluation of 'supports_benign' (Shortcut C), the BS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT"
+    }
+  ]
+}
