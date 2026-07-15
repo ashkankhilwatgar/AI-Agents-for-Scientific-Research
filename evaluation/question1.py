@@ -412,10 +412,10 @@ def run_question1_evaluation(
         pred_df, gold_df
     )
 
-    # print(f"{"*" * 100}")
+    # print(f"{'*'*100}")
     # print("Criterion with error")
     # print(criterion_with_error)
-    # print(f"{"*" * 100}")
+    # print(f"{'*'*100}")
 
     if scored_df.empty:
         print(f"{'-'*60}")

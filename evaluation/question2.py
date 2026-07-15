@@ -252,7 +252,7 @@ def print_results(accuracy: float,
         confusion_matrix: Confusion matrix generated from predictions.
         num_errors: Number of variants that failed during prediction.
     """
-    print(f"{"-"*60}")
+    print(f"{'-'*60}")
     print(f"""accuracy: {accuracy}
 precision: {precision}
 recall: {recall}
@@ -294,7 +294,7 @@ def save_results(
     time = datetime.now()
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    filename = Path(output_dir) / f"{time.strftime("%Y%m%d_%H%M%S")}.json"
+    filename = Path(output_dir) / f"{time.strftime('%Y%m%d_%H%M%S')}.json"
     
     output = {
         "time": str(time),
@@ -401,11 +401,11 @@ def run_question2_evaluation(
         )
 
     except ValueError:
-        print(f"{"-"*60}")
+        print(f"{'-'*60}")
         print(f"""THE INPUT FILE CONTAINS NO VARIANT OR ALL THE VARIANTS HAVE FAILED
 NOTHING SAVED TO OUTPUT
 {num_errors} / {len(prediction_df)} VARIANTS FAILED """)
-        print(f"{"-"*60}")
+        print(f"{'-'*60}")
 
 def main():
     """Parse command-line arguments and run the Question 2 evaluation pipeline."""

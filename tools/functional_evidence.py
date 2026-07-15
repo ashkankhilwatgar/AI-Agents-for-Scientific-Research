@@ -871,10 +871,10 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
         print(f"No RSID available for the variant {vi.name}")
         return set()
     
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("RSID: ")
     print(rsid)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     pmids = query_litvar2_publications(rsid)
     return pmids
@@ -905,10 +905,10 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
 
         data = resp.json()
 
-        # print(f"{"-"*100}")
+        # print(f"{'-'*100}")
         # print("litvar2 data returned: ")
         # pprint(data)
-        # print(f"{"-"*100}")
+        # print(f"{'-'*100}")
 
         pmids = set()
 
@@ -1234,10 +1234,10 @@ Based on the system instructions, respond in JSON with keys:
             
             parsed = json.loads(content)
 
-            print(f"{"="*100}")
+            print(f"{'='*100}")
             print("functional_experiment result:")
             pprint(parsed)
-            print(f"{"="*100}")
+            print(f"{'='*100}")
 
             if parsed.get("is_functional"):
                 functional.append(
@@ -1628,10 +1628,10 @@ def analyze_variant(
     try:
         vep_info = annotate_variant(variant)
 
-        print(f"{"-"*100}")
+        print(f"{'-'*100}")
         print("VEP info: ")
         print(vep_info)
-        print(f"{"-"*100}")
+        print(f"{'-'*100}")
 
         # print("VEP annotation successful")
         # print("VEP info: ")
@@ -1655,17 +1655,17 @@ def analyze_variant(
 
     # 2. Query LitVar2 for PMIDs
     # print("Step 2: Querying LitVar2 for publications...")
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("vi: ")
     pprint(asdict(vi))
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     pmids = query_litvar2(vi)
 
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("pmids: ")
     print(pmids)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     # if not pmids:
     #     pmids = query_pubtator(vi)
@@ -1678,18 +1678,18 @@ def analyze_variant(
     candidate_papers = build_candidate_list(pmids)
     # print(f"   Retrieved details for {len(candidate_papers)} papers")
 
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("candidate_papers: ")
     pprint([asdict(paper) for paper in candidate_papers])
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     # 4. Filter for functional papers (high-sensitivity screening)
     # print("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("functional_papers: ")
     pprint([asdict(paper) for paper in functional_papers])
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
     # # # 4b. Download PDFs for functional papers (if enabled)
@@ -1716,10 +1716,10 @@ def analyze_variant(
         variant_label,
     )
 
-    print(f"{"=" * 100}")
+    print(f"{'='*100}")
     print("RESULT: ")
     pprint(experiments)
-    print(f"{"=" * 100}")
+    print(f"{'='*100}")
 
 
     return {"experiments": [asdict(e) for e in experiments]}
