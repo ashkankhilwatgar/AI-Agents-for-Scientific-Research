@@ -2,6 +2,7 @@ from typing import Optional, List, Dict, Any, Set
 from dataclasses import dataclass, asdict
 from .vep import annotate_variant
 import sys
+import base64
 from urllib.parse import quote
 from config import NCBI_API_KEY
 from config import NCBI_EMAIL
@@ -359,6 +360,24 @@ consistent with a damaging effect and disease mechanism.
 - BS3: Variant shows functionally normal result (for example vs. a normal comparator).
 - not_clear: unclear direction, conflicting or insufficient information.
 
+CRITICAL RULE — trust the authors' stated conclusion over the presence of raw
+numbers in the excerpt you were given:
+- If the authors explicitly state the variant behaved like wild-type, showed
+  no functional difference, or was indistinguishable from normal, set
+  result.direction = "functionally_normal" (→ BS3-supporting) EVEN IF the
+  exact percentages, fold-changes, or statistical values are not reproduced
+  in the text/table/figure caption you have access to. A clear qualitative
+  conclusion from the authors is sufficient — you do not need to see the
+  underlying quantitative data to trust it.
+- Do NOT default to "not_clear" / "unclear" merely because effect_size_and_stats
+  is missing or the raw numbers are summarized elsewhere (e.g. "data not shown",
+  a supplementary table, or a figure you cannot fully read). Missing numbers
+  are not the same as an unclear result.
+- Reserve "not_clear" / "unclear" for cases where the AUTHORS THEMSELVES
+  describe the result as ambiguous, inconclusive, intermediate, or
+  conflicting — not for cases where you personally lack the underlying
+  numeric data to double-check their conclusion.
+
 Strength (very_strong / strong / moderate / supporting / not_clear):
 - supporting: comparator present + basic controls described (WT ± positive/null) but limited validation
 - moderate: well-established assay with clear controls/replication and/or multiple validation controls described
@@ -514,7 +533,21 @@ VARIANT_FUNCTIONAL_SCHEMA = {
                                     "mixed",
                                     "unclear"
                                 ],
-                                "description": "Functional impact relative to the comparator"
+                                "description": (
+                                    "Functional impact relative to the comparator. "
+                                    "IMPORTANT: base this on the authors' own stated "
+                                    "conclusion about the variant, not only on whether "
+                                    "raw numeric data/figures are reproduced in the text "
+                                    "you were given. If the authors explicitly state the "
+                                    "variant behaved like wild-type / had no functional "
+                                    "difference / was indistinguishable from normal, use "
+                                    "'functionally_normal' even if exact figures or "
+                                    "quantitative values are not shown in the excerpt — "
+                                    "do NOT default to 'unclear' just because supporting "
+                                    "numbers are absent from the text. Reserve 'unclear' "
+                                    "for cases where the authors themselves report an "
+                                    "ambiguous, inconclusive, or conflicting result."
+                                )
                             },
                             "effect_size_and_stats": {
                                 "type": ["string", "null"],
@@ -1041,46 +1074,59 @@ def check_open_access_from_doi(doi: str) -> str:
     except Exception:
         return ""
 
-def fetch_pdf_url(pmid: str) -> str:
+def fetch_pdf_url(pmid: str) -> tuple[str, str]:
     """
     Fetch PDF URL for a PMID using multiple methods.
-    
+
     Tries:
     1. metapub FindIt for direct PDF discovery
     2. Unpaywall API via DOI for open access
-    
+
     Parameters
     ----------
     pmid : str
         PubMed ID
-        
+
     Returns
     -------
-    str
-        URL to PDF if found, empty string otherwise
+    tuple[str, str]
+        (url, source) — url to PDF if found (empty string otherwise), and
+        which method produced it ("findit", "unpaywall", or "none"). The
+        source label matters for debugging: FindIt frequently returns a
+        publisher "article page" URL that returns HTML (paywall/cookie
+        wall) instead of the actual PDF binary, whereas Unpaywall only
+        returns links it believes are genuinely open-access full text.
     """
     try:
         # Try metapub FindIt first
         finder = FindIt(pmid)
         if finder.url:
-            return finder.url
-        
+            return finder.url, "findit"
+
         # Fallback: try Unpaywall via DOI
         article = FETCHER.article_by_pmid(pmid)
         if article and hasattr(article, "doi") and article.doi:
             url = check_open_access_from_doi(article.doi)
             if url:
-                return url
-        
-        return ""
+                return url, "unpaywall"
+
+        return "", "none"
     except Exception as e:
-        # print(f"   Warning: Failed to find PDF URL for PMID {pmid}: {e}")
-        return ""
+        print(f"   [!] Warning: Failed to find PDF URL for PMID {pmid}: {e}")
+        return "", "none"
 
 def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional[str]:
     """
     Download PDF for a PMID to specified directory.
-    
+
+    Validates that the downloaded content is actually a PDF (via
+    Content-Type header AND the '%PDF-' magic-byte signature) before
+    writing it to disk. Many publisher URLs discovered by metapub's
+    FindIt return HTTP 200 with an HTML paywall/landing page instead of
+    the real PDF binary when fetched without a browser session — without
+    this check, that HTML gets silently saved as a ".pdf" file that
+    later fails to open ("Invalid or corrupted PDF file").
+
     Parameters
     ----------
     pmid : str
@@ -1089,45 +1135,70 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
         Directory to save PDFs
     url : str, optional
         Pre-fetched PDF URL. If None, will attempt to discover URL.
-        
+
     Returns
     -------
     str or None
         Path to downloaded PDF if successful, None otherwise
     """
     pdf_path = Path(pdf_dir) / f"{pmid}.pdf"
-    
-    # Check if already exists
+
+    # Check if already exists AND is a valid PDF (don't trust a
+    # previously-saved file blindly — earlier runs may have saved HTML).
     if pdf_path.exists():
-        # print(f"   [→] PDF already exists for PMID {pmid}")
-        return str(pdf_path)
-    
+        try:
+            with open(pdf_path, 'rb') as f:
+                header = f.read(5)
+            if header == b'%PDF-':
+                return str(pdf_path)
+            else:
+                print(f"   [!] PMID {pmid}: existing file is not a valid PDF "
+                      f"(header={header!r}) — re-downloading")
+                pdf_path.unlink()
+        except OSError as e:
+            print(f"   [!] PMID {pmid}: could not read existing file, re-downloading: {e}")
+
     # Get URL if not provided
+    source = "provided"
     if url is None:
-        url = fetch_pdf_url(pmid)
-    
+        url, source = fetch_pdf_url(pmid)
+
     if not url:
-        # print(f"   [✗] No PDF URL found for PMID {pmid}")
+        print(f"   [x] PMID {pmid}: no PDF URL found (source={source})")
         return None
-    
+
     try:
         # Ensure directory exists
         pdf_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Download with headers to avoid being blocked
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=30) as response:
-            with open(pdf_path, 'wb') as f:
-                f.write(response.read())
-        
-        # print(f"   [✓] Downloaded PDF for PMID {pmid}")
+            content_type = response.headers.get("Content-Type", "")
+            data = response.read()
+
+        # Validate: reject anything that isn't actually a PDF, regardless
+        # of what Content-Type claims (some servers mislabel HTML as
+        # application/pdf, so check both the header AND the magic bytes).
+        looks_like_pdf = "pdf" in content_type.lower() or data.startswith(b"%PDF-")
+        if not looks_like_pdf or not data.startswith(b"%PDF-"):
+            print(f"   [x] PMID {pmid}: download did not return a valid PDF "
+                  f"(source={source}, url={url}, Content-Type={content_type!r}, "
+                  f"first bytes={data[:20]!r}) — likely a paywall/landing page. "
+                  f"Discarding.")
+            return None
+
+        with open(pdf_path, 'wb') as f:
+            f.write(data)
+
+        print(f"   [v] Downloaded valid PDF for PMID {pmid} (source={source})")
         return str(pdf_path)
-        
+
     except Exception as e:
-        # print(f"   [✗] Failed to download PDF for PMID {pmid}: {e}")
+        print(f"   [x] Failed to download PDF for PMID {pmid} (source={source}, url={url}): {e}")
         return None
 
 
@@ -1205,12 +1276,13 @@ Based on the system instructions, respond in JSON with keys:
 - "pmid": {p.pmid}
 """
 
+        content = None
         try:
             # Use system prompt + user prompt structure
             from langchain_core.messages import SystemMessage, HumanMessage
-            
 
-            
+
+
             content = invoke_llm(
                 model=MODELS["functional_evidence"]["model"],
                 provider=MODELS["functional_evidence"]["provider"],
@@ -1248,7 +1320,8 @@ Based on the system instructions, respond in JSON with keys:
                     )
                 )
         except Exception as e:
-            # print(f"   Warning: LLM filtering failed for PMID {p.pmid}: {e}")
+            print(f"   [!] Warning: LLM filtering failed for PMID {p.pmid}: {e!r}")
+            print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
             continue
 
     return functional
@@ -1267,11 +1340,12 @@ def _parse_pdf_extraction_response(
     content = content.replace("```", "")
     
     parsed = json.loads(content)
-    
+
     experiments = []
+    skipped_blank = 0
     for exp in parsed.get("experiments", []):
         result = exp.get("result", {})
-        
+
         # Map direction to evaluation
         direction = result.get("direction", "unclear")
         if direction == "functionally_abnormal":
@@ -1283,20 +1357,38 @@ def _parse_pdf_extraction_response(
         else:
             evaluation = "ambiguous"
             effect_dir = "ambiguous"
-        
+
+        assay_type = exp.get("assay", "") or ""
+        system = exp.get("system", "") or ""
+        readout = exp.get("readout", "") or ""
+        authors_conclusion = exp.get("authors_conclusion", "") or ""
+
+        # Skip empty-shell entries: if the model produced an "experiment"
+        # with no actual assay/system/readout/conclusion content, it isn't
+        # real evidence and would just add noise downstream (e.g. an
+        # experiment with evaluation="" that PlanRAG's STEP 1 grouping
+        # can't classify as anything).
+        if not any([assay_type.strip(), system.strip(), readout.strip(), authors_conclusion.strip()]):
+            skipped_blank += 1
+            continue
+
         experiments.append(
             FunctionalExperiment(
                 pmid=pmid,
-                assay_type=exp.get("assay", "") or "",
-                system=exp.get("system", "") or "",
-                readout=exp.get("readout", "") or "",
+                assay_type=assay_type,
+                system=system,
+                readout=readout,
                 effect_direction=effect_dir,
                 magnitude_stats=result.get("effect_size_and_stats", "") or "",
                 controls_validity=exp.get("controls_and_validation", "") or "",
-                authors_conclusion=exp.get("authors_conclusion", "") or "",
+                authors_conclusion=authors_conclusion,
                 evaluation=evaluation,
             )
         )
+
+    if skipped_blank:
+        print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
+              f"entr{'y' if skipped_blank == 1 else 'ies'} from PDF extraction")
     
     return experiments
 
@@ -1362,12 +1454,37 @@ Do NOT add any text outside the JSON object.
             model=MODELS["functional_evidence"]["model"],
         )
 
+        # google_genai / Vertex AI cannot read a local filesystem path — it
+        # needs either a URL it can fetch itself, or the raw file bytes
+        # inline as base64. Read + base64-encode the PDF here rather than
+        # passing pdf_path as a "url", which silently fails to attach any
+        # file content for this provider.
+        with open(pdf_path, "rb") as f:
+            pdf_b64 = base64.b64encode(f.read()).decode("utf-8")
+
+        provider = MODELS["functional_evidence"]["provider"]
+        if provider == "google_genai":
+            # langchain-google-genai content-block format for inline files.
+            file_block = {
+                "type": "media",
+                "mime_type": "application/pdf",
+                "data": pdf_b64,
+            }
+        else:
+            # OpenAI/Anthropic-style base64 data URL content block.
+            file_block = {
+                "type": "file",
+                "source_type": "base64",
+                "data": pdf_b64,
+                "mime_type": "application/pdf",
+            }
+
         messages = [
             SystemMessage(content=PDF_EXTRACTION_SYSTEM_PROMPT),
             HumanMessage(
                 content=[
-                    {"type": "text","text": user_prompt},
-                    {"type": "file","url": pdf_path, "mime_type": "application/pdf"},
+                    {"type": "text", "text": user_prompt},
+                    file_block,
                 ]
             )
         ]
@@ -1375,9 +1492,20 @@ Do NOT add any text outside the JSON object.
         resp = model.invoke(messages)
 
         content = resp.content
+        if isinstance(content, list):
+            content = "".join(
+                part.get("text", "")
+                for part in content
+                if isinstance(part, dict)
+            )
 
-        return _parse_pdf_extraction_response(pmid, pdf_path)
-        
+        # BUG FIX: this used to call _parse_pdf_extraction_response(pmid, pdf_path),
+        # passing the PDF's file path where the parser expects the LLM's raw JSON
+        # response text. That made json.loads() on a filesystem path string fail
+        # every time, silently falling through to the except block below and
+        # returning [] even when the PDF-based extraction succeeded.
+        return _parse_pdf_extraction_response(pmid, content)
+
     except Exception as e:
         print(f"   Warning: PDF extraction failed for PMID {pmid}: {e}")
         return []
@@ -1470,6 +1598,20 @@ Return JSON with key "experiments" containing a list of objects with these keys:
 - authors_conclusion: what authors conclude about the variant
 - evaluation: one of ["supports_pathogenic", "supports_benign", "ambiguous", "low_quality"]
 
+IMPORTANT for effect_direction and evaluation: base these on what the authors
+themselves explicitly conclude about the variant, not only on whether exact
+numeric data/figures are reproduced in the text below. If the authors state
+the variant behaved like wild-type / showed no functional difference / was
+indistinguishable from normal, use effect_direction="no_effect_vs_wildtype"
+and evaluation="supports_benign" even if precise figures aren't shown in this
+excerpt. Do NOT default to "ambiguous" just because supporting numbers are
+missing from the text — reserve "ambiguous" for cases where the authors
+themselves report an inconclusive or conflicting result.
+
+Only include an experiment object if it has real, non-empty content for at
+least one of assay_type, system, readout, or authors_conclusion. Do not
+return placeholder or all-empty experiment objects.
+
 If no relevant experiments found, return {"experiments": []}.
 """
     
@@ -1485,16 +1627,8 @@ Paper text:
 Extract functional experiments for this variant and return as JSON.
 """
     
+    content = None
     try:
-        # messages = [
-        #     SystemMessage(content=system_prompt),
-        #     HumanMessage(content=user_prompt)
-        # ]
-        
-        # resp = LLM.invoke(messages)
-        
-        # content = resp.content
-
         content = invoke_llm(
             model=MODELS["functional_evidence"]["model"],
             provider=MODELS["functional_evidence"]["provider"],
@@ -1502,43 +1636,87 @@ Extract functional experiments for this variant and return as JSON.
             human_messsage=user_prompt
         )
 
-
         if isinstance(content, list):
             content = "".join(
                 part.get("text", "")
                 for part in content
                 if isinstance(part, dict)
             )
-        
+
         # Clean up potential markdown
         content = re.sub(r"```(?:json)?", "", content).strip()
         content = content.replace("```", "")
-        
+
         parsed = json.loads(content)
-        
-        exp_list = parsed.get("experiments", [])
-        if not isinstance(exp_list, list):
+
+        # The LLM sometimes ignores the requested {"experiments": [...]}
+        # envelope and returns a bare JSON array instead (occasionally with
+        # each item nested one level deeper under an "experimental_assays"
+        # key rather than being a flat experiment object). Normalize all of
+        # these shapes into a flat list of experiment-like dicts instead of
+        # assuming `parsed` is always a dict.
+        if isinstance(parsed, dict):
+            exp_list = parsed.get("experiments", [])
+        elif isinstance(parsed, list):
+            exp_list = []
+            for item in parsed:
+                if isinstance(item, dict) and isinstance(item.get("experimental_assays"), list):
+                    exp_list.extend(item["experimental_assays"])
+                else:
+                    exp_list.append(item)
+        else:
+            print(f"   [!] Warning: PMID {pmid} abstract extraction returned "
+                  f"unexpected top-level JSON type {type(parsed).__name__}: {parsed!r}")
             return []
-        
+
+        if not isinstance(exp_list, list):
+            print(f"   [!] Warning: PMID {pmid} abstract extraction returned "
+                  f"non-list 'experiments' field: {exp_list!r}")
+            return []
+
         experiments = []
+        skipped_blank = 0
         for e in exp_list:
+            if not isinstance(e, dict):
+                print(f"   [!] Warning: PMID {pmid} skipping non-dict experiment entry: {e!r}")
+                continue
+
+            assay_type = e.get("assay_type", "") or ""
+            system = e.get("system", "") or ""
+            readout = e.get("readout", "") or ""
+            authors_conclusion = e.get("authors_conclusion", "") or ""
+
+            # Skip empty-shell entries — same rationale as PDF extraction:
+            # a JSON object with no real assay/system/readout/conclusion
+            # content is noise, not evidence.
+            if not any([str(assay_type).strip(), str(system).strip(),
+                        str(readout).strip(), str(authors_conclusion).strip()]):
+                skipped_blank += 1
+                continue
+
             experiments.append(
                 FunctionalExperiment(
                     pmid=pmid,
-                    assay_type=e.get("assay_type", ""),
-                    system=e.get("system", ""),
-                    readout=e.get("readout", ""),
+                    assay_type=assay_type,
+                    system=system,
+                    readout=readout,
                     effect_direction=e.get("effect_direction", ""),
                     magnitude_stats=e.get("magnitude_stats", ""),
                     controls_validity=e.get("controls_validity", ""),
-                    authors_conclusion=e.get("authors_conclusion", ""),
+                    authors_conclusion=authors_conclusion,
                     evaluation=e.get("evaluation", ""),
                 )
             )
+
+        if skipped_blank:
+            print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
+                  f"entr{'y' if skipped_blank == 1 else 'ies'} from abstract extraction")
+
         return experiments
-        
+
     except Exception as e:
-        # print(f"   Warning: Abstract extraction failed for PMID {pmid}: {e}")
+        print(f"   [!] Warning: Abstract extraction failed for PMID {pmid}: {e!r}")
+        print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
         return []
 
 def llm_extract_experiments(
@@ -1571,26 +1749,29 @@ def llm_extract_experiments(
 
     # print(f"   Extracting experiments from {len(functional_papers)} functional papers...")
 
+    if not pdf_dir.exists():
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+
     for i, fp in enumerate(functional_papers, 1):
-        # print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
-        
-        # # # Check if PDF exists
-        # pdf_path = None
-        # if not pdf_dir.exists():
-        #     pdf_dir.mkdir(parents=True, exist_ok=True)
-            
-        # candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
-        # if candidate_pdf.exists():
-        #     pdf_path = str(candidate_pdf)
-        #     fp.pdf_path = pdf_path
-        
-        # # Try PDF-based extraction first if available
-        # if pdf_path:
-        #     extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
-        #     if extracted:
-        #         experiments.extend(extracted)
-        #         continue
-            
+        # Check if a valid PDF already exists on disk for this paper.
+        # fp.pdf_path is only populated here (by analyze_variant's download
+        # step) or left as None if download failed / was never attempted.
+        pdf_path = fp.pdf_path
+        if pdf_path is None:
+            candidate_pdf = pdf_dir / f"{fp.pmid}.pdf"
+            if candidate_pdf.exists():
+                pdf_path = str(candidate_pdf)
+                fp.pdf_path = pdf_path
+
+        # Try PDF-based extraction first if a real PDF is available.
+        if pdf_path:
+            extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
+            if extracted:
+                experiments.extend(extracted)
+                continue
+            print(f"   [!] PMID {fp.pmid}: PDF-based extraction returned no "
+                  f"experiments, falling back to abstract-based extraction.")
+
         # Fallback to abstract-based extraction
         extracted = _extract_from_abstract(fp.pmid, variant_label, fp.title)
         experiments.extend(extracted)
@@ -1692,24 +1873,26 @@ def analyze_variant(
     print(f"{'-'*100}")
     # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
-    # # # 4b. Download PDFs for functional papers (if enabled)
-    # downloaded_pdfs = {}
-    # pdf_path = "tools/functional_papers"
-    # # if download_pdfs and pdf_path and functional_papers:
-    # # print("\nStep 4b: Downloading PDFs for functional papers...")
-    # functional_pmids = [fp.pmid for fp in functional_papers]
-    # downloaded_pdfs = download_pdfs_for_papers(
-    #     functional_pmids,
-    #     pdf_path,
-    # )
-    # # print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
-        
-    #     # Update functional papers with PDF paths
-    # for fp in functional_papers:
-    #     if fp.pmid in downloaded_pdfs:
-    #         fp.pdf_path = downloaded_pdfs[fp.pmid]
+    # 4b. Download PDFs for functional papers (best-effort — download_pdf()
+    # validates Content-Type + '%PDF-' magic bytes and returns None rather
+    # than saving a paywall/landing-page HTML file, so a missing pdf_path
+    # here is expected for papers with no open-access full text, not a bug.
+    pdf_dir = "tools/functional_papers"
+    functional_pmids = [fp.pmid for fp in functional_papers]
+    downloaded_pdfs = download_pdfs_for_papers(
+        functional_pmids,
+        pdf_dir,
+    )
+    print(f"{'-'*100}")
+    print(f"Downloaded/found {len(downloaded_pdfs)}/{len(functional_pmids)} valid PDFs")
+    print(f"{'-'*100}")
 
-    # 5. Extract experiments 
+    # Update functional papers with PDF paths
+    for fp in functional_papers:
+        if fp.pmid in downloaded_pdfs:
+            fp.pdf_path = downloaded_pdfs[fp.pmid]
+
+    # 5. Extract experiments
     # print("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
