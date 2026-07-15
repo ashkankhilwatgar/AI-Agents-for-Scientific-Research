@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260715_114828",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "moderate",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.557G>T (12-51914005-G-T) is present in gnomAD with a total allele count (AC) of 1 across all populations (exome AC = 1, genome AC = 0).",
+      "reasoning": "According to the PM2_SUPPORTING classification rules, Step 1 is false because the variant is not entirely absent from gnomAD. Moving to Step 2, the total allele count (AC) across all gnomAD populations is 1, which is less than 6. Therefore, PM2_SUPPORTING applies based on Step 2.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.557G>T (12-51914005-G-T) has a total allele count of 1 in gnomAD exomes, with a popmax filtering allele frequency (FAF95) of 0.0.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the popmax FAF is greater than or equal to 0.01 (1%). Since the popmax FAF for this variant is 0.0 (which is less than 0.01), the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.557G>T is extremely rare in gnomAD, with a total allele count of 1 out of 1,461,514 alleles (allele frequency of 6.84e-07) and 0 homozygotes. The popmax filtering allele frequency (FAF) is 0.0.",
+      "reasoning": "According to the BS1 classification rules, the popmax FAF must be > 0.0008 to trigger BS1_Supporting, or > 0.002 to trigger BS1_Strong. Since the popmax FAF for this variant is 0.0 (and there are 0 homozygotes), it does not meet any of the thresholds for BS1. Therefore, the BS1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.557G>T (p.Ser186Ile) is located at codon/protein position 186 of the ACVRL1 gene.",
+      "reasoning": "According to the PM1 classification rules for ACVRL1, the critical regions/residues are: G209-V216, K229, E242, R329-N335, D348-L351, and the BMP10 cluster (positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). The variant residue at position 186 does not fall into any of these specified critical regions or residues. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands reported with HHT phenotype (PS4_Moderate); ERepo: No additional unique probands found; LOVD: No additional unique probands found; PubMed: 0 additional unique articles found.",
+      "reasoning": "The ClinGen Hereditary Hemorrhagic Telangiectasia Variant Curation Expert Panel (VCEP) submission in ClinVar reports 2 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia (HHT). According to the PS4 classification rules for HHT, a count of 2 or 3 probands maps to PS4_Moderate. All fallback sources (ERepo, LOVD, and PubMed) were queried and documented to confirm no additional unique probands were identified.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The tool returned no variants in the 'different_aa_classifications' list for codon 186 of the ACVRL1 gene.",
+      "reasoning": "According to the HHT VCEP rules for PM5, the criterion requires at least one different pathogenic or likely pathogenic missense variant at the same codon (found in 'different_aa_classifications'). Since this list is empty, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output for the variant NM_000020.3:c.557G>T.",
+      "reasoning": "According to the classification rules for PS3 (Shortcut A), if there are no functional experiments provided, the PS3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915, SpliceAI scores: N/A (request timed out).",
+      "reasoning": "Following Branch A for missense variants, we read the pre-computed verdicts. The verdict states 'PP3 REVEL (>= 0.644): APPLIES' with a score of 0.9150, which is above the threshold of 0.644. Therefore, the PP3 criterion applies based on the REVEL score.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915, SpliceAI max score: 0.01 (DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0). Pre-computed verdicts: 'BP4 REVEL HHT threshold (<= 0.15): FAILS' and 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "The variant NM_000020.3:c.557G>T is a missense variant, which requires evaluating both REVEL and SpliceAI thresholds under Branch A. According to the pre-computed verdicts, the REVEL score of 0.915 fails the HHT threshold for BP4 (<= 0.15). Because both conditions must be met for a missense variant to satisfy BP4, the failure of the REVEL condition means BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The tool returned an empty list for same_aa_classifications for the ACVRL1 codon 186 position.",
+      "reasoning": "According to the classification rules for PS1, the same_aa_classifications list must be non-empty to proceed. Since there are no established pathogenic or likely pathogenic variants reported with the identical amino acid change at this position, the PS1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_000020.3:c.557G>T.",
+      "reasoning": "According to the classification rules, if there are no experiments, BS3 does not apply (Shortcut B). Since the experiments list is empty, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    }
+  ]
+}
