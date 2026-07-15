@@ -254,3 +254,8 @@ IMPORVE THE TOOL RESULT CACHING SO THAT IF IN THE PREVIOUS PHASE THE TOOL RESULT
 
 7/14 Ashkan
 I created the UI, it can be run like this: venv/bin/python -m gui.server. Note that it takes about 3 minutes for everything to load, and if you actually want to classify a variant, it takes like 30 minutes. There is a cache result for every variant already classified, and those can be loaded. Tomorrow I want to finish question 9.∂
+
+
+7/15 Suning
+
+Changed bs3 ps3 planrag and changed all the fstring so that it is downgraded to python 3.10.
