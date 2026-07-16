@@ -25,6 +25,46 @@ Outputs:
 from data.planrag import query as planrag_query
 
 
+# For variable-strength criteria, ACMG/AMP defines one "native" (default) strength
+# tier. When a criterion is applied at its native tier, golden-standard datasets
+# (and this pipeline, historically) write the bare criterion name (e.g. "PVS1").
+# When a criterion is applied at a non-native tier (upgraded/downgraded per SVI
+# rules), the golden standard appends the tier as a suffix (e.g. "PVS1_Strong",
+# "PM5_Strong", "PS4_Moderate", "BS1_Supporting"). Without this, predicted output
+# collapses all tiers of a variable-strength criterion onto one bare token, which
+# silently disagrees with the golden CSV's token granularity during evaluation.
+_VARIABLE_STRENGTH_NATIVE_BUCKET = {
+    "PVS1": "very_strong",
+    "PS3":  "strong",
+    "PS4":  "strong",
+    "PM5":  "moderate",
+    "PP1":  "supporting",
+    "BS1":  "benign_strong",
+}
+
+_BUCKET_SUFFIX = {
+    "very_strong":       "Very_Strong",
+    "strong":            "Strong",
+    "moderate":          "Moderate",
+    "supporting":        "Supporting",
+    "benign_strong":     "Strong",
+    "benign_supporting": "Supporting",
+}
+
+
+def _label_for(criterion: str, bucket: str) -> str:
+    """
+    Return the golden-standard-style token for a criterion given its bucket:
+    bare name at native strength, "<CRITERION>_<Suffix>" otherwise. Fixed-strength
+    criteria (not in _VARIABLE_STRENGTH_NATIVE_BUCKET) are always returned bare.
+    """
+    native = _VARIABLE_STRENGTH_NATIVE_BUCKET.get(criterion)
+    if native is None or bucket == native:
+        return criterion
+    suffix = _BUCKET_SUFFIX.get(bucket)
+    return f"{criterion}_{suffix}" if suffix else criterion
+
+
 def _get_scoring_entry(disease: str | None = None) -> dict:
     return planrag_query("SCORING", disease=disease)
 
@@ -156,7 +196,8 @@ def classify(results_dict: dict, disease: str | None = None) -> dict:
         count_key = bucket_to_count_key.get(bucket)
         if count_key:
             counts[count_key] += 1
-            bucket_of[criterion] = bucket
+            label = _label_for(criterion, bucket)
+            bucket_of[label] = bucket
 
     applied_criteria = list(bucket_of.keys())
 

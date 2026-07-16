@@ -1,0 +1,145 @@
+{
+  "variant": "NM_000020.3:c.139C>T",
+  "disease": "HHT",
+  "timestamp": "20260716_200850",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM5": "moderate"
+    },
+    "applied_criteria": [
+      "PM5"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.139C>T is present in gnomAD with a total allele count (AC) of 15 (12 in exomes, 3 in genomes). The maximum subpopulation allele frequency (max_subpop_af) is 0.000967 (0.097%).",
+      "reasoning": "Following the PM2_SUPPORTING rules: Step 1: The variant is not absent from gnomAD. Step 2: The total AC is 15, which is not less than 6. Step 3: The variant is present in several subpopulations with allele frequencies exceeding the 0.00004 (0.004%) threshold (e.g., max_subpop_af is 0.000967). Subpopulations with an allele frequency of 0.0 (absent in those specific cohorts) do not satisfy the requirement of being present at an extremely low, non-zero frequency (< 0.00004) when the variant is otherwise common in other subpopulations. Therefore, PM2_SUPPORTING does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.139C>T has a popmax filtering allele frequency (FAF95) of 7.82e-06 (0.000782%) in the AMR population in gnomAD.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax FAF is greater than or equal to 0.01 (1%). Since the variant's Popmax FAF is 7.82e-06, which is far below the 0.01 threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD variant 12-51913176-C-T has a popmax FAF of 7.82e-06 (0.00000782) in the AMR population and 0 homozygotes.",
+      "reasoning": "According to the classification rules, BA1 does not apply (popmax FAF < 0.01). For BS1, the popmax FAF of 7.82e-06 is below the BS1_Supporting threshold (> 0.0008) and the BS1_Strong threshold (> 0.002). Additionally, there are 0 homozygotes, so the homozygote route for BS1_Strong is not met. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.139C>T results in the protein change p.Arg47Trp (R47W) in the ACVRL1 gene.",
+      "reasoning": "The variant residue is at protein position 47. According to the PM1 classification rules for ACVRL1, the critical regions are: (1) positions 209-216, (2) position 229, (3) position 242, (4) positions 329-335, (5) positions 348-351, and (6) the BMP10 interaction cluster (positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). Position 47 is not included in any of these critical regions or clusters. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "One different pathogenic/likely pathogenic missense variant at the same codon (p.Arg47Pro, NM_000020.3:c.140G>C) was identified in ClinVar.",
+      "reasoning": "According to the HHT VCEP rules for PM5, having 1 different pathogenic or likely pathogenic missense variant at the same codon qualifies for PM5 at a moderate strength level. Since there is exactly 1 qualifying variant in the different_aa_classifications list (p.Arg47Pro), PM5 applies at moderate strength.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 47",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The experiments list for the variant NM_000020.3:c.139C>T is empty.",
+      "reasoning": "According to Step 1 of the classification rules for PS3, if the experiments list is empty, the criterion does not apply. Therefore, PS3 is not met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.03, DS_DL=0.0 (max score = 0.03). REVEL score is not available due to a timeout error.",
+      "reasoning": "According to the pre-computed verdicts, PP3 SpliceAI does not fire because the maximum score of 0.03 is below the threshold of 0.2. Additionally, the REVEL score is unavailable and does not trigger PP3. Since neither independent trigger is met, the PP3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.397, SpliceAI max score: 0.03 (DS_DG=0.03, DS_AG=0.0, DS_AL=0.0, DS_DL=0.0).",
+      "reasoning": "According to the classification rules for HHT, a missense variant requires both REVEL <= 0.15 and SpliceAI <= 0.1 to satisfy BP4. Based on the pre-computed verdicts, 'BP4 REVEL HHT threshold (<= 0.15)' FAILS (score=0.3970), while 'BP4 SpliceAI (all scores <= 0.1)' PASSES (max score=0.0300). Since this is a missense variant and it fails the REVEL threshold condition, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913176-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The query variant NM_000020.3:c.139C>T (p.Arg47Cys) was evaluated. The same_aa_classifications list is empty, meaning no established pathogenic or likely pathogenic variants with the identical amino acid change (p.Arg47Cys) were found in the database.",
+      "reasoning": "According to the classification rules for PS1, the criterion requires a non-empty 'same_aa_classifications' list containing at least one variant classified as Pathogenic or Likely Pathogenic. Since 'same_aa_classifications' is empty (the only variant returned, p.Arg47Pro, has a different amino acid change and is listed under 'different_aa_classifications'), Step 1 is not satisfied, and PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 47",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The experiments list for the variant NM_000020.3:c.139C>T is empty.",
+      "reasoning": "According to Step 1 of the classification rules, if the experiments list is empty, the BS3 criterion does not apply. Therefore, applies is set to false and applied_strength is set to null.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.139C>T",
+      "disease": "HHT"
+    }
+  ]
+}

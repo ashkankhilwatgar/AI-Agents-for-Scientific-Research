@@ -1,0 +1,6 @@
+{
+  "variant": "NM_000020.3:c.139C>T",
+  "disease": "HHT",
+  "status": "error",
+  "error": "RemoteProtocolError: Server disconnected without sending a response."
+}

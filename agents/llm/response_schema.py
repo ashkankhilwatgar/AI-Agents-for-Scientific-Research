@@ -31,9 +31,7 @@ StrengthNote: TypeAlias= Literal[
 Direction: TypeAlias= Literal[
     "functionally_abnormal",
     "functionally_normal",
-    "intermediate",
-    "mixed",
-    "unclear",
+    "ambiguous"
 ]
 
 # =========================================
@@ -121,8 +119,9 @@ class FunctionalPaperFiltering(BaseModel):
 class FunctionalExperiment(BaseModel):
     effect_direction: Direction = Field(
         description="""Functional impact of the tested variant relative 
-        to the normal comparator, classified as functionally_abnormal, functionally_normal, 
-        intermediate, mixed, or unclear."""
+        to the normal comparator. If you think the is mixed, intermediate,
+        or you cannot determine whether is it functionally_normal or 
+        functionally_abnormal, you should return ambiguous."""
     )
 
     assay_type: str | None = Field(

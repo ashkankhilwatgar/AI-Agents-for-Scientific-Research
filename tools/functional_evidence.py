@@ -2,6 +2,7 @@ from typing import Optional, List, Dict, Any, Set
 from dataclasses import dataclass, asdict
 from .vep import annotate_variant
 import sys
+import base64
 from urllib.parse import quote
 from config import NCBI_API_KEY
 from config import NCBI_EMAIL
@@ -221,384 +222,560 @@ Do not check whether the tested variant matches the query variant.
 Never return false merely because the query variant was not tested.
 """
 
+PDF_EXTRACTION_SYSTEM_PROMPT = """
+You are a clinical variant-interpretation curator extracting functional
+experiments from a scientific paper.
 
-PDF_EXTRACTION_SYSTEM_PROMPT = r"""
-You are a clinical variant functional-evidence extractor for ACMG/AMP guidelines PS3/BS3 criteria.
+Your goal is to return only functional experiments that test the
+TARGET_VARIANT.
 
-INPUTS
-- TARGET_VARIANT: gene + identifiers (any of rsID, HGVSg, chr_pos_ref_alt,
-  HGVSc, HGVSp, aliases).
-- PAPER: a full PDF (may include many variants).
+The paper was selected by an upstream high-sensitivity screening step.
+Therefore:
 
-GOAL
-- Find all plausible variant-level functional experiments that might correspond to the TARGET_VARIANT. Read all PDF (text, tables, figure captions, and figure panels/embedded labels)
-- Be SENSITIVE: when in doubt, extract and clearly mark uncertainty.
-- Do NOT hallucinate data.
+- The paper may contain functional experiments involving the TARGET_VARIANT.
+- The paper may contain functional experiments involving only other variants.
+- The paper may mention the TARGET_VARIANT without experimentally testing it.
+- The paper may contain no functional experiments at all.
 
-OUTPUT
-- Return ONLY valid JSON that matches the schema exactly.
-- Use double quotes for all keys and strings.
-- No commentary outside JSON.
+Do not assume that an experiment is relevant merely because the paper discusses
+the same gene or was selected by the upstream screening step.
 
-────────────────────────────────────
-1. VARIANT MATCHING (SOFT GATE)
-────────────────────────────────────
-Build an equivalents set for the TARGET_VARIANT (without inventing mappings):
-- Same rsID
-- Same genomic coordinates (exact chr:pos:ref:alt or HGVSg as given)
-- Same cDNA change (c.notation; allow formatting variants)
-- Same protein change (same ref AA, same position, same alt AA;
-  allow 1-letter ↔ 3-letter and formatting variants)
+Return only the structured output required by the supplied schema.
 
-Do NOT:
-- Change genome build
-- Renumber across transcripts unless the paper explicitly gives both
-- Guess transcript IDs
-
-Match tiers (you can stop when one is clearly satisfied):
-
-1) STRICT MATCH → status = "matched"
-   - Exact rsID, genomic, cDNA, or protein match from the equivalents set,
-     in the correct gene.
-   - match_type = "rsid" / "genomic" / "cdna" / "protein" / "multiple"
-   - confidence:
-     - "high": rsID or genomic
-     - "medium": cDNA or protein + clear gene context
-     - "low": identifier match but weak context
-
-2) SINGLE VARIANT STUDY → status = "single_variant_study_matching"
-   - Functional experiments in this gene clearly test ONE specific variant only.
-   - No other specific variants appear in functional results.
-   - confidence:
-     - "medium" if gene and clinical context are clear
-     - "low" if context is weaker
-   - match_type = "single_variant_study"
-
-3) HEURISTIC MATCH → status = "heuristic_matching"
-   Use for plausible, non-strict matches in the same gene. Count applicable clues:
-
-   Clues:
-    - Same amino-acid substitution (same ref AA, position, alt AA) but written
-    in words or non-standard notation (e.g. "R158W mutant", "R158→W").
-    - Explicit numbering / isoform / precursor→mature mapping that links positions
-    to the same amino acid change.
-    - Different cDNA / protein numbering that the paper directly ties together
-    (e.g. "c.472C>T (R158W)").
-    - Shorthand label ("mut1", "A", etc.) that is expanded elsewhere to a notation
-    matching the TARGET_VARIANT equivalents.
-    - Table / figure / text cross-reference that explicitly equates two labels
-    as the same variant.
-    - Multiplex / saturation screen where the authors systematically test single
-    substitutions and the tested set clearly includes the TARGET codon / position
-    (e.g. "all single-amino-acid substitutions at residue 158").
-
-    Never call heuristic_matching based only on:
-    - Same exon / domain / region, "nearby" codon, or vague proximity.
-    - Gene-level statements with no specific variant label.
-
-   - match_type = "heuristic"
-   - confidence: "low" if 1 clue; "medium" if ≥2 clues
-
-4) NO PLAUSIBLE VARIANT → status = "variant_matching_unsuccessful"
-   - Use ONLY when you find no specific variant in this gene that could
-     reasonably be the TARGET_VARIANT.
-   - In this case: experiments = [] and overall_evidence.evidence_level =
-     "not_clear" and evidence_strength = "not_clear".
-
-IMPORTANT SENSITIVITY RULE:
-- If you see any specific variant in the SAME GENE that could plausibly be the
-  TARGET_VARIANT, you SHOULD:
-  - Assign "matched", "single_variant_study_matching", or "heuristic_matching"
-    with appropriate (often low) confidence.
-  - Extract its experiments.
-  - Explain uncertainty in variant_match.notes and overall_evidence.basis.
-- Only use "variant_matching_unsuccessful" when there is truly no plausible
-  candidate.
+Follow the procedure below internally. Do not output your reasoning process.
 
 ────────────────────────────────────
-2. EXPERIMENT EXTRACTION
+STEP 0 — BUILD TARGET VARIANT LABELS
 ────────────────────────────────────
-Extract experiments ONLY for the variant(s) linked to the TARGET_VARIANT by
-your chosen status (matched / single_variant_study_matching / heuristic_matching).
 
-INCLUDE:
-- Experiments where the specific variant label (e.g. "R158W", "mut1",
-  "c.472C>T") has its own row, bar, lane, or result.
-- Variant-level results in tables, figures, or text.
+Create a set of labels that can validly identify the TARGET_VARIANT.
 
-EXCLUDE:
-- Purely in silico predictions.
-- Case reports or association studies with no functional assay.
-- Results where variants are pooled and no individual variant result is given.
+Use only information supplied in the TARGET_VARIANT input, including, when
+available:
 
-For each experiment, record:
-- What the assay is (assay_type)
-- The system used (system)
-# - How the variant material was obtained (variant_material)
-- The measured endpoint (readout)
-# - The explicit comparator (normal_comparator: WT/healthy/threshold)
-- The functional direction and any numbers (effect_direction and
-  effect_size_and_stats)
-- Controls and validation details (controls_and_validation)
-- Authors' explicit conclusion about the variant (authors_conclusion)
-- Functional Impact compared to the normal comparator (normal_comparator: WT/healthy/threshold)
-  (effect_direction)
-# - Where it appears (where_in_paper)
-# - Limitations stated in the paper (caveats)
-# - Exact variant label in the paper (paper_variant_label)
-# - How strongly you link that label to the TARGET_VARIANT
-#   (variant_link_confidence).
+- Gene symbol
+- rsID
+- Genomic coordinate or HGVSg
+- HGVSc
+- HGVSp
+- Protein substitution
+- Explicitly supplied equivalent labels
 
-If you find NO functional assay on the matched variant:
-- experiments = []
-- overall_evidence.evidence_level = "not_clear"
-- overall_evidence.evidence_strength = "not_clear"
-- State this in overall_evidence.basis.
+You may recognize formatting-only equivalents, such as:
 
-# ────────────────────────────────────
-# 3. PS3 / BS3 / not_clear
-# ────────────────────────────────────
-# Definitions:
-# - PS3: Variant shows a functionally abnormal result (for example vs. a normal comparator),
-# consistent with a damaging effect and disease mechanism.
-# - BS3: Variant shows functionally normal result (for example vs. a normal comparator).
-# - not_clear: unclear direction, conflicting or insufficient information.
+- R158W
+- p.R158W
+- p.Arg158Trp
+- Arg158Trp
+- R158→W
 
-# Strength (very_strong / strong / moderate / supporting / not_clear):
-# - supporting: comparator present + basic controls described (WT ± positive/null) but limited validation
-# - moderate: well-established assay with clear controls/replication and/or multiple validation controls described
-# - strong/very_strong: the paper provides rigorous clinical validation/calibration supporting high confidence
-#   (e.g., multiple known benign/pathogenic controls with clear thresholds or explicit calibration).
+These may be treated as equivalent only when they describe the same:
 
-# If evidence_level = "not_clear":
-# - evidence_strength MUST be "not_clear".
+- Reference amino acid
+- Amino-acid position
+- Alternate amino acid
+
+You may normalize insignificant formatting differences involving:
+
+- Spaces
+- Parentheses
+- Capitalization
+- One-letter versus three-letter amino-acid notation
+- Presence or absence of prefixes such as "p." or "c."
+
+Do not invent biological mappings.
+
+Do not:
+
+- Guess a transcript
+- Convert between transcripts unless the mapping is explicitly supplied
+- Change genome builds
+- Guess genomic coordinates
+- Renumber protein positions
+- Treat nearby variants as equivalent
+- Treat variants in the same exon or protein domain as equivalent
+- Treat the same amino-acid position with a different alternate amino acid as
+  equivalent
+
+The resulting label set is called TARGET_VARIANT_LABELS.
 
 ────────────────────────────────────
-4. SUMMARY
+STEP 1 — IDENTIFY ALL FUNCTIONAL EXPERIMENTS
 ────────────────────────────────────
-In summary:
-- Be generous in extraction when the variant is plausibly the TARGET_VARIANT.
-- Use status, confidence, variant_link_confidence, and notes to mark how sure
-  you are.
-- Never invent experiments or numbers.
-- Output must be valid JSON according to the schema, with no extra keys.
+
+Read the full paper and identify every candidate functional experiment.
+
+Search relevant sections including:
+
+- Methods
+- Results
+- Tables
+- Figures
+- Figure legends
+- Supplementary descriptions
+
+A functional experiment must experimentally measure an effect on the gene
+product or a biologically relevant pathway or cellular output.
+
+Examples include:
+
+- Protein expression or abundance
+- Protein localization or trafficking
+- Protein stability
+- Ligand binding
+- Enzyme activity
+- Receptor activity
+- Signaling activity
+- Reporter assays
+- RNA expression
+- RNA splicing
+- Cellular behavior
+- Rescue or complementation assays
+- Disease-relevant pathway measurements
+
+Do not consider the following to be functional experiments:
+
+- Purely in silico predictions
+- Computational pathogenicity scores
+- Population-frequency analysis
+- Case reports without an experimental assay
+- Association studies without functional testing
+- General statements about the gene
+- Predictions based only on protein structure
+- Literature summaries of experiments performed in another paper
+
+If the paper contains no functional experiments:
+
+- Set experiments to an empty list.
+- Return the complete structured-output object.
+
+────────────────────────────────────
+STEP 2 — PROCESS EACH FUNCTIONAL EXPERIMENT
+────────────────────────────────────
+
+Examine each functional experiment independently.
+
+For the current experiment, determine:
+
+1. What assay was performed?
+2. Which specific variant or variants were tested?
+3. What result belongs to each tested variant?
+4. Does the experiment contain an individual result for a label in
+   TARGET_VARIANT_LABELS?
+
+Use variant information from:
+
+- Main text
+- Methods
+- Tables
+- Figure labels
+- Figure legends
+- Sample names
+- Construct names
+- Lane labels
+- Bar labels
+- Explicit shorthand definitions
+
+A shorthand label such as "mut1" may be linked to the TARGET_VARIANT only when
+the paper explicitly defines that shorthand as the target variant.
+
+────────────────────────────────────
+STEP 3 — KEEP OR DISCARD THE EXPERIMENT
+────────────────────────────────────
+
+KEEP the experiment only when it reports an individual functional result for
+the TARGET_VARIANT.
+
+An experiment may be kept when:
+
+- The target variant has its own table row
+- The target variant has its own figure bar
+- The target variant has its own point or curve
+- The target variant has its own experimental lane
+- The target variant has its own construct or sample
+- The text explicitly reports a result for the target variant
+- A systematic variant screen reports an individually identifiable result for
+  the exact target variant
+
+DISCARD the experiment when:
+
+- It tests only another variant
+- It tests another variant in the same gene
+- It tests a nearby variant
+- It tests a different substitution at the same amino-acid position
+- It discusses the target variant but does not experimentally test it
+- It reports only a gene-level result
+- It reports only a pooled result for several variants
+- It is impossible to determine whether the result belongs to the target
+  variant
+- The target variant appears only in the introduction, patient description,
+  discussion, or reference list
+- The connection to the target variant would require an unsupported
+  transcript, coordinate, or numbering conversion
+
+The fact that a paper studies only one variant does not prove that the variant
+is the TARGET_VARIANT. The experiment must still contain a valid
+target-variant label match.
+
+────────────────────────────────────
+STEP 4 — HANDLE MULTI-VARIANT EXPERIMENTS
+────────────────────────────────────
+
+One assay may test several variants.
+
+When an assay includes both the TARGET_VARIANT and other variants:
+
+- Keep only the result belonging to the TARGET_VARIANT.
+- Do not include results belonging only to other variants.
+- Use other variants only as comparators when the paper explicitly uses them
+  that way.
+
+If several variants are pooled together and the paper does not provide an
+individual result for the TARGET_VARIANT:
+
+- Discard the experiment.
+
+If the paper provides an individually identifiable target-variant result within
+a larger multiplex or saturation screen:
+
+- Keep the target-variant result.
+
+────────────────────────────────────
+STEP 5 — CREATE THE EXPERIMENT OBJECT
+────────────────────────────────────
+
+For every retained experiment, create one functional experiment object using
+the supplied schema.
+
+Populate the required fields using only information stated or directly shown
+in the paper, including:
+
+- assay_type
+- system
+- readout
+- effect_direction
+- effect_size_and_stats
+- controls_and_validation
+- authors_conclusion
+
+Do not invent missing information.
+
+When a field permits null and the paper does not provide the information, use
+null.
+
+Do not infer:
+
+- A numerical effect size that was not reported
+- Statistical significance that was not reported
+- Valid controls that were not described
+- An author conclusion stronger than the paper's actual conclusion
+- Pathogenicity or benignity solely from your own interpretation of the assay
+
+Create separate experiment objects when the paper uses meaningfully different:
+
+- Assay types
+- Biological systems
+- Readouts
+- Functional endpoints
+
+Do not create duplicate experiment objects when the same result is described in
+both the text and a figure.
+
+────────────────────────────────────
+STEP 6 — CONTINUE UNTIL ALL EXPERIMENTS ARE PROCESSED
+────────────────────────────────────
+
+Repeat Steps 2 through 5 for every functional experiment found in the paper.
+
+For each experiment:
+
+- Keep it when it individually tests the TARGET_VARIANT.
+- Discard it otherwise.
+
+Do not stop after finding the first matching experiment.
+
+Do not stop after finding the first nonmatching experiment.
+
+────────────────────────────────────
+STEP 7 — FINAL OUTPUT
+────────────────────────────────────
+
+After processing all functional experiments:
+
+- Return all retained target-variant experiment objects in experiments.
+- If no target-variant experiments remain, return experiments as an empty list.
+
+An empty experiment list is correct in either of these situations:
+
+1. The paper contains no functional experiments.
+2. The paper contains functional experiments, but none individually test the
+   TARGET_VARIANT.
+
+Return only the complete structured-output object required by the schema.
+Do not return explanatory text outside the structured output.
 """
 
-# JSON Schema for structured PDF extraction output
-VARIANT_FUNCTIONAL_SCHEMA = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": [
-        "target_variant_input",
-        "variant_match",
-        "experiments",
-        "overall_evidence",
-        "summary"
-    ],
-    "properties": {
-        "target_variant_input": {
-            "type": "string",
-            "description": "Raw TARGET_VARIANT input string"
-        },
-        "variant_match": {
-            "type": "object",
-            "additionalProperties": False,
-            "required": [
-                "status",
-                "confidence",
-                "match_type",
-                "matched_strings_in_paper",
-                "equivalents_used",
-                "where_in_paper",
-                "notes"
-            ],
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "matched",
-                        "single_variant_study_matching",
-                        "heuristic_matching",
-                        "variant_matching_unsuccessful"
-                    ],
-                    "description": "Overall matching outcome for the TARGET_VARIANT"
-                },
-                "confidence": {
-                    "type": "string",
-                    "enum": ["high", "medium", "low", "not_clear"],
-                    "description": "Overall confidence that the matched variant(s) correspond to the TARGET_VARIANT"
-                },
-                "match_type": {
-                    "type": "string",
-                    "enum": [
-                        "rsid",
-                        "genomic",
-                        "cdna",
-                        "protein",
-                        "multiple",
-                        "single_variant_study",
-                        "heuristic",
-                        "not_clear"
-                    ],
-                    "description": "Primary identifier or pattern used to link the paper variant(s) to the TARGET_VARIANT"
-                },
-                "matched_strings_in_paper": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Exact matching strings as they appear in the paper"
-                },
-                "equivalents_used": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "List of equivalent forms of TARGET_VARIANT used in the search"
-                },
-                "where_in_paper": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Locations of the matched strings"
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Short notes explaining matching rationale and any ambiguity"
-                }
-            }
-        },
-        "experiments": {
-            "type": "array",
-            "description": "Functional experiments for the variant(s) linked to the TARGET_VARIANT",
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": [
-                    "assay",
-                    "system",
-                    "variant_material",
-                    "readout",
-                    "normal_comparator",
-                    "result",
-                    "controls_and_validation",
-                    "authors_conclusion",
-                    "where_in_paper",
-                    "caveats",
-                    "paper_variant_label",
-                    "variant_link_confidence"
-                ],
-                "properties": {
-                    "assay": {
-                        "type": ["string", "null"],
-                        "description": "Assay type"
-                    },
-                    "system": {
-                        "type": ["string", "null"],
-                        "description": "Experimental system"
-                    },
-                    "variant_material": {
-                        "type": ["string", "null"],
-                        "description": "Source of the variant material"
-                    },
-                    "readout": {
-                        "type": ["string", "null"],
-                        "description": "Measured endpoint with units"
-                    },
-                    "normal_comparator": {
-                        "type": ["string", "null"],
-                        "description": "Explicit comparator defining normal function"
-                    },
-                    "result": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": ["direction", "effect_size_and_stats"],
-                        "properties": {
-                            "direction": {
-                                "type": "string",
-                                "enum": [
-                                    "functionally_abnormal",
-                                    "functionally_normal",
-                                    "intermediate",
-                                    "mixed",
-                                    "unclear"
-                                ],
-                                "description": "Functional impact relative to the comparator"
-                            },
-                            "effect_size_and_stats": {
-                                "type": ["string", "null"],
-                                "description": "Quantitative details as reported"
-                            }
-                        }
-                    },
-                    "controls_and_validation": {
-                        "type": ["string", "null"],
-                        "description": "Information on assay controls and validation"
-                    },
-                    "authors_conclusion": {
-                        "type": ["string", "null"],
-                        "description": "Authors' interpretation of the variant effect"
-                    },
-                    "where_in_paper": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Specific locations of this experiment"
-                    },
-                    "caveats": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Limitations mentioned in the paper"
-                    },
-                    "paper_variant_label": {
-                        "type": ["string", "null"],
-                        "description": "Exact variant label used in the paper"
-                    },
-                    "variant_link_confidence": {
-                        "type": "string",
-                        "enum": ["high", "medium", "low"],
-                        "description": "Confidence that paper_variant_label corresponds to TARGET_VARIANT"
-                    }
-                }
-            }
-        },
-        "overall_evidence": {
-            "type": "object",
-            "additionalProperties": False,
-            "required": [
-                "evidence_level",
-                "evidence_strength",
-                "odds_path",
-                "validation_basis",
-                "basis"
-            ],
-            "properties": {
-                "evidence_level": {
-                    "type": "string",
-                    "enum": ["PS3", "BS3", "not_clear"],
-                    "description": "Overall functional evidence classification"
-                },
-                "evidence_strength": {
-                    "type": "string",
-                    "enum": ["very_strong", "strong", "moderate", "supporting", "not_clear"],
-                    "description": "Strength of the functional evidence"
-                },
-                "odds_path": {
-                    "type": ["number", "null"],
-                    "description": "OddsPath value if explicitly reported"
-                },
-                "validation_basis": {
-                    "type": ["string", "null"],
-                    "description": "Justification for the chosen evidence_strength"
-                },
-                "basis": {
-                    "type": "string",
-                    "description": "Short rationale summarizing the evidence"
-                }
-            }
-        },
-        "summary": {
-            "type": "string",
-            "description": "2–5 sentence narrative of the PS3/BS3 call"
-        }
-    }
-}
+ABSTRACT_EXTRACTION_SYSTEM_PROMPT = """
+You are helping to extract functional experiments for a specific genetic
+variant from the abstract of a scientific paper.
 
+Your task is to return only experiments that directly test the functional
+impact of the TARGET_VARIANT.
+
+The abstract may:
+
+- contain experiments involving the TARGET_VARIANT;
+- contain experiments involving only other variants;
+- mention the TARGET_VARIANT without functionally testing it; or
+- contain no functional experiments at all.
+
+Do not assume that an experiment is relevant merely because it studies the
+same gene or another variant in the same gene.
+
+Follow the procedure below internally. Return only the structured output
+required by the output schema.
+
+────────────────────────────────────
+STEP 0 — BUILD TARGET VARIANT LABELS
+────────────────────────────────────
+
+Using the TARGET_VARIANT supplied in the user message, identify the labels that
+can validly refer to that variant.
+
+You may recognize formatting-only equivalents, including:
+
+- one-letter and three-letter amino-acid notation;
+- presence or absence of prefixes such as "p." or "c.";
+- differences in spacing, capitalization, parentheses, or arrow notation.
+
+For example, these may represent the same protein variant:
+
+- R158W
+- p.R158W
+- p.Arg158Trp
+- Arg158Trp
+- R158→W
+
+Only treat protein labels as equivalent when they have the same:
+
+- reference amino acid;
+- amino-acid position; and
+- alternate amino acid.
+
+Do not:
+
+- guess transcript mappings;
+- convert between transcripts unless the abstract explicitly provides the
+  mapping;
+- change genome builds;
+- invent genomic or cDNA coordinates;
+- renumber protein positions;
+- treat nearby variants as equivalent;
+- treat variants in the same exon or domain as equivalent; or
+- treat different substitutions at the same amino-acid position as equivalent.
+
+The resulting set is called TARGET_VARIANT_LABELS.
+
+────────────────────────────────────
+STEP 1 — IDENTIFY CANDIDATE FUNCTIONAL EXPERIMENTS
+────────────────────────────────────
+
+Read the abstract and identify every candidate experiment that measures the
+functional effect of a genetic variant or mutant.
+
+Examples include:
+
+- protein expression or abundance;
+- protein localization or trafficking;
+- protein stability or degradation;
+- enzyme activity;
+- ligand binding or protein interaction;
+- receptor or signaling activity;
+- reporter assays;
+- electrophysiology;
+- transport or channel activity;
+- RNA splicing;
+- RT-PCR or minigene assays;
+- nonsense-mediated decay;
+- RNA stability;
+- rescue or complementation assays;
+- disease-relevant cellular or pathway measurements.
+
+Do not treat the following as functional experiments:
+
+- purely computational or in-silico predictions;
+- pathogenicity prediction scores;
+- population-frequency analysis;
+- genetic association or segregation analysis without a functional assay;
+- case reports without experimental functional measurements;
+- patient phenotype descriptions alone;
+- structural predictions without experimental validation;
+- ordinary gene knockout or overexpression experiments that do not test a
+  specific variant;
+- reviews or summaries of experiments performed in other papers; or
+- proposed experiments without reported results.
+
+If the abstract contains no candidate functional experiments, return:
+
+{"experiments": []}
+
+────────────────────────────────────
+STEP 2 — EVALUATE EACH EXPERIMENT
+────────────────────────────────────
+
+Process every candidate functional experiment independently.
+
+For each experiment, determine:
+
+1. What assay was performed?
+2. Which variant or variants were tested?
+3. What functional result was reported?
+4. Does the experiment report an individual result for a label in
+   TARGET_VARIANT_LABELS?
+
+Use only information explicitly available in the abstract.
+
+A shorthand name such as "mutant 1" may be connected to the TARGET_VARIANT only
+when the abstract explicitly defines that shorthand as the target variant.
+
+Do not assume that an unnamed mutant is the TARGET_VARIANT.
+
+────────────────────────────────────
+STEP 3 — KEEP OR DISCARD EACH EXPERIMENT
+────────────────────────────────────
+
+KEEP an experiment only when the abstract directly links the functional assay
+and its result to the TARGET_VARIANT.
+
+Examples of experiments to keep include:
+
+- the abstract explicitly reports the target variant's activity;
+- the target variant is compared with wild type;
+- the target variant has an individually described localization, expression,
+  signaling, splicing, binding, or other functional result;
+- the abstract reports an individually identifiable result for the target
+  variant within a larger panel of variants.
+
+DISCARD an experiment when:
+
+- it tests only another variant;
+- it tests another variant in the same gene;
+- it tests a nearby variant;
+- it tests a different substitution at the same amino-acid position;
+- the target variant is mentioned but not experimentally tested;
+- the result is reported only at the gene level;
+- several variants are pooled and no individual result is reported for the
+  target variant;
+- the abstract does not state which variant produced the result;
+- linking the experiment to the target would require an unsupported transcript,
+  coordinate, or numbering conversion; or
+- the target variant appears only in the background, patient description,
+  discussion, or conclusion.
+
+The fact that the paper studies only one variant does not prove that the
+variant is the TARGET_VARIANT. Its label must still match one of
+TARGET_VARIANT_LABELS.
+
+────────────────────────────────────
+STEP 4 — HANDLE MULTI-VARIANT EXPERIMENTS
+────────────────────────────────────
+
+An experiment may test several variants.
+
+If the experiment includes the TARGET_VARIANT and other variants:
+
+- retain the experiment only for the TARGET_VARIANT result;
+- do not describe results belonging only to the other variants.
+
+If the variants are pooled together and the abstract does not provide an
+individual result for the TARGET_VARIANT:
+
+- discard the experiment.
+
+If the abstract says that a panel of mutants was tested but does not state that
+the TARGET_VARIANT was included:
+
+- do not assume that the target variant was tested;
+- discard the experiment.
+
+────────────────────────────────────
+STEP 5 — CREATE EXPERIMENT OBJECTS
+────────────────────────────────────
+
+For every retained experiment, create one experiment object that follows the
+output schema.
+
+Populate fields such as:
+
+- assay_type;
+- system;
+- readout;
+- effect_direction;
+- effect_size_and_stats;
+- controls_and_validation; and
+- authors_conclusion.
+
+Use only information explicitly reported in the abstract.
+
+Do not invent:
+
+- assay details;
+- biological systems;
+- numerical measurements;
+- statistical significance;
+- controls;
+- conclusions; or
+- variant-to-experiment connections.
+
+Only include an experiment object if it has real, non-empty content for at
+least one of:
+
+- assay_type;
+- system;
+- readout; or
+- authors_conclusion.
+
+Do not return placeholder objects or experiment objects in which all meaningful
+fields are empty or null.
+
+Do not create duplicate experiment objects when the same experiment is
+described more than once in the abstract.
+
+────────────────────────────────────
+STEP 6 — PROCESS ALL EXPERIMENTS
+────────────────────────────────────
+
+Continue until every candidate functional experiment in the abstract has been
+evaluated.
+
+For each experiment:
+
+- keep it if it directly tests the TARGET_VARIANT;
+- discard it otherwise.
+
+Do not stop after finding the first matching experiment.
+
+────────────────────────────────────
+STEP 7 — FINAL OUTPUT
+────────────────────────────────────
+
+Return all retained experiment objects in the experiments list.
+
+If no relevant experiments remain, return an empty list
+
+This includes all of the following situations:
+
+- the abstract contains no functional experiments;
+- the abstract contains functional experiments only for other variants;
+- the target variant is mentioned but not functionally tested;
+- the abstract does not provide enough information to connect an experiment to
+  the target variant;
+
+Remove any experiment that fails one or more of these checks.
+
+Return only the output required by the schema. Do not include explanatory text
+outside the structured output.
+"""
 
 # =============================================================================
 # LLM WRAPPER
@@ -652,30 +829,6 @@ class VariantInfo:
     ensembl_transcript: Optional[str] = None
     mane_transcript: Optional[str] = None
 
-    # def search_strings(self) -> List[str]:
-    #     """
-    #     Return a deduplicated list of variant IDs to search LitVar2.
-
-    #     Uses:
-    #     - a simple genomic string: CHR:POS REF>ALT
-    #     - rsid, hgvsc, hgvsp
-    #     - gene_symbol + hgvsc / hgvsp combos when available
-    #     """
-    #     genomic_str = f"{self.chrom}:{self.pos}{self.ref}>{self.alt}"
-
-    #     candidates = [
-    #         genomic_str,
-    #         self.rsid,
-    #         self.hgvsc,
-    #         self.hgvsp,
-    #     ]
-    #     if self.gene_symbol and self.hgvsp:
-    #         candidates.append(f"{self.gene_symbol} {self.hgvsp}")
-    #     if self.gene_symbol and self.hgvsc:
-    #         candidates.append(f"{self.gene_symbol} {self.hgvsc}")
-    #     return sorted({c for c in candidates if c})
-
-
 @dataclass
 class CandidatePaper:
     """Store basic paper information from LitVar2."""
@@ -706,7 +859,6 @@ class FunctionalExperiment:
     magnitude_stats: str
     controls_validity: str
     authors_conclusion: str
-    evaluation: str
 
 # =============================================================================
 # VEP tools
@@ -749,116 +901,6 @@ def build_variant_label(vi: VariantInfo) -> str:
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
     )
 
-# def restore_hgvs_notation(variant: str) -> str:
-#     """
-#     Convert a filename-safe variant name back to HGVS notation.
-
-#     Example:
-#         NM_000020_3_c_1445C_T -> NM_000020.3:c.1445C>T
-#     """
-#     pattern = re.compile(
-#         r"^(?P<accession>[A-Z]+_\d+)_"  # NM_000020_
-#         r"(?P<version>\d+)_"            # 3_
-#         r"(?P<sequence_type>[cgnmpr])_" # c_
-#         r"(?P<position>.+?)_"           # 1445C_
-#         r"(?P<alternate>[A-Za-z*]+)$"   # T
-#     )
-
-#     match = pattern.fullmatch(variant.strip())
-
-#     if match is None:
-#         raise ValueError(f"Unsupported variant format: {variant!r}")
-
-#     return (
-#         f"{match.group('accession')}.{match.group('version')}:"
-#         f"{match.group('sequence_type')}."
-#         f"{match.group('position')}>{match.group('alternate')}"
-#     )
-
-# # =============================================================================
-# # Literature Query Functions 
-# # =============================================================================
-
-# def query_pubtator(vi: VariantInfo) -> set[str]:
-#     """
-#     Query pubTator using hvgs variant name.
-#     Returns a set of all unique PMIDs found.
-#     """
-#     endpoint = "https://www.ncbi.nlm.nih.gov/research/pubtator3-api/search/"
-#     pmids = set()
-#     page = 1
-
-#     print("+++++++++++++++++++++++++++++++++++++++")
-#     print("varinat:", vi.name)
-#     print("+++++++++++++++++++++++++++++++++++++++")
-
-#     try:
-#         while True:
-#             response = requests.get(
-#                 endpoint,
-#                 params={
-#                     "text": restore_hgvs_notation(vi.name),
-#                     "page": 1
-#                 },
-#                 timeout=30
-#             )
-
-#             if not response.ok:
-#                 return set()
-
-#             data = response.json()
-#             results = data.get("results")
-
-#             if not isinstance(results, list):
-#                 return set()
-            
-#             for result in results:
-#                 pmid = result.get("PMID") or result.get("PMID")
-#                 if pmid is not None:
-#                     pmids.add(str(pmid))
-
-            
-#             total_pages = int(data.get("total_pages", 1))
-#             if page >= total_pages:
-#                 break
-        
-#         return pmids
-            
-#     except Exception as e:
-#         return set()
-    
-# def query_pubmed_Esearch(vi: VariantInfo) -> set:
-#     """
-#     Query pubTator using hvgs variant name.
-#     Returns a set of all unique PMIDs found.
-#     """
-#     endpoint = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-#     pmids = set()
-
-#     try:
-#         resp = requests.get(
-#             endpoint,
-#             params={
-#                 "db": "pubmed",
-#                 "term": restore_hgvs_notation(vi.name),
-#                 "retmode": "json",
-#                 "retmax": 10_000
-#             }
-#         )
-
-#         data = resp.json()
-
-#         if isinstance(data, dict):
-#             idlist = data.get("esearchresult", {}).get("idlist", [])
-#             if idlist and isinstance(idlist, list):
-#                 for pmid in idlist:
-#                     pmids.add(str(pmid))
-        
-#         return pmids
-    
-#     except Exception as e:
-#         return set()
-
 def query_litvar2(vi: VariantInfo) -> Set[str]:
     """
     Query LitVar2 using rsid only.
@@ -879,10 +921,10 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
         print(f"No RSID available for the variant {vi.name}")
         return set()
     
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("RSID: ")
     print(rsid)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     pmids = query_litvar2_publications(rsid)
     return pmids
@@ -913,10 +955,10 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
 
         data = resp.json()
 
-        # print(f"{"-"*100}")
+        # print(f"{'-'*100}")
         # print("litvar2 data returned: ")
         # pprint(data)
-        # print(f"{"-"*100}")
+        # print(f"{'-'*100}")
 
         pmids = set()
 
@@ -1049,46 +1091,59 @@ def check_open_access_from_doi(doi: str) -> str:
     except Exception:
         return ""
 
-def fetch_pdf_url(pmid: str) -> str:
+def fetch_pdf_url(pmid: str) -> tuple[str, str]:
     """
     Fetch PDF URL for a PMID using multiple methods.
-    
+
     Tries:
     1. metapub FindIt for direct PDF discovery
     2. Unpaywall API via DOI for open access
-    
+
     Parameters
     ----------
     pmid : str
         PubMed ID
-        
+
     Returns
     -------
-    str
-        URL to PDF if found, empty string otherwise
+    tuple[str, str]
+        (url, source) — url to PDF if found (empty string otherwise), and
+        which method produced it ("findit", "unpaywall", or "none"). The
+        source label matters for debugging: FindIt frequently returns a
+        publisher "article page" URL that returns HTML (paywall/cookie
+        wall) instead of the actual PDF binary, whereas Unpaywall only
+        returns links it believes are genuinely open-access full text.
     """
     try:
         # Try metapub FindIt first
         finder = FindIt(pmid)
         if finder.url:
-            return finder.url
-        
+            return finder.url, "findit"
+
         # Fallback: try Unpaywall via DOI
         article = FETCHER.article_by_pmid(pmid)
         if article and hasattr(article, "doi") and article.doi:
             url = check_open_access_from_doi(article.doi)
             if url:
-                return url
-        
-        return ""
+                return url, "unpaywall"
+
+        return "", "none"
     except Exception as e:
-        # print(f"   Warning: Failed to find PDF URL for PMID {pmid}: {e}")
-        return ""
+        print(f"   [!] Warning: Failed to find PDF URL for PMID {pmid}: {e}")
+        return "", "none"
 
 def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional[str]:
     """
     Download PDF for a PMID to specified directory.
-    
+
+    Validates that the downloaded content is actually a PDF (via
+    Content-Type header AND the '%PDF-' magic-byte signature) before
+    writing it to disk. Many publisher URLs discovered by metapub's
+    FindIt return HTTP 200 with an HTML paywall/landing page instead of
+    the real PDF binary when fetched without a browser session — without
+    this check, that HTML gets silently saved as a ".pdf" file that
+    later fails to open ("Invalid or corrupted PDF file").
+
     Parameters
     ----------
     pmid : str
@@ -1097,45 +1152,70 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
         Directory to save PDFs
     url : str, optional
         Pre-fetched PDF URL. If None, will attempt to discover URL.
-        
+
     Returns
     -------
     str or None
         Path to downloaded PDF if successful, None otherwise
     """
     pdf_path = Path(pdf_dir) / f"{pmid}.pdf"
-    
-    # Check if already exists
+
+    # Check if already exists AND is a valid PDF (don't trust a
+    # previously-saved file blindly — earlier runs may have saved HTML).
     if pdf_path.exists():
-        # print(f"   [→] PDF already exists for PMID {pmid}")
-        return str(pdf_path)
-    
+        try:
+            with open(pdf_path, 'rb') as f:
+                header = f.read(5)
+            if header == b'%PDF-':
+                return str(pdf_path)
+            else:
+                print(f"   [!] PMID {pmid}: existing file is not a valid PDF "
+                      f"(header={header!r}) — re-downloading")
+                pdf_path.unlink()
+        except OSError as e:
+            print(f"   [!] PMID {pmid}: could not read existing file, re-downloading: {e}")
+
     # Get URL if not provided
+    source = "provided"
     if url is None:
-        url = fetch_pdf_url(pmid)
-    
+        url, source = fetch_pdf_url(pmid)
+
     if not url:
-        # print(f"   [✗] No PDF URL found for PMID {pmid}")
+        print(f"   [x] PMID {pmid}: no PDF URL found (source={source})")
         return None
-    
+
     try:
         # Ensure directory exists
         pdf_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Download with headers to avoid being blocked
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=30) as response:
-            with open(pdf_path, 'wb') as f:
-                f.write(response.read())
-        
-        print(f"   [✓] Downloaded PDF for PMID {pmid}")
+            content_type = response.headers.get("Content-Type", "")
+            data = response.read()
+
+        # Validate: reject anything that isn't actually a PDF, regardless
+        # of what Content-Type claims (some servers mislabel HTML as
+        # application/pdf, so check both the header AND the magic bytes).
+        looks_like_pdf = "pdf" in content_type.lower() or data.startswith(b"%PDF-")
+        if not looks_like_pdf or not data.startswith(b"%PDF-"):
+            print(f"   [x] PMID {pmid}: download did not return a valid PDF "
+                  f"(source={source}, url={url}, Content-Type={content_type!r}, "
+                  f"first bytes={data[:20]!r}) — likely a paywall/landing page. "
+                  f"Discarding.")
+            return None
+
+        with open(pdf_path, 'wb') as f:
+            f.write(data)
+
+        print(f"   [v] Downloaded valid PDF for PMID {pmid} (source={source})")
         return str(pdf_path)
-        
+
     except Exception as e:
-        print(f"   [✗] Failed to download PDF for PMID {pmid}: {e}")
+        print(f"   [x] Failed to download PDF for PMID {pmid} (source={source}, url={url}): {e}")
         return None
 
 
@@ -1209,28 +1289,15 @@ PMID: {p.pmid}
 Title: {p.title}
 Abstract: {p.abstract}
 
-Make sure you follow the output schema.
-
-Some useful notes regarding the output schema:
-- is_functional takes a boolean value. It is true when you think the paper contains a functional experiment 
-after reading the abstract. Note that the functional experiment does not necessarily need to be related to 
-any specific variant. is_functional is true when any functional experiment is present
-- justification is where you explains why do you make this decision in is_functional. You should aim to be 
-concise, yet do not omit any important clues that let you made the decision.
+Based on the system instructions, respond in JSON with keys:
+- "is_functional": true/false
+- "justification": short string (1-3 sentences explaining your decision).
+- "pmid": {p.pmid}
 """
 
         try:
             # Use system prompt + user prompt structure
             from langchain_core.messages import SystemMessage, HumanMessage
-            
-
-            
-            # content = invoke_llm(
-            #     model=MODELS["functional_evidence"]["model"],
-            #     provider=MODELS["functional_evidence"]["provider"],
-            #     human_messsage=user_prompt,
-            #     system_message=ABSTRACT_CLASSIFICATION_SYSTEM_PROMPT
-            # )
 
             content = call_functional_llm(
                 user_prompt=user_prompt, 
@@ -1238,26 +1305,10 @@ concise, yet do not omit any important clues that let you made the decision.
                 output_schema=FunctionalPaperFiltering
             )
 
-            # # # resp.content can be a string or a list of content parts
-            # # content = resp.content
-            # if isinstance(content, list):
-            #     # LangChain sometimes returns a list of dicts with "text"
-            #     content = "".join(
-            #         part.get("text", "")
-            #         for part in content
-            #         if isinstance(part, dict)
-            #     )
-
-            # # Clean up potential markdown code blocks
-            # content = re.sub(r"```(?:json)?", "", content).strip()
-            # content = content.replace("```", "")
-            
-            # parsed = json.loads(content)
-
-            # print(f"{"="*100}")
-            # print("functional_experiment result:")
-            # pprint(parsed)
-            # print(f"{"="*100}")
+            print(f"{'='*100}")
+            print("functional_experiment result:")
+            pprint(content)
+            print(f"{'='*100}")
 
             if isinstance(content, dict):
                 if content.get("is_functional"):
@@ -1269,7 +1320,8 @@ concise, yet do not omit any important clues that let you made the decision.
                         )
                     )
         except Exception as e:
-            # print(f"   Warning: LLM filtering failed for PMID {p.pmid}: {e}")
+            print(f"   [!] Warning: LLM filtering failed for PMID {p.pmid}: {e!r}")
+            print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
             continue
 
     return functional
@@ -1283,41 +1335,40 @@ def _parse_pdf_extraction_response(
     
     Common helper for all providers.
     """
-    # Clean up potential markdown code blocks
-    # content = re.sub(r"```(?:json)?", "", content).strip()
-    # content = content.replace("```", "")
-    
-    # parsed = json.loads(content)
-    
+    skipped_blank = 0
+
     experiments = []
     for exp in content.get("experiments", []):
-        # result = exp.get("result", {})
-        
-        # Map direction to evaluation
-        direction = exp.get("effect_direction", "unclear")
-        if direction == "functionally_abnormal":
-            evaluation = "supports_pathogenic"
-            effect_dir = "loss_of_function"
-        elif direction == "functionally_normal":
-            evaluation = "supports_benign"
-            effect_dir = "no_effect_vs_wildtype"
-        else:
-            evaluation = "ambiguous"
-            effect_dir = "ambiguous"
-        
+        assay_type = exp.get("assay_type", "") or ""
+        system = exp.get("system", "") or ""
+        readout = exp.get("readout", "") or ""
+        authors_conclusion = exp.get("authors_conclusion", "") or ""
+
+        # Skip empty-shell entries: if the model produced an "experiment"
+        # with no actual assay/system/readout/conclusion content, it isn't
+        # real evidence and would just add noise downstream (e.g. an
+        # experiment with evaluation="" that PlanRAG's STEP 1 grouping
+        # can't classify as anything).
+        if not any([assay_type.strip(), system.strip(), readout.strip(), authors_conclusion.strip()]):
+            skipped_blank += 1
+            continue
+
         experiments.append(
             FunctionalExperiment(
                 pmid=pmid,
-                assay_type=exp.get("assay_type", "") or "",
-                system=exp.get("system", "") or "",
-                readout=exp.get("readout", "") or "",
-                effect_direction=effect_dir,
+                assay_type=assay_type,
+                system=system,
+                readout=readout,
+                effect_direction=exp.get("effect_direction", "unclear"),
                 magnitude_stats=exp.get("effect_size_and_stats", "") or "",
                 controls_validity=exp.get("controls_and_validation", "") or "",
-                authors_conclusion=exp.get("authors_conclusion", "") or "",
-                evaluation=evaluation,
+                authors_conclusion=authors_conclusion,
             )
         )
+
+    if skipped_blank:
+        print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
+              f"entr{'y' if skipped_blank == 1 else 'ies'} from PDF extraction")
     
     return experiments
 
@@ -1340,15 +1391,6 @@ def _extract_from_pdf(
     - Gemini: Uses file upload with generative AI API
     """
     try:
-        # import os
-        # import google.generativeai as genai
-        
-        # # Configure the API
-        # genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-        
-        # Upload the PDF file
-        # uploaded_file = genai.upload_file(pdf_path, mime_type="application/pdf")
-        
         user_prompt = f"""TARGET_VARIANT: {variant_label}
 
 Attached: 1 full-text PDF paper (PMID: {pmid}, Title: {title}).
@@ -1360,42 +1402,8 @@ Follow the system instructions to:
 
 Make sure you follow the output schema
 """
-        
-        # Create the model and generate content
-        # model = genai.GenerativeModel(
-        #     model_name="gemini-2.5-flash",
-        #     system_instruction=PDF_EXTRACTION_SYSTEM_PROMPT,
-        # )
-        
-        # resp = model.generate_content(
-        #     [uploaded_file, user_prompt],
-        #     generation_config=genai.types.GenerationConfig(
-        #         temperature=0,
-        #         response_mime_type="application/json",
-        #     ),
-        # )
-
-        # url = fetch_pdf_url(pmid=pmid)
-
-        # model = create_llm(
-        #     provider=MODELS["functional_evidence"]["provider"],
-        #     model=MODELS["functional_evidence"]["model"],
-        # )
-
         with open(pdf_path, "rb") as f:
             base64_string = base64.b64encode(f.read()).decode("utf-8")
-
-        # messages = [
-        #     SystemMessage(content=PDF_EXTRACTION_SYSTEM_PROMPT),
-        #     HumanMessage(
-        #         content=[
-        #             {"type": "text","text": user_prompt},
-        #             {"type": "file","base64": base64_string, "mime_type": "application/pdf"},
-        #         ]
-        #     )
-        # ]
-
-        # resp = model.invoke(messages)
 
         resp = call_functional_llm(
             user_prompt=[{"type": "text","text": user_prompt},
@@ -1403,50 +1411,10 @@ Make sure you follow the output schema
             system_prompt=PDF_EXTRACTION_SYSTEM_PROMPT,
             output_schema=FunctionalExperiments
         )
-
-        # content = resp.content
-
-        # print(f"{"=" * 100}")
-        # print(f"MODEL RESPONSE FOR PMID {pmid}")
-        # print(content)
-        # print(f"{"=" * 100}")
-
-        # if content and isinstance(content, list):
-        #     content = content[0]
-            
-        #     if content and isinstance(content, dict):
-        #         text = content.get("text", "")
         return _parse_pdf_extraction_response(pmid, resp)
-        
-        # return []
-        
     except Exception as e:
         print(f"   Warning: PDF extraction failed for PMID {pmid}: {e}")
         return []
-
-
-
-# def _extract_from_pdf(
-#     pmid: str,
-#     variant_label: str,
-#     pdf_path: str,
-#     title: str,
-# ) -> List[FunctionalExperiment]:
-#     """
-#     Extract experiments from full-text PDF using the comprehensive schema.
-    
-#     Supports multiple extraction modes:
-#     - Agentic: Uses OCR, layout detection, and VLM tools (page-by-page)
-#     - Simple: Uses provider-specific PDF upload APIs
-    
-#     Supports multiple LLM providers for simple mode:
-#     - OpenAI: Uses file upload with responses API
-#     - Anthropic/Claude: Uses base64-encoded PDF with messages API
-#     - Gemini: Uses file upload with generative AI API
-#     """
-#     # Let's use the Gemini-based extraction for now. 
-#     return _extract_from_pdf_gemini(pmid, variant_label, pdf_path, title)
-
 
 def entrez_get(endpoint: str, params: Dict) -> requests.Response:
     """Make a request to NCBI Entrez API."""
@@ -1490,32 +1458,7 @@ def _extract_from_abstract(
     
     full_text = fetch_full_text_or_abstract(pmid)
     
-    # Simplified extraction prompt for abstract-only
-    system_prompt = """You are helping evaluate ACMG criteria PS3 and BS3 for a genetic variant.
-
-ACMG functional criteria:
-- PS3: Well-established in vitro or in vivo functional studies supportive of a damaging
-  effect on the gene or gene product.
-- BS3: Well-established in vitro or in vivo functional studies show no damaging effect
-  on protein function or splicing.
-
-Task: Extract all experiments that directly test the functional impact of the target variant.
-
-Return JSON with key "experiments" containing a list of objects with these keys:
-- assay_type: type of assay (e.g. "enzyme activity", "minigene splicing")
-- system: experimental system (e.g. "HEK293 cells", "patient fibroblasts")
-- readout: what was measured
-- effect_direction: one of ["strong_loss_of_function", "partial_loss_of_function",
-   "gain_of_function", "dominant_negative", "no_effect_vs_wildtype", "ambiguous"]
-- magnitude_stats: quantitative details (fold-changes, p-values)
-- controls_validity: information on controls and replication
-- authors_conclusion: what authors conclude about the variant
-- evaluation: one of ["supports_pathogenic", "supports_benign", "ambiguous", "low_quality"]
-
-If no relevant experiments found, return {"experiments": []}.
-"""
-    
-    user_prompt = f"""Variant of interest: {variant_label}
+    user_prompt = f"""TARGET VARIANT: {variant_label}
 Paper PMID: {pmid}
 Title: {title}
 
@@ -1526,79 +1469,43 @@ Paper text:
 
 Extract functional experiments for this variant and return as JSON.
 """
-    
     try:
-        # messages = [
-        #     SystemMessage(content=system_prompt),
-        #     HumanMessage(content=user_prompt)
-        # ]
-        
-        # resp = LLM.invoke(messages)
-        
-        # content = resp.content
-
-        # content = invoke_llm(
-        #     model=MODELS["functional_evidence"]["model"],
-        #     provider=MODELS["functional_evidence"]["provider"],
-        #     system_message=system_prompt,
-        #     human_messsage=user_prompt
-        # )
-
-
-        # if isinstance(content, list):
-        #     content = "".join(
-        #         part.get("text", "")
-        #         for part in content
-        #         if isinstance(part, dict)
-        #     )
-        
-        # # Clean up potential markdown
-        # content = re.sub(r"```(?:json)?", "", content).strip()
-        # content = content.replace("```", "")
-        
-        # parsed = json.loads(content)
-
         resp = call_functional_llm(
             user_prompt=user_prompt,
-            system_prompt=system_prompt,
+            system_prompt=ABSTRACT_EXTRACTION_SYSTEM_PROMPT,
             output_schema=FunctionalExperiments
         )
-        
         exp_list = resp.get("experiments", [])
         if not isinstance(exp_list, list):
+            print(f"   [!] Warning: PMID {pmid} abstract extraction returned "
+                  f"non-list 'experiments' field: {exp_list!r}")
             return []
-        
+
         experiments = []
+        skipped_blank = 0
         for e in exp_list:
-
-            direction = e.get("effect_direction", "unclear")
-            if direction == "functionally_abnormal":
-                evaluation = "supports_pathogenic"
-                effect_dir = "loss_of_function"
-            elif direction == "functionally_normal":
-                evaluation = "supports_benign"
-                effect_dir = "no_effect_vs_wildtype"
-            else:
-                evaluation = "ambiguous"
-                effect_dir = "ambiguous"  
-
             experiments.append(
                 FunctionalExperiment(
                     pmid=pmid,
                     assay_type=e.get("assay_type", ""),
                     system=e.get("system", ""),
                     readout=e.get("readout", ""),
-                    effect_direction=effect_dir,
+                    effect_direction=e.get("effect_direction", "unclear"),
                     magnitude_stats=e.get("effect_size_and_stats", ""),
                     controls_validity=e.get("controls_and_validation", ""),
                     authors_conclusion=e.get("authors_conclusion", ""),
-                    evaluation=evaluation,
                 )
             )
+
+        if skipped_blank:
+            print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
+                  f"entr{'y' if skipped_blank == 1 else 'ies'} from abstract extraction")
+
         return experiments
-        
+
     except Exception as e:
-        # print(f"   Warning: Abstract extraction failed for PMID {pmid}: {e}")
+        print(f"   [!] Warning: Abstract extraction failed for PMID {pmid}: {e!r}")
+        # print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
         return []
 
 def llm_extract_experiments(
@@ -1632,29 +1539,29 @@ def llm_extract_experiments(
 
     # print(f"   Extracting experiments from {len(functional_papers)} functional papers...")
 
+    if not pdf_dir.exists():
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+
     for i, fp in enumerate(functional_papers, 1):
-        # print(f"   Processing paper {i}/{len(functional_papers)}: PMID {fp.pmid}")
-        
-        # # Check if PDF exists
-        pdf_path = None
-        if not pdf_dir.exists():
-            pdf_dir.mkdir(parents=True, exist_ok=True)
-            
-        candidate_pdf = Path(pdf_dir) / f"{fp.pmid}.pdf"
-        if candidate_pdf.exists():
-            pdf_path = str(candidate_pdf)
-            fp.pdf_path = pdf_path
-        
-        # Try PDF-based extraction first if available
+        # Check if a valid PDF already exists on disk for this paper.
+        # fp.pdf_path is only populated here (by analyze_variant's download
+        # step) or left as None if download failed / was never attempted.
+        pdf_path = fp.pdf_path
+        if pdf_path is None:
+            candidate_pdf = pdf_dir / f"{fp.pmid}.pdf"
+            if candidate_pdf.exists():
+                pdf_path = str(candidate_pdf)
+                fp.pdf_path = pdf_path
+
+        # Try PDF-based extraction first if a real PDF is available.
         if pdf_path:
             extracted = _extract_from_pdf(fp.pmid, variant_label, fp.title, pdf_path)
             if extracted:
-                print(f"{"=" * 100}")
-                print(f"Extracting {fp.pmid} from pdf")
-                print(f"{"=" * 100}")
                 experiments.extend(extracted)
                 continue
-            
+            print(f"   [!] PMID {fp.pmid}: PDF-based extraction returned no "
+                  f"experiments, falling back to abstract-based extraction.")
+
         # Fallback to abstract-based extraction
         print(f"{"=" * 100}")
         print(f"Extracting {fp.pmid} from abstract")
@@ -1695,10 +1602,10 @@ def analyze_variant(
     try:
         vep_info = annotate_variant(variant)
 
-        print(f"{"-"*100}")
+        print(f"{'-'*100}")
         print("VEP info: ")
         print(vep_info)
-        print(f"{"-"*100}")
+        print(f"{'-'*100}")
 
         # print("VEP annotation successful")
         # print("VEP info: ")
@@ -1722,17 +1629,17 @@ def analyze_variant(
 
     # 2. Query LitVar2 for PMIDs
     # print("Step 2: Querying LitVar2 for publications...")
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("vi: ")
     pprint(asdict(vi))
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     pmids = query_litvar2(vi)
 
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("pmids: ")
     print(pmids)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     # if not pmids:
     #     pmids = query_pubtator(vi)
@@ -1745,48 +1652,50 @@ def analyze_variant(
     candidate_papers = build_candidate_list(pmids)
     # print(f"   Retrieved details for {len(candidate_papers)} papers")
 
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("candidate_papers: ")
     pprint([asdict(paper) for paper in candidate_papers])
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
 
     # 4. Filter for functional papers (high-sensitivity screening)
     # print("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     print("functional_papers: ")
     pprint([asdict(paper) for paper in functional_papers])
-    print(f"{"-"*100}")
+    print(f"{'-'*100}")
     # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
-    # # 4b. Download PDFs for functional papers (if enabled)
-    downloaded_pdfs = {}
-    pdf_path = "tools/functional_papers"
-    # if download_pdfs and pdf_path and functional_papers:
-    # print("\nStep 4b: Downloading PDFs for functional papers...")
+    # 4b. Download PDFs for functional papers (best-effort — download_pdf()
+    # validates Content-Type + '%PDF-' magic bytes and returns None rather
+    # than saving a paywall/landing-page HTML file, so a missing pdf_path
+    # here is expected for papers with no open-access full text, not a bug.
+    pdf_dir = "tools/functional_papers"
     functional_pmids = [fp.pmid for fp in functional_papers]
     downloaded_pdfs = download_pdfs_for_papers(
         functional_pmids,
-        pdf_path,
+        pdf_dir,
     )
-    print(f"   Downloaded/found {len(downloaded_pdfs)} PDFs")
-        
-        # Update functional papers with PDF paths
+    print(f"{'-'*100}")
+    print(f"Downloaded/found {len(downloaded_pdfs)}/{len(functional_pmids)} valid PDFs")
+    print(f"{'-'*100}")
+
+    # Update functional papers with PDF paths
     for fp in functional_papers:
         if fp.pmid in downloaded_pdfs:
             fp.pdf_path = downloaded_pdfs[fp.pmid]
 
-    # 5. Extract experiments 
+    # 5. Extract experiments
     # print("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
         variant_label,
     )
 
-    print(f"{"=" * 100}")
+    print(f"{'='*100}")
     print("RESULT: ")
     pprint(experiments)
-    print(f"{"=" * 100}")
+    print(f"{'='*100}")
 
 
     return {"experiments": [asdict(e) for e in experiments]}

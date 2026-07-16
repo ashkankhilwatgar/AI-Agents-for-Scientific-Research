@@ -1,0 +1,197 @@
+{
+  "csv": "hht_script_2.csv",
+  "total": 25,
+  "completed": 25,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_466G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_151T_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "1 Strong + 1 Moderate",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_266G_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.139C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_139C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1517T_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1447G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1447G_A_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.137G>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_137G_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1807G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1645T>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Pathogenic",
+      "rule_matched": "\u22653 Moderate",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1645T_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.392C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Benign",
+      "rule_matched": "BA1 stand-alone",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_392C_T_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1701del_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1312-3C_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1961C_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1160T_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.500C>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_500C_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1348A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_1348A_G_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.652C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_652C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_1377+4A_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.113G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_113G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1217G>A",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Pathogenic",
+      "rule_matched": "PVS1 + \u22652 Supporting",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_1217G_A_HHT.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_001077401_2_c_442_444del_HHT.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "RemoteProtocolError: Server disconnected without sending a response.",
+      "file": "outputs/batch_20260716_182130/NM_001077401_2_c_620del_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "1 Strong benign",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_484C_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.293A>G",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260716_182130/NM_000020_3_c_293A_G_HHT.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Likely Benign",
+      "rule_matched": "\u22652 Supporting benign",
+      "file": "outputs/batch_20260716_182130/NM_001114753_3_c_1316A_C_HHT.json"
+    }
+  ]
+}

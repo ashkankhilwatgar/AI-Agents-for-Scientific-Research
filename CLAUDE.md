@@ -86,3 +86,5 @@ Dated investigations (e.g. `case_studies/jul_13/bs3_ps3_case_study.ipynb`) into 
 - PS3/BS3 use an LLM to read paper abstracts for functional evidence — inherently less stable than the deterministic tools; treat failures here differently from tool/API failures.
 - Tool result caching does not currently retry on a cached "error" result from an earlier phase — a fix for this was flagged as in-progress; check current state of `tool_results` caching in `pipeline.py`/`agents/debug_agent.py` before assuming errors are retried.
 - Final classification logic has previously shown inconsistency where the same set of applied criteria produced different classifications — if touching `tools/scoring.py`, check against `evaluation/outputs` regression cases first.
+
+You can directly make changes, but tell me what changes you made.
