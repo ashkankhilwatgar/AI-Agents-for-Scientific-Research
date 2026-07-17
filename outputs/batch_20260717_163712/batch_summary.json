@@ -1,0 +1,15 @@
+{
+  "csv": "applied_only_evaluation_dataset.csv",
+  "total": 48,
+  "completed": 1,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "ok",
+      "classification": "Variant of Uncertain Significance (VUS)",
+      "rule_matched": "No combining criteria rule was satisfied",
+      "file": "outputs/batch_20260717_163712/NM_000020_3_c_557G_T_HHT.json"
+    }
+  ]
+}

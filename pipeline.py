@@ -16,10 +16,63 @@ import operator
 from typing import Any, TypeAlias
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
+# ==================================
+# RICH LIBRARY INITIALIZATION
+# ==================================
 
 console = Console()
+
+def _display(value: Any) -> str:
+    """Return a terminal-friendly representation for optional values."""
+    return "—" if value is None or value == "" else str(value)
+
+def _status_message(
+    label: str,
+    message: Any = None,
+    *,
+    style: str = "cyan",
+    symbol: str = "•",
+) -> None:
+    """Print a consistently styled one-line pipeline status message."""
+    line = Text()
+    line.append(f"{symbol} {label}", style=f"bold {style}")
+    if message is not None:
+        line.append(": ", style="dim")
+        line.append(_display(message))
+    console.print(line)
+
+def _key_value_panel(
+    title: str,
+    rows: list[tuple[str, Any]],
+    *,
+    border_style: str = "cyan",
+    subtitle: str | None = None,
+    panel_box=box.DOUBLE,
+) -> Panel:
+    """Build a compact panel containing aligned key/value rows."""
+    grid = Table.grid(padding=(0, 2))
+    grid.add_column(style=f"bold {border_style}", no_wrap=True)
+    grid.add_column()
+    for label, value in rows:
+        grid.add_row(label, Text(_display(value)))
+    return Panel.fit(
+        grid,
+        title=Text(title, style="bold"),
+        subtitle=subtitle,
+        border_style=border_style,
+        box=panel_box,
+        padding=(1, 2),
+    )
+
+# ==================================
+# HHT CRITERIA UTILS
+# ==================================
 
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
 HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4", "BS3", "PS3"]
@@ -63,9 +116,22 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
 
     if skipped:
         reason = f"{variant_type} variants" if variant_type else "unknown variant type (VEP failed)"
-        print(f"PIPELINE: Skipped {len(skipped)} criterion/criteria — not applicable to {reason}:")
+        skipped_table = Table(
+            "Criterion",
+            "Applicable variant types",
+            box=box.SIMPLE,
+            header_style="bold yellow",
+            show_edge=False,
+        )
         for criterion, allowed in skipped:
-            print(f"  - {criterion} (applies to: {allowed})")
+            skipped_table.add_row(Text(criterion), Text(", ".join(map(str, allowed))))
+        console.print(Panel(
+            skipped_table,
+            title=f"[bold yellow]Skipped {len(skipped)} inapplicable criteria[/bold yellow]",
+            subtitle=Text(reason),
+            border_style="yellow",
+            box=box.ROUNDED,
+        ))
 
     return filtered
 
@@ -137,6 +203,69 @@ EVIDENCE: {result.get("evidence", "unknown")}
 REASONING: {result.get("reasoning", "unknown")}
 TOOL USED: {result.get("tool_used", "unknown")}"""
 
+
+def _print_phase_summary(
+    phase_number: int,
+    criteria: list[str],
+    results: list[dict[str, Any]],
+) -> None:
+    """Render a Rich summary table for a completed evaluation phase."""
+    table = Table(
+        box=box.MINIMAL_DOUBLE_HEAD,
+        header_style="bold cyan",
+        expand=True,
+        show_edge=False,
+        show_lines=True,
+        padding=(0, 1),
+    )
+    table.add_column("Criterion", style="bold", no_wrap=True)
+    table.add_column("Result", no_wrap=True)
+    table.add_column("Evidence", ratio=2)
+    table.add_column("Reasoning", ratio=3)
+    table.add_column(
+        "Tool",
+        style="cyan",
+        min_width=20,
+        max_width=24,
+        overflow="fold",
+    )
+
+    for result in results:
+        status = result.get("status")
+        if status == "error":
+            result_text = Text("Error", style="bold red")
+            evidence = result.get("error", "Unknown error")
+        elif status == "skipped":
+            result_text = Text("Skipped", style="bold yellow")
+            evidence = result.get("reason", "No reason provided")
+        elif result.get("applies") is True:
+            result_text = Text("Applied", style="bold green")
+            evidence = result.get("evidence")
+        elif result.get("applies") is False:
+            result_text = Text("Not applied", style="bold bright_black")
+            evidence = result.get("evidence")
+        else:
+            result_text = Text("Unknown", style="bold yellow")
+            evidence = result.get("evidence")
+
+        table.add_row(
+            Text(_display(result.get("criterion", "Unknown"))),
+            result_text,
+            Text(_display(evidence)),
+            Text(_display(result.get("reasoning"))),
+            Text(_display(result.get("tool_used"))),
+        )
+
+    checked = ", ".join(_display(criterion) for criterion in criteria) or "None"
+    console.print(Panel(
+        table,
+        title=Text(f"Phase {phase_number} complete", style="bold green"),
+        subtitle=Text(f"Checked: {checked}", style="dim"),
+        border_style="green",
+        box=box.ROUNDED,
+        padding=(0, 1),
+    ))
+
 # ==================================
 # Langgraph Nodes
 # ==================================
@@ -156,16 +285,7 @@ def fan_in_after_phase_1(state: OverallState):
     
     phase1_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase1_criterions]
     
-    print(f"\n{'-'*60}")
-    print("PHASE 1 COMPLETE")
-    print(f"CHECKED: {', '.join(phase1_criterions)}")
-
-    # --------------- LOGGING ----------------
-    for result in phase1_results:
-        print("*" * 60)
-        result_formatted = format_result(result)
-        print(result_formatted)
-    print(f"{'-'*60}")
+    _print_phase_summary(1, phase1_criterions, phase1_results)
         
     return {}
 
@@ -184,16 +304,7 @@ def fan_in_after_phase_2(state: OverallState):
     
     phase2_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase2_criterions]
     
-    print(f"\n{'-'*60}")
-    print("PHASE 2 COMPLETE")
-    print(f"CHECKED: {', '.join(phase2_criterions)}")
-
-    # --------------- LOGGING ----------------
-    for result in phase2_results:
-        print("*" * 60)
-        result_formatted = format_result(result)
-        print(result_formatted)
-    print(f"{'-'*60}")
+    _print_phase_summary(2, phase2_criterions, phase2_results)
 
     return {}
 
@@ -212,16 +323,7 @@ def fan_in_after_phase_3(state: OverallState):
     
     phase3_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase3_criterions]
     
-    print(f"\n{'-'*60}")
-    print("PHASE 3 COMPLETE")
-    print(f"CHECKED: {', '.join(phase3_criterions)}")
-
-    # --------------- LOGGING ----------------
-    for result in phase3_results:
-        print("*" * 60)
-        result_formatted = format_result(result)
-        print(result_formatted)
-    print(f"{'-'*60}")
+    _print_phase_summary(3, phase3_criterions, phase3_results)
     return {}
 
 def fan_in_after_phase_4(state: OverallState):
@@ -239,16 +341,7 @@ def fan_in_after_phase_4(state: OverallState):
     
     phase4_results = [state.get("criterion_results", {}).get(criterion, {}) for criterion in phase4_criterions]
     
-    print(f"\n{'-'*60}")
-    print("PHASE 4 COMPLETE")
-    print(f"CHECKED: {', '.join(phase4_criterions)}")
-
-    # --------------- LOGGING ----------------
-    for result in phase4_results:
-        print("*" * 60)
-        result_formatted = format_result(result)
-        print(result_formatted)
-    print(f"{'-'*60}")
+    _print_phase_summary(4, phase4_criterions, phase4_results)
     return {}
 
 def process_criterion(state: PerCriterionState):
@@ -292,7 +385,15 @@ def process_criterion(state: PerCriterionState):
                 break
 
     if skipped_reason:
-        print(f"\nPIPELINE: Skipping {criterion} — {skipped_reason}")
+        console.print(Panel.fit(
+            Text.assemble(
+                (f"{criterion}\n", "bold yellow"),
+                (skipped_reason, "white"),
+            ),
+            title=Text("Criterion skipped", style="bold yellow"),
+            border_style="yellow",
+            box=box.ROUNDED,
+        ))
         skipped_entry = {
             "criterion": criterion,
             "status": "skipped",
@@ -301,16 +402,12 @@ def process_criterion(state: PerCriterionState):
         
         return {"criterion_results": {criterion.upper().replace("-", "_"): skipped_entry}}        
 
-    # print(f"\n{'─'*60}")
-    # print(f"PIPELINE: Processing criterion {criterion}")
-    # print(f"{'─'*60}")
-
     # ── DEBUG AGENT (runs Task agent internally) ──
-    # print(f"\n[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
+    # console.print("[1/3] DEBUG AGENT — running Task agent and checking for technical errors")
     debug_output, tool_cache_update = run_debug(task, gene_symbol = gene_symbol, tool_results = tool_results)
 
     if debug_output.get("status") == "error":
-        # print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
+        # console.print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
 
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): debug_output},
@@ -318,11 +415,11 @@ def process_criterion(state: PerCriterionState):
         }  
 
     # ── JUDGE AGENT ───────────────────────
-    # print(f"\n[2/3] JUDGE AGENT — checking reasoning")
+    # console.print("[2/3] JUDGE AGENT — checking reasoning")
     judge_output, tool_cache_update = run_judge(task, tool_results, debug_output, gene_symbol=gene_symbol)
 
     if judge_output.get("status") == "error":
-        # print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
+        # console.print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
 
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): judge_output},
@@ -330,10 +427,10 @@ def process_criterion(state: PerCriterionState):
             }  
 
     # ── CHECK AGENT ───────────────────────
-    # print(f"\n[3/3] CHECK AGENT — validating formatting")
+    # console.print("[3/3] CHECK AGENT — validating formatting")
     final_output = run_check(judge_output)
 
-    # print(f"\nPIPELINE: {criterion} complete")
+    # console.print(f"PIPELINE: {criterion} complete")
     return {
         "criterion_results": {criterion.upper().replace("-", "_"): final_output},
         "tool_results": tool_cache_update
@@ -470,32 +567,51 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     Runs all agents in sequence for each criterion.
     Returns a list of validated, formatted task outputs.
     """
-    print("\n" + "="*60)
-    print("PIPELINE: Starting variant classification")
-    print(f"Variant:  {variant}")
-    print(f"Disease:  {disease}")
-    print("="*60)
+    # ── INITIALIZE THE PIPELINE ─────────────────
+    console.print()
+    console.print(_key_value_panel(
+        "Variant Classification Pipeline",
+        [
+            ("Variant", variant),
+            ("Disease", disease),
+        ],
+        subtitle="Starting classification",
+        border_style="cyan",
+        panel_box=box.DOUBLE,
+    ))
 
     # ── VARIANT TYPE DETECTION ─────────────────
-    print("\nPIPELINE: Detecting variant type via Ensembl VEP...")
+    console.print()
+    _status_message("Detecting variant type", "Ensembl VEP", style="cyan", symbol="◆")
     vep_result = annotate_variant(variant)
 
     gene_symbol = None
     if "error" in vep_result:
-        print(f"PIPELINE: Warning — could not determine variant type: {vep_result['error']}")
+        _status_message(
+            "Could not determine variant type",
+            vep_result["error"],
+            style="yellow",
+            symbol="⚠",
+        )
         variant_type = None
         # Fallback: get gene_symbol from NCBI when VEP fails
         if variant.startswith("NM_") and ":" in variant:
             transcript = variant.split(":")[0]
             gene_symbol = get_gene_symbol_from_transcript(transcript)
             if gene_symbol:
-                print(f"PIPELINE: Gene detected from NCBI fallback: {gene_symbol}")
+                _status_message("Gene detected via NCBI fallback", gene_symbol, style="green", symbol="✓")
     else:
         variant_type = vep_result["variant_type"]
         gene_symbol = vep_result.get("gene_symbol")
         if gene_symbol:
-            print(f"PIPELINE: Gene detected from VEP: {gene_symbol}")
-        print(f"PIPELINE: Variant type detected: {variant_type} ({vep_result['variant_consequence']})")
+            _status_message("Gene detected via VEP", gene_symbol, style="green", symbol="✓")
+        consequence = vep_result["variant_consequence"]
+        _status_message(
+            "Variant type detected",
+            f"{variant_type} ({consequence})",
+            style="green",
+            symbol="✓",
+        )
 
     # ── CRITERIA SELECTION & FILTERING ────────
     # Always run filtering — when variant_type is None (VEP failed), conservatively
@@ -507,7 +623,12 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     tasks = run_plan(variant, disease, active_criteria,gene_symbol=gene_symbol)
 
     if not tasks:
-        print("PIPELINE: Plan agent returned no tasks. Exiting.")
+        console.print(Panel.fit(
+            "The plan agent returned no criterion tasks.",
+            title=Text("Pipeline stopped", style="bold yellow"),
+            border_style="yellow",
+            box=box.ROUNDED,
+        ))
         return [], {}
 
     # ── RUN PARALLEL AGENTS ────────────────────────────
@@ -523,11 +644,18 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
 
     # ── SCORING ───────────────────────────────────────────────────────────────
     scoring_label = "HHT VCEP" if (disease is None or is_vcep_disease(disease)) else "ACMG/AMP 2015"
-    print("\n" + "─"*60)
-    print(f"PIPELINE: Running {scoring_label} classification scoring...")
+    console.print()
+    _status_message("Running classification scoring", scoring_label, style="magenta", symbol="◆")
     scoring_result = classify(results_dict, disease=disease)
-    print(f"PIPELINE: Classification → {scoring_result['classification']}")
-    print(f"          Rule matched   → {scoring_result['rule_matched']}")
+    console.print(_key_value_panel(
+        "Scoring complete",
+        [
+            ("Classification", scoring_result["classification"]),
+            ("Rule matched", scoring_result["rule_matched"]),
+        ],
+        border_style="magenta",
+        panel_box=box.ROUNDED,
+    ))
 
     return results_list, scoring_result
 
@@ -536,13 +664,17 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
     """
     Prints a human-readable classification report to the terminal.
     """
-    print("\n" + "="*60)
-    print("CLASSIFICATION REPORT")
-    print("="*60)
-    print(f"Variant : {variant}")
-    print(f"Disease : {disease}")
-    print(f"Date    : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*60)
+    console.print()
+    console.print(_key_value_panel(
+        "Classification Report",
+        [
+            ("Variant", variant),
+            ("Disease", disease),
+            ("Generated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        ],
+        border_style="bright_blue",
+        panel_box=box.DOUBLE,
+    ))
 
     # ── FINAL CLASSIFICATION ──────────────────────────────────────────────────
     if scoring_result:
@@ -551,19 +683,31 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
         buckets = scoring_result.get("buckets", {})
         bucket_detail = scoring_result.get("bucket_detail", {})
 
-        # Colour-code the classification label
-        _COLOURS = {
-            "Pathogenic":          "\033[91m",   # red
-            "Likely Pathogenic":   "\033[93m",   # yellow
-            "Likely Benign":       "\033[96m",   # cyan
-            "Benign":              "\033[94m",   # blue
+        classification_styles = {
+            "Pathogenic": ("bold red", "red"),
+            "Likely Pathogenic": ("bold yellow", "yellow"),
+            "Likely Benign": ("bold cyan", "cyan"),
+            "Benign": ("bold blue", "blue"),
         }
-        _RESET = "\033[0m"
-        colour = _COLOURS.get(classification, "\033[97m")  # white for VUS
-
-        print(f"\n{'─'*60}")
-        print(f"  FINAL CLASSIFICATION: {colour}{classification}{_RESET}")
-        print(f"  Rule matched        : {rule}")
+        classification_style, border_style = classification_styles.get(
+            classification,
+            ("bold white", "white"),
+        )
+        classification_grid = Table.grid(padding=(0, 2))
+        classification_grid.add_column(style="bold", no_wrap=True)
+        classification_grid.add_column()
+        classification_grid.add_row(
+            "Classification",
+            Text(_display(classification), style=classification_style),
+        )
+        classification_grid.add_row("Rule matched", Text(_display(rule)))
+        console.print(Panel.fit(
+            classification_grid,
+            title=Text("Final Classification", style=classification_style),
+            border_style=border_style,
+            box=box.HEAVY,
+            padding=(1, 2),
+        ))
 
         # Bucket summary (only print non-zero buckets)
         bucket_labels = {
@@ -577,7 +721,14 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
         }
         nonempty = {k: v for k, v in buckets.items() if v > 0}
         if nonempty:
-            print(f"\n  Strength bucket counts:")
+            bucket_table = Table(
+                "Evidence strength",
+                "Count",
+                "Criteria",
+                box=box.SIMPLE_HEAVY,
+                header_style="bold magenta",
+                show_edge=False,
+            )
             for k, v in nonempty.items():
                 criteria_in_bucket = [c for c, b in bucket_detail.items()
                                       if b == {
@@ -586,20 +737,46 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
                                           "ba": "benign_stand_alone", "bs": "benign_strong",
                                           "bsup": "benign_supporting",
                                       }.get(k)]
-                print(f"    {bucket_labels.get(k, k):20s}: {v}  [{', '.join(criteria_in_bucket)}]")
+                bucket_table.add_row(
+                    Text(bucket_labels.get(k, k)),
+                    Text(str(v), style="bold"),
+                    Text(", ".join(criteria_in_bucket) or "—"),
+                )
+            console.print(Panel(
+                bucket_table,
+                title=Text("Strength bucket counts", style="bold magenta"),
+                border_style="magenta",
+                box=box.ROUNDED,
+            ))
 
-        # Incompatibility notes
-        for note in scoring_result.get("incompatibility_notes", []):
-            print(f"\n  ⚠  {note}")
-
-        # Unrecognised criteria (should be empty in normal operation)
-        for u in scoring_result.get("unrecognised_criteria", []):
-            print(f"\n  ⚠  Unrecognised criterion skipped in scoring: {u}")
-
-        print(f"{'─'*60}")
+        warning_lines = [
+            str(note) for note in scoring_result.get("incompatibility_notes", [])
+        ]
+        warning_lines.extend(
+            f"Unrecognised criterion skipped in scoring: {criterion}"
+            for criterion in scoring_result.get("unrecognised_criteria", [])
+        )
+        if warning_lines:
+            warnings = Text()
+            for index, warning in enumerate(warning_lines):
+                if index:
+                    warnings.append("\n")
+                warnings.append("⚠ ", style="bold yellow")
+                warnings.append(warning)
+            console.print(Panel(
+                warnings,
+                title=Text("Scoring notes", style="bold yellow"),
+                border_style="yellow",
+                box=box.ROUNDED,
+            ))
 
     if not results:
-        print("No results to report.")
+        console.print(Panel.fit(
+            "No criterion results are available.",
+            title=Text("No results", style="bold yellow"),
+            border_style="yellow",
+            box=box.ROUNDED,
+        ))
         return
 
     applied = []
@@ -625,39 +802,112 @@ def print_report(variant: str, disease: str, results: list[dict], scoring_result
             not_applied.append(result)
 
     # ── CRITERIA THAT APPLY ───────────────────
-    print(f"\nCRITERIA APPLIED ({len(applied)}):")
+    applied_table = Table(
+        box=box.MINIMAL_DOUBLE_HEAD,
+        header_style="bold green",
+        expand=True,
+        show_edge=False,
+        show_lines=True,
+        padding=(0, 1),
+    )
+    applied_table.add_column("Criterion", style="bold green", no_wrap=True)
+    applied_table.add_column("Evidence", ratio=2)
+    applied_table.add_column("Reasoning", ratio=3)
+    applied_table.add_column(
+        "Tool / input",
+        min_width=20,
+        max_width=28,
+        overflow="fold",
+    )
+    for result in applied:
+        tool = Text(_display(result.get("tool_used")), style="bold cyan")
+        tool.append("\n")
+        tool.append(_display(result.get("tool_input")), style="dim")
+        applied_table.add_row(
+            Text(f"✓ {_display(result.get('criterion'))}", style="bold green"),
+            Text(_display(result.get("evidence"))),
+            Text(_display(result.get("reasoning"))),
+            tool,
+        )
     if not applied:
-        print("  None")
-    for r in applied:
-        print(f"\n  ✓ {r['criterion']}")
-        print(f"    Evidence : {r.get('evidence')}")
-        print(f"    Reasoning: {r.get('reasoning')}")
-        print(f"    Tool     : {r.get('tool_used')} → {r.get('tool_input')}")
+        applied_table.add_row(Text("None", style="dim"), "", "", "")
+    console.print(Panel(
+        applied_table,
+        title=Text(f"Criteria Applied ({len(applied)})", style="bold green"),
+        border_style="green",
+        box=box.ROUNDED,
+    ))
 
     # ── CRITERIA THAT DO NOT APPLY ────────────
-    print(f"\nCRITERIA NOT APPLIED ({len(not_applied)}):")
+    not_applied_table = Table(
+        "Criterion",
+        "Evidence",
+        "Reasoning",
+        box=box.MINIMAL_DOUBLE_HEAD,
+        header_style="bold bright_black",
+        expand=True,
+        show_edge=False,
+        show_lines=True,
+        padding=(0, 1),
+    )
+    for result in not_applied:
+        not_applied_table.add_row(
+            Text(f"✗ {_display(result.get('criterion'))}", style="bold bright_black"),
+            Text(_display(result.get("evidence"))),
+            Text(_display(result.get("reasoning"))),
+        )
     if not not_applied:
-        print("  None")
-    for r in not_applied:
-        print(f"\n  ✗ {r['criterion']}")
-        print(f"    Evidence : {r.get('evidence')}")
-        print(f"    Reasoning: {r.get('reasoning')}")
+        not_applied_table.add_row(Text("None", style="dim"), "", "")
+    console.print(Panel(
+        not_applied_table,
+        title=Text(f"Criteria Not Applied ({len(not_applied)})", style="bold bright_black"),
+        border_style="bright_black",
+        box=box.ROUNDED,
+    ))
 
     # ── SKIPPED CRITERIA ──────────────────────
     if skipped:
-        print(f"\nSKIPPED CRITERIA ({len(skipped)}):")
-        for r in skipped:
-            print(f"\n  – {r['criterion']}")
-            print(f"    Reason: {r.get('reason')}")
+        skipped_table = Table(
+            "Criterion",
+            "Reason",
+            box=box.SIMPLE,
+            header_style="bold yellow",
+            expand=True,
+            show_edge=False,
+        )
+        for result in skipped:
+            skipped_table.add_row(
+                Text(f"– {_display(result.get('criterion'))}", style="bold yellow"),
+                Text(_display(result.get("reason"))),
+            )
+        console.print(Panel(
+            skipped_table,
+            title=Text(f"Skipped Criteria ({len(skipped)})", style="bold yellow"),
+            border_style="yellow",
+            box=box.ROUNDED,
+        ))
 
     # ── FAILED CRITERIA ───────────────────────
     if failed:
-        print(f"\nFAILED CRITERIA ({len(failed)}):")
-        for r in failed:
-            print(f"\n  ! {r['criterion']}")
-            print(f"    Error: {r.get('error')}")
-
-    print("\n" + "="*60)
+        failed_table = Table(
+            "Criterion",
+            "Error",
+            box=box.SIMPLE,
+            header_style="bold red",
+            expand=True,
+            show_edge=False,
+        )
+        for result in failed:
+            failed_table.add_row(
+                Text(f"! {_display(result.get('criterion'))}", style="bold red"),
+                Text(_display(result.get("error"))),
+            )
+        console.print(Panel(
+            failed_table,
+            title=Text(f"Failed Criteria ({len(failed)})", style="bold red"),
+            border_style="red",
+            box=box.ROUNDED,
+        ))
 
 
 def _safe_variant_name(variant: str) -> str:
@@ -765,9 +1015,19 @@ def run_batch(
             rows.append((variant, disease))
 
     total = len(rows)
-    print(f"\nBATCH: {total} variant(s) from {csv_path}")
-    print(f"BATCH: output folder -> {output_dir}")
-    print("BATCH: running variants sequentially (criteria still run in parallel)\n")
+    console.print()
+    console.print(_key_value_panel(
+        "Batch Classification",
+        [
+            ("Variants", total),
+            ("Input CSV", csv_path),
+            ("Output folder", output_dir),
+            ("Execution", "Variants sequential; criteria parallel"),
+        ],
+        subtitle="Starting batch",
+        border_style="cyan",
+        panel_box=box.DOUBLE,
+    ))
 
     summary = []
     for i, (variant, disease) in enumerate(rows, start=1):
@@ -775,7 +1035,12 @@ def run_batch(
         target = os.path.join(output_dir, f"{safe}_{disease}.json")
 
         if os.path.exists(target):
-            print(f"BATCH: [{i}/{total}] skip (already done) {variant}")
+            _status_message(
+                f"[{i}/{total}] Skipped existing result",
+                variant,
+                style="yellow",
+                symbol="↷",
+            )
             summary.append({"variant": variant, "disease": disease,
                             "status": "skipped_existing", "file": target})
         else:
@@ -791,7 +1056,12 @@ def run_batch(
                     "rule_matched": (scoring_result or {}).get("rule_matched"),
                     "file": path,
                 }
-                print(f"BATCH: [{i}/{total}] {variant} -> ok ({res['classification']})")
+                _status_message(
+                    f"[{i}/{total}] Completed",
+                    f"{variant} → {res['classification']}",
+                    style="green",
+                    symbol="✓",
+                )
             except (Exception, SystemExit) as e:  # isolate: one variant must not kill the batch
                 # Catch SystemExit too: a stray sys.exit() inside a tool (it runs
                 # in a LangGraph worker thread) would otherwise bypass `except
@@ -807,7 +1077,12 @@ def run_batch(
                 with open(errfile, "w") as fh:
                     json.dump(res, fh, indent=2)
                 res["file"] = errfile
-                print(f"BATCH: [{i}/{total}] {variant} -> ERROR: {res['error']}")
+                _status_message(
+                    f"[{i}/{total}] Failed",
+                    f"{variant} → {res['error']}",
+                    style="red",
+                    symbol="✗",
+                )
             summary.append(res)
 
         # Write summary incrementally so an interruption doesn't lose progress.
@@ -822,7 +1097,18 @@ def run_batch(
     ok = sum(1 for r in summary if r["status"] == "ok")
     errs = sum(1 for r in summary if r["status"] == "error")
     skipped = sum(1 for r in summary if r["status"] == "skipped_existing")
-    print(f"\nBATCH COMPLETE: {ok} ok, {errs} error, {skipped} skipped -> {output_dir}\n")
+    console.print()
+    console.print(_key_value_panel(
+        "Batch Complete",
+        [
+            ("Successful", ok),
+            ("Errors", errs),
+            ("Skipped", skipped),
+            ("Output folder", output_dir),
+        ],
+        border_style="green" if errs == 0 else "yellow",
+        panel_box=box.DOUBLE,
+    ))
     return output_dir
 
 
@@ -895,7 +1181,12 @@ def main():
     print_report(args.variant, args.disease, results, scoring_result)
     filepath = save_results(args.variant, args.disease, results, scoring_result)
 
-    print(f"Full results saved to: {filepath}\n")
+    console.print(Panel.fit(
+        Text(_display(filepath)),
+        title=Text("Results saved", style="bold green"),
+        border_style="green",
+        box=box.ROUNDED,
+    ))
 
 
 if __name__ == "__main__":

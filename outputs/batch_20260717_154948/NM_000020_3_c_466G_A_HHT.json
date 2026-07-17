@@ -1,0 +1,151 @@
+{
+  "variant": "NM_000020.3:c.466G>A",
+  "disease": "HHT",
+  "timestamp": "20260717_155750",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.466G>A (12-51913711-G-A) is present in gnomAD with a total allele count (AC) of 48 (47 in exomes, 1 in genomes). In the exome dataset, it is present in the 'nfe' subpopulation (AC=44, AN=1111984, AF=3.957e-05) and the 'afr' subpopulation (AC=1, AN=33474, AF=2.987e-05). In the genome dataset, it is present in the 'nfe' subpopulation (AC=1, AN=68024, AF=1.47e-05).",
+      "reasoning": "Following the PM2_SUPPORTING rules: Step 1: The variant is not absent from gnomAD. Step 2: The total AC is 48, which is not less than 6. Step 3: We evaluate the allele frequency in subpopulations where the variant is actually present (AC > 0). In the exome dataset, the variant is present in the 'nfe' subpopulation with an AF of 3.957e-05 (which is < 0.00004) and in the 'afr' subpopulation with an AF of 2.987e-05 (which is < 0.00004). In the genome dataset, it is present in the 'nfe' subpopulation with an AF of 1.47e-05 (which is < 0.00004). Since there is at least one subpopulation where the variant is present and has an AF < 0.00004, the criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.466G>A (12-51913711-G-A) has a popmax filtering allele frequency (FAF95) of 2.999e-05 (0.002999%) in the non-Finnish European (nfe) population in gnomAD.",
+      "reasoning": "According to the BA1 classification rules, the criterion applies only if the Popmax FAF is greater than or equal to 0.01 (1%). Since the variant's Popmax FAF is 0.00002999, which is well below the 0.01 threshold, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.466G>A (12-51913711-G-A) has a popmax filtering allele frequency (FAF95) of 2.999e-05 (0.00002999) in the non-Finnish European (nfe) population, with 0 homozygotes observed in gnomAD.",
+      "reasoning": "To evaluate BS1, we check the popmax FAF against the specified thresholds. Step 1: BA1 does not apply because the popmax FAF (0.00002999) is less than 0.01. Step 2: The popmax FAF is not within the BS1_Supporting range (0.0008 to 0.002) with >= 2 homozygotes. Step 3: The popmax FAF is not between 0.002 and 0.01 (BS1_Strong). Step 4: The popmax FAF is not between 0.0008 and 0.002 (BS1_Supporting). Since the popmax FAF (0.00002999) is below the minimum threshold of 0.0008, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.466G>A (p.Glu156Lys) is located at codon position 156 of the ACVRL1 protein.",
+      "reasoning": "According to the PM1 classification rules for ACVRL1, the critical regions are defined as positions 209-216, 229, 242, 329-335, 348-351, and the BMP10 interaction cluster (positions 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). The variant residue at position 156 does not fall into any of these specified critical regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No data found; ERepo: No data found; LOVD: No data found; PubMed: 0 articles found",
+      "reasoning": "The variant NM_000020.3:c.466G>A was queried across ClinVar, ERepo, LOVD, and PubMed, resulting in 0 probands identified with a phenotype consistent with HHT. Since the proband count is 0, the PS4 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 (c.466G>A OR p.Glu156Lys OR p.E156K) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The tool returned no classifications for different amino acid substitutions at codon 156 of the ACVRL1 gene (different_aa_classifications is empty).",
+      "reasoning": "According to the HHT VCEP rules for PM5, the criterion requires at least one pathogenic or likely pathogenic missense variant with a different amino acid substitution at the same codon. Since the different_aa_classifications list is empty, there is no evidence to support PM5.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 156",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Tool failed: functional_evidence"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.2450, SpliceAI max score: 0.0000 (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0).",
+      "reasoning": "Following the Branch A rules for missense variants: Step 1 shows 'PP3 REVEL (>= 0.644): DOES NOT APPLY' (score=0.2450), and Step 2 shows 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE' (max score=0.0000). Since neither threshold is met, the PP3 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.245, SpliceAI max score: 0.0 (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0). Verdicts: BP4 REVEL HHT threshold (<= 0.15) FAILS; BP4 SpliceAI (all scores <= 0.1) PASSES.",
+      "reasoning": "According to the HHT-specific classification rules for missense variants, BP4 requires both the REVEL score to be <= 0.15 and the SpliceAI score to be <= 0.1. While the SpliceAI criterion passes, the REVEL score of 0.245 fails the HHT-specific threshold of <= 0.15. Because both conditions must be met for a missense variant, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913711-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Erepo did not return valid reponse, no classifications found"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Tool failed: functional_evidence"
+    }
+  ]
+}

@@ -202,12 +202,6 @@ def annotate_variant(variant: str) -> dict:
 
     Returns {"error": "..."} on unrecoverable failure — never raises.
     """
-
-    print(f"{'-'*100}")
-    print("VEP variant name:")
-    print(variant)
-    print(f"{'-'*100}")
-
     is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
 
     if is_hgvs:
@@ -304,13 +298,6 @@ def annotate_variant(variant: str) -> dict:
                 "mane_transcript": mane_transcript,
                 "rsid": rsid
             }
-
-
-            print(f"{'-'*100}")
-            print("VEP result:")
-            print(result)
-            print(f"{'-'*100}")
-
             # Extract amino acid change (e.g. "C/G" → ref=Cys, alt=Gly).
             #
             # The ref/alt amino acids VEP reports at the FIRST affected codon are only

@@ -8,7 +8,46 @@ from typing import Optional, TypeAlias
 from config import MODELS
 from data.planrag import get_gene_from_transcript
 from collections import defaultdict
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
 Tasks: TypeAlias = dict[str, list[dict[str, str]]]
+plan_console = Console()
+
+
+def _plan_warning(message: str) -> None:
+    """Render an actionable planning warning without verbose agent chatter."""
+    warning = Text()
+    warning.append("⚠ Plan agent: ", style="bold yellow")
+    warning.append(message)
+    plan_console.print(warning)
+
+
+def _print_plan_summary(variant: str, disease: str, tasks: Tasks) -> None:
+    """Render one compact summary after the complete task plan is built."""
+    task_count = sum(len(phase_tasks) for phase_tasks in tasks.values())
+    summary = Table.grid(padding=(0, 2))
+    summary.add_column(style="bold cyan", no_wrap=True)
+    summary.add_column()
+    summary.add_row("Variant", Text(variant))
+    summary.add_row("Disease", Text(disease))
+
+    for phase_number in range(1, 5):
+        phase_tasks = tasks.get(f"phase{phase_number}", [])
+        criteria = ", ".join(task["criterion"] for task in phase_tasks)
+        summary.add_row(f"Phase {phase_number}", Text(criteria or "—"))
+
+    plan_console.print(Panel.fit(
+        summary,
+        title=Text("Plan Agent · Task Plan", style="bold cyan"),
+        subtitle=Text(f"{task_count} task(s)", style="dim"),
+        border_style="cyan" if task_count else "yellow",
+        box=box.ROUNDED,
+        padding=(1, 2),
+    ))
 
 # OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
@@ -58,27 +97,23 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
         
-    if gene:
-        print(f"PLAN AGENT: Detected gene {gene} from transcript")
-    
     if gene is None and gene_symbol:              # ADD
         gene = gene_symbol
-        print(f"PLAN AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")  
 
 
     for criterion in criteria:
         rag_entry = query(criterion, gene=gene, disease=disease)
 
         if rag_entry is None:
-            print(f"PLAN AGENT: No PlanRAG entry found for {criterion}, skipping")
+            _plan_warning(f"No PlanRAG entry for {criterion}; skipped.")
             continue
 
         if rag_entry.get("excluded"):
-            print(f"PLAN AGENT: {criterion} is excluded — {rag_entry.get('reason')}, skipping")
+            _plan_warning(f"{criterion} excluded: {rag_entry.get('reason')}")
             continue
 
         if rag_entry.get("deferred"):
-            print(f"PLAN AGENT: {criterion} is deferred (not automatable), skipping")
+            _plan_warning(f"{criterion} is deferred and was not scheduled.")
             continue
 
 #         prompt = f"""You are a variant classification assistant.
@@ -111,7 +146,6 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
         }
 
         tasks.append(task)
-        print(f"PLAN AGENT: Task created for {criterion}")
 
     result = defaultdict(list)
 
@@ -151,7 +185,6 @@ def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None
             "instructions": rag_entry["instructions"],
         }
     """
-    print(f"PLAN AGENT: Building task list for {variant} / {disease}")
     tasks = build_task_list(variant, disease, criteria, gene_symbol)
-    print(f"PLAN AGENT: {len(tasks)} task(s) generated")
+    _print_plan_summary(variant, disease, tasks)
     return tasks
