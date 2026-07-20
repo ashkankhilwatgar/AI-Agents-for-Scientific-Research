@@ -10,13 +10,13 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <span class="brand-mark">HHT</span>
         <div>
           <h1>ACMG Variant Classifier</h1>
           <p class="sub">Hereditary Hemorrhagic Telangiectasia &middot; ACVRL1 / ENG &middot; ClinGen VCEP (GN135/GN136)</p>
         </div>
       </div>
-      <div class="loader">
+      <div class="topbar-right">
+        <div class="loader">
         <label>Cached variant
           <select id="cached-select"><option value="">— loading —</option></select>
         </label>
@@ -26,6 +26,13 @@
           <input id="live-variant" type="text" placeholder="NM_000020.3:c.557G&gt;T" />
         </label>
         <button id="run-live" class="btn btn-secondary">Run pipeline</button>
+        </div>
+        <label class="disease-select">Disease
+          <select id="disease-select">
+            <option value="HHT" selected>HHT</option>
+            <option value="__coming_soon__">More disease support incoming…</option>
+          </select>
+        </label>
       </div>
     </div>
   </header>
@@ -37,7 +44,11 @@
     <section class="col criteria-col">
       <div class="panel">
         <h2>Automatable criteria <span class="hint">evaluated by the pipeline</span></h2>
-        <p class="panel-note">Checkboxes are pre-set from the automated run, but you can freely toggle any of them. Scoring updates live.</p>
+        <p class="panel-note">Checkboxes are pre-set from the automated run and locked by default. Review the evidence, then unlock to override the pipeline's call. Scoring updates live.</p>
+        <div class="review-lock">
+          <button id="review-automatable" class="btn btn-secondary">Review Automatable Criteria</button>
+          <p class="review-lock-desc">Unlocks editing for the criteria the pipeline evaluated automatically, so you can override the pipeline's call after reviewing its evidence. Use this only after checking the evidence section for a criterion; toggling without review risks an inaccurate classification.</p>
+        </div>
         <div id="automatable-list" class="criteria-list"></div>
       </div>
 

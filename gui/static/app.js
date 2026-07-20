@@ -7,6 +7,7 @@ const state = {
   criteria: {},               // key -> { applies, applied_strength, evidence, reasoning, status, note }
   manualEvidence: {},         // key -> user-typed patient data (manual criteria)
   variant: null,
+  automatableUnlocked: false, // automatable checkboxes are read-only until "Review" is clicked
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -68,6 +69,45 @@ async function init() {
   $("#manual-select").addEventListener("change", onManualSelectChange);
   $("#manual-save").addEventListener("click", onManualSave);
   $("#evidence-select").addEventListener("change", renderEvidence);
+  $("#review-automatable").addEventListener("click", onReviewAutomatable);
+  $("#disease-select").addEventListener("change", onDiseaseChange);
+  updateReviewButton();
+}
+
+// ── Disease selector ───────────────────────────────────────────────────────
+// Only HHT is implemented; the "coming soon" option signals future scope but
+// changes nothing. Selecting it reverts to HHT so app state stays consistent.
+function onDiseaseChange() {
+  const sel = $("#disease-select");
+  if (sel.value !== "HHT") {
+    sel.value = "HHT";
+    setStatus("More disease support is coming soon — this demo currently supports HHT only.", "info");
+  }
+}
+
+// ── Automatable editing lock ─────────────────────────────────────────────────
+function onReviewAutomatable() {
+  state.automatableUnlocked = !state.automatableUnlocked;
+  updateReviewButton();
+  renderCriteria();
+  setStatus(
+    state.automatableUnlocked
+      ? "Automatable criteria unlocked — you can now override the pipeline's calls. Review each criterion's evidence before toggling."
+      : "Automatable criteria re-locked — editing disabled.",
+    "info"
+  );
+}
+
+function updateReviewButton() {
+  const btn = $("#review-automatable");
+  if (!btn) return;
+  if (state.automatableUnlocked) {
+    btn.textContent = "Lock Automatable Criteria";
+    btn.classList.add("active");
+  } else {
+    btn.textContent = "Review Automatable Criteria";
+    btn.classList.remove("active");
+  }
 }
 
 // ── Variant loading ──────────────────────────────────────────────────────────
@@ -118,6 +158,9 @@ async function loadVariant(variant, mode) {
     });
     state.variant = variant;
     state.criteria = data.criteria;
+    // A fresh run re-locks the automatable criteria — they must be reviewed again.
+    state.automatableUnlocked = false;
+    updateReviewButton();
     // Seed manual-evidence store with any evidence the pipeline produced.
     state.manualEvidence = {};
     for (const key of Object.keys(state.criteria)) {
@@ -152,13 +195,23 @@ function badgeFor(meta) {
   return el("span", "badge fixed", label);
 }
 
+// Automatable criteria are read-only until "Review Automatable Criteria" is clicked.
+// Manual criteria are read-only until the user has entered patient data for them.
+// Everything else follows from those two rules.
+function isLocked(meta) {
+  if (meta.group === "manual") return !state.manualEvidence[meta.key];
+  return !state.automatableUnlocked;
+}
+
 function critRow(meta) {
   const c = state.criteria[meta.key];
-  const row = el("div", "crit" + (c.applies ? " applied" : ""));
+  const locked = isLocked(meta);
+  const row = el("div", "crit" + (c.applies ? " applied" : "") + (locked ? " locked" : ""));
 
   const cb = el("input");
   cb.type = "checkbox";
   cb.checked = !!c.applies;
+  cb.disabled = locked;
   cb.addEventListener("change", () => {
     c.applies = cb.checked;
     renderCriteria();
@@ -182,7 +235,8 @@ function critRow(meta) {
   }
 
   // strength selector (variable-strength criteria only, relevant when checked)
-  const strengthWrap = el("div", "strength-sel" + (c.applies ? "" : " disabled"));
+  const strengthActive = c.applies && !locked;
+  const strengthWrap = el("div", "strength-sel" + (strengthActive ? "" : " disabled"));
   if (meta.is_variable) {
     strengthWrap.appendChild(el("span", "lbl", "Strength"));
     const sel = el("select");
@@ -191,7 +245,7 @@ function critRow(meta) {
       if (opt.value === c.applied_strength) o.selected = true;
       sel.appendChild(o);
     }
-    sel.disabled = !c.applies;
+    sel.disabled = !strengthActive;
     sel.addEventListener("change", () => {
       c.applied_strength = sel.value;
       rescore();
