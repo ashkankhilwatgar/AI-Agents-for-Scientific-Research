@@ -1,0 +1,938 @@
+{
+  "meta": {
+    "model": "gemini-3.5-flash",
+    "temperature": 0.4,
+    "passes": 3,
+    "csv_source": "/Users/abdul/Desktop/College/AI Agents for Scientific Research/AI-Agents-for-Scientific-Research/datasets/full_evaluation_dataset.csv",
+    "num_variants": 200,
+    "criteria_evaluated": [
+      "PM2_SUPPORTING",
+      "BA1",
+      "BS1",
+      "PS4",
+      "PP4_MODERATE",
+      "PM1",
+      "PVS1",
+      "PM5",
+      "PS3",
+      "PS1",
+      "PP3",
+      "PM4",
+      "BP4",
+      "BP7",
+      "PP1",
+      "BS3",
+      "BS4",
+      "BP2",
+      "BP5"
+    ],
+    "deferred_criteria_no_patient_data": [
+      "BP2",
+      "BP5",
+      "BS4",
+      "PP1",
+      "PP4_MODERATE"
+    ],
+    "excluded_criteria": {
+      "PS2": "Not Applicable per HHT VCEP \u2014 de novo variants are rare in HHT; should be confirmed not presumed. Low-level mosaicism in parents has been observed.",
+      "PM3": "Not Applicable per HHT VCEP \u2014 HHT is autosomal dominant; AR trans mechanism not relevant",
+      "PM6": "Not Applicable per HHT VCEP \u2014 de novo variants are rare in HHT; should be confirmed not presumed",
+      "PP5": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)",
+      "BS2": "Not Applicable per HHT VCEP \u2014 full penetrance at an early age is not observed in HHT",
+      "BP1": "Not Applicable per HHT VCEP \u2014 missense variants commonly seen in HHT genes",
+      "BP3": "Not Applicable per HHT VCEP",
+      "BP6": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)"
+    },
+    "num_variants_completed": 2
+  },
+  "results": [
+    {
+      "variation_id": "197093",
+      "gene": "ACVRL1",
+      "hgvs_cdna": "NM_000020.3:c.484C>T",
+      "gold_standard": {
+        "gt_classification": "Likely Benign",
+        "gt_classification_short": "LB",
+        "gt_criteria_applied": "BS1;BS3_Supporting"
+      },
+      "passes": [
+        {
+          "pass": 1,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"The ACVRL1 c.484C>T (p.Arg162*) variant is a well-known pathogenic nonsense mutation that is absent or extremely rare in gnomAD (allele count < 6, subpopulation frequency < 0.00004), satisfying the PM2_Supporting threshold.\"\n  },\n  \"BA1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is a rare disease-causing variant and is not present at high frequency in population databases.\"\n  },\n  \"BS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant's frequency is not above the threshold for HHT.\"\n  },\n  \"PS4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"Proband count is not provided in the prompt, and although this is a well-known pathogenic variant, exact counts cannot be verified from memory.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient clinical data was provided.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PM1 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PVS1\": {\n    \"applies\": true,\n    \"applied_strength\": \"very_strong\",\n    \"evidence\": \"The variant c.484C>T (p.Arg162*) is a nonsense variant located at codon 162, which is well upstream of the NMD boundary (codon 442) in ACVRL1. It is predicted to undergo nonsense-mediated decay (NMD) in a gene where loss-of-function is an established mechanism of disease.\"\n  },\n  \"PM5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PM5 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"No specific functional study data for this variant is available or recalled.\"\n  },\n  \"PS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PS1 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PP3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PP3 is blocked/redundant because PVS1 is applied.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a nonsense variant, not an in-frame indel or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a pathogenic nonsense variant, and computational tools do not predict it to be benign.\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a nonsense variant, not a synonymous or intronic variant.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No functional study showing normal function is available; this is a loss-of-function variant.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "The ACVRL1 c.484C>T (p.Arg162*) variant is a well-known pathogenic nonsense mutation that is absent or extremely rare in gnomAD (allele count < 6, subpopulation frequency < 0.00004), satisfying the PM2_Supporting threshold."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is a rare disease-causing variant and is not present at high frequency in population databases."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant's frequency is not above the threshold for HHT."
+            },
+            "PS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Proband count is not provided in the prompt, and although this is a well-known pathogenic variant, exact counts cannot be verified from memory."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient clinical data was provided."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PM1 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PVS1": {
+              "applies": true,
+              "applied_strength": "very_strong",
+              "status": "ok",
+              "evidence": "The variant c.484C>T (p.Arg162*) is a nonsense variant located at codon 162, which is well upstream of the NMD boundary (codon 442) in ACVRL1. It is predicted to undergo nonsense-mediated decay (NMD) in a gene where loss-of-function is an established mechanism of disease."
+            },
+            "PM5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PM5 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No specific functional study data for this variant is available or recalled."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PS1 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PP3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PP3 is blocked/redundant because PVS1 is applied."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a nonsense variant, not an in-frame indel or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a pathogenic nonsense variant, and computational tools do not predict it to be benign."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a nonsense variant, not a synonymous or intronic variant."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No functional study showing normal function is available; this is a loss-of-function variant."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided."
+            }
+          },
+          "classification_result": {
+            "classification": "Likely Pathogenic",
+            "rule_matched": "PVS1 + 1 Supporting",
+            "buckets": {
+              "vs": 1,
+              "s": 0,
+              "m": 0,
+              "sup": 1,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {
+              "PM2_SUPPORTING": "supporting",
+              "PVS1": "very_strong"
+            },
+            "applied_criteria": [
+              "PM2_SUPPORTING",
+              "PVS1"
+            ],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        },
+        {
+          "pass": 2,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"ACVRL1 c.484C>T (p.Arg162Trp) is extremely rare and absent from gnomAD, meeting the PM2_SUPPORTING threshold (AC < 6).\"\n  },\n  \"BA1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is extremely rare/absent in gnomAD, so BA1 does not apply.\"\n  },\n  \"BS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is extremely rare/absent in gnomAD, so BS1 does not apply.\"\n  },\n  \"PS4\": {\n    \"applies\": true,\n    \"applied_strength\": \"strong\",\n    \"evidence\": \"ACVRL1 p.Arg162Trp is a well-documented recurrent mutation in HHT patients, with >4 unrelated probands reported in the literature.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient-specific clinical data was provided to evaluate PP4.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Residue 162 is not located within the ACVRL1 critical regions defined by the HHT VCEP.\"\n  },\n  \"PVS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, so PVS1 does not apply.\"\n  },\n  \"PM5\": {\n    \"applies\": true,\n    \"applied_strength\": \"moderate\",\n    \"evidence\": \"At least one other missense variant at the same codon, p.Arg162Gln (c.485G>A), is established as pathogenic/likely pathogenic in HHT.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"While functional studies exist showing impaired BMP9 signaling for p.Arg162Trp, specific VCEP-approved assay details are not fully verified from memory.\"\n  },\n  \"PS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No other nucleotide change can produce the p.Arg162Trp substitution as Trp has only one codon (TGG).\"\n  },\n  \"PP3\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"REVEL score is predicted to be well above the 0.644 threshold for ACVRL1 missense variants, indicating a damaging effect.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, not an in-frame indel or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Computational tools predict a damaging effect (PP3 applies), so BP4 does not apply.\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, not synonymous or intronic.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No functional studies showing normal protein function are reported; the variant is damaging.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No co-occurrence data was provided.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient-specific data was provided.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "ACVRL1 c.484C>T (p.Arg162Trp) is extremely rare and absent from gnomAD, meeting the PM2_SUPPORTING threshold (AC < 6)."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is extremely rare/absent in gnomAD, so BA1 does not apply."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is extremely rare/absent in gnomAD, so BS1 does not apply."
+            },
+            "PS4": {
+              "applies": true,
+              "applied_strength": "strong",
+              "status": "ok",
+              "evidence": "ACVRL1 p.Arg162Trp is a well-documented recurrent mutation in HHT patients, with >4 unrelated probands reported in the literature."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient-specific clinical data was provided to evaluate PP4."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Residue 162 is not located within the ACVRL1 critical regions defined by the HHT VCEP."
+            },
+            "PVS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, so PVS1 does not apply."
+            },
+            "PM5": {
+              "applies": true,
+              "applied_strength": "moderate",
+              "status": "ok",
+              "evidence": "At least one other missense variant at the same codon, p.Arg162Gln (c.485G>A), is established as pathogenic/likely pathogenic in HHT."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "While functional studies exist showing impaired BMP9 signaling for p.Arg162Trp, specific VCEP-approved assay details are not fully verified from memory."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No other nucleotide change can produce the p.Arg162Trp substitution as Trp has only one codon (TGG)."
+            },
+            "PP3": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "REVEL score is predicted to be well above the 0.644 threshold for ACVRL1 missense variants, indicating a damaging effect."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, not an in-frame indel or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Computational tools predict a damaging effect (PP3 applies), so BP4 does not apply."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, not synonymous or intronic."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No functional studies showing normal protein function are reported; the variant is damaging."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No co-occurrence data was provided."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient-specific data was provided."
+            }
+          },
+          "classification_result": {
+            "classification": "Likely Pathogenic",
+            "rule_matched": "1 Strong + 1 Moderate",
+            "buckets": {
+              "vs": 0,
+              "s": 1,
+              "m": 1,
+              "sup": 2,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {
+              "PM2_SUPPORTING": "supporting",
+              "PS4": "strong",
+              "PM5": "moderate",
+              "PP3": "supporting"
+            },
+            "applied_criteria": [
+              "PM2_SUPPORTING",
+              "PS4",
+              "PM5",
+              "PP3"
+            ],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        },
+        {
+          "pass": 3,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"The variant c.484C>T (p.Arg162*) is extremely rare or absent in gnomAD, meeting the PM2_Supporting threshold (AC < 6 or AF < 0.00004).\"\n  },\n  \"BA1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is extremely rare and does not exceed the 1% population frequency threshold.\"\n  },\n  \"BS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is extremely rare and does not exceed the disease-specific benign frequency thresholds.\"\n  },\n  \"PS4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"While this is a well-known recurrent HHT variant, exact proband counts from literature are not verified from memory, so this criterion is set to unable to determine.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient/family clinical data was provided.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PM1 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PVS1\": {\n    \"applies\": true,\n    \"applied_strength\": \"very_strong\",\n    \"evidence\": \"The variant c.484C>T (p.Arg162*) is a nonsense variant located well before the NMD boundary (codon 442) of ACVRL1, and is predicted to undergo nonsense-mediated decay in a gene where loss-of-function is an established mechanism of disease.\"\n  },\n  \"PM5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PM5 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"No specific functional assay data for this variant is evaluated from memory.\"\n  },\n  \"PS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PS1 is restricted to missense variants; this is a nonsense variant.\"\n  },\n  \"PP3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"PP3 is redundant and blocked because PVS1 already applies to this loss-of-function variant.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a nonsense variant, not an in-frame indel or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"BP4 is not applicable to nonsense variants predicted to cause loss of function.\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a coding nonsense variant, not a synonymous or intronic variant.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient/family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"There is no functional evidence demonstrating that this nonsense variant retains normal protein function.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient/family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient/family data was provided.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient/family data was provided.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "The variant c.484C>T (p.Arg162*) is extremely rare or absent in gnomAD, meeting the PM2_Supporting threshold (AC < 6 or AF < 0.00004)."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is extremely rare and does not exceed the 1% population frequency threshold."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is extremely rare and does not exceed the disease-specific benign frequency thresholds."
+            },
+            "PS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "While this is a well-known recurrent HHT variant, exact proband counts from literature are not verified from memory, so this criterion is set to unable to determine."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient/family clinical data was provided."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PM1 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PVS1": {
+              "applies": true,
+              "applied_strength": "very_strong",
+              "status": "ok",
+              "evidence": "The variant c.484C>T (p.Arg162*) is a nonsense variant located well before the NMD boundary (codon 442) of ACVRL1, and is predicted to undergo nonsense-mediated decay in a gene where loss-of-function is an established mechanism of disease."
+            },
+            "PM5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PM5 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No specific functional assay data for this variant is evaluated from memory."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PS1 is restricted to missense variants; this is a nonsense variant."
+            },
+            "PP3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "PP3 is redundant and blocked because PVS1 already applies to this loss-of-function variant."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a nonsense variant, not an in-frame indel or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "BP4 is not applicable to nonsense variants predicted to cause loss of function."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a coding nonsense variant, not a synonymous or intronic variant."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient/family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "There is no functional evidence demonstrating that this nonsense variant retains normal protein function."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient/family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient/family data was provided."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient/family data was provided."
+            }
+          },
+          "classification_result": {
+            "classification": "Likely Pathogenic",
+            "rule_matched": "PVS1 + 1 Supporting",
+            "buckets": {
+              "vs": 1,
+              "s": 0,
+              "m": 0,
+              "sup": 1,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {
+              "PM2_SUPPORTING": "supporting",
+              "PVS1": "very_strong"
+            },
+            "applied_criteria": [
+              "PM2_SUPPORTING",
+              "PVS1"
+            ],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        }
+      ],
+      "error": null,
+      "majority_classification": "Likely Pathogenic",
+      "vote_counts": {
+        "Likely Pathogenic": 3
+      }
+    },
+    {
+      "variation_id": "1381345",
+      "gene": "ACVRL1",
+      "hgvs_cdna": "NM_000020.3:c.151T>G",
+      "gold_standard": {
+        "gt_classification": "Likely Pathogenic",
+        "gt_classification_short": "LP",
+        "gt_criteria_applied": "PM2_Supporting;PS4_Moderate;PP3;PM5"
+      },
+      "passes": [
+        {
+          "pass": 1,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"I am confident from general knowledge of ACVRL1 pathogenic variants that this variant is absent or extremely rare in gnomAD, meeting the threshold of AC < 6 or AF < 0.00004.\"\n  },\n  \"BA1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Variant is not present at high frequency in population databases.\"\n  },\n  \"BS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Variant is not present at high frequency in population databases.\"\n  },\n  \"PS4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"Proband counts in HHT cases are unknown to me for this specific variant.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient clinical data was provided.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Residue Tyr51 is not located within any of the specified ACVRL1 critical regions (such as the BMP10 interaction cluster or kinase domain loops).\"\n  },\n  \"PVS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant (c.151T>G, p.Tyr51Asp), which is not a loss-of-function variant type eligible for PVS1.\"\n  },\n  \"PM5\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not recall if there are other VCEP-classified pathogenic missense variants at codon 51.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not recall specific published functional assay data for this variant.\"\n  },\n  \"PS1\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not recall another nucleotide change at this codon causing the same amino acid change that is established as pathogenic.\"\n  },\n  \"PP3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact REVEL and SpliceAI scores for this variant are unknown to me.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, not an in-frame indel or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact REVEL and SpliceAI scores for this variant are unknown to me.\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, not a synonymous or intronic variant.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not recall specific published functional assay data for this variant.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "I am confident from general knowledge of ACVRL1 pathogenic variants that this variant is absent or extremely rare in gnomAD, meeting the threshold of AC < 6 or AF < 0.00004."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Variant is not present at high frequency in population databases."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Variant is not present at high frequency in population databases."
+            },
+            "PS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Proband counts in HHT cases are unknown to me for this specific variant."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient clinical data was provided."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Residue Tyr51 is not located within any of the specified ACVRL1 critical regions (such as the BMP10 interaction cluster or kinase domain loops)."
+            },
+            "PVS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant (c.151T>G, p.Tyr51Asp), which is not a loss-of-function variant type eligible for PVS1."
+            },
+            "PM5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not recall if there are other VCEP-classified pathogenic missense variants at codon 51."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not recall specific published functional assay data for this variant."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not recall another nucleotide change at this codon causing the same amino acid change that is established as pathogenic."
+            },
+            "PP3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact REVEL and SpliceAI scores for this variant are unknown to me."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, not an in-frame indel or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact REVEL and SpliceAI scores for this variant are unknown to me."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, not a synonymous or intronic variant."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not recall specific published functional assay data for this variant."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided."
+            }
+          },
+          "classification_result": {
+            "classification": "Variant of Uncertain Significance (VUS)",
+            "rule_matched": "No combining criteria rule was satisfied",
+            "buckets": {
+              "vs": 0,
+              "s": 0,
+              "m": 0,
+              "sup": 1,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {
+              "PM2_SUPPORTING": "supporting"
+            },
+            "applied_criteria": [
+              "PM2_SUPPORTING"
+            ],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        },
+        {
+          "pass": 2,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"I infer from general knowledge of ACVRL1 pathogenic variants that c.151T>G (p.Cys51Gly) is absent or extremely rare in gnomAD, meeting the threshold of PM2_Supporting.\"\n  },\n  \"BA1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is not present at high frequency in population databases.\"\n  },\n  \"BS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is not present above the disease-specific frequency thresholds in gnomAD.\"\n  },\n  \"PS4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact number of HHT probands carrying this variant is unknown to me.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient-specific clinical data was provided.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Codon 51 is not located within the specified ACVRL1 critical regions (glycine-rich loop, phosphate anchor, C-helix E/phosphate-anchor pairing, catalytic loop, metal-binding loop, or BMP10 interaction cluster).\"\n  },\n  \"PVS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, so loss-of-function predictive rules do not apply.\"\n  },\n  \"PM5\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not have specific knowledge of other VCEP-classified pathogenic missense variants at codon 51.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not have specific functional assay data for this exact variant.\"\n  },\n  \"PS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"I do not recall another nucleotide change causing the same amino acid change (p.Cys51Gly) that is established as pathogenic.\"\n  },\n  \"PP3\": {\n    \"applies\": true,\n    \"applied_strength\": \"supporting\",\n    \"evidence\": \"I am highly confident that a cysteine-disrupting missense variant in the highly conserved extracellular domain of ACVRL1 has a REVEL score >= 0.644.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a single nucleotide substitution resulting in a missense change, not an in-frame indel or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"Computational tools predict a damaging effect (REVEL >= 0.644).\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"This is a missense variant, not a synonymous or intronic variant.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No functional assay data demonstrating a benign effect is available.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient-specific phase data was provided.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient-specific co-occurrence data was provided.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "I infer from general knowledge of ACVRL1 pathogenic variants that c.151T>G (p.Cys51Gly) is absent or extremely rare in gnomAD, meeting the threshold of PM2_Supporting."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is not present at high frequency in population databases."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is not present above the disease-specific frequency thresholds in gnomAD."
+            },
+            "PS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact number of HHT probands carrying this variant is unknown to me."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient-specific clinical data was provided."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Codon 51 is not located within the specified ACVRL1 critical regions (glycine-rich loop, phosphate anchor, C-helix E/phosphate-anchor pairing, catalytic loop, metal-binding loop, or BMP10 interaction cluster)."
+            },
+            "PVS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, so loss-of-function predictive rules do not apply."
+            },
+            "PM5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not have specific knowledge of other VCEP-classified pathogenic missense variants at codon 51."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not have specific functional assay data for this exact variant."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "I do not recall another nucleotide change causing the same amino acid change (p.Cys51Gly) that is established as pathogenic."
+            },
+            "PP3": {
+              "applies": true,
+              "applied_strength": "supporting",
+              "status": "ok",
+              "evidence": "I am highly confident that a cysteine-disrupting missense variant in the highly conserved extracellular domain of ACVRL1 has a REVEL score >= 0.644."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a single nucleotide substitution resulting in a missense change, not an in-frame indel or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "Computational tools predict a damaging effect (REVEL >= 0.644)."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "This is a missense variant, not a synonymous or intronic variant."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No functional assay data demonstrating a benign effect is available."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient-specific phase data was provided."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient-specific co-occurrence data was provided."
+            }
+          },
+          "classification_result": {
+            "classification": "Variant of Uncertain Significance (VUS)",
+            "rule_matched": "No combining criteria rule was satisfied",
+            "buckets": {
+              "vs": 0,
+              "s": 0,
+              "m": 0,
+              "sup": 2,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {
+              "PM2_SUPPORTING": "supporting",
+              "PP3": "supporting"
+            },
+            "applied_criteria": [
+              "PM2_SUPPORTING",
+              "PP3"
+            ],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        },
+        {
+          "pass": 3,
+          "raw_model_output": "```json\n{\n  \"PM2_SUPPORTING\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact gnomAD allele frequency and allele count for ACVRL1 c.151T>G are not known from memory.\"\n  },\n  \"BA1\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact gnomAD popmax filtering allele frequency is not known from memory.\"\n  },\n  \"BS1\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact gnomAD popmax filtering allele frequency is not known from memory.\"\n  },\n  \"PS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No proband clinical data or counts were provided for this variant.\"\n  },\n  \"PP4_MODERATE\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient clinical data was provided.\"\n  },\n  \"PM1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant c.151T>G (p.Cys51Gly) is located at residue 51 of ACVRL1, which is not within the specified critical regions (glycine-rich loop, phosphate anchor, C-helix E/phosphate-anchor pairing, catalytic loop, metal-binding loop, or the BMP10 interaction cluster residues) defined by the HHT VCEP.\"\n  },\n  \"PVS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant c.151T>G (p.Cys51Gly) is a missense variant, which is not a type of variant that can trigger PVS1.\"\n  },\n  \"PM5\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"It is unknown from memory whether another missense variant at codon 51 of ACVRL1 has been classified as Pathogenic or Likely Pathogenic by the HHT VCEP.\"\n  },\n  \"PS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"No functional study data for this specific variant is known from memory.\"\n  },\n  \"PS1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No other nucleotide change resulting in the same amino acid change (p.Cys51Gly) is known to be classified as Pathogenic or Likely Pathogenic.\"\n  },\n  \"PP3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact REVEL and SpliceAI scores for this variant are not known from memory.\"\n  },\n  \"PM4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is a single nucleotide substitution resulting in a missense change, not an in-frame insertion/deletion or stop-loss.\"\n  },\n  \"BP4\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"The exact REVEL and SpliceAI scores for this variant are not known from memory.\"\n  },\n  \"BP7\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"The variant is a missense variant, not a synonymous or intronic variant.\"\n  },\n  \"PP1\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BS3\": {\n    \"applies\": null,\n    \"applied_strength\": null,\n    \"evidence\": \"No functional study data for this specific variant is known from memory.\"\n  },\n  \"BS4\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No family segregation data was provided.\"\n  },\n  \"BP2\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided to evaluate co-occurrence in trans.\"\n  },\n  \"BP5\": {\n    \"applies\": false,\n    \"applied_strength\": null,\n    \"evidence\": \"No patient data was provided to evaluate co-occurrence with a pathogenic variant in another HHT gene.\"\n  }\n}\n```",
+          "per_criterion": {
+            "PM2_SUPPORTING": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact gnomAD allele frequency and allele count for ACVRL1 c.151T>G are not known from memory."
+            },
+            "BA1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact gnomAD popmax filtering allele frequency is not known from memory."
+            },
+            "BS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact gnomAD popmax filtering allele frequency is not known from memory."
+            },
+            "PS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No proband clinical data or counts were provided for this variant."
+            },
+            "PP4_MODERATE": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient clinical data was provided."
+            },
+            "PM1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant c.151T>G (p.Cys51Gly) is located at residue 51 of ACVRL1, which is not within the specified critical regions (glycine-rich loop, phosphate anchor, C-helix E/phosphate-anchor pairing, catalytic loop, metal-binding loop, or the BMP10 interaction cluster residues) defined by the HHT VCEP."
+            },
+            "PVS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant c.151T>G (p.Cys51Gly) is a missense variant, which is not a type of variant that can trigger PVS1."
+            },
+            "PM5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "It is unknown from memory whether another missense variant at codon 51 of ACVRL1 has been classified as Pathogenic or Likely Pathogenic by the HHT VCEP."
+            },
+            "PS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No functional study data for this specific variant is known from memory."
+            },
+            "PS1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No other nucleotide change resulting in the same amino acid change (p.Cys51Gly) is known to be classified as Pathogenic or Likely Pathogenic."
+            },
+            "PP3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact REVEL and SpliceAI scores for this variant are not known from memory."
+            },
+            "PM4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is a single nucleotide substitution resulting in a missense change, not an in-frame insertion/deletion or stop-loss."
+            },
+            "BP4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The exact REVEL and SpliceAI scores for this variant are not known from memory."
+            },
+            "BP7": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "The variant is a missense variant, not a synonymous or intronic variant."
+            },
+            "PP1": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BS3": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No functional study data for this specific variant is known from memory."
+            },
+            "BS4": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No family segregation data was provided."
+            },
+            "BP2": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided to evaluate co-occurrence in trans."
+            },
+            "BP5": {
+              "applies": false,
+              "applied_strength": null,
+              "status": "ok",
+              "evidence": "No patient data was provided to evaluate co-occurrence with a pathogenic variant in another HHT gene."
+            }
+          },
+          "classification_result": {
+            "classification": "Variant of Uncertain Significance (VUS)",
+            "rule_matched": "No combining criteria rule was satisfied",
+            "buckets": {
+              "vs": 0,
+              "s": 0,
+              "m": 0,
+              "sup": 0,
+              "ba": 0,
+              "bs": 0,
+              "bsup": 0
+            },
+            "bucket_detail": {},
+            "applied_criteria": [],
+            "incompatibility_notes": [],
+            "unrecognised_criteria": []
+          }
+        }
+      ],
+      "error": null,
+      "majority_classification": "Variant of Uncertain Significance (VUS)",
+      "vote_counts": {
+        "Variant of Uncertain Significance (VUS)": 3
+      }
+    }
+  ]
+}
