@@ -2,10 +2,6 @@ import json
 from config import MODELS
 import requests
 from typing import Optional
-# from .llm.llm import create_llm
-# from .llm.llm import invoke_llm
-
-# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 
 REQUIRED_FIELDS = [
     "criterion",
@@ -18,30 +14,6 @@ REQUIRED_FIELDS = [
     "status"
 ]
 
-# def call_ollama(prompt: str) -> str:
-#     payload = {
-#         "model": MODELS["check"],
-#         "prompt": prompt,
-#         "stream": False,
-#         "keep_alive": -1
-#     }
-#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-#     response.raise_for_status()
-#     return response.json()["response"]
-
-
-
-# def call_judge_agent(prompt: str,) -> str:
-#     response = invoke_llm(
-#         model=MODELS["check"]["model"],
-#         provider=MODELS["check"]["provider"],
-#         human_messsage=prompt,
-#     )
-#     return response
-
-
-# def call_judge_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-#     return invoke_llm("judge_agent", prompt)
 
 def fix_formatting(task_output: dict) -> tuple[dict, list]:
     """
@@ -128,25 +100,9 @@ def run_check(task_output: dict) -> dict:
     result = check_format(task_output)
 
     if result["pass"]:
-        # print("CHECK AGENT: Output passed formatting check")
         return task_output
 
-    # print(f"CHECK AGENT: {len(result['issues'])} formatting issue(s) found:")
-    # for issue in result["issues"]:
-    #     print(f"  - {issue}")
-
     corrected, fixes = fix_formatting(task_output)
-# 
-    # print(f"CHECK AGENT: Applied {len(fixes)} fix(es):")
-    # for fix in fixes:
-    #     print(f"  - {fix}")
-
-    # # verify fixes resolved all issues
-    # recheck = check_format(corrected)
-    # if not recheck["pass"]:
-    #     print("CHECK AGENT: Warning — some issues could not be fixed automatically:")
-    #     for issue in recheck["issues"]:
-    #         print(f"  - {issue}")
 
     return corrected
 

@@ -24,7 +24,7 @@ def test_run_task(monkeypatch):
     Regression test: when tool_result returns an error, run_task should:
 
     1. Avoid sending failed evidence to interpret_evidence.
-    2. Run the tool again
+    2. Run the tool again.
     """
 
     task = {

@@ -113,80 +113,6 @@ def _check_repeat_region(data: list) -> bool:
 
     raise RuntimeError(f"Repeat-region API failed after {MAX_RETRIES} retries: {last_error}")
 
-# 
-# def get_variant_type(variant: str) -> dict:
-    # """
-    # Calls Ensembl VEP to determine variant consequence type.
-    # Accepts HGVS (NM_... format) or gnomAD format (chrom-pos-ref-alt).
-# 
-    # Returns:
-        # {
-            # "variant_type": "<missense | synonymous | intronic | splice_site |
-                            #  splice_region | nonsense | frameshift |
-                            #  inframe_insertion | inframe_deletion |
-                            #  stop_lost | start_lost | utr | other>",
-            # "raw_consequence": "<VEP most_severe_consequence string>"
-        # }
-    # or {"error": "<message>"} on failure.
-    # """
-    # is_hgvs = variant.startswith("NM_") or "c." in variant or "p." in variant
-# 
-    # if is_hgvs:
-        # encoded = quote(variant, safe="")
-        # url = f"{ENSEMBL_URL}/vep/human/hgvs/{encoded}"
-        # params = {}
-    # else:
-     #   gnomAD format: chrom-pos-ref-alt → VEP region: CHROM:POS-POS:1/ALT
-        # parts = variant.split("-")
-        # if len(parts) != 4:
-            # return {"error": f"Unrecognised variant format for VEP lookup: {variant}"}
-        # chrom, pos, ref, alt = parts
-        # region = f"{chrom}:{pos}-{pos}:1/{alt}"
-        # encoded = quote(region, safe=":/-")
-        # url = f"{ENSEMBL_URL}/vep/human/region/{encoded}"
-        # params = {}
-# 
-    # last_error = "No attempts completed"
-# 
-    # for attempt in range(MAX_RETRIES):
-        # try:
-            # response = requests.get(
-                # url,
-                # params=params,
-                # headers={"Content-Type": "application/json"},
-                # timeout=15
-            # )
-        # except requests.exceptions.RequestException as e:
-            # last_error = str(e)
-            # time.sleep(RETRY_DELAY)
-            # continue
-# 
-        # if response.status_code in (429, 500, 503):
-            # last_error = f"HTTP {response.status_code}"
-            # time.sleep(RETRY_DELAY * (attempt + 1))
-            # continue
-# 
-        # if response.status_code != 200:
-            # return {"error": f"Ensembl VEP returned {response.status_code}: {response.text}"}
-# 
-        # data = response.json()
-# 
-        # if not data or not isinstance(data, list):
-            # return {"error": "Ensembl VEP returned empty or unexpected response"}
-# 
-        # raw_consequence = data[0].get("most_severe_consequence", "")
-# 
-        # if not raw_consequence:
-            # return {"error": "VEP response missing most_severe_consequence field"}
-# 
-        # return {
-            # "variant_type": CONSEQUENCE_MAP.get(raw_consequence, "other"),
-            # "raw_consequence": raw_consequence,
-        # }
-# 
-    # return {"error": f"Ensembl VEP failed after {MAX_RETRIES} retries: {last_error}"}
-# 
-
 
 def annotate_variant(variant: str) -> dict:
     """
@@ -244,7 +170,6 @@ def annotate_variant(variant: str) -> dict:
                 continue
 
             data = response.json()
-            # print(data)
 
             if not data or not isinstance(data, list):
                 last_error = "VEP returned empty or non-list response"
@@ -296,7 +221,7 @@ def annotate_variant(variant: str) -> dict:
             result = {
                 "variant_consequence": consequence_terms[0],
                 "variant_type": CONSEQUENCE_MAP.get(consequence_terms[0], "other"),
-                "codon_position": tc.get("protein_start"), # None for none coding
+                "codon_position": tc.get("protein_start"), # None for non-coding
                 "hgvsc": hgvsc,
                 "hgvsp": hgvsp,
                 "gene_symbol": gene_symbol,
@@ -422,6 +347,5 @@ def check_pm1_critical_region(codon_position: int, critical_regions: dict) -> di
 
 if __name__ == "__main__":
     # Example usage
-    variant = "NM_000020.3:c.557G>T"  
+    variant = "NM_000020.3:c.557G>T"
     result = annotate_variant(variant)
-    # print(result)

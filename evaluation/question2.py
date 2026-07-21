@@ -1,4 +1,4 @@
-# QUESTION2: 
+# QUESTION2:
 # Can the proposed system accurately classify genetic variants according to the ACMG/AMP guidelines?
 # Accuracy
 # Precision
@@ -11,7 +11,6 @@ import argparse
 import sys
 import os
 import json
-# from pipeline import _safe_variant_name
 import numpy as np
 from sklearn.metrics import (
     f1_score, 
@@ -196,42 +195,6 @@ def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
     return eval_df, num_errors
 
 # ========================================================
-# BOOTSTRAP HELPER
-# ========================================================
-# def bootstrap_metric(
-#         predictions: np.ndarray, 
-#         gold_answers: np.ndarray,
-#         metric_function: Callable,
-#         num_boots: int = 1000,
-# ) -> tuple:
-#     rng = np.random.RandomState()
-#     vals = []
-#     idx = np.arange(len(predictions))
-#     for _ in range(num_boots):
-#         sample_idx = rng.choice(idx, len(idx), replace=False)
-#         metrics = metric_function(predictions[sample_idx], gold_answers[sample_idx])
-#         vals.append(metrics)
-#     return vals.mean(), vals.std(ddof=1)
-
-# def compute_precision(
-#         predictions: np.ndarray,
-#         classification: np.ndarray
-# ) -> float:
-#     cm = confusion_matrix(classification, predictions, labels=[1, 0])
-#     tp = cm[0, 0]
-#     fp = cm[1, 0]
-#     return tp / (tp + fp)
-
-# def compute_specificity(
-#         predictions: np.ndarray,
-#         classification: np.ndarray
-# ) -> float:
-#     cm = confusion_matrix(classification, predictions, labels=[1, 0])
-#     tn = cm[1,1]
-#     fn = cm[0,1]
-#     return tn / (tn + fn)
-
-# ========================================================
 # HELPERS THAT PRINT & SAVE THE RESULT TO A JSON FILE
 # ========================================================
 
@@ -336,38 +299,6 @@ def run_question2_evaluation(
     prediction_df = load_predictions(batch_summary_path=bath_summary_json_path)
     combined_df, num_errors = merge_df(prediction_df, classification_df)
 
-    # ---------------- Compute Statistics ---------------- #
-    # accuracy, accuracy_std = bootstrap_metric(
-    #     predictions=combined_df["pred_classification"].to_numpy(),
-    #     gold_answers=combined_df["gold_classification"].to_numpy(),
-    #     metric_function=accuracy_score,
-    #     num_boots=1000
-    # )
-
-    # precision, precision_std = bootstrap_metric(
-    #     predictions=combined_df["pred_classification"].to_numpy(),
-    #     gold_answers=combined_df["gold_classification"].to_numpy(),
-    #     metric_function=precision_score,
-    # )
-
-    # recall, recall_std = bootstrap_metric(
-    #     predictions=combined_df["pred_classification"].to_numpy(),
-    #     gold_answers=combined_df["gold_classification"].to_numpy(),
-    #     metric_function=recall_score
-    # )
-
-    # F1, F1_std = bootstrap_metric(
-    #     predictions=combined_df["pred_classification"].to_numpy(),
-    #     gold_answers=combined_df["gold_classification"].to_numpy(),
-    #     metric_function=f1_score
-    # )
-
-    # cm = confusion_matrix(
-    #     combined_df["gold_classification"].to_numpy(),
-    #     combined_df["pred_classification"].to_numpy(),
-    #     labels=[0,1]
-    # )
-
     y_true = combined_df["gold_classification"]
     y_pred = combined_df["pred_classification"]
 
@@ -380,7 +311,7 @@ def run_question2_evaluation(
         cm = confusion_matrix(y_true,y_pred,labels=LABELS,)
         classification = classification_report(y_true,y_pred,labels=LABELS,zero_division=0,output_dict=True)
 
-        # ---------------- Printing & Saving Outputs ---f------------- #
+        # ---------------- Printing & Saving Outputs ---------------- #
         print_results(
             accuracy=accuracy,
             precision=macro_precision,

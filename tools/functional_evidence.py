@@ -12,7 +12,6 @@ from metapub import PubMedFetcher, FindIt
 from pathlib import Path
 import time
 import json
-# from langchain_google_genai import ChatGoogleGenerativeAI
 import re
 import urllib.request
 from agents.llm.llm import create_llm, invoke_llm
@@ -817,10 +816,6 @@ EUROPEPMC_BASE = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 @dataclass
 class VariantInfo:
     """Store variant coordinate and annotation information."""
-    # chrom: str
-    # pos: int
-    # ref: str
-    # alt: str
     name: str
     rsid: Optional[str] = None
     hgvsc: Optional[str] = None
@@ -893,9 +888,6 @@ def build_variant_label(vi: VariantInfo) -> str:
     """
     Build a simple, LLM-friendly "variant of interest" string.
     """
-    # print("build_variant_label ", "vi type", type(vi))
-
-    # print("build variant label: ", vi.name)
     return (
         f"{vi.name}, "
         f"HGVSp:{vi.hgvsp}, HGVSc:{vi.hgvsc}, rsID:{vi.rsid}, symbol:{vi.gene_symbol}"
@@ -904,9 +896,7 @@ def build_variant_label(vi: VariantInfo) -> str:
 def query_litvar2(vi: VariantInfo) -> Set[str]:
     """
     Query LitVar2 using rsid only.
-    Returns a set of all unique PMIDs found.
-    
-    Raises SystemExit if rsid is not available.
+    Returns a set of all unique PMIDs found (empty set if no rsid is available).
     """
     # Validate rsid exists. LitVar2 can only be queried by rsID; when a variant
     # has none (common for indels/frameshifts), there is simply no functional
@@ -955,11 +945,6 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
 
         data = resp.json()
 
-        # print(f"{'-'*100}")
-        # print("litvar2 data returned: ")
-        # pprint(data)
-        # print(f"{'-'*100}")
-
         pmids = set()
 
         if isinstance(data, list):
@@ -985,16 +970,13 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
                     break
 
         if pmids:
-            # print(f"   Found {len(pmids)} publications for '{variant_id}'")
             pass
         else:
-            # print(f"   No publications found for '{variant_id}'")
             pass
 
         return pmids
 
     except Exception as e:
-        # print(f"   Warning: LitVar2 query failed for '{variant_id}': {e}")
         return set()
 
 def pubmed_fetch_details(pmids: List[str]) -> Dict[str, CandidatePaper]:
@@ -1010,18 +992,14 @@ def pubmed_fetch_details(pmids: List[str]) -> Dict[str, CandidatePaper]:
 
     result: Dict[str, CandidatePaper] = {}
 
-    # print(f"   Fetching details for {len(pmids)} papers from PubMed via metapub...")
-
     for pmid in pmids:
         pmid_str = str(pmid)
         try:
             article = FETCHER.article_by_pmid(pmid_str)
         except Exception as e:
-            # print(f"   Warning: metapub failed for PMID {pmid_str}: {e}")
             continue
 
         if article is None:
-            # print(f"   Warning: no article object returned for PMID {pmid_str}")
             continue
 
         title = article.title or ""
@@ -1261,7 +1239,7 @@ def download_pdfs_for_papers(
 
 
 # =============================================================================
-# Filtering 
+# Filtering
 # =============================================================================
 def llm_filter_functional_papers(
     candidate_papers: List[CandidatePaper],
@@ -1275,11 +1253,8 @@ def llm_filter_functional_papers(
     """
     functional: List[FunctionalPaper] = []
 
-    # print(f"   Filtering {len(candidate_papers)} papers for functional evidence...")
-
     for i, p in enumerate(candidate_papers, 1):
         if i % 10 == 0:
-            # print(f"   Processed {i}/{len(candidate_papers)} papers...")
             pass
 
         # Build user prompt with paper details
@@ -1332,8 +1307,6 @@ def _parse_pdf_extraction_response(
 ) -> List[FunctionalExperiment]:
     """
     Parse JSON response from PDF extraction and convert to FunctionalExperiment objects.
-    
-    Common helper for all providers.
     """
     skipped_blank = 0
 
@@ -1380,15 +1353,9 @@ def _extract_from_pdf(
 ) -> List[FunctionalExperiment]:
     """
     Extract experiments from full-text PDF using the comprehensive schema.
-    
-    Supports multiple extraction modes:
-    - Agentic: Uses OCR, layout detection, and VLM tools (page-by-page)
-    - Simple: Uses provider-specific PDF upload APIs
-    
-    Supports multiple LLM providers for simple mode:
-    - OpenAI: Uses file upload with responses API
-    - Anthropic/Claude: Uses base64-encoded PDF with messages API
-    - Gemini: Uses file upload with generative AI API
+
+    Sends the PDF as base64-encoded content to the configured LLM (see
+    MODELS["functional_evidence"]) via call_functional_llm.
     """
     try:
         user_prompt = f"""TARGET_VARIANT: {variant_label}
@@ -1432,7 +1399,8 @@ def fetch_full_text_or_abstract(pmid: str) -> str:
     """
     Retrieve text for a PMID (PubMed XML -> stripped text).
 
-    This gives abstract + some additional metadata. No PMC complexity.
+    This retrieves the abstract plus some additional metadata; it does not
+    attempt PMC full-text retrieval.
     """
     try:
         resp = entrez_get("efetch.fcgi", {
@@ -1445,7 +1413,6 @@ def fetch_full_text_or_abstract(pmid: str) -> str:
         text = re.sub(r"\s+", " ", text)
         return text
     except Exception as e:
-        # print(f"   Warning: Failed to fetch text for PMID {pmid}: {e}")
         return ""
 
 def _extract_from_abstract(
@@ -1505,7 +1472,6 @@ Extract functional experiments for this variant and return as JSON.
 
     except Exception as e:
         print(f"   [!] Warning: Abstract extraction failed for PMID {pmid}: {e!r}")
-        # print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
         return []
 
 def llm_extract_experiments(
@@ -1515,19 +1481,18 @@ def llm_extract_experiments(
 ) -> List[FunctionalExperiment]:
     """
     Extract experiment details using LLM.
-    
-    If pdf_dir is provided and PDFs exist, will use full-text PDF extraction.
-    Otherwise falls back to abstract-based extraction.
-    
+
+    Uses full-text PDF extraction when a PDF is available (downloaded to
+    tools/functional_papers), otherwise falls back to abstract-based
+    extraction.
+
     Parameters
     ----------
     functional_papers : list of FunctionalPaper
         Papers identified as containing functional evidence
     variant_label : str
         Variant identifier string for LLM context
-    pdf_dir : str, optional
-        Directory containing PDFs named {pmid}.pdf
-        
+
     Returns
     -------
     list of FunctionalExperiment
@@ -1536,8 +1501,6 @@ def llm_extract_experiments(
     experiments: List[FunctionalExperiment] = []
 
     pdf_dir = Path("tools/functional_papers")
-
-    # print(f"   Extracting experiments from {len(functional_papers)} functional papers...")
 
     if not pdf_dir.exists():
         pdf_dir.mkdir(parents=True, exist_ok=True)
@@ -1593,10 +1556,6 @@ def analyze_variant(
     """
 
     vi = VariantInfo(name=variant)
-    # print("variant info: variant nmae")
-    # print(vi.name)
-    # print("variant info, vi type")
-    # print(type(vi))
 
     vep_info: Optional[Dict[str, Any]] = None
     try:
@@ -1607,28 +1566,16 @@ def analyze_variant(
         print(vep_info)
         print(f"{'-'*100}")
 
-        # print("VEP annotation successful")
-        # print("VEP info: ")
-        # print(vep_info)
-
         if vep_info:
-            # print("   VEP annotation obtained.")
-            # print("")
             enrich_with_vep(vi, vep_info)
-            # print("Enriching successful")
         else:
-            # print("   VEP returned no annotation.")
             pass
     except Exception as e:
-        # print(f"   Warning: VEP annotation failed: {e}")
         pass
 
     variant_label = build_variant_label(vi)
-    # print(f"\n   Variant label for LLM prompts: {variant_label}")
-    # print("   Identifiers to query in LitVar2:")
 
     # 2. Query LitVar2 for PMIDs
-    # print("Step 2: Querying LitVar2 for publications...")
     print(f"{'-'*100}")
     print("vi: ")
     pprint(asdict(vi))
@@ -1641,16 +1588,8 @@ def analyze_variant(
     print(pmids)
     print(f"{'-'*100}")
 
-    # if not pmids:
-    #     pmids = query_pubtator(vi)
-    #     if not pmids:
-    #         pmids = query_pubmed_Esearch(vi)
-    # print(f"   Total unique PMIDs from LitVar2: {len(pmids)}")
-
     # 3. Fetch paper details from PubMed via metapub
-    # print("\nStep 3: Fetching paper details from PubMed...")
     candidate_papers = build_candidate_list(pmids)
-    # print(f"   Retrieved details for {len(candidate_papers)} papers")
 
     print(f"{'-'*100}")
     print("candidate_papers: ")
@@ -1658,13 +1597,11 @@ def analyze_variant(
     print(f"{'-'*100}")
 
     # 4. Filter for functional papers (high-sensitivity screening)
-    # print("\nStep 4: Filtering for functionally relevant papers...")
     functional_papers = llm_filter_functional_papers(candidate_papers, variant_label)
     print(f"{'-'*100}")
     print("functional_papers: ")
     pprint([asdict(paper) for paper in functional_papers])
     print(f"{'-'*100}")
-    # print(f"   Identified {len(functional_papers)} functionally relevant papers")
 
     # 4b. Download PDFs for functional papers (best-effort — download_pdf()
     # validates Content-Type + '%PDF-' magic bytes and returns None rather
@@ -1686,7 +1623,6 @@ def analyze_variant(
             fp.pdf_path = downloaded_pdfs[fp.pmid]
 
     # 5. Extract experiments
-    # print("\nStep 5: Extracting functional experiments...")
     experiments = llm_extract_experiments(
         functional_papers,
         variant_label,

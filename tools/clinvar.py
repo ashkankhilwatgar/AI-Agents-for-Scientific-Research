@@ -39,7 +39,7 @@ def search_clinvar_for_codon(
         {"gene", "codon_position", "classifications": [...], "source": "clinvar"}
     or {"error": "..."} on failure.
     """
-    # All P/LP variants in gene — POST avoids URI length limits with many IDs
+    # Search for all P/LP variants in the gene
     search_term = (
         f'{gene}[gene] AND '
         f'(pathogenic[clinsig] OR "likely pathogenic"[clinsig])'
@@ -61,7 +61,8 @@ def search_clinvar_for_codon(
         return {"gene": gene, "codon_position": codon_position,
                 "classifications": [], "source": "clinvar"}
 
-    # NCBI esummary silently caps at ~200 IDs per call — batch to avoid missing records
+    # NCBI esummary silently caps at ~200 IDs per call — batch to avoid missing
+    # records. POST (not GET) avoids URI length limits when submitting many IDs.
     BATCH_SIZE = 200
     all_records: dict = {}
     for i in range(0, len(id_list), BATCH_SIZE):
@@ -308,6 +309,7 @@ def search_clinvar_for_exact_variant(hgvs: str) -> dict:
     except Exception as e:
         return {"error": f"ClinVar esearch failed: {e}"}
 
+    # Step 2a: version-stripped fallback
     if not id_list:
         stripped = re.sub(r'(NM_\d+)\.\d+', r'\1', hgvs)
         if stripped != hgvs:

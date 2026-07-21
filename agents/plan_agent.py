@@ -1,36 +1,12 @@
 import requests
 import json
-# from config import MODELS, OLLAMA_BASE_URL
 from data.planrag import query
-# from tools.utils import parse_json_response
-# from .llm.llm import invoke_llm
 from typing import Optional, TypeAlias
 from config import MODELS
 from data.planrag import get_gene_from_transcript
 from collections import defaultdict
 Tasks: TypeAlias = dict[str, list[dict[str, str]]]
 
-# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
-
-
-# def call_ollama(prompt: str) -> str:
-#     payload = {
-#         "model": MODELS["plan"],
-#         "prompt": prompt,
-#         "stream": False,
-#         "keep_alive": -1,
-#         "options": {
-#             "temperature": 0,
-#             "num_predict": 512
-#         }
-#     }
-#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-#     response.raise_for_status()
-#     return response.json()["response"]
-
-
-# def call_plan_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-#     return invoke_llm("plan_agent", prompt)
 
 def call_plan_agent(prompt: str) -> str:
     response = invoke_llm(
@@ -39,7 +15,6 @@ def call_plan_agent(prompt: str) -> str:
         human_messsage=prompt
     )
     return response
-    
 
 
 def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol = None) -> dict[str, list]:
@@ -49,7 +24,7 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     no LLM call is made here. The Task agent has access to the full RAG entry
     (including detailed instructions) at evaluation time.
 
-    Returns a list of task dicts sorted by execution phase.
+    Returns a dict of task lists grouped by execution phase (phase1-phase4).
     """
     tasks = []
 
@@ -61,7 +36,7 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     if gene:
         print(f"PLAN AGENT: Detected gene {gene} from transcript")
     
-    if gene is None and gene_symbol:              # ADD
+    if gene is None and gene_symbol:
         gene = gene_symbol
         print(f"PLAN AGENT: Gene {gene} resolved from VEP (transcript not mapped in GENE_DB)")  
 
@@ -80,27 +55,6 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
         if rag_entry.get("deferred"):
             print(f"PLAN AGENT: {criterion} is deferred (not automatable), skipping")
             continue
-
-#         prompt = f"""You are a variant classification assistant.
-
-# Variant: {variant}
-# Disease: {disease}
-# Criterion: {criterion}
-# Tool: {rag_entry['tool']}
-# Threshold: {rag_entry['threshold']}
-
-# Write one sentence describing what the Task agent should do to evaluate this criterion.
-
-# Respond ONLY with a JSON object in this exact format, no explanation:
-# {{
-#     "instructions": "<one sentence>"
-# }}"""
-#         raw = call_plan_agent(prompt)
-
-#         # raw = call_ollama(prompt)
-#         result = parse_json_response(raw)
-
-#         instructions = result.get("instructions", rag_entry["instructions"])
 
         task = {
             "criterion": criterion,
@@ -141,15 +95,9 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
 def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None) -> Tasks:
     """
     Main entry point called by pipeline.py.
-    Returns a list of task dicts for the Task agent to execute.
-
-    task = {
-            "criterion": criterion,
-            "variant": variant,
-            "disease": disease,
-            "tool": rag_entry["tool"],
-            "instructions": rag_entry["instructions"],
-        }
+    Returns a dict of task lists (each a dict with "criterion", "variant",
+    "disease", "tool", and "instructions") grouped by execution phase, for
+    the Task agent to execute.
     """
     print(f"PLAN AGENT: Building task list for {variant} / {disease}")
     tasks = build_task_list(variant, disease, criteria, gene_symbol)

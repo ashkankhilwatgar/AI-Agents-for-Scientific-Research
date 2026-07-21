@@ -28,8 +28,11 @@ python -m pipeline --csv hht-batches.csv
 python -m evaluation.question2 --gold_answer_csv_filename hht_script_2.csv --model_output_json_filename outputs/batch_.../batch_summary.json --output_dir evaluation/outputs
 
 # Tests (pytest)
-pytest test/test_vep.py
-pytest test/test_functional_evidence.py -k some_test
+pytest test_suite/test_vep.py
+pytest test_suite/test_functional_evidence.py -k some_test
+
+# Browser GUI (human-in-the-loop demo for HHT, wraps pipeline.py)
+venv/bin/python -m gui.server   # then open http://127.0.0.1:8000
 ```
 
 There is no lint/format tooling configured in this repo.
@@ -76,6 +79,10 @@ Each file wraps one external data source or computation: `clinvar.py`, `gnomad.p
 ### Evaluation (`evaluation/`)
 
 Scripts compare pipeline batch output (`outputs/batch_.../batch_summary.json`) against gold-standard CSVs (e.g. `hht_script_2.csv`, `applied_only_evaluation_dataset.csv`) to compute accuracy and analyze which criteria/classifications diverge from expert VCEP calls. `question1.py`–`question4.py` correspond to different analysis angles; `merge_ablation_results.py` combines results from ablation runs (e.g. testing all 200 variants across criterion-disabled variants).
+
+### GUI (`gui/`)
+
+A stdlib-only (`http.server`, no extra deps) browser demo, hardcoded to HHT, that wraps the CLI pipeline for human-in-the-loop review: every criterion is a checkbox (with a strength selector for variable-strength criteria), and the classification recalculates live. Critically, `gui/server.py` does **not** reimplement any rules — it reads criterion metadata/exclusion reasons straight from `data/planrag.py` (`PLANRAG_DB`, `EXCLUDED_CRITERIA`) and scores state by calling the real `tools/scoring.classify()`, so results are guaranteed identical to the CLI. Checkbox pre-population is either "cached" (instant, reads existing per-variant JSON from `outputs/`) or "live" (calls `pipeline.run_pipeline()`, slow, needs API keys). Criteria are grouped into automatable (pipeline-derived), manual-input (needs patient data typed into a panel, e.g. `BP5`, `BP2`, `PP4_MODERATE`, `PP1`, `BS4`), and excluded (greyed out, HHT-VCEP-excluded). See `gui/README.md` for the HTTP API and deep-link format.
 
 ### Case studies (`case_studies/`)
 

@@ -489,32 +489,6 @@ def extract_json_from_response(raw: str) -> str:
     return raw.strip()
 
 
-# def parse_json_response(raw: str) -> dict:
-#     text = extract_json_from_response(raw)
-
-#     if text.startswith("```"):
-#         text = text.split("```")[1]
-#         if text.startswith("json"):
-#             text = text[4:]
-#     text = text.strip()
-
-#     if not text:
-#         return {
-#             "pass": False,
-#             "error_type": "reasoning",
-#             "feedback": "Judge agent received empty response from model"
-#         }
-
-#     # extract just the JSON object, ignoring any text before or after
-#     start = text.find("{")
-#     end = text.rfind("}") + 1
-#     if start == -1 or end == 0:
-#         return {
-#             "pass": False,
-#             "error_type": "reasoning",
-#             "feedback": "Judge agent could not find JSON object in model response"
-#         }
-
     try:
         return json.loads(text[start:end])
     except json.JSONDecodeError:

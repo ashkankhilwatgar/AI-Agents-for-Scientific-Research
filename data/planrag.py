@@ -645,7 +645,6 @@ PLANRAG_DB = {
             ),
         "hht_modification": "Strong = mRNA splicing assay only (mutually exclusive with PVS1 on same event); Moderate = >=2 concordant non-splicing assay categories (pure bump-up from Supporting, no separate Moderate assay list); Supporting = 1 accepted non-splicing assay category",
         "strength_override": None,
-        # "deferred": True,
     },
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -957,7 +956,6 @@ PLANRAG_DB = {
         ),
         "hht_modification": "Supporting strength only, no Moderate/Strong tier under HHT VCEP; normal protein expression alone is explicitly NOT valid BS3 evidence",
         "strength_override": "supporting",
-        # "deferred": True,
     },
 
     "BS4": {
@@ -1224,10 +1222,10 @@ def is_vcep_disease(disease: str) -> bool:
 #   Phase 4: PS1, PP3, PP5, BP3, BP4, BP6, BP7, PM4  (no dependencies)
 #
 # Deferred (require expert input or non-automatable data):
-#   PS2, PS3, PM3, PM6, PP1, PP4, BS3, BS4, BP1, BP2, BP5
+#   PS2, PS3, PM3, PM6, PP1, PP4, BS3, BS4, BP2, BP5
 #
 # Coverage notes:
-#   - BP1 deferred until gnomAD gene-level constraint query is implemented
+#   - BP1 is partially automatable via a gnomAD gene-level constraint query
 #   - BS2 partially automatable for dominant/X-linked via gnomAD ac_hom
 #   - PM1 partially automatable via VEP codon position + LLM protein domain knowledge
 #   - PP5 and BP6 are now applicable (excluded in HHT VCEP)

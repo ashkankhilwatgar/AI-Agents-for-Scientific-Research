@@ -1,10 +1,8 @@
 import os
 import requests
 import json
-# from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from config import RETRY_LIMIT
 from agents.task_agent import run_task
-# from tools.utils import parse_json_response
 from .llm.llm import create_llm
 from typing import Optional
 from config import MODELS
@@ -36,27 +34,6 @@ def _log_attempt(agent: str, criterion: str, variant: str, attempt: int, result:
     except Exception:
         pass
 
-# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
-
-
-# def call_ollama(prompt: str) -> str:
-#     payload = {
-#         "model": MODELS["debug"],
-#         "prompt": prompt,
-#         "stream": False,
-#         "keep_alive": -1,
-#         "options": {
-#             "temperature": 0,
-#             "num_predict": 512
-#         }
-#     }
-#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-#     response.raise_for_status()
-#     return response.json()["response"]
-
-# def call_debug_agent(prompt: str, system_prompt: Optional[str] = None) -> str:
-#     return invoke_llm("judge_agent", prompt)
-
 
 def call_debug_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     """
@@ -73,34 +50,8 @@ def call_debug_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     )
     structured_llm = llm.with_structured_output(output_schema)
     response = structured_llm.invoke([{"role": "user", "content": prompt}])
-    
+
     return response
-
-    
-# def print_task_summary(task_output: dict) -> None:
-#     """
-#     Prints a short summary of the Task agent's verdict and reasoning.
-#     Coerces applies to boolean before display so string "true"/"false"
-#     from the model renders correctly rather than as UNDETERMINED.
-#     """
-#     criterion = task_output.get("criterion", "Unknown")
-#     reasoning = task_output.get("reasoning", "No reasoning provided")
-
-#     applies_raw = task_output.get("applies")
-#     if isinstance(applies_raw, str):
-#         applies = applies_raw.strip().lower() == "true"
-#     else:
-#         applies = applies_raw
-
-#     if applies is True:
-#         verdict = "APPLIES"
-#     elif applies is False:
-#         verdict = "DOES NOT APPLY"
-#     else:
-#         verdict = "UNDETERMINED"
-
-#     print(f"TASK AGENT: {criterion} → {verdict}")
-#     print(f"           {reasoning}")
 
 
 def check_technical(task_output: dict) -> dict:
@@ -137,7 +88,6 @@ Some important rules:
 """
     result = call_debug_agent(prompt, CheckTechnicalResult).model_dump()
 
-    # raw = call_ollama(prompt)
     return result
 
 
@@ -185,7 +135,6 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
     Returns the validated task output or a failure dict if retry limit hit.
     """
     task_output, tool_cache_update = run_task(task, gene_symbol=gene_symbol, tool_results = tool_results)
-    # print_task_summary(task_output)
 
     criterion = task.get("criterion")
     variant = task.get("variant", "")
@@ -203,16 +152,12 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
         if result["passed"]:
             return task_output, tool_cache_update
 
-        # print(f"DEBUG AGENT: Technical error detected (attempt {retry_count + 1}/{RETRY_LIMIT})")
-        # print(f"Feedback: {result['feedback']}")
-
         task_output, tool_cache_update = run_task(
             task,
             tool_results = tool_results,
             gene_symbol=gene_symbol,
             feedback=result["feedback"]
         )
-        # print_task_summary(task_output)
         retry_count += 1
 
     # check the final retry output before giving up
@@ -236,40 +181,3 @@ def run_debug(task: dict, gene_symbol: str | None, tool_results: ToolResults | N
         "status": "error",
         "error": f"Debug agent exceeded retry limit ({RETRY_LIMIT}) without resolving technical error"
     }, tool_cache_update
-
-
-# if __name__ == "__main__":
-
-#     # -------------------------------------------------------------------------
-#     # TEST 1: Clean task output — Debug agent should pass it through
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 1: Clean output — expect pass=true")
-#     print("="*60)
-
-#     clean_task = {
-#         "criterion": "PM2_SUPPORTING",
-#         "variant": "NM_000020.3:c.557G>T",
-#         "disease": "HHT",
-#         "tool": "gnomad"
-#     }
-
-#     result = run_debug(clean_task)
-#     print(json.dumps(result, indent=2))
-
-#     # -------------------------------------------------------------------------
-#     # TEST 2: Nonexistent variant — tool should fail, Debug agent should retry
-#     # -------------------------------------------------------------------------
-#     print("\n" + "="*60)
-#     print("TEST 2: Nonexistent variant — expect retry loop")
-#     print("="*60)
-
-#     bad_variant_task = {
-#         "criterion": "PM2_SUPPORTING",
-#         "variant": "NM_000000.0:c.9999Z>Q",
-#         "disease": "HHT",
-#         "tool": "gnomad"
-#     }
-
-#     result = run_debug(bad_variant_task)
-#     print(json.dumps(result, indent=2))
