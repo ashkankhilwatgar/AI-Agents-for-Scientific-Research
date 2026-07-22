@@ -1,0 +1,153 @@
+{
+  "variant": "NM_001114753.3:c.1160T>C",
+  "disease": "HHT",
+  "timestamp": "20260722_121600",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD. Total AC = 0. All population allele frequencies = 0.0.",
+      "reasoning": "STEP 1 applies: The variant is completely absent from gnomAD (AC=0, not found in any population), which directly triggers application of PM2_SUPPORTING according to the rules provided. No further steps are necessary.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820012-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF = 0.0 (<0.01).",
+      "reasoning": "BA1 requires that the Popmax FAF in gnomAD is at least 0.01 (1%). This variant is absent from gnomAD, with a Popmax FAF of 0.0, which is below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820012-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD; popmax FAF=0.0; homozygote count=0.",
+      "reasoning": "The BA1 threshold (FAF >= 0.01) does not apply (FAF = 0.0). Popmax FAF is 0.0\u2014well below the BS1_Supporting (>0.0008) and BS1_Strong (>0.002) thresholds, and there are no homozygotes. Therefore, BS1 does not apply at any strength level based on the provided rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820012-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change (p.Leu387Pro) at amino acid position 387 in the ENG gene. The residue 387 is not among the BMP9 binding sites (278, 282), pathogenic cysteine residues (207, 363, 382, 412, 549), or disulfide bond cysteines (350, 394) per hardcoded list.",
+      "reasoning": "PM1 requires that the variant affect a specifically listed critical residue or functional site on ENG. Position 387 (Leu) does not match any position on the PM1 critical list. Therefore, the criterion does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit SCV comment or proband count located for c.1160T>C; ERepo: No proband count available; LOVD: No proband count information found; PubMed: 8 articles found, but none specifically document individual case reports of the ENG c.1160T>C variant with explicit, unique proband count or phenotype details for HHT relevant to PS4. Most papers are general reviews or discuss other variants, with no published case reports of this variant as a proband.",
+      "reasoning": "Following the required process: the ClinVar HHT VCEP SCV does not provide a proband count for c.1160T>C. Neither ERepo nor LOVD contain specific proband count information. PubMed search yielded 8 articles, but on review, none describe individual cases (probands) carrying ENG c.1160T>C with phenotype data specific for HHT, nor do they give case-level evidence that could be counted for PS4. Therefore, the proband count is assessed as zero. According to rules, PS4 does not apply if there are zero probands.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG (c.1160T>C OR p.Leu387Pro OR p.L387P) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No variants with a different amino acid substitution at codon 387 in ENG (different_aa_classifications is empty) are classified as P/LP per HHT VCEP rules.",
+      "reasoning": "According to the rules, PM5 applies only if there are one or more pathogenic or likely pathogenic missense variants at the same codon with a different amino acid substitution (different_aa_classifications is non-empty). In this case, different_aa_classifications is empty (no qualifying variants at codon 387), so PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 387",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "Computed verdicts state: 'PP3 REVEL (>= 0.644): APPLIES (score=0.7800)'. REVEL score is 0.78, above the 0.644 threshold for missense variants. SpliceAI data is unavailable.",
+      "reasoning": "According to the pre-verified verdicts in the '_computed' field, for this missense variant, the statement 'PP3 REVEL (>= 0.644): APPLIES' is present. Per rules, this means criterion PP3 applies due to the REVEL score being above the threshold. The presence of SpliceAI data is not required if REVEL threshold is met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127820012-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.78; SpliceAI DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0; Verdicts: BP4 REVEL HHT threshold (<= 0.15): FAILS, BP4 SpliceAI (all scores <= 0.1): PASSES.",
+      "reasoning": "This is a missense variant. According to the rules, BP4 for missense requires BOTH 'BP4 REVEL HHT threshold (<= 0.15): PASSES' AND 'BP4 SpliceAI (all scores <= 0.1): PASSES'. In the _computed.verdicts, the REVEL HHT threshold FAILS (score=0.78 > 0.15), even though SpliceAI PASSES. Therefore, BP4 does NOT apply, as both conditions are not met (AND logic).",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127820012-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty; no variants with the identical amino acid change were found in relevant databases.",
+      "reasoning": "According to the rules for PS1, the criterion applies only if same_aa_classifications is non-empty and contains a variant classified as Pathogenic or Likely Pathogenic by HHT VCEP or ClinVar consensus. In this case, same_aa_classifications is empty, so PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 387",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    }
+  ]
+}

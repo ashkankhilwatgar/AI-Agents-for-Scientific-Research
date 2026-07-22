@@ -1,0 +1,145 @@
+{
+  "variant": "NM_000020.3:c.1348A>G",
+  "disease": "HHT",
+  "timestamp": "20260722_123715",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 1
+    },
+    "bucket_detail": {
+      "BS1_Supporting": "benign_supporting"
+    },
+    "applied_criteria": [
+      "BS1_Supporting"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant found in gnomAD. Total allele count (AC) is 465 (exome+genome). The highest allele frequency in any gnomAD subpopulation is above 0.00004. No subpopulation has AF < 0.00004.",
+      "reasoning": "Step 1: The variant is present in gnomAD, so proceed to Step 2. Step 2: Total AC is 465, which is much greater than 6, so proceed to Step 3. Step 3: All reported AFs in subpopulations are above the threshold (0.00004). Therefore, per the outlined rules, PM2_SUPPORTING does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919086-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF for this variant in gnomAD is 0.00174 (0.174%), which is less than the BA1 threshold of 0.01 (1%).",
+      "reasoning": "BA1 is applied only if Popmax FAF is greater than or equal to 0.01 (1%). Since the highest Popmax FAF observed for this variant is 0.00174 (0.174%), this is well below the threshold. Therefore, BA1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919086-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.00173926 (from the Middle Eastern exome subpopulation), with a total of 1 homozygote observed. BA1 does not apply (FAF<0.01).",
+      "reasoning": "BS1_Strong does not apply because Popmax FAF is >0.0008 and <=0.002 (supporting range) but there are fewer than 2 homozygotes. BS1_Strong via FAF does not apply because Popmax FAF is not >0.002. However, BS1_Supporting applies because Popmax FAF is >0.0008 and <=0.002. Thus, BS1 applies at the benign_supporting strength.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919086-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is p.Thr450Ala (protein position 450) in ACVRL1. The 'in_critical_region' flag is false, and no PM1-critical region is indicated. PM1 region name is null.",
+      "reasoning": "Criterion PM1 applies when the altered residue is within specific critical regions (amino acids 209-216, 229, 242, 329-335, 348-351, or the BMP10 cluster). This variant is at position 450, which is not within any listed PM1 critical regions by the hardcoded rule. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1348A>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No variants with a different amino acid substitution at codon 450 in ACVRL1 have been classified as likely pathogenic or pathogenic by HHT VCEP (different_aa_classifications = []).",
+      "reasoning": "The PM5 criterion requires at least one different likely pathogenic/pathogenic missense substitution at the same codon per HHT VCEP rules. The evidence shows there are no such variants for codon 450; different_aa_classifications is empty. Therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 450",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for NM_000020.3:c.1348A>G in the context of HHT (the experiments list is empty).",
+      "reasoning": "According to the provided instructions for PS3, if the experiments list is empty, PS3 does not apply and no interpretation can be made based on functional evidence. There is simply no assay data available to assess functional consequence for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1348A>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.245 (threshold for PP3 is REVEL >= 0.644); SpliceAI not available. _computed.verdicts: 'PP3 REVEL (>= 0.644): DOES NOT APPLY (score=0.2450)', 'PP3 SpliceAI (any score >= 0.2): N/A (SpliceAI scores not available)'.",
+      "reasoning": "According to the _computed.verdicts, for a missense variant, PP3 would apply if either REVEL >= 0.644 or SpliceAI >= 0.2. The verdicts state that REVEL does not meet the PP3 threshold (0.245 < 0.644) and SpliceAI scores are unavailable, so no evidence supports PP3 applying. Therefore, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51919086-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.245. SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0. Computed verdicts: BP4 REVEL HHT threshold (<=0.15): FAILS, BP4 SpliceAI (all scores <=0.1): PASSES.",
+      "reasoning": "According to the rules, for a missense variant, both 'BP4 REVEL HHT threshold (<= 0.15): PASSES' and 'BP4 SpliceAI (all scores <= 0.1): PASSES' must be true for BP4 to apply. In this case, the REVEL threshold fails (score is 0.245, which is above 0.15), so BP4 does NOT apply even though SpliceAI passes. This satisfies the instruction that failing either condition means BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51919086-A-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "erepo reports that same_aa_classifications is empty; there are no previously classified variants with the identical amino acid change as NM_000020.3:c.1348A>G.",
+      "reasoning": "According to PS1 rules, same_aa_classifications must be non-empty for PS1 to apply. In this case, the list is empty, so there is no evidence that another variant with the same amino acid change has been classified as Pathogenic or Likely Pathogenic. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 450",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The experiments list for this variant is empty: there are no functional assays reported for NM_000020.3:c.1348A>G in the context of HHT.",
+      "reasoning": "According to the rules, if the experiments list is empty, BS3 does not apply. There is no functional data to evaluate for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1348A>G",
+      "disease": "HHT"
+    }
+  ]
+}

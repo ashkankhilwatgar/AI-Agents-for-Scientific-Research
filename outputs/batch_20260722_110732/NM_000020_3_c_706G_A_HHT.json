@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.706G>A",
+  "disease": "HHT",
+  "timestamp": "20260722_125044",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.706G>A was not found in gnomAD; total allele count (AC) is 0; all subpopulation allele frequencies are 0; 'absent_from_gnomad' is true.",
+      "reasoning": "Step 1 of the PM2_SUPPORTING rules is met: The variant is entirely absent from gnomAD (AC=0), meaning it is extremely rare or novel. According to the rules provided, this means PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914519-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF is 0.0, total allele count is 0.",
+      "reasoning": "BA1 requires Popmax FAF >= 0.01 (1%). This variant is absent from gnomAD, and Popmax FAF is 0.0, which is below this threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914519-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_000020.3:c.706G>A is absent from gnomAD (Popmax FAF=0.0, homozygotes=0).",
+      "reasoning": "Step 1: BA1 does not apply as Popmax FAF (0.0) is <0.01. Step 2: Popmax FAF (0.0) is not in the BS1_Supporting range and there are 0 homozygotes. Step 3: Popmax FAF (0.0) is not in the BS1_Strong range. Step 4: Popmax FAF (0.0) is not in the BS1_Supporting range. Therefore, BS1 does NOT apply for this variant as frequency is below all thresholds.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914519-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is missense (p.Glu236Lys) in ACVRL1 at residue 236. The variant is not located in any of the PM1 critical regions specified (209-216, 229, 242, 329-335, 348-351, or BMP10 cluster residues).",
+      "reasoning": "According to the hardcoded residue lists provided, PM1 applies only if the variant is at one of the specified positions. The variant position 236 is not within any of the PM1-designated critical regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.706G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands with HHT phenotype (from VCEP comment, PMIDs/evidence cited: 25970827, ClinVar, Internal lab contributors); ERepo: not queried; LOVD: not queried; PubMed: not queried (not needed as ClinVar VCEP provides count and sources).",
+      "reasoning": "The ClinVar HHT VCEP expert panel SCV comment directly reports that c.706G>A in ACVRL1 (p.Glu236Lys) has been observed in at least 4 probands with an HHT phenotype. The variant is classified as Pathogenic and PM2_Supporting has already been met, as indicated in the expert comment. Therefore, based on the rules, PS4 applies at the 'strong' strength (4 probands). All sources were checked as per instructions, with ClinVar providing sufficient evidence.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.706G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty \u2013 no other LP/P missense variants with a different amino acid substitution at codon 236 (ACVRL1) have been reported per tool evidence.",
+      "reasoning": "According to the instructions, PM5 applies only if there is at least one LP/P missense variant at the same codon but with a different amino acid change; here, different_aa_classifications is empty, so PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 236",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.706G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score for NM_000020.3:c.706G>A is 0.668. SpliceAI scores are not available due to a VEP error. _computed.verdicts states: 'PP3 REVEL (>= 0.644): APPLIES (score=0.6680)'.",
+      "reasoning": "Per the official classification rules, for a missense variant, if the '_computed.verdicts' field states 'PP3 REVEL (>= 0.644): APPLIES', then PP3 applies using the REVEL score as the trigger. Here, that condition is met; the REVEL score of 0.668 exceeds the 0.644 threshold, and the verdict confirms PP3 applies. SpliceAI is not needed since the REVEL verdict is sufficient.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914519-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.668 (BP4 REVEL HHT threshold: FAILS), SpliceAI scores unavailable (BP4 SpliceAI: N/A). _computed.verdicts: 'BP4 REVEL HHT threshold (<= 0.15): FAILS' and 'BP4 SpliceAI (all scores <= 0.1): N/A'.",
+      "reasoning": "For this missense variant, the requirement for BP4 is that BOTH REVEL (<=0.15) AND SpliceAI (<=0.1) thresholds are PASSED. According to _computed.verdicts, the BP4 REVEL HHT threshold FAILS (score = 0.668), and SpliceAI is not available. Per the instructions, if EITHER condition is not met BP4 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914519-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty for variant NM_000020.3:c.706G>A in ACVRL1; there are no recorded variants with the identical amino acid change that are already classified as pathogenic or likely pathogenic by HHT VCEP or ClinVar 2+ stars.",
+      "reasoning": "According to the rules, since the same_aa_classifications list is empty, there is no variant with the identical amino acid change and known pathogenic classification to serve as PS1 evidence. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 236",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.706G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    }
+  ]
+}

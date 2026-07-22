@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001114753.3:c.1701del",
+  "disease": "HHT",
+  "timestamp": "20260722_121335",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is absent from gnomAD; total AC=0, all subpopulation AF=0.",
+      "reasoning": "According to the decision rules, if the variant is entirely absent from gnomAD (total AC=0), PM2_SUPPORTING applies. The evidence shows total AC=0 and all subpopulation allele frequencies are 0, triggering Step 1 (absent from gnomAD). Therefore, criterion PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD; popmax FAF = 0.0, total allele count = 0.",
+      "reasoning": "Criterion BA1 requires a popmax FAF of at least 1% (>= 0.01) in gnomAD. This variant is absent from gnomAD (popmax FAF = 0.0), which does not meet the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD. Popmax FAF = 0.0, HOM = 0.",
+      "reasoning": "BS1 requires a Popmax FAF greater than 0.0008. This variant is absent from gnomAD (Popmax FAF 0.0), so does not meet any of the BS1 thresholds. BA1 also does not apply. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127817188-CA-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count stated in the comment; ERepo: Pathogenic classification, no explicit proband count; LOVD: No data found; PubMed: No case reports found.",
+      "reasoning": "The available sources (ClinVar, ERepo, LOVD, PubMed) were all queried for this variant. The HHT VCEP classification in ClinVar does not include an explicit proband count in the SCV comment, and the evidence from ERepo only confirms classification, not the number of probands. No data were found in LOVD or PubMed regarding case reports for this variant. Per PS4 rules, an explicit count is required; without it, the proband count is considered zero for PS4. Therefore, PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001114753.3:c.1701del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_001114753.3:c.1701del in ENG is a frameshift variant at codon 567 (position 567/658), predicted to cause loss of function; haploinsufficiency is an established disease mechanism for HHT type 1 caused by ENG.",
+      "reasoning": "The ENG gene causes HHT via haploinsufficiency, and loss-of-function (frameshift) is a known disease mechanism. The variant causes a frameshift at codon 567, which is before codon 594\u2014the NMD (nonsense-mediated decay) boundary\u2014meaning this truncation is predicted to undergo NMD and lead to loss of normal protein. Per CSpec GN136 v1.1.0: Frameshift variants predicted to undergo NMD (codon \u2264594) receive PVS1 at Very Strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    }
+  ]
+}

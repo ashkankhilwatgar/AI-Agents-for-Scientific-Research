@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.447G>C",
+  "disease": "HHT",
+  "timestamp": "20260722_130441",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.447G>C is absent from gnomAD: total allele count (AC)=0, all subpopulation allele frequencies=0. Variant not found in gnomAD.",
+      "reasoning": "Step 1 of the PM2_SUPPORTING classification rules is met because the variant is entirely absent from gnomAD. Absence in gnomAD triggers PM2_SUPPORTING to apply according to the criterion: 'is the variant absent from gnomAD entirely?' The answer is YES, so criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.447G>C is absent from gnomAD with Popmax FAF = 0.0.",
+      "reasoning": "BA1 requires Popmax FAF >= 0.01 (1%). In this case, Popmax FAF is 0.0 and the variant is absent from gnomAD, which means the BA1 criterion does not apply according to the threshold.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD: total allele count = 0, popmax FAF = 0.0, homozygote count = 0.",
+      "reasoning": "BS1 only applies if popmax FAF > 0.0008 (supporting) or > 0.002 (strong), or strong via homozygotes if supporting FAF + >=2 hom. Here, popmax FAF is 0.0 (absent), which does not meet the threshold for BS1 at any strength. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change in ENG (NM_001114753.3), affecting codon 149 (p.Trp149Cys). It is not located at any of the critical protein positions specified for PM1 application (BMP9 binding sites at 278, 282; LP/P cysteines at 207, 363, 382, 412, 549; or disulfide-bond cysteines at 350, 394).",
+      "reasoning": "PM1 applies only if the variant affects specific critical residues on ENG as hardcoded in the rules. The variant affects position 149, which is not among the critical positions specified. Therefore, the criterion PM1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband_count=4 (SCV asserts >4 probands, PM2_Supporting met); ERepo: not queried; LOVD: not queried; PubMed: not queried (primary source sufficiently informative per instructions).",
+      "reasoning": "The ClinVar HHT VCEP submission comment explicitly states that the c.447G>C variant has been reported in more than 4 probands with phenotype consistent with HHT, and that PM2_Supporting has been confirmed. Per the rules, 4+ probands meeting criteria with PM2_Supporting allows application of PS4 at Strong strength. There is no duplicate counting, and probands qualifying for PP4_Moderate are excluded as instructed. No fallback sources were necessary since the VCEP data is conclusive.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The erepo tool results show that at codon 149 of ENG, there are no classified variants with a different amino acid change (different_aa_classifications is empty).",
+      "reasoning": "According to the rules, PM5 applies only if there is at least one LP/P missense variant with a different amino acid substitution at the same codon. Here, different_aa_classifications is empty, so there are no such qualifying variants to support PM5 application.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 149",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Multiple functional experiments were reported for ENG c.447G>C (W149C), including: (1) cell-surface biotinylation/trafficking assays in COS-1 and CHO-K1 cells showing abnormal (reduced or absent) trafficking to the membrane; (2) confocal immunofluorescence in HeLa cells showing wild-type-like trafficking/localization; (3) BiFC dimerization showing normal dimer formation; (4) immunofluorescence for SN6 antibody binding showing abnormal loss of the epitope. All eligible experiments fall into the single category of subcellular localisation/trafficking. Results are discordant between assays even within this category (e.g., HeLa confocal shows normal trafficking, others abnormal). No mRNA splicing or multiple distinct functional assay types are present.",
+      "reasoning": "According to the ACMG HHT-adapted rules for PS3, at least two different eligible functional assay types with concordant abnormal results are required, or one interpretable functionally abnormal mRNA splicing assay. Here, all eligible functional studies are subcellular localization/trafficking assays (i.e., one assay category). Additionally, clear contradictory results exist, as the HeLa confocal assay shows normal trafficking while other trafficking assays show abnormal results. No splicing assay is present. Because of both the lack of multiple assay types and the presence of clear internal contradictions within the single category, the rule requiring concordant results from different types is not met. Therefore, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.762, and _computed.verdicts states: 'PP3 REVEL (>= 0.644): APPLIES (score=0.7620)'. SpliceAI did not reach the threshold for PP3.",
+      "reasoning": "According to the classification rules and the _computed.verdicts field, for a missense variant, PP3 applies if 'PP3 REVEL (>= 0.644): APPLIES'. This is the case here, as the REVEL score triggers the criterion. SpliceAI does not trigger PP3, and per instructions, we use only the REVEL trigger for this missense variant.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.762 (fails BP4 HHT threshold \u22640.15), and SpliceAI scores are not available (cannot pass SpliceAI \u22640.1). Computed verdicts: 'BP4 REVEL HHT threshold (\u22640.15): FAILS (score=0.7620)', 'BP4 SpliceAI (all scores \u22640.1): N/A (SpliceAI scores not available)'.",
+      "reasoning": "For missense variants, BP4 applies only if BOTH: REVEL \u22640.15 AND SpliceAI \u22640.1. The pre-computed verdicts show 'BP4 REVEL HHT threshold (\u22640.15): FAILS' based on the REVEL score of 0.762. Therefore, BP4 does not apply, regardless of SpliceAI scores. According to the rules, failing either condition means BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty. No variant with the identical amino acid change as the query (NM_001114753.3:c.447G>C in ENG) has been classified as pathogenic or likely pathogenic in the relevant resources.",
+      "reasoning": "According to PS1 classification instructions, PS1 can apply only if there is at least one entry in same_aa_classifications. Since same_aa_classifications is empty, PS1 does not apply. The pathway stops after Step 1 as per instructions.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 149",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Six experiments were reported: (1,2) cell-surface biotinylation and metabolic labeling in COS-1 cells and patient monocytes show W149C is not present or reduced at the cell surface, indicating abnormal trafficking/expression; (3) confocal microscopy in HeLa cells finds W149C localization similar to wild type (functionally normal trafficking); (4) fluorescence microscopy in CHO-K1 cells finds W149C signal retained intracellularly (abnormal trafficking); (5) BiFC in CHO-K1 cells shows normal dimerization (functionally normal for dimerization); (6) SN6 immunofluorescence in CHO-K1 shows loss of reactivity (abnormal protein conformation/folding). Eligible functional HHT assays among these are cell-surface localization/trafficking (exp. 1,3,4), dimerization (exp.5), and conformation/folding (exp.6).",
+      "reasoning": "According to Step 2, experiments 1, 3, 4, and 6 are eligible, as they assess subcellular localization/trafficking and conformation. Experiment 1 (COS-1 biotinylation) and 4 (CHO-K1 localization) both reveal clear functionally abnormal results, with W149C failing to reach or localize to the cell surface as wild type does. Experiment 6 finds abnormal conformation. Experiment 3 reports normal trafficking in HeLa cells, and experiment 5 demonstrates normal dimerization. However, the presence of ANY functionally abnormal result (as is the case in experiments 1, 4, and 6) means BS3 does not apply, even if some experiments show normal function. This follows Rule Step 4 for BS3.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    }
+  ]
+}

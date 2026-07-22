@@ -1,0 +1,147 @@
+{
+  "variant": "NM_000020.3:c.652C>T",
+  "disease": "HHT",
+  "timestamp": "20260722_124920",
+  "classification": "Likely Benign",
+  "rule_matched": "1 Strong benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "1 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "BS1",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD (AC=247), so not absent (Step 1 fails). Total allele count is 247, which is greater than 6 (Step 2 fails). Max subpopulation AF is 0.1428, popmax_faf is 0.00225. No individual subpopulation AF is reported as <0.00004 (no evidence provided for Step 3).",
+      "reasoning": "According to the rules, PM2_SUPPORTING only applies if the variant is completely absent from gnomAD (Step 1), or if total AC < 6 (Step 2), or if any subpopulation AF <0.00004 (Step 3). Here, the variant is present, total AC is much greater than 6, and no subpopulation AF <0.00004 is documented. Therefore, PM2_SUPPORTING does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The highest popmax FAF for this variant in gnomAD is 0.00225 (0.225%), which is below the BA1 threshold of 0.01 (1%).",
+      "reasoning": "According to ACMG BA1 rules, this criterion applies only if popmax FAF is >= 0.01. Here, the popmax FAF is 0.00225, which is well below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD popmax FAF is 0.00225 (eas), with 3 homozygotes; BA1 does not apply (FAF < 0.01), and BS1 Supporting range (FAF >0.0008 and <= 0.002) does NOT include this FAF (which slightly exceeds 0.002); FAF is also below the range for BS1_Strong (which requires >0.002 and <0.01).",
+      "reasoning": "The popmax FAF (0.00225) is greater than 0.002, but not less than 0.01. This meets the BS1_Strong FAF route threshold. Therefore, BS1 applies at benign_strong strength. Homozygotes (3) would also fulfill the BS1_Strong via the homozygote route if FAF was in Supporting range, but here the FAF alone is sufficient at this strength. BA1 does not already apply, so we proceed with BS1 as per rules. Thus, BS1 applies at benign_strong strength because FAF = 0.00225 is >0.002 and <0.01.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.652C>T (p.Arg218Trp) in ACVRL1 is a missense change at residue 218. The residue is not located within the critical PM1 regions (209-216, 229, 242, 329-335, 348-351, or BMP10 cluster residues).",
+      "reasoning": "According to the hardcoded rules, PM1 applies only if the altered residue is in the specified critical regions of ACVRL1. Position 218 is not within any of these defined regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "erepo found no variants with a different amino acid substitution at codon 218 of ACVRL1 that have been classified as P/LP for HHT (different_aa_classifications = []).",
+      "reasoning": "According to the provided rules, PM5 requires at least one different pathogenic/likely pathogenic missense variant at the same codon to apply. Since different_aa_classifications is empty, there is no such evidence, so PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 218",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Two experiments (PMID:27625857): (1) BMP9-induced SMAD1/5/8 phosphorylation in a cell-based system, where ALK1-R218W failed to promote phosphorylation while wild-type ALK1 did; (2) Transcriptional activation assay, where ALK1-R218W was less efficient than wild-type. Both assays are intracellular signaling, both showed functionally abnormal results.",
+      "reasoning": "Per the PS3 rules, eligible assays include intracellular signaling. Both experiments provided are from the same assay category (intracellular signaling), even though they look at different endpoints, and both are functionally abnormal. The provided decision rules state that PS3 at strong strength requires either at least one interpretable functionally-abnormal mRNA splicing assay, or two different eligible assay types (distinct categories) showing concordant functionally abnormal results. Here, only one assay type is present, so PS3 does NOT apply. The final check only allows applies=true/strong or applies=false/null, and the latter must be chosen given the evidence does not meet the threshold.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.816. _computed.verdicts states: 'PP3 REVEL (>= 0.644): APPLIES (score=0.8160)'. SpliceAI data is not available due to a technical error.",
+      "reasoning": "According to the rules, for a missense variant, if '_computed.verdicts' contains 'PP3 REVEL (>= 0.644): APPLIES', then PP3 applies based on the REVEL score. The evidence directly confirms this. SpliceAI data is not necessary since the REVEL trigger is met.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.816. _computed.verdicts states: 'BP4 REVEL HHT threshold (<= 0.15): FAILS (score=0.8160)'. SpliceAI data unavailable due to error, verdicts show: 'BP4 SpliceAI (all scores <= 0.1): N/A (SpliceAI scores not available)'.",
+      "reasoning": "For a missense variant, BP4 requires REVEL <= 0.15 AND SpliceAI <= 0.1. The pre-verified verdicts in _computed show 'BP4 REVEL HHT threshold (<= 0.15): FAILS', so BP4 does not apply, regardless of SpliceAI. The evidence rules state that failing either REVEL or SpliceAI means BP4 does not apply. Thus, based on the verdicts, BP4 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty; no variants with the same amino acid change as the query have established pathogenic or likely pathogenic classification.",
+      "reasoning": "Step 1: same_aa_classifications is empty, so there is no established pathogenic variant with the same amino acid change. Therefore, PS1 does not apply per the outlined rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 218",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Two experiments from PMID:27625857 (SMAD1/5/8 phosphorylation immunoblot and transcriptional activation reporter assay) measured ALK1-R218W function. Both showed the variant was functionally abnormal compared to wild-type (failed SMAD1/5/8 phosphorylation and reduced transcriptional activation). Adequate positive controls were used. No functional_normal or ambiguous results reported.",
+      "reasoning": "Step 1: Experiments list is not empty. Step 2: Both experiments are eligible functional assays relevant to HHT (assessing signaling and transcription pathways). Step 3: Both experiments show functionally_abnormal results (no phosphorylation, reduced activation) in comparison with wild type, as supported by authors' conclusions and detailed experiment data. Step 4: Presence of any functionally_abnormal assay means BS3 does not apply. No functionally_normal experiments are present.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    }
+  ]
+}

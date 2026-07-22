@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260722_125931",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001077401.2:c.620del is absent from gnomAD: total allele count (AC) = 0, absent in all populations.",
+      "reasoning": "Step 1 of the classification rules states that if the variant is entirely absent from gnomAD (AC=0), PM2_Supporting applies. As the variant is not found in gnomAD and has an allele count of 0, PM2_Supporting does apply.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD; popmax FAF = 0.0, total allele count = 0.",
+      "reasoning": "BA1 applies only if popmax FAF is greater than or equal to 0.01 (1%). This variant is absent from gnomAD with a popmax FAF of 0.0, which is below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001077401.2:c.620del was not found in gnomAD (Popmax FAF = 0.0; homozygote count = 0).",
+      "reasoning": "BS1 requires that the Popmax FAF is between 0.0008 and 0.01, depending on strength, and/or sufficient homozygotes. Here, the variant is absent from gnomAD, so Popmax FAF = 0.0 (not > 0.0008). No homozygotes are observed. Therefore, none of the BS1 thresholds are met, and BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count found in the submission comment; ERepo: 1 proband inferred from VCEP classification, not explicitly stated; LOVD: No data found; PubMed: No articles found.",
+      "reasoning": "The HHT VCEP ClinVar submission does not provide an explicit proband count in the SCV comment. The ERepo source infers at least one proband based on VCEP pathogenic classification requirements, but this is not an explicit case count and is not acceptable per the instructions. There are no case reports or counts found in LOVD or PubMed. Without a directly stated proband count in the expert panel submission or fallback literature, PS4 cannot be applied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant is a frameshift (frameshift_variant) at codon 207 in ACVRL1, which is known to cause HHT via loss of function (haploinsufficiency). NMD would be predicted for a frameshift at codon 207 (cutoff <=442 for NMD).",
+      "reasoning": "This frameshift variant occurs at codon 207, which is well before the NMD boundary at codon 442. ACVRL1 is a gene where LOF is a known mechanism for HHT. According to the decision tree, a nonsense or frameshift variant predicted to undergo NMD (codon <=442) warrants PVS1 at very strong strength. All prerequisites and specific thresholds are satisfied.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: No rsid available for the current variant. Variant id: NM_001077401.2:c.620del"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: No rsid available for the current variant. Variant id: NM_001077401.2:c.620del"
+    }
+  ]
+}

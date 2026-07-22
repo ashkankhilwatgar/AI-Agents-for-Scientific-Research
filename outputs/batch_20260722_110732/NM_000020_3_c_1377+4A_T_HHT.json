@@ -1,0 +1,96 @@
+{
+  "variant": "NM_000020.3:c.1377+4A>T",
+  "disease": "HHT",
+  "timestamp": "20260722_125114",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.1377+4A>T is absent from gnomAD: total allele count (AC) = 0, no alleles or frequency observed in any population.",
+      "reasoning": "Based on step 1 of the PM2_SUPPORTING classification rules, the variant is completely absent from gnomAD (total AC = 0). Therefore, PM2_SUPPORTING applies according to the criterion's guidance.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_000020.3:c.1377+4A>T is absent from gnomAD (Popmax FAF = 0.0).",
+      "reasoning": "Criterion BA1 requires Popmax FAF to be greater than or equal to 0.01 (1%). The variant is absent from gnomAD, resulting in a Popmax FAF of 0.0, which is below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD. Popmax FAF is 0.0. Homozygote count is 0.",
+      "reasoning": "BS1 requires Popmax FAF to be greater than 0.0008. This variant is absent from gnomAD (FAF=0.0; ac_hom=0), so it does not reach the frequency thresholds for BS1 (neither supporting nor strong). Therefore, BS1 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count or VCEP comment for c.1377+4A>T; ERepo: No data found; LOVD: No data found; PubMed: 10 articles found, none with explicit case-level reporting of proband count for this variant.",
+      "reasoning": "The HHT VCEP SCV in ClinVar does not provide a proband count for ACVRL1 c.1377+4A>T, nor is a relevant VCEP submission or proband count available from other databases (ERepo, LOVD). A review of available PubMed articles retrieved with the search phrase did not reveal any explicit case-level reporting of patients harboring this exact variant with a documented HHT phenotype. None of the abstracts mention this specific variant with corresponding patient numbers, nor do they provide the minimum information needed to count probands per the PS4 instructions. Therefore, based on current evidence and following the established rules, PS4 does not apply as there are 0 documented probands.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.1377+4A>T HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    }
+  ]
+}
