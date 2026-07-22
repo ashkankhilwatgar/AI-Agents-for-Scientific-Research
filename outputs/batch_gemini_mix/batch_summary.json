@@ -1,0 +1,19 @@
+{
+  "csv": "full_evaluation_dataset.csv",
+  "total": 200,
+  "completed": 2,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "skipped_existing",
+      "file": "outputs/batch_gemini_mix/NM_000020_3_c_557G_T_HHT.json"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "skipped_existing",
+      "file": "outputs/batch_gemini_mix/NM_000020_3_c_466G_A_HHT.json"
+    }
+  ]
+}

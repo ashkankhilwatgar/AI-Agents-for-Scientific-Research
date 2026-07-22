@@ -1,0 +1,56 @@
+{
+  "csv": "datasets/full_evaluation_dataset.csv",
+  "total": 200,
+  "completed": 7,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_557G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_466G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_484C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_151T_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_266G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.293A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_293A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.139C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "BadRequestError: Error code: 400 - {'error': {'message': \"Unsupported value: 'temperature' does not support 0.0 with this model. Only the default (1) value is supported.\", 'type': 'invalid_request_error', 'param': 'temperature', 'code': 'unsupported_value'}}",
+      "file": "outputs/batch_20260722_103041/NM_000020_3_c_139C_T_HHT.error.json"
+    }
+  ]
+}

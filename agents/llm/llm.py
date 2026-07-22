@@ -65,7 +65,7 @@ def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatMod
         return init_chat_model(
             model=model,
             model_provider="openai",
-            temperature=temperature
+            temperature=1
         )
     elif provider == "google_genai":
         # Explicitly pass the Cloud Console key rather than letting the SDK

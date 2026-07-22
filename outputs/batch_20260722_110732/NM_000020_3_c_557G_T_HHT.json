@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260722_111001",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Moderate": "moderate",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Moderate",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD with total AC=1 and maximum subpopulation AF=0.0000017, all well under thresholds.",
+      "reasoning": "Per the PM2_SUPPORTING rules, if total allele count (AC) across all gnomAD populations is less than 6, the criterion applies. Here, AC=1, which is less than 6. No need to proceed to further steps. Therefore, PM2_SUPPORTING applies based on the evidence.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF (Filtering Allele Frequency) from gnomAD is 0.0 for this variant. The variant is present at extremely low frequency (AC=1 in >1,400,000 exomes) and is not present at appreciable frequency in any subpopulation.",
+      "reasoning": "According to the BA1 rule, BA1 applies if Popmax FAF is greater than or equal to 0.01 (1%). In this case, the Popmax FAF is 0.0, which is far below the 1% threshold. Therefore, BA1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF = 0.0; total homozygote count = 0; popmax subpopulation allele frequency = 1.75e-6 (NFE), well below threshold for BS1. BA1 does not apply (Popmax FAF <0.01).",
+      "reasoning": "BS1 requires Popmax FAF > 0.0008 and <=0.002 (for supporting) or >0.002 and <0.01 (for strong), or supporting with >=2 homozygotes for strong. Here, Popmax FAF is 0.0, well below the supporting and strong BS1 thresholds. There are no homozygotes. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change at protein position 186 of ACVRL1 (p.Ser186Ile). The variant is not located in any of the predefined PM1 critical regions or BMP10 interaction clusters.",
+      "reasoning": "PM1 applies if the variant occurs at specific critical amino acid residues in ACVRL1: 209-216, 229, 242, 329-335, 348-351, or selected residues in the BMP10 cluster (positions: 40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87). Position 186 is not within any of these regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands with HHT phenotype reported; ERepo: not queried; LOVD: not queried; PubMed: not queried (not needed as ClinVar VCEP SCV provides proband count).",
+      "reasoning": "The ClinVar HHT VCEP expert panel's submission explicitly reports 2 probands with a phenotype consistent with HHT, and specifies PS4_Moderate in their ACMG scoring. According to the PS4 rules, a proband count of 2-3 justifies PS4_Moderate, provided PM2_Supporting is met (which is endorsed in the VCEP comment). No need to re-query for PM2_Supporting or for additional proband counts, as the VCEP submission provides all necessary information. Sources ERepo, LOVD, and PubMed were not required to be queried since primary ClinVar VCEP data suffices and matches ACMG/ClinGen recommendations. Duplicate probands and PP4_Moderate exclusions are already addressed by the VCEP.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Erepo did not return valid reponse, no classifications found"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.915; SpliceAI DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0; _computed.verdicts: 'PP3 REVEL (>= 0.644): APPLIES (score=0.9150)', 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0100, all < 0.2)'.",
+      "reasoning": "According to the pre-verified verdicts in _computed.verdicts, this missense variant triggers PP3 via REVEL, as 'PP3 REVEL (>= 0.644): APPLIES' is present with a score of 0.915. Therefore, the criterion PP3 applies based on the REVEL threshold, regardless of SpliceAI prediction.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915. SpliceAI scores: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0. In _computed.verdicts: 'BP4 REVEL HHT threshold (<= 0.15): FAILS', 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "According to the rules for a missense variant, BP4 can only apply if both 'BP4 REVEL HHT threshold (<= 0.15): PASSES' AND 'BP4 SpliceAI (all scores <= 0.1): PASSES' are present in _computed.verdicts. In this case, 'BP4 REVEL HHT threshold (<= 0.15): FAILS' is present, so BP4 does not apply regardless of the SpliceAI status.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Erepo did not return valid reponse, no classifications found"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Litvar 2 api failed while trying to find pmids. Error: An error occurs while trying to query pmid from litvar 2"
+    }
+  ]
+}

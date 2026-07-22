@@ -34,25 +34,23 @@ _os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
 #     "functional_evidence": {"provider": "ollama", "model": "deepseek-r1:32b"}
 # }
 
+#MODELS = {
+#   "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
+#   "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
+#   "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+#   "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
+#  "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
+ #   "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
+#}
+
 MODELS = {
-    "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
-    "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
-    "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
+    "plan":  {"provider": "openai", "model": "gpt-4.1-mini"},
+    "task":  {"provider": "openai", "model": "gpt-4.1"},
+    "debug": {"provider": "openai", "model": "gpt-4.1-mini"},
+    "judge": {"provider": "openai", "model": "o3"},
+    "check": {"provider": "openai", "model": "gpt-4.1-mini"},
+    "functional_evidence": {"provider": "openai", "model": "o3"}
 }
-
-
-MODELS = {
-    "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
-    "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "judge": {"provider": "google_genai", "model": "gemini-3.5-flash"},
-    "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
-    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.5-flash"}
-}
-
 
 OLLAMA_BASE_URL="http://150.209.23.239:11434"
 

@@ -1,0 +1,6 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "status": "error",
+  "error": "SyntaxError: f-string: expecting '}' (functional_evidence.py, line 1628)"
+}
