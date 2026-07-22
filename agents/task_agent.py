@@ -461,25 +461,7 @@ def run_tool(
             ]
             after = len(result["classifications"])
         else:
-            # print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {len(result.get('classifications', []))}")
-            # pass
             return {"error": "Erepo did not return valid reponse, no classifications found"}, input_value
-
-        # ClinVar fallback — if ERepo has no other variants at this codon,
-        # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
-        if not result.get("classifications"):
-            ref_aa = vep_result.get("amino_acid_ref")
-            if ref_aa:
-                # print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
-                clinvar_result = search_clinvar_for_codon(
-                    gene_label, codon_position, ref_aa, query_cdna
-                )
-                if "error" not in clinvar_result:
-                    # print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
-                    result = clinvar_result
-                else:
-                    # print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
-                    pass
 
         # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
         # Done here deterministically so the LLM never has to reason about it.

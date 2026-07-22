@@ -29,10 +29,10 @@ are not caused by an incorrect `sklearn.metrics.accuracy_score` formula.
   Counting the technical failure as incorrect gives an end-to-end accuracy of
   20/25 = **80.00%**.
 
-The primary reason that criterion level accuracy is high yet the overall accuracy 
-seems low is non-automatable criterions: sometimes our model is not bad at automatable 
-criterions; The non-automatable criterions is always the final factor required to 
-push a VUS to likely pathogenic.
+**The primary reason that criterion level accuracy is high yet the overall accuracy**
+**seems low is non-automatable criterions: sometimes our model is not bad at automatable**
+**criterions; The non-automatable criterions is always the final factor required to**
+**push a VUS to likely pathogenic.**
 
 A strong validation result is that feeding the documented gold criterion **and
 strength** sets into the current `tools.scoring.classify()` function reproduces:
@@ -169,6 +169,10 @@ functional evidence step failed to recover.
 
 All but two of the 15 errors are adjacent-class errors; within-one-class agreement
 is 46/48 = 95.83%.
+
+Also note that this result is calculated from the first version. Since we've tried to fix the 
+false negative problem is PS3/PS3/PM5, these three criterion should have better performance
+than what's shown in the statistics here.
 
 ## Complete list of 48-set final-class failures
 
