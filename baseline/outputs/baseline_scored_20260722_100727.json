@@ -1,0 +1,496 @@
+{
+  "source_results_file": "/hpc/shong2/AI-Agents-for-Scientific-Research/baseline/outputs/baseline_results.json",
+  "source_meta": {
+    "model": "gemini-3.5-flash",
+    "temperature": 0.4,
+    "passes": 3,
+    "csv_source": "/Users/abdul/Desktop/College/AI Agents for Scientific Research/AI-Agents-for-Scientific-Research/datasets/full_evaluation_dataset.csv",
+    "num_variants": 200,
+    "criteria_evaluated": [
+      "PM2_SUPPORTING",
+      "BA1",
+      "BS1",
+      "PS4",
+      "PP4_MODERATE",
+      "PM1",
+      "PVS1",
+      "PM5",
+      "PS3",
+      "PS1",
+      "PP3",
+      "PM4",
+      "BP4",
+      "BP7",
+      "PP1",
+      "BS3",
+      "BS4",
+      "BP2",
+      "BP5"
+    ],
+    "deferred_criteria_no_patient_data": [
+      "BP2",
+      "BP5",
+      "BS4",
+      "PP1",
+      "PP4_MODERATE"
+    ],
+    "excluded_criteria": {
+      "PS2": "Not Applicable per HHT VCEP \u2014 de novo variants are rare in HHT; should be confirmed not presumed. Low-level mosaicism in parents has been observed.",
+      "PM3": "Not Applicable per HHT VCEP \u2014 HHT is autosomal dominant; AR trans mechanism not relevant",
+      "PM6": "Not Applicable per HHT VCEP \u2014 de novo variants are rare in HHT; should be confirmed not presumed",
+      "PP5": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)",
+      "BS2": "Not Applicable per HHT VCEP \u2014 full penetrance at an early age is not observed in HHT",
+      "BP1": "Not Applicable per HHT VCEP \u2014 missense variants commonly seen in HHT genes",
+      "BP3": "Not Applicable per HHT VCEP",
+      "BP6": "Not Applicable per ClinGen SVI VCEP Review Committee (PMID: 29543229)"
+    },
+    "num_variants_completed": 2
+  },
+  "per_pass_metrics": {
+    "1": {
+      "n": 2,
+      "num_errors": 0,
+      "accuracy": 0.0,
+      "macro_precision": 0.0,
+      "macro_recall": 0.0,
+      "macro_f1": 0.0,
+      "weighted_precision": 0.0,
+      "weighted_recall": 0.0,
+      "weighted_f1": 0.0,
+      "cohen_kappa": -0.33333333333333326,
+      "off_by_one_accuracy": 0.5,
+      "mean_ordinal_distance": 1.5,
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "classification_report": {
+        "B": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LB": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "VUS": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LP": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "P": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "accuracy": 0.0,
+        "macro avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "weighted avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        }
+      }
+    },
+    "2": {
+      "n": 2,
+      "num_errors": 0,
+      "accuracy": 0.0,
+      "macro_precision": 0.0,
+      "macro_recall": 0.0,
+      "macro_f1": 0.0,
+      "weighted_precision": 0.0,
+      "weighted_recall": 0.0,
+      "weighted_f1": 0.0,
+      "cohen_kappa": -0.33333333333333326,
+      "off_by_one_accuracy": 0.5,
+      "mean_ordinal_distance": 1.5,
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "classification_report": {
+        "B": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LB": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "VUS": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LP": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "P": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "accuracy": 0.0,
+        "macro avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "weighted avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        }
+      }
+    },
+    "3": {
+      "n": 2,
+      "num_errors": 0,
+      "accuracy": 0.0,
+      "macro_precision": 0.0,
+      "macro_recall": 0.0,
+      "macro_f1": 0.0,
+      "weighted_precision": 0.0,
+      "weighted_recall": 0.0,
+      "weighted_f1": 0.0,
+      "cohen_kappa": -0.33333333333333326,
+      "off_by_one_accuracy": 0.5,
+      "mean_ordinal_distance": 1.5,
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "classification_report": {
+        "B": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LB": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "VUS": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "LP": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "P": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "accuracy": 0.0,
+        "macro avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "weighted avg": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        }
+      }
+    }
+  },
+  "averaged_across_passes": {
+    "accuracy_mean": 0.0,
+    "accuracy_std": 0.0,
+    "macro_precision_mean": 0.0,
+    "macro_precision_std": 0.0,
+    "macro_recall_mean": 0.0,
+    "macro_recall_std": 0.0,
+    "macro_f1_mean": 0.0,
+    "macro_f1_std": 0.0,
+    "weighted_precision_mean": 0.0,
+    "weighted_precision_std": 0.0,
+    "weighted_recall_mean": 0.0,
+    "weighted_recall_std": 0.0,
+    "weighted_f1_mean": 0.0,
+    "weighted_f1_std": 0.0,
+    "cohen_kappa_mean": -0.33333333333333326,
+    "cohen_kappa_std": 0.0,
+    "off_by_one_accuracy_mean": 0.5,
+    "off_by_one_accuracy_std": 0.0,
+    "mean_ordinal_distance_mean": 1.5,
+    "mean_ordinal_distance_std": 0.0,
+    "summed_confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        3,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "total_n": 6,
+    "total_errors": 0
+  },
+  "majority_vote_metrics": {
+    "n": 2,
+    "num_errors": 0,
+    "accuracy": 0.0,
+    "macro_precision": 0.0,
+    "macro_recall": 0.0,
+    "macro_f1": 0.0,
+    "weighted_precision": 0.0,
+    "weighted_recall": 0.0,
+    "weighted_f1": 0.0,
+    "cohen_kappa": -0.33333333333333326,
+    "off_by_one_accuracy": 0.5,
+    "mean_ordinal_distance": 1.5,
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "classification_report": {
+      "B": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "LB": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "VUS": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "LP": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "P": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "accuracy": 0.0,
+      "macro avg": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      },
+      "weighted avg": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      }
+    }
+  }
+}
