@@ -1,10 +1,8 @@
 import os
 import requests
 import json
-# from config import MODELS, OLLAMA_BASE_URL, RETRY_LIMIT
 from config import RETRY_LIMIT
 from agents.task_agent import run_task
-# from tools.utils import parse_json_response
 from data.planrag import query, get_gene_from_transcript
 from .llm.llm import create_llm
 from typing import Optional, TypeAlias, Any

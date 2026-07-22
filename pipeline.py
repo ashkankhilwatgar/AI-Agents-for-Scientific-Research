@@ -136,14 +136,14 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
     return filtered
 
 # ==================================
-# Type alias for langgraph states
+# Type aliases for LangGraph states
 # ==================================
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
 Tasks: TypeAlias = dict[str, list[dict[str, str]]]
 CriterionResults: TypeAlias = dict[str, dict[str, Any]]
 
 # ==================================
-# Stategraph reducer
+# StateGraph reducers
 # ==================================
 def merge_tool_results(
         left: ToolResults,
@@ -185,8 +185,7 @@ class PerCriterionState(TypedDict):
     gene_symbol: str | None
 
 # ==================================
-# Helper Function for Printing  
-# Results After Each Phase
+# Helper Function for Printing Results After Each Phase
 # ==================================
 
 def format_result(result: dict[str, Any]) -> str:
@@ -267,7 +266,7 @@ def _print_phase_summary(
     ))
 
 # ==================================
-# Langgraph Nodes
+# LangGraph Nodes
 # ==================================
 
 def fan_in_after_phase_1(state: OverallState):
@@ -407,37 +406,30 @@ def process_criterion(state: PerCriterionState):
     debug_output, tool_cache_update = run_debug(task, gene_symbol = gene_symbol, tool_results = tool_results)
 
     if debug_output.get("status") == "error":
-        # console.print(f"PIPELINE: Debug agent failed for {criterion} — {debug_output.get('error')}")
-
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): debug_output},
             "tool_results": tool_cache_update
         }  
 
     # ── JUDGE AGENT ───────────────────────
-    # console.print("[2/3] JUDGE AGENT — checking reasoning")
     judge_output, tool_cache_update = run_judge(task, tool_results, debug_output, gene_symbol=gene_symbol)
 
     if judge_output.get("status") == "error":
-        # console.print(f"PIPELINE: Judge agent failed for {criterion} — {judge_output.get('error')}")
-
         return {
             "criterion_results": {criterion.upper().replace("-", "_"): judge_output},
             "tool_results": tool_cache_update
             }  
 
     # ── CHECK AGENT ───────────────────────
-    # console.print("[3/3] CHECK AGENT — validating formatting")
     final_output = run_check(judge_output)
 
-    # console.print(f"PIPELINE: {criterion} complete")
     return {
         "criterion_results": {criterion.upper().replace("-", "_"): final_output},
         "tool_results": tool_cache_update
         } 
 
 # ==================================
-# Langgraph Routers
+# LangGraph Routers
 # ==================================
 
 def fan_out_before_phase_1(state: OverallState):
@@ -493,7 +485,7 @@ def fan_out_before_phase_4(state: OverallState):
     }) for task in state["tasks"]["phase4"]]
         
 # ==================================
-# Invoking state graph
+# Invoking the state graph
 # ==================================
 def build_graph():
     """
@@ -660,7 +652,7 @@ def run_pipeline(variant: str, disease: str) -> tuple[list[Any], dict]:
     return results_list, scoring_result
 
 
-def print_report(variant: str, disease: str, results: list[dict], scoring_result: dict = None) -> None:
+def print_report(variant: str, disease: str, results: list[dict], scoring_result: dict | None = None) -> None:
     """
     Prints a human-readable classification report to the terminal.
     """

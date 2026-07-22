@@ -95,7 +95,7 @@ body {
 .strength-sel .lbl { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
 .strength-sel.disabled { opacity: .35; }
 
-/* excluded */
+/* ── Excluded criteria ────────────────────────────────── */
 .criteria-list.excluded .crit { background: #f7f8fa; opacity: .85; grid-template-columns: 1fr; }
 .criteria-list.excluded .crit-name { color: #7a8798; }
 .criteria-list.excluded .crit-reason { color: var(--muted); font-size: 12px; margin-top: 3px; }

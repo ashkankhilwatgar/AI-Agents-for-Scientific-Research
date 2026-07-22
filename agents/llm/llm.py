@@ -54,11 +54,11 @@ def create_llm(provider: str, model: str, temperature: float = 0) -> BaseChatMod
     BaseChatModel
         A LangChain chat model object that can be called with .invoke().
 
-    Returns
-    -------
-    Note: If you want to use z.ai's models such as glm5.2, use openai as the model provider
-    and use z.ai's model name as model. For example, if you want to use glm5.2, provider = openai 
-    and model = glm5.2. In addition, if you want to use a web api, you need to cp .env.example and 
+    Notes
+    -----
+    If you want to use z.ai's models such as glm5.2, use openai as the model provider
+    and use z.ai's model name as model. For example, if you want to use glm5.2, provider = openai
+    and model = glm5.2. In addition, if you want to use a web api, you need to cp .env.example and
     provide your own api keys.
     """
     if provider=="openai":
@@ -116,7 +116,6 @@ def invoke_llm(
         temperature: float = 0,
 ) -> str:
     """
-
     Create an LLM, send it a prompt, and return the model's text response.
 
     Parameters
@@ -138,7 +137,6 @@ def invoke_llm(
     -------
     str
         The content of the model's response message.
-
     """
     llm = create_llm(provider, model, temperature)
 
@@ -149,8 +147,3 @@ def invoke_llm(
     response = llm.invoke(message)
 
     return response.content
-
-    
-
-    
-    

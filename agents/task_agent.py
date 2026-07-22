@@ -1,7 +1,6 @@
 import re
 import requests
 import json
-# from config import MODELS, OLLAMA_BASE_URL
 from tools.vep import annotate_variant
 from tools.clinvar import search_clinvar, search_clinvar_for_codon, search_clinvar_for_variant_ps4, search_clinvar_for_exact_variant
 from tools.gnomad import query_gnomad, query_gnomad_gene_constraint
@@ -23,241 +22,6 @@ from rich.text import Text
 
 # Local type alias (avoids importing from pipeline, which would create a circular import)
 ToolResults: TypeAlias = dict[str, dict[str, Any]]
-task_console = Console()
-
-
-def _task_warning(message: str) -> None:
-    """Render an actionable task-agent warning as one styled line."""
-    warning = Text()
-    warning.append("⚠ Task agent: ", style="bold yellow")
-    warning.append(message)
-    task_console.print(warning)
-
-# OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
-
-
-# def _annotate_gnomad_frequency(result: dict) -> dict:
-#     """
-#     Pre-computes frequency threshold verdicts on a gnomAD result dict and injects
-#     a '_computed' summary so the LLM reads pre-verified verdicts rather than
-#     performing floating-point comparisons itself (LLMs reliably mis-compare
-#     scientific notation, e.g. concluding 5.3e-05 >= 1e-04).
-
-#     Adds '_computed' with:
-#         pm2_applies, ba1_applies, bs1_applies, bs2_check_ac_hom, verdicts (str)
-#     """
-#     if "error" in result or not result.get("found", True):
-#         result = dict(result)
-#         result["_computed"] = {
-#             "absent_from_gnomad": True,
-#             "total_ac": 0,
-#             "max_subpop_af": 0.0,
-#             "popmax_faf": 0.0,
-#             "ac_hom": 0,
-#             "pm2_applies": True,
-#             "ba1_applies": False,
-#             "bs1_applies": False,
-#             "bs2_check_ac_hom": False,
-#             "verdicts": (
-#                 "Variant ABSENT from gnomAD. "
-#                 "PM2: APPLIES (absent). BA1: DOES NOT APPLY. "
-#                 "BS1: DOES NOT APPLY. BS2: ac_hom=0 → DOES NOT APPLY for dominant."
-#             ),
-#         }
-#         return result
-
-#     result = dict(result)
-#     total_ac   = result.get("total_ac", 0) or 0
-#     popmax_faf = result.get("popmax_faf", 0.0) or 0.0
-#     ac_hom     = result.get("ac_hom", 0) or 0
-
-#     # Compute max raw subpopulation AF for reference only (not used for PM2 decision).
-#     # Raw per-population AC/AN can be misleading for rare variants — a single allele
-#     # in a small subpopulation cohort inflates AF (e.g. AC=1, AN=3663 → AF=2.73e-4
-#     # even when overall AF is 4.7e-6). gnomAD's popmax_faf already accounts for this
-#     # sampling uncertainty and is the recommended metric for clinical variant filtering.
-#     all_subpop_afs = []
-#     for src_key in ("exome", "genome"):
-#         src = result.get(src_key) or {}
-#         for pop in src.get("populations", []):
-#             ac_p = pop.get("ac") or 0
-#             an_p = pop.get("an") or 0
-#             if an_p > 0:
-#                 all_subpop_afs.append(ac_p / an_p)
-
-#     max_subpop_af = max(all_subpop_afs) if all_subpop_afs else 0.0
-#     absent = total_ac == 0
-
-#     # Threshold decisions (computed in Python — not delegated to LLM)
-#     # PM2 uses popmax_faf (gnomAD filtering allele frequency, 95% CI upper bound)
-#     # rather than raw max subpopulation AF. popmax_faf is gnomAD's own recommended
-#     # metric for clinical filtering and accounts for sampling uncertainty in small
-#     # population cohorts that would otherwise inflate raw per-population AFs.
-#     pm2_applies = absent or (popmax_faf < 0.0001)  # threshold: 1e-4
-#     ba1_applies = popmax_faf >= 0.05
-#     bs1_applies = (not ba1_applies) and (popmax_faf > 0.01)
-#     ac_hom_present = ac_hom > 0
-
-#     result["_computed"] = {
-#         "absent_from_gnomad": absent,
-#         "total_ac": total_ac,
-#         "max_subpop_af": max_subpop_af,
-#         "popmax_faf": popmax_faf,
-#         "ac_hom": ac_hom,
-#         "pm2_applies": pm2_applies,
-#         "ba1_applies": ba1_applies,
-#         "bs1_applies": bs1_applies,
-#         "bs2_check_ac_hom": ac_hom_present,
-#         "verdicts": (
-#             f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
-#             f"  PM2 (threshold: popmax_FAF < 0.0001): popmax_FAF={popmax_faf:.6e} "
-#             f"→ {'APPLIES' if pm2_applies else 'DOES NOT APPLY'}\n"
-#             f"    (raw max subpop AF={max_subpop_af:.6e} — for reference only; "
-#             f"popmax_FAF used for decision to account for sampling uncertainty)\n"
-#             f"  BA1 (threshold: popmax_FAF >= 0.05): popmax_FAF={popmax_faf:.6f} "
-#             f"→ {'APPLIES' if ba1_applies else 'DOES NOT APPLY'}\n"
-#             f"  BS1 (threshold: popmax_FAF > 0.01): popmax_FAF={popmax_faf:.6f} "
-#             f"→ {'APPLIES' if bs1_applies else 'DOES NOT APPLY'}\n"
-#             f"  BS2: ac_hom={ac_hom} → {'present, check inheritance' if ac_hom_present else 'absent → DOES NOT APPLY for dominant/X-linked'}"
-#         ),
-#     }
-#     return result
-
-
-# def _annotate_gnomad_gene_constraint(result: dict) -> dict:
-#     """
-#     Pre-computes PP2/BP1 threshold verdicts on a gnomAD gene constraint result
-#     and injects a '_computed' summary so the LLM reads pre-verified verdicts.
-
-#     PP2 uses an objective threshold (mis_z >= 3.09) — computed here in Python.
-#     BP1 requires clinical knowledge of disease mechanism, so constraint metrics
-#     are provided with interpretation hints for the LLM.
-#     """
-#     if "error" in result:
-#         return result
-
-#     result = dict(result)
-#     mis_z        = result.get("mis_z")
-#     pLI          = result.get("pLI")
-#     oe_lof_upper = result.get("oe_lof_upper")
-#     oe_mis       = result.get("oe_mis")
-
-#     pp2_threshold_met  = mis_z is not None and mis_z >= 3.09
-#     lof_intolerant     = (pLI is not None and pLI >= 0.9) or (oe_lof_upper is not None and oe_lof_upper <= 0.35)
-#     missense_tolerated = oe_mis is not None and oe_mis >= 0.8
-
-#     mis_z_str        = f"{mis_z:.4f}"        if mis_z        is not None else "N/A"
-#     pLI_str          = f"{pLI:.6f}"          if pLI          is not None else "N/A"
-#     oe_lof_upper_str = f"{oe_lof_upper:.4f}" if oe_lof_upper is not None else "N/A"
-#     oe_mis_str       = f"{oe_mis:.4f}"       if oe_mis       is not None else "N/A"
-
-#     result["_computed"] = {
-#         "pp2_threshold_met":  pp2_threshold_met,
-#         "lof_intolerant":     lof_intolerant,
-#         "missense_tolerated": missense_tolerated,
-#         "verdicts": (
-#             f"COMPUTED VERDICTS — use these directly, do NOT recompute:\n"
-#             f"  PP2 (threshold: mis_z >= 3.09): mis_z={mis_z_str} "
-#             f"→ {'THRESHOLD MET — PP2 applies IF missense is a known disease mechanism' if pp2_threshold_met else 'THRESHOLD NOT MET — PP2 does NOT apply'}\n"
-#             f"  BP1 constraint profile: pLI={pLI_str}, LOEUF={oe_lof_upper_str}, oe_mis={oe_mis_str}\n"
-#             f"    LOF intolerant (pLI>=0.9 or LOEUF<=0.35): {lof_intolerant} "
-#             f"→ {'LOF-constrained gene — LOF likely causes disease; BP1 could apply if missense not primary mechanism' if lof_intolerant else 'Gene tolerates LOF — BP1 unlikely (LOF not primary disease mechanism)'}\n"
-#             f"    Missense tolerated (oe_mis>=0.8): {missense_tolerated} "
-#             f"→ {'missense common in healthy population → supports BP1 if LOF is primary disease mechanism' if missense_tolerated else 'missense constrained → gene does not tolerate missense → BP1 unlikely'}"
-#         ),
-#     }
-#     return result
-
-
-# def _annotate_spliceai(result: dict) -> dict:
-#     """
-#     Pre-computes PP3/BP4 threshold verdicts on a revel_spliceai result dict and
-#     injects a '_computed' summary so the LLM reads pre-verified verdicts rather
-#     than re-examining individual score values (LLMs systematically fail to read
-#     score arrays correctly, e.g. concluding DS_DL=0.99 does not exceed 0.2).
-
-#     Thresholds computed:
-#       PP3: REVEL >= 0.644 (ClinGen SVI calibrated) OR any SpliceAI score >= 0.2
-#       BP4: REVEL <= 0.290 (ACMG) / <= 0.15 (HHT VCEP) AND all SpliceAI scores <= 0.1
-#     """
-#     if "error" in result:
-#         return result
-
-#     result = dict(result)
-
-#     revel   = result.get("revel_score")
-#     ds_ag   = result.get("DS_AG")
-#     ds_al   = result.get("DS_AL")
-#     ds_dg   = result.get("DS_DG")
-#     ds_dl   = result.get("DS_DL")
-
-#     # Collect non-None SpliceAI scores
-#     scores = {k: v for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al),
-#                                   ("DS_DG", ds_dg), ("DS_DL", ds_dl)] if v is not None}
-
-#     above_02     = {k: v for k, v in scores.items() if v >= 0.2}   # PP3 trigger
-#     above_01     = {k: v for k, v in scores.items() if v > 0.1}    # BP4 fail
-#     spliceai_max = max(scores.values()) if scores else None
-
-#     spliceai_pp3_fires   = bool(above_02)
-#     spliceai_bp4_passes  = bool(scores) and not above_01   # all present scores <= 0.1
-
-#     # REVEL threshold decisions (all computed here — not delegated to LLM)
-#     revel_pp3_applies      = revel is not None and revel >= 0.644
-#     revel_bp4_acmg_passes  = revel is not None and revel <= 0.290
-#     revel_bp4_hht_passes   = revel is not None and revel <= 0.15
-
-#     # Build human-readable scores display line
-#     scores_display = ", ".join(
-#         f"{k}={'N/A' if v is None else f'{v:.4f}'}"
-#         for k, v in [("DS_AG", ds_ag), ("DS_AL", ds_al), ("DS_DG", ds_dg), ("DS_DL", ds_dl)]
-#     )
-
-#     # SpliceAI PP3 verdict
-#     if spliceai_pp3_fires:
-#         splice_pp3_str = f"FIRES — triggering score(s): {', '.join(f'{k}={v:.4f}' for k, v in above_02.items())}"
-#     elif spliceai_max is not None:
-#         splice_pp3_str = f"DOES NOT FIRE (max score={spliceai_max:.4f}, all < 0.2)"
-#     else:
-#         splice_pp3_str = "N/A (SpliceAI scores not available)"
-
-#     # SpliceAI BP4 verdict
-#     if not scores:
-#         splice_bp4_str = "N/A (SpliceAI scores not available)"
-#     elif spliceai_bp4_passes:
-#         splice_bp4_str = f"PASSES (all scores <= 0.1, max={spliceai_max:.4f})"
-#     else:
-#         splice_bp4_str = f"FAILS — score(s) above 0.1: {', '.join(f'{k}={v:.4f}' for k, v in above_01.items())}"
-
-#     # REVEL verdict helpers
-#     def _revel_verdict(applies: bool | None, label: str) -> str:
-#         if revel is None:
-#             return "N/A (REVEL not available)"
-#         return f"{'APPLIES' if applies else 'DOES NOT APPLY'} (score={revel:.4f})"
-
-#     def _revel_bp4_verdict(passes: bool | None, threshold_str: str) -> str:
-#         if revel is None:
-#             return "N/A"
-#         return f"{'PASSES' if passes else 'FAILS'} (score={revel:.4f})"
-
-#     result["_computed"] = {
-#         "spliceai_pp3_fires":    spliceai_pp3_fires,
-#         "spliceai_bp4_passes":   spliceai_bp4_passes,
-#         "revel_pp3_applies":     revel_pp3_applies,
-#         "revel_bp4_acmg_passes": revel_bp4_acmg_passes,
-#         "revel_bp4_hht_passes":  revel_bp4_hht_passes,
-#         "verdicts": (
-#             f"COMPUTED VERDICTS — read these directly, do NOT re-examine or recompute from raw scores:\n"
-#             f"  SpliceAI scores: {scores_display}\n"
-#             f"  PP3 SpliceAI (any score >= 0.2): {splice_pp3_str}\n"
-#             f"  BP4 SpliceAI (all scores <= 0.1): {splice_bp4_str}\n"
-#             f"  REVEL score: {'N/A' if revel is None else f'{revel:.4f}'}\n"
-#             f"  PP3 REVEL (>= 0.644): {_revel_verdict(revel_pp3_applies, '>=0.644')}\n"
-#             f"  BP4 REVEL ACMG threshold (<= 0.290): {_revel_bp4_verdict(revel_bp4_acmg_passes, '<=0.290')}\n"
-#             f"  BP4 REVEL HHT threshold (<= 0.15):   {_revel_bp4_verdict(revel_bp4_hht_passes, '<=0.15')}"
-#         ),
-#     }
-#     return result
 
 
 def _annotate_gnomad_frequency(result: dict) -> dict:
@@ -484,22 +248,6 @@ def _annotate_spliceai(result: dict) -> dict:
     return result
 
 
-# def call_ollama(prompt: str) -> str:
-#     payload = {
-#         "model": MODELS["task"],
-#         "prompt": prompt,
-#         "stream": False,
-#         "keep_alive": -1,
-#         "options": {
-#             "temperature": 0,
-#             "num_predict": 1024
-#         }
-#     }
-#     response = requests.post(OLLAMA_GENERATE_URL, json=payload)
-#     response.raise_for_status()
-#     return response.json()["response"]
-
-
 def call_task_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     """
     Invoke the task LLM and return its response as a structured Pydantic object.
@@ -515,7 +263,7 @@ def call_task_agent(prompt: str, output_schema: type[BaseModel]) -> BaseModel:
     )
     structured_llm = llm.with_structured_output(output_schema)
     response = structured_llm.invoke([{"role": "user", "content": prompt}])
-    
+
     return response
 
 
@@ -557,15 +305,14 @@ Important rules:
 """
     result = call_task_agent(prompt, ToolDecision).model_dump()
 
-    # raw = call_ollama(prompt)
     return result
 
 
 def run_tool(
-        tool_decision: dict, 
-        variant: str, 
-        rag_entry: dict | None = None, 
-        gene: str | None = None, 
+        tool_decision: dict,
+        variant: str,
+        rag_entry: dict | None = None,
+        gene: str | None = None,
         disease: str | None = None
 ) -> tuple[dict, str]:
     """
@@ -574,8 +321,6 @@ def run_tool(
     """
     tool = tool_decision["tool"]
     input_value = variant
-
-    # print(f"DEBUG - tool: {tool}, input: {input_value}")
 
     if tool == "clinvar":
         criterion = (rag_entry or {}).get("criterion", "")
@@ -592,7 +337,6 @@ def run_tool(
             if "error" not in erepo_ps4 and erepo_ps4.get("found"):
                 proband_count = erepo_ps4.get("proband_count")
                 classification = erepo_ps4.get("classification") or ""
-                # print(f"DEBUG - ERepo PS4: variant found | classification: {classification} | proband_count: {proband_count}")
 
                 # If proband_count is not explicitly stated in the evidence notes,
                 # infer it from the VCEP classification: P/LP requires patient-level evidence,
@@ -600,7 +344,6 @@ def run_tool(
                 if not proband_count:
                     if any(c in classification for c in ("Pathogenic", "Likely Pathogenic")):
                         proband_count = 1
-                        # print(f"DEBUG - ERepo PS4: proband_count inferred as 1 from VCEP {classification} classification")
 
                 # Only return ERepo as a PS4 source if we have usable proband data.
                 # If classification is VUS (or other non-P/LP) and no explicit proband count,
@@ -625,7 +368,6 @@ def run_tool(
             lovd_ps4 = search_lovd_for_variant(gene, cdna_change)
             if "error" not in lovd_ps4 and lovd_ps4.get("found"):
                 times_reported = lovd_ps4.get("times_reported")
-                # print(f"DEBUG - LOVD PS4: variant found | times_reported: {times_reported}")
                 if times_reported and times_reported > 0:
                     return {
                         "found": True,
@@ -656,7 +398,6 @@ def run_tool(
             else:
                 pubmed_query = f"{gene_label} {cdna_change} {disease_label}"
             result = search_pubmed(pubmed_query)
-            # print(f"DEBUG - pubmed query: '{pubmed_query}' | total_found: {result.get('total_found', 'error')}")
             return result, pubmed_query
         elif criterion in ("PP5", "BP6"):
             # PP5/BP6 require exact variant classification from ClinVar,
@@ -681,7 +422,6 @@ def run_tool(
             return {"error": "Gene symbol required for gene-level constraint query — add this gene to GENE_DB in planrag.py"}, input_value
         gene_result = query_gnomad_gene_constraint(gene)
         gene_result = _annotate_gnomad_gene_constraint(gene_result)
-        # print(f"DEBUG - gnomad_gene: {gene} | mis_z={gene_result.get('mis_z')} | pLI={gene_result.get('pLI')} | LOEUF={gene_result.get('oe_lof_upper')}")
         return gene_result, gene
 
     elif tool == "revel_spliceai":
@@ -692,9 +432,6 @@ def run_tool(
             input_value = converted
         revel_result = query_revel_spliceai(input_value)
         revel_result = _annotate_spliceai(revel_result)
-        # print(f"DEBUG - revel_spliceai: REVEL={revel_result.get('revel_score')} | "
-        #       f"DS_AG={revel_result.get('DS_AG')} DS_AL={revel_result.get('DS_AL')} "
-        #       f"DS_DG={revel_result.get('DS_DG')} DS_DL={revel_result.get('DS_DL')}")
         return revel_result, input_value
 
     elif tool == "spliceai":
@@ -723,27 +460,26 @@ def run_tool(
                 if query_cdna not in c.get("hgvs", "")
             ]
             after = len(result["classifications"])
-            # print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {after} (filtered {before - after} self-match)")
         else:
             # print(f"DEBUG - erepo query: {gene_label} position {codon_position} | classifications found: {len(result.get('classifications', []))}")
             # pass
             return {"error": "Erepo did not return valid reponse, no classifications found"}, input_value
 
-        # # ClinVar fallback — if ERepo has no other variants at this codon,
-        # # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
-        # if not result.get("classifications"):
-        #     ref_aa = vep_result.get("amino_acid_ref")
-        #     if ref_aa:
-        #         # print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
-        #         clinvar_result = search_clinvar_for_codon(
-        #             gene_label, codon_position, ref_aa, query_cdna
-        #         )
-        #         if "error" not in clinvar_result:
-        #             # print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
-        #             result = clinvar_result
-        #         else:
-        #             # print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
-        #             pass
+        # ClinVar fallback — if ERepo has no other variants at this codon,
+        # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
+        if not result.get("classifications"):
+            ref_aa = vep_result.get("amino_acid_ref")
+            if ref_aa:
+                # print(f"DEBUG - erepo: 0 results, falling back to ClinVar for {ref_aa}{codon_position}")
+                clinvar_result = search_clinvar_for_codon(
+                    gene_label, codon_position, ref_aa, query_cdna
+                )
+                if "error" not in clinvar_result:
+                    # print(f"DEBUG - clinvar fallback: {len(clinvar_result.get('classifications', []))} LP/P variants found at codon {codon_position}")
+                    result = clinvar_result
+                else:
+                    # print(f"DEBUG - clinvar fallback error: {clinvar_result['error']}")
+                    pass
 
         # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
         # Done here deterministically so the LLM never has to reason about it.
@@ -809,15 +545,13 @@ def run_tool(
                 # check_pm1_critical_region expects {"ranges": [...], "discrete": [...]}
                 # GENE_DB stores a flat list of range dicts — wrap it into that shape.
                 critical_regions = {"ranges": gene_regions, "discrete": []}
-                # print(f"DEBUG - vep/PM1: using GENE_DB critical regions for {gene} "
-                #       f"({len(gene_regions)} region(s))")
 
         if codon_position is not None and critical_regions is not None:
             pm1_check = check_pm1_critical_region(codon_position, critical_regions)
             vep_result["in_critical_region"] = pm1_check["in_critical_region"]
             vep_result["pm1_region_name"] = pm1_check["region_name"]
         return vep_result, input_value
-    
+
     elif tool == "functional_evidence":
         from tools.functional_evidence import analyze_variant
         result = analyze_variant(variant=variant)
@@ -826,7 +560,6 @@ def run_tool(
                 "error": f"Functional evidence analysis failed: {result.get('error', 'unknown error')}"
             }, input_value
         return result, input_value
-        
     else:
         return {"error": f"Unknown tool: {tool}"}, input_value
 
@@ -914,8 +647,6 @@ Important rules:
         "criterion": criterion,
     }
     result.update(call_task_agent(prompt, TaskInterpretation).model_dump())
-    # raw = call_ollama(prompt)
-    # result = parse_json_response(raw)
 
     # enforce tool_used, tool_input, criterion, disease — never trust the LLM to set these correctly
     result["tool_used"] = tool_used
@@ -1029,14 +760,14 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
             "status": "error",
             "error": tool_decision["error"],
         }, tool_cache_update
-    
+
     selected_tool = tool_decision["tool"]
     cached_result = tool_results.get(selected_tool) if tool_results else None
 
     if cached_result and "error" not in cached_result.get("evidence", {}):
         evidence = cached_result["evidence"]
         actual_input = cached_result["actual_input"]
-    else: 
+    else:
         evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
         tool_cache_update[selected_tool] = {"evidence": evidence, "actual_input" : actual_input}
 

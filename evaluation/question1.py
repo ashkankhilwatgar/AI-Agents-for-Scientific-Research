@@ -145,7 +145,7 @@ def load_criterion_predictions(batch_summary_path: str) -> pd.DataFrame:
     """Load per-criterion predictions from a batch output directory, given the path
     to that directory's batch_summary.json (as written by pipeline.run_batch).
 
-    The per-criterion detail lives in the individual per-variant JSON files that sit1
+    The per-criterion detail lives in the individual per-variant JSON files that sit
     alongside batch_summary.json (batch_summary.json itself only has the final
     classification per variant), so this reads every "*.json" file in the same
     directory.
@@ -193,6 +193,7 @@ def load_criterion_predictions(batch_summary_path: str) -> pd.DataFrame:
 
         for result in payload["results"]:
             criterion = normalize_criterion_name(result.get("criterion", ""))
+            criterion = remove_strength(criterion)
             status = result.get("status", "unknown")
 
             if status == "complete":
@@ -247,11 +248,8 @@ def build_evaluation_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
         criterion = row["criterion"]
         if criterion in gold_applied_lookup[vkey]:
             gold_applies.append(True)
-        # elif criterion in gold_not_met_lookup[vkey]:
         else:
             gold_applies.append(False)
-        # else:
-        #     gold_applies.append(None)  # curator did not comment on this criterion
 
     pred_df = pred_df.copy()
     pred_df["gold_applies"] = gold_applies
@@ -411,11 +409,6 @@ def run_question1_evaluation(
     scored_df, num_criterion_errors, num_no_gold_label, num_unmatched_variants, criterion_with_error = build_evaluation_df(
         pred_df, gold_df
     )
-
-    # print(f"{'*'*100}")
-    # print("Criterion with error")
-    # print(criterion_with_error)
-    # print(f"{'*'*100}")
 
     if scored_df.empty:
         print(f"{'-'*60}")
