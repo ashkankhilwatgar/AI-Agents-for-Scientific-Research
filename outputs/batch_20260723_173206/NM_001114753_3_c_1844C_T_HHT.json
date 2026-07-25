@@ -1,0 +1,148 @@
+{
+  "variant": "NM_001114753.3:c.1844C>T",
+  "disease": "HHT",
+  "timestamp": "20260723_191344",
+  "classification": "Benign",
+  "rule_matched": "\u22652 Strong benign",
+  "scoring": {
+    "classification": "Benign",
+    "rule_matched": "\u22652 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 2,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong",
+      "BS3": "benign_strong"
+    },
+    "applied_criteria": [
+      "BS1",
+      "BS3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD with total allele count (AC) of 3197. Multiple subpopulations have allele frequencies far above 0.00004; the maximum subpopulation allele frequency is 0.02174. No subpopulation has AF < 0.00004.",
+      "reasoning": "Step 1: The variant is not absent from gnomAD. Step 2: AC (3197) is much greater than 6. Step 3: All subpopulation allele frequencies are well above the 0.00004 threshold. According to the rules, PM2_SUPPORTING does not apply because neither an absence, nor sufficiently low AC, nor sufficiently low subpopulation AF is met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The popmax FAF for this variant in gnomAD is 0.0024 (0.24%), which is below the BA1 threshold of 0.01 (1%).",
+      "reasoning": "According to ACMG guideline for BA1, this criterion applies only if Popmax FAF is greater than or equal to 0.01 (1%) in gnomAD. Since the Popmax FAF is 0.0024 (0.24%), which is much lower than 1%, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF (faf95 popmax) is 0.00236811 (nfe population); total homozygote count is 2; BA1 does not apply.",
+      "reasoning": "BA1 does not apply since popmax FAF is below 0.01. The popmax FAF is greater than 0.002 and less than 0.01, which matches the criteria for BS1_Strong via the FAF route. Therefore, BS1 applies at benign_strong strength. The homozygote count is also 2, but since the FAF route already qualifies for BS1_Strong, this is sufficient.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change at codon 615 (p.Ser615Leu) in the ENG gene. It affects serine at position 615, which is not listed among the critical BMP9 binding residues or LP/P/disulfide-bond cysteine positions.",
+      "reasoning": "According to the specified rules for PM1, the variant must affect BMP9 binding site residues (positions 278, 282) or cysteine residues at positions 207, 350, 363, 382, 394, 412, or 549. The affected residue in this case is serine at position 615, which is not on the critical residue list. Therefore, PM1 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 615",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ERepo API failed after 3 retries: 502: <!DOCTYPE html>\n<html>\n<head>\n<title>Error</title>\n<style>\n    body {\n        width: 35em;\n        margin: 0 auto;\n        font-family: Tahoma, Verdana, Arial, sans-serif;\n    }\n</style>\n</head>\n<body"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "One experiment (PMID: 22022569) performed a subcellular localization assay in HeLa cells with the S615L variant (c.1844C>T). The mutant was predominantly localized to the plasma membrane, similar to wild type. No quantitative statistics, but wild-type controls and appropriate markers were used.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: The experiment is an eligible subcellular localization assay. Step 3: The effect_direction and authors' conclusion indicate that the S615L variant traffics normally, similar to wild type (functionally_normal). No evidence of functional abnormality is detected, and no other eligible experiments show abnormal function. Step 4: Since there are no functionally_abnormal results, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.188 (below 0.644 threshold). SpliceAI max score is 0.1 (all scores < 0.2). '_computed.verdicts' states: 'PP3 REVEL (>= 0.644): DOES NOT APPLY' and 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE'.",
+      "reasoning": "According to the pre-computed verdicts in the evidence, neither the REVEL score nor the SpliceAI scores reach thresholds where PP3 would apply for a missense variant. Both verdicts explicitly state that PP3 does not trigger by REVEL or SpliceAI. Therefore, PP3 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.188. SpliceAI scores are unavailable due to an API error. _computed verdicts: 'BP4 REVEL HHT threshold (<= 0.15): FAILS (score=0.1880)'.",
+      "reasoning": "According to the classification rules for missense variants, both the REVEL and SpliceAI thresholds must be passed for BP4 to apply (AND logic). The _computed verdict confirms that 'BP4 REVEL HHT threshold (<= 0.15): FAILS'. Since the REVEL score does not meet the HHT-specific threshold, BP4 does NOT apply, regardless of SpliceAI. This follows the specified instruction for Branch A, Step 1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815951-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty for this variant in erepo ClinVar dataset; there are no reported variants with the identical amino acid change.",
+      "reasoning": "Step 1 of the PS1 rules requires at least one variant in same_aa_classifications, but this list is empty. Therefore, there is no established pathogenic variant with the same amino acid change, and PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 615",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "One eligible experiment (PMID: 22022569) used a confocal immunofluorescence localization assay in HeLa cells with C-terminally HA-tagged ENG S615L, measuring subcellular localization. The S615L variant trafficked predominantly to the plasma membrane, similar to wild-type ENG, indicating the protein was not retained in the ER. Appropriate controls were used (wild-type, GFP-H-Ras for plasma membrane, calnexin for ER). Authors concluded S615L localization resembled wild type.",
+      "reasoning": "The assay directly assesses subcellular trafficking/localization, which is an eligible HHT-relevant functional assay. The result for the S615L variant is functionally_normal, as S615L traffics comparably to wild-type ENG to the plasma membrane and is not aberrantly retained in the ER. Controls (WT, compartment markers) were included and author conclusions match the experimental results. As there are no functionally_abnormal or ambiguous results, and at least one functionally_normal experiment is present, BS3 applies at the 'benign_supporting' strength.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT",
+      "judge_warning": "Judge agent exceeded retry limit (5); output returned as-is with unresolved reasoning concerns"
+    }
+  ]
+}

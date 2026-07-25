@@ -23,9 +23,6 @@ import base64
 from pydantic import BaseModel
 from agents.llm.response_schema import FunctionalPaperFiltering, FunctionalExperiments
 
-
-
-
 # =============================================================================
 # System Prompts
 # =============================================================================
@@ -953,7 +950,7 @@ def query_litvar2(vi: VariantInfo) -> Set[str]:
 
     rsid = vi.rsid
     if not rsid or rsid.lower() in ('none', 'na', 'null', 'n/a', ''):
-        raise LitVar2Error(f"No rsid available for the current variant. Variant id: {vi.name}")
+        raise LitVar2Error(f"No rsid available for the variant {vi.name}")
 
     pmids = query_litvar2_publications(rsid)
     return pmids
@@ -982,43 +979,45 @@ def query_litvar2_publications(variant_id: str) -> Set[str]:
         If the HTTP request fails, the server returns an unsuccessful status,
         or the response has an unsupported top-level shape.
     """
+    encoded_variant = quote(variant_id, safe='')
+    url = f"{LITVAR2_API_BASE}/variant/get/litvar@{encoded_variant}%23%23/publications"
+
     try:
-        encoded_variant = quote(variant_id, safe='')
-        url = f"{LITVAR2_API_BASE}/variant/get/litvar@{encoded_variant}%23%23/publications"
         resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        return set()
 
-        if not resp.ok:
-            raise LitVar2Error(f"LitVar2 returned status {resp.status_code} for '{variant_id}'")
-
+    try: 
         data = resp.json()
-        pmids = set()
-        if isinstance(data, list):
-            for item in data:
-                if isinstance(item, dict):
-                    pmid = item.get('pmid') or item.get('PMID')
-                    if pmid:
-                        pmids.add(str(pmid))
-                elif isinstance(item, (str, int)):
-                    pmids.add(str(item))
-        elif isinstance(data, dict):
-            for key in ['pmids', 'PMIDs', 'publications', 'results', 'data']:
-                if key in data:
-                    items = data[key]
-                    if isinstance(items, list):
-                        for item in items:
-                            if isinstance(item, dict):
-                                pmid = item.get('pmid') or item.get('PMID')
-                                if pmid:
-                                    pmids.add(str(pmid))
-                            else:
-                                pmids.add(str(item))
-                    break
-        else:
-            raise LitVar2Error("Unexpected response")
-        return pmids
-
-    except Exception as e:
-        raise LitVar2Error("An error occurs while trying to query pmid from litvar 2")
+    except ValueError as e:
+        return set()
+    
+    pmids = set()
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict):
+                pmid = item.get('pmid') or item.get('PMID')
+                if pmid:
+                    pmids.add(str(pmid))
+            elif isinstance(item, (str, int)):
+                pmids.add(str(item))
+    elif isinstance(data, dict):
+        for key in ['pmids', 'PMIDs', 'publications', 'results', 'data']:
+            if key in data:
+                items = data[key]
+                if isinstance(items, list):
+                    for item in items:
+                        if isinstance(item, dict):
+                            pmid = item.get('pmid') or item.get('PMID')
+                            if pmid:
+                                pmids.add(str(pmid))
+                        else:
+                            pmids.add(str(item))
+                break
+    else:
+        return set()
+    return pmids
 
 def pubmed_fetch_details(pmids: List[str]) -> Dict[str, CandidatePaper]:
     """Fetch PubMed titles and abstracts for a collection of PMIDs.
@@ -1156,8 +1155,7 @@ def fetch_pdf_url(pmid: str) -> tuple[str, str]:
                 return url, "unpaywall"
 
         return "", "none"
-    except Exception as e:
-        print(f"   [!] Warning: Failed to find PDF URL for PMID {pmid}: {e}")
+    except Exception:
         return "", "none"
 
 def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional[str]:
@@ -1195,11 +1193,9 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
             if header == b'%PDF-':
                 return str(pdf_path)
             else:
-                print(f"   [!] PMID {pmid}: existing file is not a valid PDF "
-                      f"(header={header!r}) — re-downloading")
                 pdf_path.unlink()
-        except OSError as e:
-            print(f"   [!] PMID {pmid}: could not read existing file, re-downloading: {e}")
+        except OSError:
+            pass
 
     # Get URL if not provided
     source = "provided"
@@ -1207,7 +1203,6 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
         url, source = fetch_pdf_url(pmid)
 
     if not url:
-        print(f"   [x] PMID {pmid}: no PDF URL found (source={source})")
         return None
 
     try:
@@ -1228,20 +1223,14 @@ def download_pdf(pmid: str, pdf_dir: str, url: Optional[str] = None) -> Optional
         # application/pdf, so check both the header AND the magic bytes).
         looks_like_pdf = "pdf" in content_type.lower() or data.startswith(b"%PDF-")
         if not looks_like_pdf or not data.startswith(b"%PDF-"):
-            print(f"   [x] PMID {pmid}: download did not return a valid PDF "
-                  f"(source={source}, url={url}, Content-Type={content_type!r}, "
-                  f"first bytes={data[:20]!r}) — likely a paywall/landing page. "
-                  f"Discarding.")
             return None
 
         with open(pdf_path, 'wb') as f:
             f.write(data)
 
-        print(f"   [v] Downloaded valid PDF for PMID {pmid} (source={source})")
         return str(pdf_path)
 
-    except Exception as e:
-        print(f"   [x] Failed to download PDF for PMID {pmid} (source={source}, url={url}): {e}")
+    except Exception:
         return None
 
 
@@ -1278,8 +1267,6 @@ def download_pdfs_for_papers(
         if pdf_path:
             downloaded[pmid] = pdf_path
 
-        print(f"DOWNLOADING FOR PMID: {pmid}")
-        
         # Rate limiting
         time.sleep(0.5)
     
@@ -1354,9 +1341,7 @@ Based on the system instructions, respond in JSON with keys:
                             justification=content.get("justification", "").strip(),
                         )
                     )
-        except Exception as e:
-            print(f"   [!] Warning: LLM filtering failed for PMID {p.pmid}: {e!r}")
-            print(f"       Raw LLM content (first 500 chars): {str(content)[:500]!r}")
+        except Exception:
             continue
 
     return functional
@@ -1414,10 +1399,6 @@ def _parse_pdf_extraction_response(
             )
         )
 
-    if skipped_blank:
-        print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
-              f"entr{'y' if skipped_blank == 1 else 'ies'} from PDF extraction")
-    
     return experiments
 
 def _extract_from_pdf(
@@ -1471,8 +1452,7 @@ Make sure you follow the output schema
             output_schema=FunctionalExperiments
         )
         return _parse_pdf_extraction_response(pmid, resp)
-    except Exception as e:
-        print(f"   Warning: PDF extraction failed for PMID {pmid}: {e}")
+    except Exception:
         return []
 
 def entrez_get(endpoint: str, params: Dict) -> requests.Response:
@@ -1545,8 +1525,6 @@ Extract functional experiments for this variant and return as JSON.
         )
         exp_list = resp.get("experiments", [])
         if not isinstance(exp_list, list):
-            print(f"   [!] Warning: PMID {pmid} abstract extraction returned "
-                  f"non-list 'experiments' field: {exp_list!r}")
             return []
 
         experiments = []
@@ -1565,14 +1543,9 @@ Extract functional experiments for this variant and return as JSON.
                 )
             )
 
-        if skipped_blank:
-            print(f"   [!] PMID {pmid}: skipped {skipped_blank} empty-shell experiment "
-                  f"entr{'y' if skipped_blank == 1 else 'ies'} from abstract extraction")
-
         return experiments
 
-    except Exception as e:
-        print(f"   [!] Warning: Abstract extraction failed for PMID {pmid}: {e!r}")
+    except Exception:
         return []
 
 def llm_extract_experiments(
@@ -1621,13 +1594,7 @@ def llm_extract_experiments(
             if extracted:
                 experiments.extend(extracted)
                 continue
-            print(f"   [!] PMID {fp.pmid}: PDF-based extraction returned no "
-                  f"experiments, falling back to abstract-based extraction.")
-
         # Fallback to abstract-based extraction
-        print(f"{"=" * 100}")
-        print(f"Extracting {fp.pmid} from abstract")
-        print(f"{"=" * 100}")
         extracted = _extract_from_abstract(fp.pmid, variant_label, fp.title)
         experiments.extend(extracted)
 
@@ -1674,7 +1641,10 @@ def analyze_variant(
     try:
         pmids = query_litvar2(vi)
     except LitVar2Error as e:
-        return {"error": f"Litvar 2 api failed while trying to find pmids. Error: {e}"}
+        return {"error": e}
+    
+    if not pmids:
+        return {}
 
     # 3. Fetch paper details from PubMed via metapub
     candidate_papers = build_candidate_list(pmids)

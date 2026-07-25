@@ -1,0 +1,6 @@
+{
+  "variant": "NM_000020.3:c.88C>T",
+  "disease": "HHT",
+  "status": "error",
+  "error": "APIConnectionError: Connection error."
+}

@@ -1,0 +1,147 @@
+{
+  "variant": "NM_001114753.3:c.1316A>C",
+  "disease": "HHT",
+  "timestamp": "20260723_185824",
+  "classification": "Likely Benign",
+  "rule_matched": "\u22652 Supporting benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "\u22652 Supporting benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 2
+    },
+    "bucket_detail": {
+      "BS1_Supporting": "benign_supporting",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "BS1_Supporting",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant is present in gnomAD with a total AC of 138. All listed subpopulation allele frequencies are above 0.00004 (for example, popmax AF is 0.0024). No subpopulation has AF < 0.00004. Decision triggered at Step 3: ALL subpopulations AFs >= 0.00004.",
+      "reasoning": "According to PM2_SUPPORTING rules, the criterion applies only if the variant is absent from gnomAD, or if the total allele count is <6, or if any subpopulation AF is <0.00004. This variant is present (not absent), total AC is 138 (well above the threshold), and all subpopulation AFs are >= 0.00004. Therefore, PM2_SUPPORTING does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818828-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF for this variant in gnomAD is 0.000946 (0.0946%), which is less than the threshold of 0.01 (1%).",
+      "reasoning": "BA1 requires Popmax FAF >= 0.01 (1%) in gnomAD. This variant's Popmax FAF is 0.000946, well below the required threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818828-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.000946 (from exome, 'mid' population). Total homozygote count is 0. BA1 does not apply (FAF < 0.01). No homozygotes, so BS1_Strong does not apply via homozygote route. FAF is >0.0008 and <=0.002.",
+      "reasoning": "According to the BS1 decision rules: BA1 does not apply (FAF < 0.01). FAF is 0.000946, which falls in the BS1_Supporting range (>0.0008 and <=0.002). There are 0 homozygotes, so BS1_Strong does not apply via homozygotes. FAF is not high enough for BS1_Strong via FAF route. Thus, BS1_Supporting applies at the 'benign_supporting' level.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818828-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change (p.K439T) in ENG at position 439; this position is not a BMP9 binding site or a known LP/P/disulfide-bond cysteine position per the defined list.",
+      "reasoning": "PM1 requires that the residue be one of: 278, 282 (BMP9 binding), 207, 363, 382, 412, 549 (LP/P cysteines), or 350, 394 (disulfide cysteines). The residue 439 is not on this list. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 439",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ERepo API failed after 3 retries: HTTPSConnectionPool(host='erepo.clinicalgenome.org', port=443): Read timed out. (read timeout=20)"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were reported for NM_001114753.3:c.1316A>C according to the functional_evidence tool (experiments list is empty).",
+      "reasoning": "Step 1 of the PS3 criteria directs that if the experiments list is empty, PS3 does not apply. Since there are no reported experiments for this variant, we cannot assess its functional impact, and thus PS3 cannot be applied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.041 (well below 0.644); all SpliceAI scores are 0.0 (maximum <0.2); _computed.verdicts state: 'PP3 REVEL (>= 0.644): DOES NOT APPLY' and 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE'.",
+      "reasoning": "This is a missense variant. According to the precomputed verdicts, neither the REVEL nor SpliceAI thresholds for PP3 are met. Specifically, REVEL is much below the >=0.644 threshold and SpliceAI has all predictions <0.2. Therefore, per the explicit rules and verdicts, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818828-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score = 0.041; SpliceAI: DS_AG = 0.0, DS_AL = 0.0, DS_DG = 0.0, DS_DL = 0.0. _computed.verdicts: 'BP4 REVEL HHT threshold (<= 0.15): PASSES', 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "This is a missense variant. According to the provided rules and based on the _computed.verdicts, both required conditions are met: BP4 REVEL HHT threshold is PASSES and BP4 SpliceAI is PASSES. Therefore, BP4 applies for this variant.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818828-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "erepo",
+      "tool_input": "ENG position 439",
+      "disease": "HHT",
+      "status": "error",
+      "error": "ERepo API failed after 3 retries: HTTPSConnectionPool(host='erepo.clinicalgenome.org', port=443): Read timed out. (read timeout=20)"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The 'experiments' list for this variant is empty: no functional studies identified.",
+      "reasoning": "Step 1 of the BS3 rules specifies that if the experiments list is empty, BS3 does not apply. Since there are no functional experiments available for this variant, BS3 cannot be assessed for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT"
+    }
+  ]
+}

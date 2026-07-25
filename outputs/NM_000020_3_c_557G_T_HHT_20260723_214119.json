@@ -1,0 +1,145 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260723_214119",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI canonical_representative failed after 3 retries: HTTPSConnectionPool(host='api.ncbi.nlm.nih.gov', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI canonical_representative failed after 3 retries: HTTPSConnectionPool(host='api.ncbi.nlm.nih.gov', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI canonical_representative failed after 3 retries: HTTPSConnectionPool(host='api.ncbi.nlm.nih.gov', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.557G>T (p.Ser186Ile) is located at codon position 186 of the ACVRL1 protein.",
+      "reasoning": "The variant residue is at position 186, which does not fall within any of the specified critical regions for PM1 in ACVRL1 (glycine-rich loop 209-216, phosphate anchor 229, C-helix E pairing 242, catalytic loop 329-335, metal-binding loop 348-351, or the BMP10 interaction cluster). Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications found at codon 186 of ACVRL1.",
+      "reasoning": "The different_aa_classifications list is empty, meaning there are no known pathogenic or likely pathogenic missense variants at the same codon (codon 186) with a different amino acid change. Therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_000020.3:c.557G>T.",
+      "reasoning": "The experiments list is empty, indicating that no functional assay data is available for this variant. According to Step 1 of the PS3 classification rules, the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score: 0.9150 (>= 0.644 threshold), SpliceAI max score: 0.0100 (< 0.2 threshold).",
+      "reasoning": "Following Branch A for missense variants, the pre-computed verdicts indicate that 'PP3 REVEL (>= 0.644): APPLIES' because the REVEL score is 0.9150, which is above the 0.644 threshold. Therefore, the PP3 criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is 0.915 and SpliceAI max score is 0.01 (DS_AL=0.01, DS_AG=0.0, DS_DG=0.0, DS_DL=0.0).",
+      "reasoning": "For a missense variant, BP4 requires both the REVEL score to be <= 0.15 and all SpliceAI scores to be <= 0.1. While the SpliceAI scores pass the threshold (max score 0.01), the REVEL score of 0.915 fails the HHT threshold (<= 0.15). Therefore, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty, indicating no established pathogenic variants with the same amino acid change at codon 186.",
+      "reasoning": "According to the PS1 classification rules, the criterion requires a non-empty same_aa_classifications list containing at least one variant classified as Pathogenic or Likely Pathogenic. Since same_aa_classifications is empty, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found in the retrieved evidence.",
+      "reasoning": "The experiments list is empty, indicating that no functional assays are available for this variant. According to Step 1 of the classification rules, BS3 does not apply when the experiments list is empty.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    }
+  ]
+}

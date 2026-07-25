@@ -34,14 +34,14 @@ _os.environ.setdefault("NCBI_EMAIL", NCBI_EMAIL)
 #     "functional_evidence": {"provider": "ollama", "model": "deepseek-r1:32b"}
 # }
 
-#MODELS = {
+# MODELS = {
 #   "plan":  {"provider": "google_genai", "model": "gemini-2.5-flash"},
 #   "task":  {"provider": "google_genai", "model": "gemini-3.5-flash"},
 #   "debug": {"provider": "google_genai", "model": "gemini-2.5-flash"},
 #   "judge": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"},
 #  "check": {"provider": "google_genai", "model": "gemini-2.5-flash"},
- #   "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
-#}
+#    "functional_evidence": {"provider": "google_genai", "model": "gemini-3.1-pro-preview"}
+# }
 
 MODELS = {
     "plan":  {"provider": "openai", "model": "gpt-4.1-mini"},

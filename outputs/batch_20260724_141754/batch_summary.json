@@ -1,0 +1,343 @@
+{
+  "csv": "datasets/applied_only_evaluation_dataset.csv",
+  "total": 48,
+  "completed": 48,
+  "results": [
+    {
+      "variant": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_557G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.466G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_466G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.484C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_484C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.151T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_151T_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.266G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_266G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.293A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_293A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.139C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_139C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1145G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1145G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1517T_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1447G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1447G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1268A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1268A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1319T_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.137G>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_137G_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1807G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1762G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1762G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1645T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1645T_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1633G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1633G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1586G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1586G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.991G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_991G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.662T>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_662T_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.572G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_572G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.392C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_392C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.2T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_2T_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1316A>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1316A_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1844C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1844C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1510G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1701del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1701del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1312-3C_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1961C_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.1160T>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_1160T_C_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_-9G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1232G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1232G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.500C>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_500C_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1445C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1445C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1348A>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1348A_G_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.88C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_88C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.652C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_652C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.706G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_706G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1377+4A_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.982C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_982C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.998G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_998G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.113G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_113G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1217G>A",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1217G_A_HHT.error.json"
+    },
+    {
+      "variant": "NM_000020.3:c.1468C>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_000020_3_c_1468C_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001278138.2:c.270+3G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001278138_2_c_270+3G_T_HHT.error.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001077401_2_c_442_444del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001077401_2_c_620del_HHT.error.json"
+    },
+    {
+      "variant": "NM_001114753.3:c.447G>C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "APIConnectionError: Connection error.",
+      "file": "outputs/batch_20260724_141754/NM_001114753_3_c_447G_C_HHT.error.json"
+    }
+  ]
+}

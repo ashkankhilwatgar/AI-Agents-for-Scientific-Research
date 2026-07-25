@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.557G>T",
+  "disease": "HHT",
+  "timestamp": "20260723_141928",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Moderate": "moderate",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Moderate",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD (not absent). Total allele count (AC) is 1, which is less than 6. Subpopulation AFs are all less than 0.00004 (max subpop AF = 1.75e-06). Step 2 triggered: AC=1 < 6.",
+      "reasoning": "PM2_SUPPORTING applies if the variant is absent from gnomAD or has AC < 6 or subpopulation AF < 0.00004. Here, the variant is present in gnomAD, so Step 1 does not apply. In Step 2, the total AC is 1, which is less than 6, so PM2_SUPPORTING applies at this step according to the explicit rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF in gnomAD is 0.0 (less than 0.01). Variant is present with AC=1 and not absent, but below threshold.",
+      "reasoning": "According to ACMG BA1, the criterion only applies if the popmax FAF is >= 0.01. Here, the popmax FAF is 0.0, far below that threshold, so BA1 does not apply. Presence at a very low frequency does not qualify for BA1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.0, total allele count is 1, homozygote count is 0.",
+      "reasoning": "BS1 requires Popmax FAF > 0.0008. Here, Popmax FAF is 0.0, which does not meet even the lowest threshold for BS1 (benign_supporting). There are also no homozygotes (ac_hom = 0), which means the homozygote path to BS1_strong also does not apply. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant is ACVRL1 p.Ser186Ile (protein position 186), not in the PM1-specified critical residue list or regions.",
+      "reasoning": "The variant affects residue 186 in ACVRL1. According to the criterion, PM1 applies only if the residue is within one of the hardcoded critical regions or positions: 209-216, 229, 242, 329-335, 348-351, or BMP10 cluster (specific positions listed). Position 186 is not included in any of these regions or lists; therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands with phenotype consistent with HHT reported; ERepo: not queried; LOVD: not queried; PubMed: not queried (ClinVar VCEP proband data sufficient).",
+      "reasoning": "According to the ClinVar HHT VCEP submission comment, 2 probands with HHT-consistent phenotype were reported. This meets the PS4_Moderate (2-3 probands) threshold per classification rules. PM2_Supporting has already been confirmed as met. The instructions specify to set PS4_Moderate to applies=true, with strength=moderate for 2-3 probands.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.557G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty: no alternate pathogenic/likely pathogenic missense variants with a different amino acid substitution at codon 186 in ACVRL1 have been classified for HHT per the provided evidence.",
+      "reasoning": "Per the rules, PM5 applies only if there is at least one different LP/P missense variant (HHT VCEP rules) at the same codon. Since different_aa_classifications is empty, there are no such variants. Therefore, PM5 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Failed to query LitVar2 api for 'rs1288729113: 400 Client Error: Bad Request for url: https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar@rs1288729113%23%23/publications'"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is 0.915; SpliceAI max score is 0.01. _computed.verdicts states: 'PP3 REVEL (>= 0.644): APPLIES (score=0.9150)'.",
+      "reasoning": "According to the rules, for a missense variant, if _computed.verdicts includes 'PP3 REVEL (>= 0.644): APPLIES', then PP3 applies. This verdict is present, with the REVEL score (0.915) meeting the threshold (>=0.644). No SpliceAI evidence is required since REVEL alone is sufficient for PP3 on a missense variant.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: 0.915, SpliceAI: DS_AG=0.0, DS_AL=0.01, DS_DG=0.0, DS_DL=0.0. Pre-verified verdict: BP4 REVEL HHT threshold (<= 0.15): FAILS; BP4 SpliceAI (all scores <= 0.1): PASSES.",
+      "reasoning": "For missense variants, both REVEL <=0.15 AND SpliceAI <=0.1 are required for BP4 to apply. The pre-verified verdict shows REVEL HHT threshold (<= 0.15): FAILS, therefore BP4 does not apply, regardless of the SpliceAI result. This matches the provided rule for missense variants: failing either condition means BP4 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914005-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The erepo tool found no entries in same_aa_classifications for NM_000020.3:c.557G>T in ACVRL1, codon 186. No variants with the identical amino acid change have been classified as Pathogenic or Likely Pathogenic by HHT VCEP or ClinVar (2+ stars).",
+      "reasoning": "According to PS1 rules, the first step is to check whether same_aa_classifications is non-empty. Here it is empty, meaning there are no previously classified pathogenic or likely pathogenic variants with the same amino acid change as NM_000020.3:c.557G>T. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 186",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.557G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: Failed to query LitVar2 api for 'rs1288729113: 400 Client Error: Bad Request for url: https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar@rs1288729113%23%23/publications'"
+    }
+  ]
+}

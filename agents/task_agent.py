@@ -454,14 +454,23 @@ def run_tool(
         # at the same position. Match on the cdna change (e.g. "c.557G>T").
         query_cdna = input_value.split(":")[-1] if ":" in input_value else None
         if query_cdna and "classifications" in result:
-            before = len(result["classifications"])
             result["classifications"] = [
                 c for c in result["classifications"]
                 if query_cdna not in c.get("hgvs", "")
             ]
-            after = len(result["classifications"])
-        else:
-            return {"error": "Erepo did not return valid reponse, no classifications found"}, input_value
+
+        # ClinVar fallback (PS1 only) — if ERepo has no other variants at this codon,
+        # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
+        criterion = (rag_entry or {}).get("criterion", "")
+        if criterion == "PS1":
+            if not result.get("classifications"):
+                ref_aa = vep_result.get("amino_acid_ref")
+                if ref_aa:
+                    clinvar_result = search_clinvar_for_codon(
+                        gene_label, codon_position, ref_aa, query_cdna
+                    )
+                    if "error" not in clinvar_result:
+                        result = clinvar_result
 
         # Split results by alt amino acid — PS1 needs same AA, PM5 needs different AA.
         # Done here deterministically so the LLM never has to reason about it.
@@ -477,7 +486,6 @@ def run_tool(
                     diff_aa.append(c)
             result["same_aa_classifications"] = same_aa
             result["different_aa_classifications"] = diff_aa
-
         return result, f"{gene_label} position {codon_position}"
 
     elif tool == "pubmed":
