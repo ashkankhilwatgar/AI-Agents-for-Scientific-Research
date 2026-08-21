@@ -1,6 +1,0 @@
-{
-  "variant": "NM_000020.3:c.872_873del",
-  "disease": "HHT",
-  "status": "error",
-  "error": "ChatGoogleGenerativeAIError: Error calling model 'gemini-2.5-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.', 'status': 'RESOURCE_EXHAUSTED'}}"
-}

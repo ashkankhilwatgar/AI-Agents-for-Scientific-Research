@@ -10,7 +10,7 @@ from tools.vep import annotate_variant
 from tools.utils import get_gene_symbol_from_transcript
 from tools.vep import annotate_variant
 from tools.scoring import classify
-from data.planrag import query, is_vcep_disease, ACMG_PLANRAG_DB
+from data.classification_guidelines import query, is_vcep_disease, ACMG_CRITERIA_DB
 from typing_extensions import TypedDict, Annotated
 import operator
 from typing import Any, TypeAlias
@@ -77,9 +77,9 @@ def _key_value_panel(
 # HHT VCEP criteria — used when disease is HHT (or None for backward compatibility)
 HHT_CRITERIA = ["PM2_SUPPORTING", "PP3", "BP4", "BA1", "BP7", "BS1", "PVS1", "PM4", "PM1", "PS1", "PM5", "PS4", "BS3", "PS3"]
 
-# ACMG criteria — all automatable/partially-automatable entries in ACMG_PLANRAG_DB
+# ACMG criteria — all automatable/partially-automatable entries in ACMG_CRITERIA_DB
 # (deferred entries are filtered out by plan_agent, but excluded here too for clarity)
-ACMG_CRITERIA = [k for k in ACMG_PLANRAG_DB if k != "SCORING"]
+ACMG_CRITERIA = [k for k in ACMG_CRITERIA_DB if k != "SCORING"]
 
 def get_criteria_for_disease(disease: str) -> list[str]:
     """Returns the correct criteria list based on whether disease has a VCEP spec."""
@@ -92,7 +92,7 @@ def filter_criteria_by_variant_type(criteria: list[str], variant_type: str, dise
     Removes criteria that explicitly restrict which variant types they apply to
     when the variant type doesn't match.
 
-    A criterion with no variant_types field in planrag passes through unchanged.
+    A criterion with no ``variant_types`` field in the guideline registry passes through unchanged.
     A criterion with variant_types = [...] is only kept if variant_type is in that list.
     """
     filtered = []
@@ -360,9 +360,9 @@ def process_criterion(state: PerCriterionState):
     gene_symbol = state["gene_symbol"]
 
     # ── PRECONDITION CHECK ────────────────────
-    rag_entry = query(criterion, disease=disease)
-    requires_applied = (rag_entry or {}).get("requires_applied", [])
-    blocked_by      = (rag_entry or {}).get("blocked_by", [])
+    guideline_entry = query(criterion, disease=disease)
+    requires_applied = (guideline_entry or {}).get("requires_applied", [])
+    blocked_by      = (guideline_entry or {}).get("blocked_by", [])
     skipped_reason = None
 
     for dep in requires_applied:

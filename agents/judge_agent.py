@@ -3,7 +3,7 @@ import requests
 import json
 from config import RETRY_LIMIT
 from agents.task_agent import run_task
-from data.planrag import query, get_gene_from_transcript
+from data.classification_guidelines import query, get_gene_from_transcript
 from .llm.llm import create_llm
 from typing import Optional, TypeAlias, Any
 from config import MODELS
@@ -108,18 +108,18 @@ DO NOT require both REVEL and SpliceAI to both meet threshold for PP3 to apply.
 }
 
 
-def check_reasoning(task_output: dict, rag_entry: dict | None = None) -> dict:
+def check_reasoning(task_output: dict, guideline_entry: dict | None = None) -> dict:
     """
     Evaluates Task agent output for reasoning errors.
     Returns a pass/fail dict with feedback if failed.
     """
     criterion = task_output.get("criterion", "")
 
-    rag_context = ""
-    if rag_entry:
-        rag_context = f"""
+    guideline_context = ""
+    if guideline_entry:
+        guideline_context = f"""
 The following classification rules apply to this criterion:
-{json.dumps(rag_entry, indent=2)}
+{json.dumps(guideline_entry, indent=2)}
 Use these rules as the ground truth when evaluating whether the applies field is correct.
 """
 
@@ -132,7 +132,7 @@ You are an expert bioinformatician with deep knowledge of ACMG variant classific
 
 You will be given the output of a variant classification task. Your job is to check
 for reasoning errors only — not technical issues.
-{rag_context}{guardrail_block}
+{guideline_context}{guardrail_block}
 Reasoning errors include:
 - The wrong tool was used for the criterion being evaluated
   (e.g. using ClinVar instead of gnomAD for a population frequency criterion like PM2)
@@ -161,7 +161,7 @@ The following are NOT reasoning errors — do not flag these:
   Do NOT flag this combination as an error. Do NOT reason that applies=true implies the strongest tier, and
   do NOT ask the task agent to flip applies to false just because the strength is sub-maximal. Only flag a
   real error here if the strength tier itself is wrong for the evidence (e.g. evidence supports 4+ probands
-  but applied_strength is "supporting" instead of "strong") — verify the tier against the rag_entry thresholds
+  but applied_strength is "supporting" instead of "strong") — verify the tier against the guideline thresholds
   before flagging, and if you flag it, give ONE specific corrected (applies, applied_strength) pair and do not
   reverse that verdict on a later attempt for the same evidence.
 - Evidence showing a variant is absent from a database — absence is valid evidence.
@@ -214,7 +214,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         gene = get_gene_from_transcript(variant.split(":")[0])
 
     disease = task.get("disease")
-    rag_entry = query(criterion, gene=gene, disease=disease)
+    guideline_entry = query(criterion, gene=gene, disease=disease)
 
     tool_cache_update = {}
 
@@ -224,7 +224,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         last_complete_output = task_output
 
     while retry_count < RETRY_LIMIT:
-        result = check_reasoning(task_output, rag_entry)
+        result = check_reasoning(task_output, guideline_entry)
         _log_attempt("judge", criterion, variant, retry_count, result, task_output)
 
         if result["passed"]:
@@ -240,7 +240,7 @@ def run_judge(task: dict, tool_result: ToolResults, task_output: dict, gene_symb
         retry_count += 1
 
     # check the final retry output before giving up
-    result = check_reasoning(task_output, rag_entry)
+    result = check_reasoning(task_output, guideline_entry)
     _log_attempt("judge", criterion, variant, retry_count, result, task_output)
     if result["passed"]:
         return task_output, tool_cache_update

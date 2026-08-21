@@ -295,9 +295,9 @@ def annotate_variant(variant: str) -> dict:
 def check_pm1_critical_region(codon_position: int, critical_regions: dict) -> dict:
     """
     Deterministic check: is the given protein position within any PM1
-    critical region defined in the RAG entry for this gene?
+    critical region defined in the guideline entry for this gene?
 
-    critical_regions is the 'critical_regions' field from the planrag entry:
+    critical_regions is the ``critical_regions`` field from the guideline entry:
         {
             "ranges":   [{"start": int, "end": int, "name": str}, ...],
             "discrete": [{"positions": [int, ...], "name": str}, ...]

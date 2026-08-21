@@ -1,6 +1,0 @@
-{
-  "variant": "NM_001114753.3:c.1701del",
-  "disease": "HHT",
-  "status": "error",
-  "error": "APIConnectionError: Connection error."
-}

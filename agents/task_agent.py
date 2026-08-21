@@ -10,7 +10,7 @@ from tools.vep import annotate_variant, _check_repeat_region, check_pm1_critical
 from tools.pubmed import search_pubmed
 from tools.erepo import search_erepo_by_position, search_erepo_for_variant
 from tools.lovd import search_lovd_for_variant
-from data.planrag import query, get_gene_from_transcript, GENE_DB
+from data.classification_guidelines import query, get_gene_from_transcript, GENE_DB
 from .llm.llm import create_llm
 from typing import Optional, Any, TypeAlias
 from config import MODELS
@@ -311,7 +311,7 @@ Important rules:
 def run_tool(
         tool_decision: dict,
         variant: str,
-        rag_entry: dict | None = None,
+        guideline_entry: dict | None = None,
         gene: str | None = None,
         disease: str | None = None
 ) -> tuple[dict, str]:
@@ -323,7 +323,7 @@ def run_tool(
     input_value = variant
 
     if tool == "clinvar":
-        criterion = (rag_entry or {}).get("criterion", "")
+        criterion = (guideline_entry or {}).get("criterion", "")
         if criterion == "PS4":
             cdna_change = input_value.split(":")[-1] if ":" in input_value else input_value
             clinvar_ps4 = search_clinvar_for_variant_ps4(input_value)
@@ -419,7 +419,7 @@ def run_tool(
     elif tool == "gnomad_gene":
         # Gene-level constraint query for PP2 (missense Z-score) and BP1 (pLI, LOEUF)
         if not gene:
-            return {"error": "Gene symbol required for gene-level constraint query — add this gene to GENE_DB in planrag.py"}, input_value
+            return {"error": "Gene symbol required for gene-level constraint query — add this gene to GENE_DB in data/classification_guidelines.py"}, input_value
         gene_result = query_gnomad_gene_constraint(gene)
         gene_result = _annotate_gnomad_gene_constraint(gene_result)
         return gene_result, gene
@@ -441,7 +441,7 @@ def run_tool(
 
     elif tool == "erepo":
         if not gene:
-            return {"error": "Gene symbol could not be determined for ERepo lookup — add this gene to GENE_DB in planrag.py"}, input_value
+            return {"error": "Gene symbol could not be determined for ERepo lookup — add this gene to GENE_DB in data/classification_guidelines.py"}, input_value
         gene_label = gene
         vep_result = annotate_variant(input_value)
         if "error" in vep_result:
@@ -461,7 +461,7 @@ def run_tool(
 
         # ClinVar fallback (PS1 only) — if ERepo has no other variants at this codon,
         # search ClinVar for HHT VCEP-classified LP/P variants at the same position.
-        criterion = (rag_entry or {}).get("criterion", "")
+        criterion = (guideline_entry or {}).get("criterion", "")
         if criterion == "PS1":
             if not result.get("classifications"):
                 ref_aa = vep_result.get("amino_acid_ref")
@@ -524,11 +524,11 @@ def run_tool(
             vep_result["lof_mechanism"] = None
             vep_result["lof_mechanism_note"] = "Gene not in GENE_DB — LOF mechanism unknown; PVS1 requires manual review."
 
-        # Prefer critical_regions from the planrag entry (HHT VCEP gene-specific regions).
-        # Fall back to GENE_DB pm1_critical_regions when the rag entry has none —
+        # Prefer critical_regions from the guideline entry (HHT VCEP gene-specific regions).
+        # Fall back to GENE_DB pm1_critical_regions when the guideline entry has none —
         # this covers ACMG mode for genes like LDLR where domain boundaries are known
-        # but the generic ACMG_PLANRAG_DB PM1 entry is gene-agnostic.
-        critical_regions = (rag_entry or {}).get("critical_regions")
+        # but the generic ACMG_CRITERIA_DB PM1 entry is gene-agnostic.
+        critical_regions = (guideline_entry or {}).get("critical_regions")
         if critical_regions is None and gene and gene in GENE_DB:
             gene_regions = GENE_DB[gene].get("pm1_critical_regions")
             if gene_regions:
@@ -561,23 +561,23 @@ def interpret_evidence(
     tool_used: str,
     tool_input: str,
     evidence: dict,
-    rag_entry: dict | None = None,
+    guideline_entry: dict | None = None,
     feedback: str | None = None,
     variant_type: str | None = None
 ) -> dict:
     """
     Asks the LLM to interpret tool output and map it to the ACMG criterion.
     tool_input is the exact string passed to the API — set by code, not inferred by the LLM.
-    rag_entry is injected as ground-truth rules so the LLM applies the correct thresholds.
+    guideline_entry is injected as ground-truth rules so the LLM applies the correct thresholds.
     If feedback is provided (retry path), it is injected so the LLM knows
     exactly what it got wrong in the previous attempt.
     """
-    rag_context = ""
-    if rag_entry:
-        rag_context = f"""
+    guideline_context = ""
+    if guideline_entry:
+        guideline_context = f"""
 Classification rules for {criterion} (use these as ground truth):
-- Threshold: {rag_entry.get('threshold', 'N/A')}
-- Instructions: {rag_entry.get('instructions', 'N/A')}
+- Threshold: {guideline_entry.get('threshold', 'N/A')}
+- Instructions: {guideline_entry.get('instructions', 'N/A')}
 
 Apply these rules exactly when setting the applies field.
 """
@@ -619,7 +619,7 @@ Criterion: {criterion}
 Tool used: {tool_used}
 Evidence retrieved:
 {json.dumps(evidence, indent=2)}
-{rag_context}{feedback_block}
+{guideline_context}{feedback_block}
 Based on this evidence, determine whether criterion {criterion} applies.
 
 Use the provided output schema.
@@ -689,7 +689,7 @@ Important rules:
                 result["applied_strength"] = "benign_strong"
         elif "applied_strength" not in result or result.get("applied_strength") is None:
             # variable-strength criterion but LLM didn't set it — default to criterion's base strength
-            base = (rag_entry or {}).get("strength")
+            base = (guideline_entry or {}).get("strength")
             result["applied_strength"] = base
 
     return result
@@ -705,7 +705,7 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
     Retry (feedback is not None): LLM re-selects the tool using the feedback,
     and interpret_evidence() receives the feedback so it knows what to correct.
 
-    rag_entry is queried once per task and passed into interpret_evidence() as
+    guideline_entry is queried once per task and passed into interpret_evidence() as
     ground-truth rules, so the LLM applies the correct thresholds on the first attempt.
     """
     criterion = task["criterion"]
@@ -713,7 +713,7 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
     disease = task["disease"]
     tool_cache_update = {}
 
-    # Detect gene from transcript (NM_... prefix) so gene-specific planrag branches
+    # Detect the gene from the transcript (NM_... prefix) so gene-specific guideline branches
     # and tool queries (erepo, PubMed) use the correct gene symbol.
     gene = None
     if variant.startswith("NM_") and ":" in variant:
@@ -725,9 +725,9 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
         # ACVRL1/ENG even though the gene was known.
         gene = gene_symbol
 
-    rag_entry = query(criterion, gene=gene, disease=disease)
-    if rag_entry is None:
-        _task_warning(f"No PlanRAG entry for {criterion}; proceeding without rules context.")
+    guideline_entry = query(criterion, gene=gene, disease=disease)
+    if guideline_entry is None:
+        _task_warning(f"No guideline entry for {criterion}; proceeding without rules context.")
 
     if feedback:
         # retry path — LLM re-selects tool with correction context
@@ -758,7 +758,7 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
         evidence = cached_result["evidence"]
         actual_input = cached_result["actual_input"]
     else:
-        evidence, actual_input = run_tool(tool_decision, variant, rag_entry=rag_entry, gene=gene, disease=disease)
+        evidence, actual_input = run_tool(tool_decision, variant, guideline_entry=guideline_entry, gene=gene, disease=disease)
         tool_cache_update[selected_tool] = {"evidence": evidence, "actual_input" : actual_input}
 
     if "error" in evidence:
@@ -777,7 +777,7 @@ def run_task(task: dict, tool_results: ToolResults | None, gene_symbol: str | No
     return interpret_evidence(
         criterion, variant, disease,
         tool_decision["tool"], actual_input, evidence,
-        rag_entry=rag_entry,
+        guideline_entry=guideline_entry,
         feedback=feedback,
         variant_type=task.get("variant_type"),
     ), tool_cache_update

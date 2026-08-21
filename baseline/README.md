@@ -1,19 +1,19 @@
 # Zero-tool LLM baseline
 
-Runs a "closed-book" baseline for HHT variant classification: the same
-underlying model family your pipeline's agents use (Gemini), given the HHT
+Runs a "closed-book" Gemini baseline for HHT variant classification, given the HHT
 VCEP rules as a prompt and asked to classify each variant using *only* its own
 knowledge — no tool calls, no web search. This exists to answer "does the
-tool-augmented agent pipeline actually add value over just asking the model?"
+tool-augmented agent pipeline add value over just asking the model?" For a
+model-controlled comparison, configure the main pipeline to use Gemini too.
 
 See `run_baseline.py`'s module docstring for the full design rationale
-(why Gemini instead of Claude, why scoring is done deterministically rather
+(Gemini model control, why scoring is done deterministically rather
 than by the model, how manual/patient-data-only criteria are handled, etc.).
 
 ## Files
 
 - `hht_vcep_rules.md` — the HHT VCEP rules document fed to the model as
-  context. Adapted from `data/planrag.py` (the same source of truth the real
+  context. Adapted from `data/classification_guidelines.py` (the same source of truth the real
   pipeline uses) but rewritten for a bare LLM with no tool access.
 - `run_baseline.py` — the runner script.
 - `outputs/` — where results land (gitignored contents recommended; the folder
@@ -25,14 +25,11 @@ than by the model, how manual/patient-data-only criteria are handled, etc.).
 cd AI-Agents-for-Scientific-Research
 pip install -r requirements.txt   # langchain + langchain-google-genai should already be listed
 cp .env.example .env              # if you haven't already
-# edit .env: set GOOGLE_API_KEY to your billed Vertex AI Cloud Console key
+# edit .env: set GOOGLE_CLOUD_API_KEY to your Vertex-enabled Cloud Console key
 ```
 
-This script only uses `GOOGLE_API_KEY` routed through Vertex AI (`vertexai=True`) —
-the billed key this repo's `.env` actually defines. (Note: `agents/llm/llm.py`, used
-by the real pipeline, reads `GOOGLE_CLOUD_API_KEY` instead of `GOOGLE_API_KEY` — two
-different variable names pointing at the same kind of billed key. Worth reconciling
-these to one name at some point to avoid confusion.) It will raise an error rather
+This script only uses `GOOGLE_CLOUD_API_KEY` routed through Vertex AI (`vertexai=True`).
+It will raise an error rather
 than silently falling back to `GOOGLE_AI_STUDIO_API_KEY` (the free-tier key), keeping
 all baseline usage billed to the same Vertex project as the pipeline.
 
@@ -61,7 +58,7 @@ in the input CSV) the gold-standard label for quick comparison.
 
 To formally score this against gold-standard the same way pipeline runs are
 scored, feed `baseline/outputs/baseline_results.json` into (or adapt)
-`evaluation/question2.py` alongside your usual gold-standard CSV.
+`evaluation/evaluate_variant_classifications.py` alongside your usual gold-standard CSV.
 
 ## Known limitations to note in your methodology
 

@@ -5,7 +5,7 @@ A dependency-free local server (stdlib http.server) that wraps the existing
 CLI pipeline. It:
 
   * reads criterion metadata / exclusion reasons straight from
-    data.planrag (PLANRAG_DB, EXCLUDED_CRITERIA, the SCORING block), so the
+    data.classification_guidelines (HHT_CRITERIA_DB, EXCLUDED_CRITERIA, the SCORING block), so the
     GUI always reflects the real HHT VCEP rules; and
   * scores the current human-edited checkbox/strength state by calling the
     real tools.scoring.classify() — NOT a reimplemented point system — so the
@@ -34,7 +34,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from data.planrag import PLANRAG_DB, EXCLUDED_CRITERIA, query as planrag_query  # noqa: E402
+from data.classification_guidelines import HHT_CRITERIA_DB, EXCLUDED_CRITERIA, query as guideline_query  # noqa: E402
 from tools.scoring import classify  # noqa: E402
 
 _STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -74,18 +74,18 @@ STRENGTH_LABELS = {
 
 
 def _scoring() -> dict:
-    return planrag_query("SCORING", disease=DISEASE) or {}
+    return guideline_query("SCORING", disease=DISEASE) or {}
 
 
 def _normalise_key(criterion: str) -> str:
     """Pipeline result 'criterion' fields vary (e.g. 'PM2_Supporting' vs 'PVS1').
-    Normalise to the uppercase PLANRAG_DB key used everywhere else."""
+    Normalise to the uppercase HHT_CRITERIA_DB key used everywhere else."""
     return (criterion or "").upper().replace("-", "_").replace(" ", "_")
 
 
 def _criterion_meta(key: str, group: str) -> dict:
     """Build the front-end metadata blob for one criterion."""
-    entry = PLANRAG_DB.get(key, {})
+    entry = HHT_CRITERIA_DB.get(key, {})
     fixed = _scoring().get("fixed_strengths", {})
     is_variable = key not in fixed
     is_benign = (entry.get("acmg_category") == "Benign") or key.startswith("B")
@@ -108,7 +108,7 @@ def _criterion_meta(key: str, group: str) -> dict:
 
 
 def build_meta() -> dict:
-    """Everything the front-end needs to render, straight from planrag."""
+    """Return the guideline metadata needed to render the front end."""
     excluded = [{"key": k, "reason": v} for k, v in EXCLUDED_CRITERIA.items()]
     return {
         "disease":        DISEASE,

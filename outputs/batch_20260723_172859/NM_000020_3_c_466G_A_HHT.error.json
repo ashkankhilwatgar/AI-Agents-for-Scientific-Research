@@ -1,6 +1,0 @@
-{
-  "variant": "NM_000020.3:c.466G>A",
-  "disease": "HHT",
-  "status": "error",
-  "error": "APIConnectionError: Connection error."
-}

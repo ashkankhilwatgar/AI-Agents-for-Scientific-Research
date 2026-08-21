@@ -22,7 +22,7 @@ Outputs:
         }
 """
 
-from data.planrag import query as planrag_query
+from data.classification_guidelines import query as guideline_query
 
 
 # For variable-strength criteria, ACMG/AMP defines one "native" (default) strength
@@ -66,7 +66,7 @@ def _label_for(criterion: str, bucket: str) -> str:
 
 
 def _get_scoring_entry(disease: str | None = None) -> dict:
-    return planrag_query("SCORING", disease=disease)
+    return guideline_query("SCORING", disease=disease)
 
 
 def _get_bucket(criterion: str, applied_strength: str, scoring: dict) -> str | None:
@@ -147,8 +147,8 @@ def classify(results_dict: dict, disease: str | None = None) -> dict:
     """
     Classify a variant using the appropriate combining criteria rules.
 
-    Routes to ACMG_PLANRAG_DB SCORING when disease is non-null and not a VCEP disease,
-    otherwise uses PLANRAG_DB SCORING (HHT VCEP). Backward compatible: disease=None → HHT.
+    Routes to ACMG_CRITERIA_DB SCORING when disease is non-null and not a VCEP disease,
+    otherwise uses HHT_CRITERIA_DB SCORING (HHT VCEP). Backward compatible: disease=None → HHT.
 
     results_dict: mapping of criterion_key → pipeline result dict.
     Each result must have "applies" (bool) and "applied_strength" (str).
@@ -157,7 +157,7 @@ def classify(results_dict: dict, disease: str | None = None) -> dict:
     if scoring is None:
         return {
             "classification": "Error",
-            "rule_matched":   "SCORING entry not found in planrag",
+            "rule_matched":   "SCORING entry not found in the guideline registry",
             "buckets": {},
             "applied_criteria": [],
             "incompatibility_notes": [],

@@ -1,6 +1,0 @@
-{
-  "variant": "NM_001114753.3:c.520C>T",
-  "disease": "HHT",
-  "status": "error",
-  "error": "NotFoundError: Error code: 404 - {'error': {'message': 'The model `GPT-4o-mini` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}"
-}

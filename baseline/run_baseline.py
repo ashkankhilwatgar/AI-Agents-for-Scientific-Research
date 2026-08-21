@@ -6,20 +6,18 @@ Purpose
 The pipeline (pipeline.py) classifies variants using a tool-augmented,
 multi-agent LangGraph architecture that gathers real evidence (gnomAD, VEP,
 ClinVar, PubMed, LOVD, etc.) before reasoning over it. This script answers a
-different question: how well can the *same underlying model family* do if it
-only uses its own parametric knowledge, with no tool calls and no web search?
+different question: how well can Gemini do if it only uses its own parametric
+knowledge, with no tool calls and no web search?
 
 This is a "closed-book" baseline, run against the same variant list and the
-same combining rules (imported directly from data/planrag.py and scored with
-the same tools/scoring.py classify() function your pipeline uses), so results
-are directly comparable.
+same combining rules (imported directly from
+data/classification_guidelines.py and scored with the same
+tools/scoring.py classify() function the pipeline uses).
 
 Design choices worth knowing about (see conversation / methodology notes):
-  - Uses Gemini (google_genai), not Claude, specifically because your
-    pipeline's agents already run on Gemini. Using the same base model
-    isolates the effect of the agentic/tool-calling architecture from any
-    difference in underlying model capability -- a cleaner ablation than
-    comparing against a different model family.
+  - Uses Gemini (google_genai). For a model-controlled comparison that isolates
+    the agent/tool architecture, configure the main pipeline to use the same
+    Gemini model; config.py may otherwise select a different provider.
   - No tools/functions are attached to the model call, so it cannot look
     anything up -- it must answer from its own weights.
   - The model outputs per-criterion applies/strength/evidence, and this
@@ -28,7 +26,8 @@ Design choices worth knowing about (see conversation / methodology notes):
     than on whether the model can also correctly re-derive the ACMG/AMP
     combining math.
   - Manual-input criteria (PP4_Moderate, PP1, BS4, BP2, BP5 -- anything
-    flagged `deferred: True` in planrag.py) require real patient/family data
+    flagged `deferred: True` in classification_guidelines.py) require real
+    patient/family data
     the model can't have, so they're always excluded from scoring here,
     matching how your pipeline treats them absent patient data.
   - Runs each variant multiple times (--passes, default 3) at nonzero
@@ -39,7 +38,7 @@ Usage
 -----
     cd AI-Agents-for-Scientific-Research
     pip install langchain langchain-google-genai python-dotenv  # if not already installed
-    cp .env.example .env   # make sure GOOGLE_API_KEY (billed Vertex AI key) is set
+    cp .env.example .env   # make sure GOOGLE_CLOUD_API_KEY is set
     venv/bin/python -m baseline.run_baseline --csv datasets/full_evaluation_dataset.csv --passes 3
 
 Useful flags:
@@ -84,7 +83,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(REPO_ROOT / ".env", override=True)
 
-from data.planrag import PLANRAG_DB, EXCLUDED_CRITERIA  # noqa: E402
+from data.classification_guidelines import HHT_CRITERIA_DB, EXCLUDED_CRITERIA  # noqa: E402
 from tools.scoring import classify  # noqa: E402
 
 BASELINE_DIR = Path(__file__).resolve().parent
@@ -92,12 +91,12 @@ RULES_PATH = BASELINE_DIR / "hht_vcep_rules.md"
 DEFAULT_CSV = REPO_ROOT / "datasets" / "full_evaluation_dataset.csv"
 DEFAULT_OUTPUT = BASELINE_DIR / "outputs" / "baseline_results.json"
 
-# Criteria the model should evaluate. Anything marked deferred:True in planrag
+# Criteria the model should evaluate. Anything marked deferred:True in the guideline registry
 # requires real patient/family data the model can't have, so we still ask
 # about it (in case synthetic patient data is ever added to the CSV later)
 # but treat "no data provided" as the default expectation.
-CRITERIA_KEYS = [k for k in PLANRAG_DB.keys() if k != "SCORING"]
-DEFERRED_CRITERIA = {k for k in CRITERIA_KEYS if PLANRAG_DB[k].get("deferred")}
+CRITERIA_KEYS = [k for k in HHT_CRITERIA_DB.keys() if k != "SCORING"]
+DEFERRED_CRITERIA = {k for k in CRITERIA_KEYS if HHT_CRITERIA_DB[k].get("deferred")}
 
 VALID_PATHOGENIC_STRENGTHS = {"very_strong", "strong", "moderate", "supporting"}
 VALID_BENIGN_STRENGTHS = {"benign_strong", "benign_supporting"}
@@ -185,11 +184,8 @@ def get_llm(model: str, temperature: float):
     """
     Builds a LangChain Gemini chat model with NO tools attached (so it has no
     way to search/browse), routed through the billed Vertex AI backend using
-    GOOGLE_API_KEY -- the billed Cloud Console key set in this repo's .env
-    (note: agents/llm/llm.py's create_llm() reads GOOGLE_CLOUD_API_KEY instead;
-    this repo's actual .env only defines GOOGLE_API_KEY for the Vertex-billed
-    key, so this script matches the .env that's actually in use rather than
-    that other module's variable name). This script deliberately does NOT fall
+    GOOGLE_CLOUD_API_KEY -- the billed Cloud Console key set in this repo's
+    .env. This script deliberately does NOT fall
     back to GOOGLE_AI_STUDIO_API_KEY (the free-tier key): all baseline calls
     should be billed to the same Vertex project the pipeline itself uses, so
     usage/cost accounting stays in one place and isn't split across two
@@ -197,12 +193,12 @@ def get_llm(model: str, temperature: float):
     """
     from langchain.chat_models import init_chat_model
 
-    cloud_key = os.getenv("GOOGLE_API_KEY")
+    cloud_key = os.getenv("GOOGLE_CLOUD_API_KEY")
     if not cloud_key or cloud_key == "your_google_cloud_api_key_here":
         raise RuntimeError(
-            "GOOGLE_API_KEY is not set in your .env file. This script only "
+            "GOOGLE_CLOUD_API_KEY is not set in your .env file. This script only "
             "uses the billed Vertex AI key (not GOOGLE_AI_STUDIO_API_KEY) -- "
-            "set GOOGLE_API_KEY to your Vertex-enabled Cloud Console key."
+            "set GOOGLE_CLOUD_API_KEY to your Vertex-enabled Cloud Console key."
         )
 
     return init_chat_model(

@@ -1380,7 +1380,7 @@ def _parse_pdf_extraction_response(
         # Skip empty-shell entries: if the model produced an "experiment"
         # with no actual assay/system/readout/conclusion content, it isn't
         # real evidence and would just add noise downstream (e.g. an
-        # experiment with evaluation="" that PlanRAG's STEP 1 grouping
+        # experiment with evaluation="" that criteria guideline's STEP 1 grouping
         # can't classify as anything).
         if not any([assay_type.strip(), system.strip(), readout.strip(), authors_conclusion.strip()]):
             skipped_blank += 1

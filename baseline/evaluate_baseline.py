@@ -2,7 +2,7 @@
 Scores baseline/outputs/baseline_results.json (produced by run_baseline.py)
 against the gold-standard labels embedded in that same file.
 
-Mirrors the metric choices/conventions in evaluation/question2.py (same 5-class
+Mirrors the metric choices/conventions in evaluation/evaluate_variant_classifications.py (same 5-class
 label scheme B/LB/VUS/LP/P, same sklearn macro-averaged metrics, same
 classification_report/confusion_matrix), but adapted for baseline_results.json's
 structure: each variant has multiple *passes*, not one prediction.
@@ -63,7 +63,7 @@ DEFAULT_OUTPUT_DIR = BASELINE_DIR / "outputs"
 LABELS = ["B", "LB", "VUS", "LP", "P"]
 LABEL_RANK = {label: i for i, label in enumerate(LABELS)}  # for off-by-one / ordinal distance
 
-# Same normalization table as evaluation/question2.py, so labels line up with
+# Same normalization table as evaluation/evaluate_variant_classifications.py, so labels line up with
 # the rest of the project's evaluation scripts. Extend this if classify() or
 # the gold CSV ever produces a label string not covered here.
 CLASSIFICATION_MAPPING = {
@@ -205,7 +205,7 @@ def mean_ordinal_distance(y_true: list[str], y_pred: list[str]) -> float:
 def compute_metrics(y_true: list[str], y_pred: list[str]) -> dict:
     """
     Computes the full metric bundle for one set of (gold, predicted) label pairs.
-    ERROR-labeled predictions are excluded first (same convention as question2.py),
+    ERROR-labeled predictions are excluded first (same convention as the variant-classification evaluator),
     with the count reported separately.
     """
     df = pd.DataFrame({"gold": y_true, "pred": y_pred})

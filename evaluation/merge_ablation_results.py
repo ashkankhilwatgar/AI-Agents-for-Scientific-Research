@@ -1,17 +1,17 @@
-# Merge per-mode ablation outputs (produced by running question3.py --mode <mode>
+# Merge per-mode ablation outputs (produced by run_agent_ablation.py --mode <mode>
 # separately for each of full/no_debug/no_judge/task_only) back into the combined
 # raw + summary JSON files and print the usual comparison table. The four
 # pipeline-compatible mode folders are preserved and linked from the summary.
 #
 # Usage:
-#   python evaluation/merge_ablation_results.py --run_id 20260710_120000 \
+#   python -m evaluation.merge_ablation_results --run_id 20260710_120000 \
 #       --output_dir evaluation/outputs
 
 import argparse
 import json
 from pathlib import Path
 
-from question3 import ABLATION_MODES, print_summary_table
+from evaluation.run_agent_ablation import ABLATION_MODES, print_summary_table
 
 
 def merge(run_id: str, output_dir: str):

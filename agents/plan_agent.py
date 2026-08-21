@@ -1,9 +1,9 @@
 import requests
 import json
-from data.planrag import query
+from data.classification_guidelines import query
 from typing import Optional, TypeAlias
 from config import MODELS
-from data.planrag import get_gene_from_transcript
+from data.classification_guidelines import get_gene_from_transcript
 from collections import defaultdict
 from rich import box
 from rich.console import Console
@@ -59,16 +59,16 @@ def call_plan_agent(prompt: str) -> str:
 
 def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol = None) -> dict[str, list]:
     """
-    For each criterion, retrieves the PlanRAG entry and builds a task dict
-    for the Task agent. All fields are set deterministically from the RAG entry —
-    no LLM call is made here. The Task agent has access to the full RAG entry
+    For each criterion, retrieves its guideline entry and builds a task dict
+    for the Task agent. All fields are set deterministically from the guideline entry —
+    no LLM call is made here. The Task agent has access to the full guideline entry
     (including detailed instructions) at evaluation time.
 
     Returns a dict of task lists grouped by execution phase (phase1-phase4).
     """
     tasks = []
 
-    # Detect gene from transcript so gene-specific planrag branches are used
+    # Detect the gene from the transcript so gene-specific guideline branches are used.
     gene = None
     if variant.startswith("NM_") and ":" in variant:
         gene = get_gene_from_transcript(variant.split(":")[0])
@@ -78,17 +78,17 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
 
 
     for criterion in criteria:
-        rag_entry = query(criterion, gene=gene, disease=disease)
+        guideline_entry = query(criterion, gene=gene, disease=disease)
 
-        if rag_entry is None:
-            _plan_warning(f"No PlanRAG entry for {criterion}; skipped.")
+        if guideline_entry is None:
+            _plan_warning(f"No guideline entry for {criterion}; skipped.")
             continue
 
-        if rag_entry.get("excluded"):
-            _plan_warning(f"{criterion} excluded: {rag_entry.get('reason')}")
+        if guideline_entry.get("excluded"):
+            _plan_warning(f"{criterion} excluded: {guideline_entry.get('reason')}")
             continue
 
-        if rag_entry.get("deferred"):
+        if guideline_entry.get("deferred"):
             _plan_warning(f"{criterion} is deferred and was not scheduled.")
             continue
 
@@ -96,8 +96,8 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
             "criterion": criterion,
             "variant": variant,
             "disease": disease,
-            "tool": rag_entry["tool"],
-            "instructions": rag_entry["instructions"],
+            "tool": guideline_entry["tool"],
+            "instructions": guideline_entry["instructions"],
         }
 
         tasks.append(task)
@@ -105,9 +105,9 @@ def build_task_list(variant: str, disease: str, criteria: list[str],gene_symbol 
     result = defaultdict(list)
 
     for task in tasks:
-        rag_entry = query(task["criterion"], gene=gene, disease=disease) or {}
+        guideline_entry = query(task["criterion"], gene=gene, disease=disease) or {}
 
-        phase = rag_entry.get("phase", 4)
+        phase = guideline_entry.get("phase", 4)
 
         # Defensive normalization (in case phase is string or invalid)
         try:
@@ -136,8 +136,8 @@ def run_plan(variant: str, disease: str, criteria: list[str], gene_symbol = None
             "criterion": criterion,
             "variant": variant,
             "disease": disease,
-            "tool": rag_entry["tool"],
-            "instructions": rag_entry["instructions"],
+            "tool": guideline_entry["tool"],
+            "instructions": guideline_entry["instructions"],
         }
     """
     tasks = build_task_list(variant, disease, criteria, gene_symbol)

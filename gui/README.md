@@ -24,7 +24,7 @@ No extra dependencies — the server is built on Python's stdlib `http.server`.
 ## How it works
 
 The backend does **not** re-implement any rules. It reads criterion metadata
-and exclusion reasons straight from `data/planrag.py` (`PLANRAG_DB`,
+and exclusion reasons straight from `data/classification_guidelines.py` (`HHT_CRITERIA_DB`,
 `EXCLUDED_CRITERIA`, and the `SCORING` block), and scores the current
 checkbox/strength state by calling the real `tools.scoring.classify()`. So the
 live classification is identical to what the CLI pipeline would compute — same
@@ -65,7 +65,7 @@ benign) show a strength selector next to their checkbox, used only when checked.
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| GET  | `/api/meta`   | Criterion groupings + strength options + exclusion reasons (from planrag) |
+| GET  | `/api/meta`   | Criterion groups, strength options, and exclusions from the guideline registry |
 | GET  | `/api/cached` | HHT variants that have a cached run |
 | POST | `/api/run`    | `{variant, mode}` → per-criterion pre-population + initial score |
 | POST | `/api/score`  | `{state: {KEY: {applies, applied_strength}}}` → `classify()` result |
