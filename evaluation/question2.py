@@ -178,7 +178,7 @@ def merge_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
     # raise ValueError on NaN and crash the whole evaluation run.
     unmatched_mask = eval_df["gold_classification"].isna()
     num_unmatched = int(unmatched_mask.sum())
-    if num_unmatched:
+    if num_unmatched:    
         print(
             f"WARNING: {num_unmatched} predicted variant(s) had no matching "
             f"gold row and will be excluded from evaluation: "

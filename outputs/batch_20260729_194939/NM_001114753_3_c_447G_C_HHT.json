@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.447G>C",
+  "disease": "HHT",
+  "timestamp": "20260729_221747",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 1
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Moderate": "moderate",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Moderate",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD (total AC=0, all subpopulation AFs=0.0).",
+      "reasoning": "According to the PM2_SUPPORTING rules, if the variant is entirely absent from gnomAD (step 1), PM2_SUPPORTING applies. The evidence shows total AC=0 and absent_from_gnomad=true, so step 1 is met and the criterion is satisfied.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD; Popmax FAF = 0.0.",
+      "reasoning": "BA1 applies only if the variant has a Popmax FAF of at least 0.01 (1%) in gnomAD. This variant is absent from gnomAD with a Popmax FAF of 0.0, which is below the required threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF = 0.0. Total homozygote count = 0.",
+      "reasoning": "BS1 requires a popmax FAF >0.0008 and <=0.01. This variant is completely absent from gnomAD (popmax FAF = 0.0, 0 homozygotes), so it does not meet the frequency thresholds required for BS1 at either strength level. Therefore, BS1 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.447G>C (ENG) results in p.Trp149Cys. The protein residue affected is 149, which is not listed among BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), or disulfide-bond cysteines (350, 394).",
+      "reasoning": "According to the hardcoded criteria for PM1 in ENG, only specific residues (278, 282, 207, 363, 382, 412, 549, 350, 394) qualify as being in a critical region. The affected residue in this variant is 149, which does not match any of those positions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands reported, but 1 proband meets PP4_Moderate and must be excluded according to ACMG rules; ERepo: not queried (not mentioned in evidence); LOVD: not queried; PubMed: not searched (since ClinVar had relevant data).",
+      "reasoning": "Per ACMG rule, probands meeting PP4_Moderate must be excluded from the PS4 proband count. ClinVar HHT VCEP SCV comment states there are greater than 4 probands, and also that at least one proband qualifies for PP4_Moderate. Therefore, to compute the eligible proband count for PS4, subtract 1 from the total, resulting in 3 qualifying probands. According to the PS4 application rules, 3 probands supports PS4_Moderate. Additionally, PM2_Supporting is confirmed in the ClinVar comment, so PS4 applies at moderate strength.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The 'different_aa_classifications' list is empty for codon 149 in the ENG gene; there are no previously classified missense variants with a different amino acid change at this codon.",
+      "reasoning": "According to the rules, PM5 only applies if there is at least one pathogenic or likely pathogenic missense variant with a different amino acid substitution at the same codon. Since the 'different_aa_classifications' list is empty, there is no evidence supporting application of PM5 for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 149",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Five experiments addressed subcellular localization/trafficking of ENG p.Trp149Cys (W149C). Three studies (PMID: 10545596, 25080347) found functionally abnormal results: W149C is retained intracellularly and not at the membrane. Two experiments from a third study (PMID: 22022569) found functionally normal results: W149C traffics/matures similarly to wild-type. All used proper controls, but results are discordant.",
+      "reasoning": "Eligible assays include cell surface biotinylation, pulse-chase, and subcellular localization (Step 2). Interpretable functionally abnormal results: (1) PMID: 10545596 (biotinylation, patient monocytes) show intracellular retention and reduced surface expression; (2) PMID: 25080347 (fluorescence microscopy in CHO-K1) also shows ER retention. Functionally normal results: PMID: 22022569 (confocal microscopy, EndoH assay) shows normal trafficking. These are different eligible assay types. Because there are at least two different eligible assay types showing functionally abnormal results, but at least two different eligible assays also show normal results without clear ambiguous experiments, the rule \"with no clear contradictory result\" is NOT met. Thus, conflicting results prevent application of PS3.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "PP3 verdicts: 'PP3 REVEL (>= 0.644): N/A', 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0100, all < 0.2)'. SpliceAI max score is 0.01 (all < 0.2).",
+      "reasoning": "According to the pre-verified verdicts in _computed.verdicts, neither REVEL (not available) nor SpliceAI scores (max 0.01, threshold 0.2) meet the threshold for PP3. Therefore, criterion PP3 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "No REVEL score is available, indicating the variant is not missense. SpliceAI scores are low (DS_AG=0.01, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0). _computed.verdicts states: 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "The lack of a REVEL score implies the variant is synonymous or intronic. For these variants, BP4 applies if SpliceAI scores are <=0.1. The pre-verified _computed.verdicts field states 'BP4 SpliceAI (all scores <= 0.1): PASSES', so BP4 should be applied. This follows the correct branch of the decision tree for non-missense variants.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127826586-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The Erepo tool returns 'same_aa_classifications' as an empty list; no known pathogenic variants causing the same amino acid change as NM_001114753.3:c.447G>C (for PS1) are reported.",
+      "reasoning": "Step 1: The 'same_aa_classifications' list is empty. According to the rules, if this is empty, PS1 does not apply and we must stop.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 149",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Six functional experiments were found for c.447G>C (ENG W149C): three subcellular localisation/trafficking assays (PMIDs: 22022569, 25080347), one endoglycosidase maturation assay (PMID: 22022569), one metabolic labeling/cell-surface biotinylation (PMID: 10545596), and a dimerisation assay (PMID: 25080347). Results are discordant: some trafficking/localisation assays (22022569) show normal localisation/maturation, while others (25080347, 10545596) report abnormal intracellular retention/loss of cell surface expression. Dimerisation was normal, but localisation of these dimers was abnormal. All experiments are eligible for BS3 as they assess trafficking/localisation or surface expression.",
+      "reasoning": "Per rules, all trafficking/localisation experiments are counted as eligible for BS3. Among eligible experiments, at least two (PMID: 10545596, 25080347) report functionally abnormal results (intracellular retention, loss of surface expression, defective trafficking). Some assays (22022569) found normal trafficking/maturation, resulting in conflicting experimental results. According to the ACMG BS3 rule, if ANY eligible experiment is functionally abnormal, BS3 cannot be applied. Discordance between studies prevents application of BS3 even if some normal results exist. Dimerisation alone is not sufficient, especially since dimer localisation is still abnormal. No experiment is ambiguous by the definition\u2014they are clear but discordant and must be combined as per rules. Therefore, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.447G>C",
+      "disease": "HHT"
+    }
+  ]
+}

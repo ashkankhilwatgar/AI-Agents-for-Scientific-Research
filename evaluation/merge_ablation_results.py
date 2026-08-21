@@ -1,6 +1,7 @@
 # Merge per-mode ablation outputs (produced by running question3.py --mode <mode>
 # separately for each of full/no_debug/no_judge/task_only) back into the combined
-# raw + summary JSON files and print the usual comparison table.
+# raw + summary JSON files and print the usual comparison table. The four
+# pipeline-compatible mode folders are preserved and linked from the summary.
 #
 # Usage:
 #   python evaluation/merge_ablation_results.py --run_id 20260710_120000 \
@@ -42,7 +43,23 @@ def merge(run_id: str, output_dir: str):
 
     summary_path = output_dir / f"ablation_summary_{run_id}.json"
     with open(summary_path, "w") as f:
-        json.dump({"timestamp": run_id, "modes": summary}, f, indent=2)
+        mode_output_dirs = {
+            mode: str(output_dir / f"ablation_{mode}_{run_id}")
+            for mode in ABLATION_MODES
+        }
+        json.dump(
+            {
+                "timestamp": run_id,
+                "modes": summary,
+                "mode_output_dirs": mode_output_dirs,
+                "mode_batch_summaries": {
+                    mode: str(Path(path) / "batch_summary.json")
+                    for mode, path in mode_output_dirs.items()
+                },
+            },
+            f,
+            indent=2,
+        )
     print(f"\nSummary saved to {summary_path}")
 
 

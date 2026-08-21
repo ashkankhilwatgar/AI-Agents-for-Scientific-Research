@@ -1,0 +1,145 @@
+{
+  "variant": "NM_001114753.3:c.1510G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_151957",
+  "classification": "Likely Benign",
+  "rule_matched": "1 Strong benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "1 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BS1": "benign_strong"
+    },
+    "applied_criteria": [
+      "BS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD. Total allele count (AC) = 1488 (from '_computed.total_ac'). Minimum subpopulation allele frequency (AF) observed is greater than or equal to 0.00004 in all subpopulations (minimum subpop AF = 0.00004 not observed; max subpop AF = 0.0614).",
+      "reasoning": "Step 1: The variant is not absent from gnomAD. Step 2: Total AC is 1488, which is not less than 6. Step 3: The allele frequency in all gnomAD subpopulations is greater than or equal to 0.00004, as the minimum subpopulation AF is not less than 0.00004. Therefore, PM2_SUPPORTING does not apply according to the specified rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD popmax FAF for NM_001114753.3:c.1510G>A is 0.007969 (0.7969%), which is below the BA1 threshold of 0.01 (1%).",
+      "reasoning": "The ACMG BA1 criterion requires that the Popmax Filtering Allele Frequency (FAF) in gnomAD be greater than or equal to 0.01 (1%) for the criterion to apply. For this variant, the highest observed popmax FAF is 0.007969, which does not reach the 1% threshold. Therefore, BA1 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF (faf95 popmax) is 0.00796921 (0.8%) in the African population; total homozygote count is 6. BA1 does not apply (Popmax FAF < 0.01).",
+      "reasoning": "BS1_Strong applies via the FAF route: Popmax FAF is > 0.002 and < 0.01 (specifically, 0.00796921). Thus, per guidelines, BS1 applies at 'benign_strong' strength. The homozygote count is >=2, but this is not in the supporting FAF range, so the FAF route is the reason for strength.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change in ENG (p.V504M), at residue 504, which is not one of the critical residues defined for PM1 (278, 282, 207, 363, 382, 412, 549, 350, 394).",
+      "reasoning": "Criterion PM1 applies only if the variant alters a residue in hardcoded critical regions of ENG specified in the rules. The variant is at position 504, which is not among the specified BMP9 binding sites or disease-associated/critical cysteine residues. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "The erepo tool found zero variants classified as likely pathogenic or pathogenic with a different amino acid change at codon 504 of ENG (different_aa_classifications=[]).",
+      "reasoning": "The tool's different_aa_classifications list is empty, indicating there are no different missense substitutions at the same codon previously classified as LP/P per HHT VCEP rules. According to the PM5 rules, if this list is empty, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 504",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments are reported for NM_001114753.3:c.1510G>A in the evidence (experiments list is empty).",
+      "reasoning": "According to the rules for PS3, if the experiments list is empty, PS3 does NOT apply. There is no functional evidence to evaluate for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "_computed.verdicts states: 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE' and 'PP3 REVEL (>= 0.644): N/A (REVEL not available)'.",
+      "reasoning": "According to the classification rules, for a missense variant, PP3 applies if either the REVEL or SpliceAI threshold is triggered. The _computed.verdicts confirm that the SpliceAI PP3 threshold did not fire (max score 0.03, all < 0.2) and REVEL is not available. Thus, neither threshold is met and PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818296-C-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP request failed: HTTPSConnectionPool(host='rest.ensembl.org', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty; there are no variants with the identical amino acid change as the query (p.Val504Met) listed in ClinVar or ERepo.",
+      "reasoning": "According to the PS1 rules, PS1 may only be applied if there exists another variant that results in the identical amino acid change (same_aa_classifications non-empty) and is classified as Pathogenic/Likely Pathogenic. In this case, same_aa_classifications is empty. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 504",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The experiments list from the functional_evidence tool is empty; no functional studies are reported for this variant.",
+      "reasoning": "Step 1 in the BS3 evaluation rules dictates that if the experiments list is empty, BS3 does not apply. There are no functional experiments to evaluate for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1510G>A",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.442_444del",
+  "disease": "HHT",
+  "timestamp": "20260731_152226",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PM4": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PM4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is absent from gnomAD, with total AC = 0 and max subpopulation AF = 0.0.",
+      "reasoning": "According to PM2_SUPPORTING rules, Step 1 states that if a variant is entirely absent from gnomAD, the criterion applies. Here, the variant is not found in gnomAD, with total allele count (AC) of 0 and no recorded allele frequency in any subpopulation. Thus, Step 1 is triggered and the criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001077401.2:c.442_444del is absent from gnomAD; Popmax FAF = 0.0.",
+      "reasoning": "BA1 requires that the popmax FAF is >= 0.01 (1%) in gnomAD. This variant is absent from gnomAD, so the popmax FAF is 0.0, well below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD: Popmax FAF = 0.0, total AC = 0, homozygotes = 0.",
+      "reasoning": "Step 1: BA1 does not apply (Popmax FAF = 0.0 < 0.01). Step 2: BS1_Strong via homozygotes does not apply (FAF not in supporting range, 0 homs). Step 3: BS1_Strong via FAF does not apply (FAF = 0.0 < 0.002). Step 4: BS1_Supporting does not apply (FAF = 0.0 < 0.0008). Since the variant is completely absent from gnomAD, it fails all BS1 frequency thresholds. Therefore, BS1 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: no submission for NM_001077401.2:c.442_444del; ERepo: not queried; LOVD: not queried; PubMed: 0 articles found",
+      "reasoning": "ClinVar was queried for the variant and returned no submissions, including from the HHT VCEP, so there is no available proband count from that source. PubMed was also queried, and no articles were found, which means there are no published case reports documenting probands with this variant and HHT. Therefore, no probands can be counted towards meeting PS4. As such, according to the classification rules, PS4 does NOT apply when the proband count is zero.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.442_444del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.442_444del"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "VEP consequence is 'inframe_deletion'; overlaps_repeat_region is false.",
+      "reasoning": "PM4 applies to in-frame deletions that do not overlap repeat regions. This variant has a VEP consequence of 'inframe_deletion' and does not overlap a repeat region, meeting the criteria for PM4_Moderate according to the rules.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.442_444del"
+    }
+  ]
+}

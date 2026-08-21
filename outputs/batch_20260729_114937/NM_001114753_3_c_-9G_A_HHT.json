@@ -1,0 +1,114 @@
+{
+  "variant": "NM_001114753.3:c.-9G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_133728",
+  "classification": "Likely Benign",
+  "rule_matched": "\u22652 Supporting benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "\u22652 Supporting benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 2
+    },
+    "bucket_detail": {
+      "BS1_Supporting": "benign_supporting",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "BS1_Supporting",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD. Total allele count (AC) is 1230 (exome+genome), which is >=6. Per-population allele frequencies are all >= 0.00004 (lowest observed exome subpopulation AF is ~0.00007). No subpopulation AF is < 0.00004. Used Step 3 of the PM2_SUPPORTING rules; no threshold met.",
+      "reasoning": "According to the PM2_SUPPORTING rules, the criterion only applies if the variant is absent from gnomAD, OR if AC<6, OR if AF<0.00004 in ANY gnomAD subpopulation. This variant is present, AC is 1230, and the lowest subpopulation AF is above 0.00004, so criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax Filtering Allele Frequency (FAF) in gnomAD is 0.00091619 (0.0916%), which is less than the 1% threshold required for BA1 to apply.",
+      "reasoning": "According to the ACMG BA1 rule, BA1 applies only if the Popmax FAF in gnomAD is greater than or equal to 1% (0.01). The value here (0.00091619) is much lower than this threshold. Therefore, BA1 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF (nfe) = 0.00091619; total homozygotes in gnomAD = 1; BA1 does not apply (FAF < 0.01); BS1_Supporting range (FAF > 0.0008 & <= 0.002); homozygote count < 2.",
+      "reasoning": "The popmax FAF is 0.00091619, which is greater than 0.0008 and less than or equal to 0.002 (falls within BS1_Supporting range). There is only 1 homozygote, which is not enough to upgrade to BS1_Strong via the homozygote route. BA1 does not apply. Therefore, BS1 applies at the supporting strength (benign_supporting).",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Three experiments were reported: (1) Two independent studies (PMIDs: 22192717, 37848456) used protein expression (western blot) to show c.-9G>A leads to ~20% decrease in endoglin protein (~80% of wild type); (2) one functional signaling assay (PMID: 37848456, BRE luciferase; ALK1/BMP9 pathway) documented ~30% reduction in activity, but authors described the results as modest with high inter-experiment variability and questioned its functional significance.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: Only the BMP9/ALK1 signaling/BRE luciferase assay qualifies as an eligible 'intracellular signaling' functional experiment for HHT according to ACMG rules; the protein abundance assays alone do not. Step 3: The BRE luciferase assay (PMID: 37848456) indicated ~30% reduction in signaling, but the authors explicitly note high experimental variability and unclear biological significance, suggesting the result is ambiguous regarding pathogenic functional impact. No additional eligible, interpretable, and concordant abnormal results from a different assay type are present. No splicing assays are available. Step 4: Since there are not at least two concordant abnormal eligible assays and the single eligible assay result is ambiguous (not definitively functionally abnormal), PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "_computed.verdicts states: 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0000, all < 0.2)'. REVEL score is not available.",
+      "reasoning": "According to the pre-verified verdicts in _computed.verdicts, neither SpliceAI nor REVEL reach the thresholds required for PP3 to apply to this variant. For a synonymous or intronic variant, PP3 applies only if SpliceAI >= 0.2. Here, the maximum SpliceAI score is 0.0000 (all < 0.2), so PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "According to _computed.verdicts: 'BP4 SpliceAI (all scores <= 0.1): PASSES (all scores <= 0.1, max=0.0000)'. REVEL score is not available. Variant is likely in a non-coding region (c.-9G>A).",
+      "reasoning": "The variant appears to be in a non-coding region (c.-9G>A, 5'UTR). For synonymous/intronic/non-coding variants, BP4 is based on SpliceAI verdict. The _computed.verdicts states 'BP4 SpliceAI (all scores <= 0.1): PASSES', indicating low predicted impact on splicing. Therefore, BP4 applies for this variant.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Three experiments were provided: (1) Two protein expression assays (pmid:22192717 in COS-7 and pmid:37848456 in HeLa) showing ~20% reduction in ENG protein compared to wild type for c.-9G>A; (2) One BMP-response element (BRE) luciferase reporter assay (pmid:37848456 in NIH-3T3), a valid HHT functional assay, showing ~30% reduction in signaling compared to wild type with high variability but still indicating functionally abnormal signaling. All experiments report reduced function or expression.",
+      "reasoning": "Step 1: Experiments list is not empty. Step 2: Only the BRE luciferase reporter assay (pmid:37848456) qualifies as an eligible HHT functional assay relevant for BS3 (as it measures intracellular signaling in the BMP9/TGF-beta pathway). Protein expression assays are excluded based on rules. Step 3: The BRE luciferase assay shows the variant has ~70% of wild type signaling with considerable variability. The magnitude and authors' conclusion both indicate a moderate but clear functional abnormality rather than normal function ('modest (~30%) reduction'). Step 4: Since the single eligible HHT assay is functionally abnormal, BS3 does NOT apply. Results from protein expression assays are excluded as per guidance. No eligible functionally_normal results are present, and there is one functionally_abnormal result. Therefore, BS3 cannot be applied.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT"
+    }
+  ]
+}

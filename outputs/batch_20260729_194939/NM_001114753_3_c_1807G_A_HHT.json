@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.1807G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_201214",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1807G>A is absent from gnomAD exome and genome data with total allele count (AC) = 0 in all populations.",
+      "reasoning": "According to the rules, Step 1 asks if the variant is absent from gnomAD. The evidence confirms AC = 0 in all gnomAD populations, meeting the criterion for absence. Therefore, PM2_SUPPORTING applies at this step.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A has popmax FAF = 0.0 in gnomAD (i.e., the variant is absent; total_ac = 0, ac_hom = 0). The threshold for BA1 is popmax FAF >= 0.01.",
+      "reasoning": "BA1 applies only if the popmax FAF (filtering allele frequency) is 1% (0.01) or higher. In this case, popmax FAF is 0.0 (the variant is absent from gnomAD), which is far below the threshold. Therefore, BA1 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.0; total homozygote count is 0. Variant is absent from gnomAD (exome AN=1,456,206; AC=0; popmax_faf=0.0).",
+      "reasoning": "BS1 is triggered if Popmax FAF is >0.0008 and <=0.002 (benign_supporting) or >0.002 and <0.01 (benign_strong), or if it is in supporting range with >=2 homozygotes (benign_strong). Here, Popmax FAF = 0.0 and there are 0 homozygotes, so none of the BS1 thresholds are met. BA1 does not apply either, but BS1 does not apply because the frequency is below the necessary thresholds.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A results in p.Gly603Arg in the ENG gene. The affected amino acid residue is position 603, which is not in the BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), or disulfide-bond cysteines critical to ENG function (350, 394).",
+      "reasoning": "The rules specify that PM1 only applies if the variant is at one of the hardcoded critical residues (278, 282, 207, 363, 382, 412, 549, 350, 394), and position 603 is not among them. Therefore, criterion PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband_count=4, comment: 'reported in 4 probands with a phenotype consistent with HHT'; ERepo: not queried; LOVD: not queried; PubMed: not queried.",
+      "reasoning": "The ClinVar HHT VCEP SCV comment reports the variant found in 4 probands with HHT phenotype. This meets the threshold for PS4_Strong (>=4 probands). PM2_Supporting criteria has been confirmed as met, so no re-evaluation is necessary. Per the rules, PS4 applies at strong strength.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty: there are no previously classified missense variants with a different amino acid substitution at codon 603 in ENG that are P/LP per HHT VCEP rules. No such variants were retrieved.",
+      "reasoning": "PM5 requires the presence of at least one missense variant at the same codon but with a different amino acid substitution that is classified as pathogenic or likely pathogenic (P/LP) by HHT VCEP rules. The evidence from erepo shows that there are no such variants (different_aa_classifications is empty), so PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The evidence retrieved from the tool contains an empty dictionary, and thus the experiments list is empty; no functional assay data are available for this variant.",
+      "reasoning": "Step 1 of the PS3 rule specifies that if the experiments list is empty, PS3 does NOT apply. There are no eligible functional experiments for this variant, so there is no evidence to support a functionally damaging effect as required for PS3.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "_computed.verdicts states: 'PP3 SpliceAI (any score >= 0.2): FIRES \u2014 triggering score(s): DS_AG=0.2800'. REVEL score is not available. REVEL PP3 does not apply, SpliceAI PP3 applies due to DS_AG=0.2800 (>0.2).",
+      "reasoning": "According to the instructions, for a missense variant, if 'PP3 SpliceAI (any score >= 0.2): FIRES' is noted in _computed.verdicts, PP3 applies. The SpliceAI DS_AG score is 0.28, exceeding the 0.2 threshold. Therefore, PP3 applies due to SpliceAI prediction.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score not available (request failed). SpliceAI scores: DS_AG=0.2800, other scores zero. _computed.verdicts: 'BP4 REVEL HHT threshold (<= 0.15): N/A', 'BP4 SpliceAI (all scores <= 0.1): FAILS'.",
+      "reasoning": "For missense variants, BP4 applies only if both 'BP4 REVEL HHT threshold (<= 0.15): PASSES' and 'BP4 SpliceAI (all scores <= 0.1): PASSES' are present in the verdicts. In this case, REVEL is not available and 'BP4 SpliceAI (all scores <= 0.1): FAILS' because DS_AG=0.2800 (above threshold). Since EITHER condition fails, BP4 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty; no variants with the identical amino acid change as the query were found in ClinVar or HHT VCEP (ERepo).",
+      "reasoning": "According to the PS1 rules, since the same_aa_classifications list is empty, there is no evidence that a pathogenic or likely pathogenic variant exists with the identical amino acid change. Therefore, criterion PS1 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.1807G>A related to HHT in the evidence dict (experiments list is empty).",
+      "reasoning": "According to the rules, if the experiments list is empty, there are no functional assay results to support or refute a benign effect. Thus, criterion BS3 does NOT apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    }
+  ]
+}

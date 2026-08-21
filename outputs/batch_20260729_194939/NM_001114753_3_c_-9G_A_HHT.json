@@ -1,0 +1,124 @@
+{
+  "variant": "NM_001114753.3:c.-9G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_211735",
+  "classification": "Likely Benign",
+  "rule_matched": "\u22652 Supporting benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "\u22652 Supporting benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 2
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "BS1_Supporting": "benign_supporting",
+      "PS4_Supporting": "supporting",
+      "BP4": "benign_supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "BS1_Supporting",
+      "PS4_Supporting",
+      "BP4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant is present in gnomAD with total allele count AC=1230 (exome+genome), so Step 1 and Step 2 do not trigger. However, there are multiple subpopulations with allele frequency (AF) = 0 (e.g., exome: asj, eas; genome: asj, eas, mid, ami), which is less than 0.00004. Step 3 triggers on these subpopulations.",
+      "reasoning": "Though the variant is present in gnomAD (Step 1: NO), and the total AC >=6 (Step 2: NO), Step 3 applies as at least one subpopulation (e.g., asj, eas, mid, ami) has AF=0, which is less than the threshold of 0.00004. According to the rules, PM2_SUPPORTING applies if ANY subpopulation has AF<0.00004, including AF=0. Therefore, PM2_SUPPORTING applies here, triggered by the subpopulations with zero allele count.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Popmax FAF (FAF95) in gnomAD is 0.00091619 (0.0916%), which is less than the 1% threshold. Variant is present in gnomAD with 1 homozygote observed.",
+      "reasoning": "Criterion BA1 applies if the Popmax FAF is >= 0.01 (1%). The maximum Popmax FAF for this variant is 0.00091619, well below the threshold. Therefore, BA1 does not apply regardless of the presence of the variant or homozygotes.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.00091619 (nfe population), total homozygotes is 1. Max FAF does not reach BS1_Strong threshold (>0.002), but is in the BS1_Supporting range (>0.0008 to 0.002) with only 1 homozygote. BA1 does not apply (FAF <0.01).",
+      "reasoning": "BS1_Supporting requires popmax FAF >0.0008 and <=0.002. The variant has a popmax FAF of 0.00091619 which is within this range. Since there is only 1 homozygote present, the BS1_Strong (homozygote route) does not apply. BS1_Strong (FAF route) also does not apply as the FAF is below 0.002. Therefore, BS1 applies at the benign_supporting strength level.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No reported probands; ERepo: Not applicable; LOVD: 1 proband observed; PubMed: Not searched.",
+      "reasoning": "The only source reporting a proband is LOVD, with a single observation and no additional supporting data from ClinVar HHT VCEP or other repositories. According to the rules, a single proband observation justifies assigning PS4_supporting if PM2_Supporting is also met. As we are not instructed to check for PM2_Supporting here (assumed confirmed), PS4_supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_001114753.3:c.-9G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Three functional experiments reported: (1) Two protein expression/Western blot assays\u2014both show ~20% reduction of ENG protein versus wild type (PMIDs: 22192717, 37848456), using appropriate controls. (2) One BMP-response luciferase assay (intracellular signaling)\u2014shows c.-9G>A mutant has ~70% of wild-type BRE activity (PMID: 37848456), consistent with ~30% reduction in ENG-induced signaling activity versus wild type, confirmed in multiple experiments with internal controls.",
+      "reasoning": "Step 1: The experiments list is not empty.\nStep 2: Only the BMP-response element (BRE) luciferase signaling assay constitutes an eligible HHT functional assay (intracellular signaling). The two Western blot protein abundance assays do NOT qualify on their own per ACMG instructions.\nStep 3: The eligible BMP-response assay (PMID: 37848456) shows a modest but consistent functional abnormality (~30% reduction in signaling) with appropriate controls, authors conclude partial functional impairment, and the result is not ambiguous. However, only one eligible assay type (intracellular signaling) shows an abnormal result; there are not two different eligible abnormal assay types, nor is there a splicing assay.\nStep 4: Per rules, having only one interpretable functionally abnormal eligible assay type is insufficient for PS3; protein expression results do not make a second eligible experiment. Thus, PS3 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI scores: DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000. PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0000, all < 0.2). REVEL score: not available. Verdict: PP3 does not apply.",
+      "reasoning": "The variant is non-coding (c.-9G>A, presumed upstream/intronic). According to _computed.verdicts, 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE' since all SpliceAI scores are 0.0000 (<0.2). Therefore, per the provided decision rules for noncoding/intronic changes, PP3 does not apply. REVEL is not available and not used for noncoding variants.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI: DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000 (max=0.0000, all <=0.1); REVEL: not available; '_computed.verdicts': 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "According to BP4 rules for synonymous/intronic variants, only SpliceAI scores need to be considered. The '_computed.verdicts' field states 'BP4 SpliceAI (all scores <= 0.1): PASSES', indicating BP4 applies. REVEL score is not relevant for this variant type. Thus, BP4 applies.",
+      "applies": true,
+      "applied_strength": "benign_supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127854364-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Three experiments were found: (1) Western blot protein expression in COS-7 cells shows ~82% of WT protein, 18% decrease (PMID:22192717); (2) Western blot in HeLa cells shows ~80% of WT protein, mild reduction (PMID:37848456); (3) BMP9-response luciferase reporter assay in NIH-3T3 cells shows ~70% of WT activity, but difference vs. WT not statistically significant (ambiguous, PMID:37848456).",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: The first two assays are protein abundance assays, which are NOT eligible for BS3 (expression alone excluded per instructions). Only the third experiment, the BMP-response luciferase assay, is an eligible functional assay for HHT. Step 3: For the eligible BRE luciferase reporter experiment, the observed activity is ~70% of WT, but the reduction is not statistically significant and is labeled as ambiguous by the authors. Therefore, this experiment is assessed as 'ambiguous'. No eligible experiments remain that are functionally_normal or abnormal. Step 4: Since all eligible assays are ambiguous, BS3 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.-9G>A",
+      "disease": "HHT"
+    }
+  ]
+}

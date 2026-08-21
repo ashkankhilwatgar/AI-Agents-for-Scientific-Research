@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.998G>T",
+  "disease": "HHT",
+  "timestamp": "20260729_215939",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PM1": "moderate",
+      "PS4": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PM1",
+      "PS4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_000020.3:c.998G>T is absent from gnomAD (total AC = 0; not found in any population/subpopulation).",
+      "reasoning": "According to the rules for PM2_SUPPORTING, Step 1 asks if the variant is absent from gnomAD. Here, the variant is completely absent (total AC = 0, not found in any population), which meets the criterion for applying PM2_SUPPORTING. No further steps are required.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51915450-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_000020.3:c.998G>T is absent from gnomAD, with popmax FAF = 0.0.",
+      "reasoning": "BA1 requires popmax FAF >= 0.01 (1%) to apply. The evidence shows popmax FAF is 0.0 because the variant is absent from gnomAD. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51915450-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant not found in gnomAD. Popmax FAF = 0.0, homozygote count = 0.",
+      "reasoning": "The variant is absent from gnomAD (Popmax FAF = 0.0, homozygote count = 0). For BS1 to apply, Popmax FAF must be >0.0008. Here, Popmax FAF is 0, meaning the variant is extremely rare or novel. Therefore, none of the thresholds for BS1 or its supporting levels are met. Per rules, BS1 does not apply when variant is absent from population databases.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51915450-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "Variant is a missense change at codon 333 (p.Ser333Ile) in ACVRL1, located inside the catalytic loop (R329-N335), which is a defined PM1 critical region.",
+      "reasoning": "The catalytic loop is defined in the PM1 rules as amino acids R329-N335 inclusive. The variant affects S333, which is within R329-N335 (inclusive) in ACVRL1. Therefore, PM1 applies according to the explicit residue list.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.998G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands reported (ClinVar Pathogenic classification, SCV comment confirms >4 probands for HHT with PM2_Supporting met); ERepo: not queried; LOVD: not queried; PubMed: not queried.",
+      "reasoning": "The ClinVar HHT VCEP SCV comment explicitly states this variant has been reported in more than 4 probands with an HHT phenotype. PM2_Supporting has already been confirmed in this review, so we do not re-evaluate it. According to the provided classification rules, 4 or more probands support PS4 at strong strength. No fallback sources were needed because ClinVar provides sufficient evidence.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.998G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty\u2014no other variants with a different missense amino acid change at codon 333 with LP/P classification found in ACVRL1 for HHT.",
+      "reasoning": "The PM5 criterion is only applicable when there is at least one pathogenic or likely pathogenic missense variant (with a different amino acid change) at the same codon. In this case, different_aa_classifications is empty, so there is no evidence for PM5. same_aa_classifications is not relevant to PM5 and is ignored.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 333",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments are reported for NM_000020.3:c.998G>T relevant to HHT (experiments list is empty).",
+      "reasoning": "According to the ACMG PS3 rules provided, if the experiments list is empty, PS3 does not apply. In this case, there are no functional assays (such as mRNA splicing or relevant signaling, binding, localization assays) reported for the variant, so there is no evidence to support or refute functional impact.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.998G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51915450-G-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP returned 500: <!doctype html>\n<html lang=\"en\" class=\"vf-no-js\">\n  <head>\n    <script>\n// Detect if JS is on and swap vf-no-js for vf-js on the html element\n(function(H){H.className=H.className.replace(/\\bvf-no-js\\b/,'vf-js')})(document.documentElement);\n</script>\n\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <!-- <link rel=\"stylesheet\" media=\"all\" href=\"/css/styles.css?\" /> -->\n    <title>Error: 500 | EMBL\u00e2\u0080\u0099s European Bionformatics Institute</title>\n\n\n\n    <link rel=\"icon\" type=\"image/x-icon\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/favicon.ico\" />\n<link rel=\"icon\" type=\"image/png\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/favicon-32x32.png\" />\n<link rel=\"icon\" type=\"image/png\" sizes=\"192\u00c3\u0097192\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/android-chrome-192x192.png\" />\n<!-- Android (192px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"114x114\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-114x114.png\" />\n<!-- For iPhone 4 Retina display (114px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"72x72\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-72x72.png\" />\n<!-- For iPad (72px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"144x144\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-144x144.png\" />\n<!-- For iPad retinat (144px) -->\n<link rel=\"apple-touch-icon-precomposed\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-57x57.png\" />\n<!-- For iPhone (57px) -->\n<link rel=\"mask-icon\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/safari-pinned-tab.svg\"\n  color=\"#ffffff\" /> <!-- Safari icon for pinned tab -->\n<meta name=\"msapplication-TileColor\" content=\"#2b5797\" /> <!-- MS Icons -->\n<meta name=\"msapplication-TileImage\"\n  content=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/mstile-144x144.png\" />\n\n\n\n\n\n\n    <!-- Search indexing optimisations -->\n    <meta class=\"swiftype\" name=\"what\" data-type=\"string\" content=\"none\" />\n    <meta class=\"swiftype\" name=\"where\" data-type=\"string\" content=\"EMBL-EBI\" />\n\n\n    <!-- Descriptive meta -->\n    <meta name=\"title\" content=\"Error: 500\">\n    <meta name=\"author\" content=\"European Bioinformatics Institute\">\n    <meta name=\"robots\" content=\"index, follow\">\n    <meta name=\"keywords\" content=\"\">\n    <meta name=\"description\" content=\"\">\n\n    <!-- Open Graph / Facebook -->\n    <meta property=\"og:type\" content=\"website\">\n    <meta property=\"og:url\" content=\"https://www.ebi.ac.uk/info/error-pages/500-standalone/\">\n    <meta property=\"og:title\" content=\"Error: 500\">\n    <meta property=\"og:description\" content=\"\">\n\n\n    <!-- Twitter -->\n    <meta property=\"twitter:card\" content=\"summary_large_image\">\n    <meta property=\"og:url\" content=\"https://www.ebi.ac.uk/info/error-pages/500-standalone/\">\n    <meta property=\"twitter:title\" content=\"Error: 500\">\n    <meta property=\"twitter:description\" content=\"\">\n\n\n    <!-- Content descriptors -->\n    <meta name=\"embl:who\" content=\"EMBL-EBI Web Dev\">\n    <meta name=\"embl:where\" content=\"EMBL-EBI\">\n    <meta name=\"embl:what\" content=\"none\">\n    <meta name=\"embl:active\" content=\"where\">\n\n    <!-- Content role -->\n    <meta name=\"embl:utility\" content=\"10\">\n    <meta name=\"embl:reach\" content=\"0\">\n\n    <!-- Page infromation -->\n    <meta name=\"embl:maintainer\" content=\"EMBL-EBI Web Dev\">\n    <meta name=\"embl:last-review\" content=\"2021.04.01\">\n    <meta name=\"embl:review-cycle\" content=\"365\">\n    <meta name=\"embl:expiry\" content=\"never\">\n\n    <!-- analytics -->\n    <meta name=\"vf:page-type\" content=\"404;dimension1\">\n\n    <!-- CSS only -->\n<link rel=\"stylesheet\" href=\"https://assets.emblstatic.net/vf/v2.5.7/css/styles.css\">\n<!-- JS -->\n<script src=\"https://assets.emblstatic.net/vf/v2.5.7/scripts/scripts.js\"></script>\n<head>\n  <body class=\"vf-body vf-stack vf-stack--400\">\n    <style>head, title, link, meta, style, script {--vf-stack-margin--custom: 0; }</style>\n\n    <!-- See the EBI Header Footer docs: https://stable.visual-framework.dev/components/ebi-header-footer -->\n\n    <link rel=\"stylesheet\" href=\"https://assets.emblstatic.net/vf/v2.4.5/assets/ebi-header-footer/ebi-header-footer.css\" type=\"text/css\" media=\"all\">\n    <header id=\"masthead-black-bar\" class=\"clearfix masthead-black-bar | ebi-header-footer vf-content vf-u-fullbleed\"></header>\n\n\n\n\n<style>\n  .embl-grid {\n    margin-bottom: 48px;\n  }\n</style>\n\n<section class=\"vf-intro\" id=\"500\">\n\n  <div><!-- empty --></div>\n\n  <div class=\"vf-stack\">\n\n  <h1 class=\"vf-intro__heading \">Error: 500</h1>\n<p class=\"vf-lede\">There was a technical error.</p>\n\n\n<p class=\"vf-intro__text\">Something has gone wrong with our web server when attempting to make this page.</p><p class=\"vf-intro__text\">Unfortunately, the service you are trying to access is currently unavailable. <br>Please try again later.</p>\n  </div>\n</section>\n\n\n<section class=\"embl-grid embl-grid--has-centered-content\">\n  <div></div>\n <section>\n      <form id=\"ebi_search\" action=\"/ebisearch/search.ebi\" class=\"vf-form vf-form--search vf-form--search--mini | vf-sidebar vf-sidebar--end\">\n        <div class=\"vf-sidebar__inner\" style=\"flex-wrap: nowrap;\">\n          <div class=\"vf-form__item\">\n            <label class=\"vf-form__label vf-u-sr-only | vf-search__label\" for=\"searchitem\">Search</label>\n            <input name=\"query\" type=\"search\" placeholder=\"Find a gene, protein or chemical\" id=\"searchitem\" class=\"vf-form__input\" required=\"\" spellcheck=\"false\" data-ms-editor=\"true\">\n            <input name=\"requestFrom\" id=\"requestFrom\" type=\"hidden\" class=\"vf-form__input\" value=\"ebi_index\">\n          </div>\n          <div class=\"vf-form__item\">\n            <select name=\"db\" id=\"db\" tabindex=\"1\" class=\"vf-form__select\" style=\"max-width: 150px\">\n              <option value=\"allebi\">All</option>\n              <optgroup label=\"Science search\">\n                <option value=\"genomes\">Genomes &amp; metagenomes</option>\n                <option value=\"nucleotideSequences\">Nucleotide sequences</option>\n                <option value=\"proteinSequences\">Protein sequences</option>\n                <option value=\"smallMolecules\">Small molecules</option>\n                <option value=\"geneExpression\">Gene expression</option>\n                <option value=\"geneDiseaseAssociations\">Gene-Disease Associations</option>\n                <option value=\"diseases\">Diseases</option>\n                <option value=\"molecularInteractions\">Molecular interactions</option>\n                <option value=\"reactionsPathways\">Reactions &amp; pathways</option>\n                <option value=\"proteinFamilies\">Protein families</option>\n                <option value=\"literature\">Literature</option>\n                <option value=\"ontologies\">Samples &amp; ontologies</option>\n              </optgroup>\n              <optgroup label=\"Search web content\">\n                <option value=\"ebiweb_people\">EMBL-EBI People</option>\n                <option value=\"ebiweb\">EMBL-EBI web</option>\n                <!-- <option value=\"ebiweb\">EMBL web</option> -->\n              </optgroup>\n            </select>\n          </div>\n\n\n          <button type=\"submit\" class=\"vf-search__button | vf-button vf-button--primary\">\n            <span class=\"vf-button__text\">Search</span>\n          </button>\n        </div>\n      </form>\n      <p class=\"vf-text-body--5 vf-u-margin__bottom--0\">\n        Example searches: <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;requestFrom=ebi_index&amp;query=blast\">blast</a>\n        <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;query=keratin&amp;requestFrom=ebi_index\">keratin</a>\n        <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;query=bfl1&amp;requestFrom=ebi_index\">bfl1</a>\n        | <a class=\"vf-link\" href=\"https://www.ebi.ac.uk/ebisearch/overview.ebi/about\">About EBI Search</a>\n      </p>\n    </section>\n</section>\n\n<section class=\"embl-grid\">\n  <div></div>\n  <div class=\"vf-content\">\n    <h3>Need assistance?</h3>\n    <a class=\"vf-button vf-button--primary\" href=\"https://www.ebi.ac.uk/support/error\">Contact our support team</a>\n  </div>\n</section>\n\n    <!-- embl global footer -->\n\n\n<!-- embl-ebi global footer -->\n<link rel=\"import\" href=\"https://www.embl.org/api/v1/pattern.html?filter-content-type=article&filter-id=106902&pattern=node-body&source=contenthub\" data-target=\"self\" data-embl-js-content-hub-loader>\n\n    <script src=\"https://assets.emblstatic.net/vf/v2.4.9/scripts/scripts.js\"></script>\n<!--\n  When using legacy EBI 1.x JS, we disable the old cookie banner.\n  https://stable.visual-framework.dev/components/ebi-header-footer/\n  -->\n<div class=\"vf-u-display-none\" data-protection-message-disable=\"true\"></div>\n\n<!-- IE11 polyfill JS -->\n<script nomodule crossorigin=\"anonymous\" src=\"https://polyfill.io/v3/polyfill.min.js?flags=gated&features=default\"></script>\n<!-- <script src=\"/scripts/scripts.js?\"></script> -->\n<script defer=\"defer\" src=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/js/script.js\"></script>\n<link rel=\"stylesheet\" href=\"//ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css\" type=\"text/css\" media=\"all\" />\n\n<!-- Google Analytics -->\n<script>\nwindow.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;\nga('create', 'UA-629242-1', 'auto');\n</script>\n<script async src='https://www.google-analytics.com/analytics.js'></script>\n<!-- End Google Analytics -->\n\n<script type=\"text/javascript\">\n  document.addEventListener(\"DOMContentLoaded\", function(event) {\n\n        //- Code to execute when only the HTML document is loaded.\n        //- This doesn't wait for stylesheets,\n        // images, and subframes to finish loading.\n  });\n</script>\n\n  </body>\n</html>\n"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51915450-G-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP returned 500: <!doctype html>\n<html lang=\"en\" class=\"vf-no-js\">\n  <head>\n    <script>\n// Detect if JS is on and swap vf-no-js for vf-js on the html element\n(function(H){H.className=H.className.replace(/\\bvf-no-js\\b/,'vf-js')})(document.documentElement);\n</script>\n\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <!-- <link rel=\"stylesheet\" media=\"all\" href=\"/css/styles.css?\" /> -->\n    <title>Error: 500 | EMBL\u00e2\u0080\u0099s European Bionformatics Institute</title>\n\n\n\n    <link rel=\"icon\" type=\"image/x-icon\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/favicon.ico\" />\n<link rel=\"icon\" type=\"image/png\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/favicon-32x32.png\" />\n<link rel=\"icon\" type=\"image/png\" sizes=\"192\u00c3\u0097192\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/android-chrome-192x192.png\" />\n<!-- Android (192px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"114x114\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-114x114.png\" />\n<!-- For iPhone 4 Retina display (114px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"72x72\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-72x72.png\" />\n<!-- For iPad (72px) -->\n<link rel=\"apple-touch-icon-precomposed\" sizes=\"144x144\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-144x144.png\" />\n<!-- For iPad retinat (144px) -->\n<link rel=\"apple-touch-icon-precomposed\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/apple-icon-57x57.png\" />\n<!-- For iPhone (57px) -->\n<link rel=\"mask-icon\"\n  href=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/safari-pinned-tab.svg\"\n  color=\"#ffffff\" /> <!-- Safari icon for pinned tab -->\n<meta name=\"msapplication-TileColor\" content=\"#2b5797\" /> <!-- MS Icons -->\n<meta name=\"msapplication-TileImage\"\n  content=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/images/logos/EMBL-EBI/favicons/mstile-144x144.png\" />\n\n\n\n\n\n\n    <!-- Search indexing optimisations -->\n    <meta class=\"swiftype\" name=\"what\" data-type=\"string\" content=\"none\" />\n    <meta class=\"swiftype\" name=\"where\" data-type=\"string\" content=\"EMBL-EBI\" />\n\n\n    <!-- Descriptive meta -->\n    <meta name=\"title\" content=\"Error: 500\">\n    <meta name=\"author\" content=\"European Bioinformatics Institute\">\n    <meta name=\"robots\" content=\"index, follow\">\n    <meta name=\"keywords\" content=\"\">\n    <meta name=\"description\" content=\"\">\n\n    <!-- Open Graph / Facebook -->\n    <meta property=\"og:type\" content=\"website\">\n    <meta property=\"og:url\" content=\"https://www.ebi.ac.uk/info/error-pages/500-standalone/\">\n    <meta property=\"og:title\" content=\"Error: 500\">\n    <meta property=\"og:description\" content=\"\">\n\n\n    <!-- Twitter -->\n    <meta property=\"twitter:card\" content=\"summary_large_image\">\n    <meta property=\"og:url\" content=\"https://www.ebi.ac.uk/info/error-pages/500-standalone/\">\n    <meta property=\"twitter:title\" content=\"Error: 500\">\n    <meta property=\"twitter:description\" content=\"\">\n\n\n    <!-- Content descriptors -->\n    <meta name=\"embl:who\" content=\"EMBL-EBI Web Dev\">\n    <meta name=\"embl:where\" content=\"EMBL-EBI\">\n    <meta name=\"embl:what\" content=\"none\">\n    <meta name=\"embl:active\" content=\"where\">\n\n    <!-- Content role -->\n    <meta name=\"embl:utility\" content=\"10\">\n    <meta name=\"embl:reach\" content=\"0\">\n\n    <!-- Page infromation -->\n    <meta name=\"embl:maintainer\" content=\"EMBL-EBI Web Dev\">\n    <meta name=\"embl:last-review\" content=\"2021.04.01\">\n    <meta name=\"embl:review-cycle\" content=\"365\">\n    <meta name=\"embl:expiry\" content=\"never\">\n\n    <!-- analytics -->\n    <meta name=\"vf:page-type\" content=\"404;dimension1\">\n\n    <!-- CSS only -->\n<link rel=\"stylesheet\" href=\"https://assets.emblstatic.net/vf/v2.5.7/css/styles.css\">\n<!-- JS -->\n<script src=\"https://assets.emblstatic.net/vf/v2.5.7/scripts/scripts.js\"></script>\n<head>\n  <body class=\"vf-body vf-stack vf-stack--400\">\n    <style>head, title, link, meta, style, script {--vf-stack-margin--custom: 0; }</style>\n\n    <!-- See the EBI Header Footer docs: https://stable.visual-framework.dev/components/ebi-header-footer -->\n\n    <link rel=\"stylesheet\" href=\"https://assets.emblstatic.net/vf/v2.4.5/assets/ebi-header-footer/ebi-header-footer.css\" type=\"text/css\" media=\"all\">\n    <header id=\"masthead-black-bar\" class=\"clearfix masthead-black-bar | ebi-header-footer vf-content vf-u-fullbleed\"></header>\n\n\n\n\n<style>\n  .embl-grid {\n    margin-bottom: 48px;\n  }\n</style>\n\n<section class=\"vf-intro\" id=\"500\">\n\n  <div><!-- empty --></div>\n\n  <div class=\"vf-stack\">\n\n  <h1 class=\"vf-intro__heading \">Error: 500</h1>\n<p class=\"vf-lede\">There was a technical error.</p>\n\n\n<p class=\"vf-intro__text\">Something has gone wrong with our web server when attempting to make this page.</p><p class=\"vf-intro__text\">Unfortunately, the service you are trying to access is currently unavailable. <br>Please try again later.</p>\n  </div>\n</section>\n\n\n<section class=\"embl-grid embl-grid--has-centered-content\">\n  <div></div>\n <section>\n      <form id=\"ebi_search\" action=\"/ebisearch/search.ebi\" class=\"vf-form vf-form--search vf-form--search--mini | vf-sidebar vf-sidebar--end\">\n        <div class=\"vf-sidebar__inner\" style=\"flex-wrap: nowrap;\">\n          <div class=\"vf-form__item\">\n            <label class=\"vf-form__label vf-u-sr-only | vf-search__label\" for=\"searchitem\">Search</label>\n            <input name=\"query\" type=\"search\" placeholder=\"Find a gene, protein or chemical\" id=\"searchitem\" class=\"vf-form__input\" required=\"\" spellcheck=\"false\" data-ms-editor=\"true\">\n            <input name=\"requestFrom\" id=\"requestFrom\" type=\"hidden\" class=\"vf-form__input\" value=\"ebi_index\">\n          </div>\n          <div class=\"vf-form__item\">\n            <select name=\"db\" id=\"db\" tabindex=\"1\" class=\"vf-form__select\" style=\"max-width: 150px\">\n              <option value=\"allebi\">All</option>\n              <optgroup label=\"Science search\">\n                <option value=\"genomes\">Genomes &amp; metagenomes</option>\n                <option value=\"nucleotideSequences\">Nucleotide sequences</option>\n                <option value=\"proteinSequences\">Protein sequences</option>\n                <option value=\"smallMolecules\">Small molecules</option>\n                <option value=\"geneExpression\">Gene expression</option>\n                <option value=\"geneDiseaseAssociations\">Gene-Disease Associations</option>\n                <option value=\"diseases\">Diseases</option>\n                <option value=\"molecularInteractions\">Molecular interactions</option>\n                <option value=\"reactionsPathways\">Reactions &amp; pathways</option>\n                <option value=\"proteinFamilies\">Protein families</option>\n                <option value=\"literature\">Literature</option>\n                <option value=\"ontologies\">Samples &amp; ontologies</option>\n              </optgroup>\n              <optgroup label=\"Search web content\">\n                <option value=\"ebiweb_people\">EMBL-EBI People</option>\n                <option value=\"ebiweb\">EMBL-EBI web</option>\n                <!-- <option value=\"ebiweb\">EMBL web</option> -->\n              </optgroup>\n            </select>\n          </div>\n\n\n          <button type=\"submit\" class=\"vf-search__button | vf-button vf-button--primary\">\n            <span class=\"vf-button__text\">Search</span>\n          </button>\n        </div>\n      </form>\n      <p class=\"vf-text-body--5 vf-u-margin__bottom--0\">\n        Example searches: <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;requestFrom=ebi_index&amp;query=blast\">blast</a>\n        <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;query=keratin&amp;requestFrom=ebi_index\">keratin</a>\n        <a class=\"vf-link\" href=\"/ebisearch/search.ebi?db=allebi&amp;query=bfl1&amp;requestFrom=ebi_index\">bfl1</a>\n        | <a class=\"vf-link\" href=\"https://www.ebi.ac.uk/ebisearch/overview.ebi/about\">About EBI Search</a>\n      </p>\n    </section>\n</section>\n\n<section class=\"embl-grid\">\n  <div></div>\n  <div class=\"vf-content\">\n    <h3>Need assistance?</h3>\n    <a class=\"vf-button vf-button--primary\" href=\"https://www.ebi.ac.uk/support/error\">Contact our support team</a>\n  </div>\n</section>\n\n    <!-- embl global footer -->\n\n\n<!-- embl-ebi global footer -->\n<link rel=\"import\" href=\"https://www.embl.org/api/v1/pattern.html?filter-content-type=article&filter-id=106902&pattern=node-body&source=contenthub\" data-target=\"self\" data-embl-js-content-hub-loader>\n\n    <script src=\"https://assets.emblstatic.net/vf/v2.4.9/scripts/scripts.js\"></script>\n<!--\n  When using legacy EBI 1.x JS, we disable the old cookie banner.\n  https://stable.visual-framework.dev/components/ebi-header-footer/\n  -->\n<div class=\"vf-u-display-none\" data-protection-message-disable=\"true\"></div>\n\n<!-- IE11 polyfill JS -->\n<script nomodule crossorigin=\"anonymous\" src=\"https://polyfill.io/v3/polyfill.min.js?flags=gated&features=default\"></script>\n<!-- <script src=\"/scripts/scripts.js?\"></script> -->\n<script defer=\"defer\" src=\"https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.4/js/script.js\"></script>\n<link rel=\"stylesheet\" href=\"//ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css\" type=\"text/css\" media=\"all\" />\n\n<!-- Google Analytics -->\n<script>\nwindow.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;\nga('create', 'UA-629242-1', 'auto');\n</script>\n<script async src='https://www.google-analytics.com/analytics.js'></script>\n<!-- End Google Analytics -->\n\n<script type=\"text/javascript\">\n  document.addEventListener(\"DOMContentLoaded\", function(event) {\n\n        //- Code to execute when only the HTML document is loaded.\n        //- This doesn't wait for stylesheets,\n        // images, and subframes to finish loading.\n  });\n</script>\n\n  </body>\n</html>\n"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The search for same_aa_classifications found no variants with the identical protein change (p.Ser333Leu) as NM_000020.3:c.998G>T. All matches in the evidence are in different_aa_classifications with different amino acid changes (p.Ser333Arg, p.Ser333Cys), thus no same amino acid substitutions are classified as (likely) pathogenic.",
+      "reasoning": "According to the rules, since same_aa_classifications is empty, there is no variant with the identical amino acid change to compare pathogenicity data. Therefore, PS1 does not apply and we do not proceed to subsequent steps.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 333",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for NM_000020.3:c.998G>T related to HHT (the 'experiments' list is empty).",
+      "reasoning": "Step 1 instructs that if the experiments list is empty, BS3 does not apply. There are no functional assays available for review.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.998G>T",
+      "disease": "HHT"
+    }
+  ]
+}

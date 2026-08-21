@@ -264,3 +264,12 @@ Changed bs3 ps3 planrag and changed all the fstring so that it is downgraded to 
 Ashkan
 
 I cleaned up any dead code, wrote a good readme file, and started working on the baseline. To run the baseline, use the command python -m baseline.run_baseline --limit 3 --passes 1. This is just as an example, it will take the first 3 variants from the full_evaluation_dataset. I also created a script to evaluate the baseline results, and here is the way to run that: venv/bin/python -m baseline.evaluate_baseline
+
+
+
+
+
+
+
+
+outputs/batch_20260729_194939/batch_summary.json

@@ -1,0 +1,141 @@
+{
+  "variant": "NM_001114753.3:c.1319T>G",
+  "disease": "HHT",
+  "timestamp": "20260729_120450",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {},
+    "applied_criteria": [],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI contextuals failed for NM_001114753.3:c.1319T>G: HTTP 502"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI contextuals failed for NM_001114753.3:c.1319T>G: HTTP 502"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "gnomad",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "NCBI contextuals failed for NM_001114753.3:c.1319T>G: HTTP 502"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change at codon 440 (Val440Gly) in the ENG gene. Critical ENG positions for PM1 are 207, 278, 282, 350, 363, 382, 394, 412, and 549. Position 440 is not among these.",
+      "reasoning": "PM1 only applies if the variant affects one of the specific critical residues in ENG as specified by the ACMG classification rules. Codon 440 is not within the list of critical residues (BMP9 binding sites, LP/P cysteines, or disulfide cysteines). Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No previously classified missense variants with a different amino acid substitution at the same codon (codon 440 in ENG) were found in different_aa_classifications by erepo for this variant.",
+      "reasoning": "PM5 applies only if there are one or more known pathogenic or likely pathogenic missense variants with a different amino acid substitution at the same codon. The different_aa_classifications list is empty, indicating there are no such variants reported. Therefore, PM5 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 440",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The functional_evidence tool returned an empty 'experiments' list for NM_001114753.3:c.1319T>G.",
+      "reasoning": "Step 1 of the PS3 rules specifies that if the experiments list is empty, PS3 does not apply. No eligible functional studies are present for review, so the rest of the steps do not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score not available. SpliceAI scores: DS_AG=0.1300, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000. '_computed.verdicts': 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.1300, all < 0.2)'.",
+      "reasoning": "According to the pre-verified '_computed.verdicts', neither the REVEL nor SpliceAI criteria for PP3 are met: 'PP3 REVEL (>= 0.644): N/A (REVEL not available)' and 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.1300, all < 0.2)'. Thus, based on classification rules, PP3 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score: N/A (data unavailable). SpliceAI scores: DS_AG=0.1300 (above threshold), DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000. _computed.verdicts: BP4 REVEL HHT threshold: N/A; BP4 SpliceAI: FAILS (DS_AG=0.1300 > 0.1).",
+      "reasoning": "According to the provided rules for BP4 in missense variants, both REVEL and SpliceAI must pass their respective thresholds. However, _computed.verdicts explicitly states 'BP4 SpliceAI (all scores <= 0.1): FAILS' because DS_AG=0.1300 exceeds the threshold. With a missense type, failing either the REVEL or SpliceAI condition means BP4 does not apply. Therefore, BP4 cannot be applied here.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818825-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The erepo tool retrieved zero entries in 'same_aa_classifications' for NM_001114753.3:c.1319T>G; no ClinVar or HHT VCEP variants with the identical amino acid change were found.",
+      "reasoning": "Step 1 requires that 'same_aa_classifications' is non-empty for PS1 to apply. In this case, 'same_aa_classifications' is empty, indicating no pathogenic or likely pathogenic variants with the same amino acid change have been previously established. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 440",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The evidence dict is empty; no experiments are listed for this variant.",
+      "reasoning": "Since the 'experiments' list is empty, there are no functional assay results to evaluate. According to the BS3 rules, if no experiment data is present, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1319T>G",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "variant": "NM_001278138.2:c.270+3G>T",
+  "disease": "HHT",
+  "timestamp": "20260729_220646",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Supporting": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Supporting"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001278138.2:c.270+3G>T is absent from gnomAD: total allele count (AC)=0, allele frequency in all populations=0.0.",
+      "reasoning": "According to the PM2_SUPPORTING rules, Step 1 is met because the variant is entirely absent from gnomAD (AC=0). Thus, PM2_SUPPORTING applies since absence meets the criterion definition.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001278138.2:c.270+3G>T is absent from gnomAD (Popmax FAF = 0.0).",
+      "reasoning": "BA1 only applies if the Popmax FAF is >= 0.01 (1%). This variant is absent from gnomAD and has a Popmax FAF of 0.0, which is not high enough for BA1 to apply. Therefore, BA1 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF = 0.0. Homozygote count = 0.",
+      "reasoning": "BS1 requires a Popmax FAF above 0.0008. This variant is absent from gnomAD, with a Popmax FAF of 0.0 and no homozygotes. Therefore, neither BS1_Supporting nor BS1_Strong thresholds are met, and BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825228-G-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband count = 1; ERepo: no data; LOVD: no data; PubMed: 0 relevant articles found.",
+      "reasoning": "The ClinVar HHT VCEP submission confirms 1 proband with the NM_001278138.2:c.270+3G>T variant, consistent with HHT. The case is not excluded from PS4 counting, as only PP4_Moderate probands are excluded, not those with an alternate molecular basis. PM2_Supporting is confirmed met in the source evidence. Per rules: 1 proband + PM2_Supporting = PS4_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001278138.2:c.270+3G>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001278138.2:c.270+3G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001278138.2:c.270+3G>T"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001278138.2:c.270+3G>T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001278138.2:c.270+3G>T"
+    }
+  ]
+}

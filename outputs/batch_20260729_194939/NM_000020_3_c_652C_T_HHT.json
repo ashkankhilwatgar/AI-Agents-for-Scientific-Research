@@ -1,0 +1,155 @@
+{
+  "variant": "NM_000020.3:c.652C>T",
+  "disease": "HHT",
+  "timestamp": "20260729_215004",
+  "classification": "Likely Benign",
+  "rule_matched": "1 Strong benign",
+  "scoring": {
+    "classification": "Likely Benign",
+    "rule_matched": "1 Strong benign",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "BS1": "benign_strong",
+      "PS4_Supporting": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "BS1",
+      "PS4_Supporting"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD with total allele count (AC) of 247. No subpopulation allele frequency (AF) is below 0.00004; for example, in the 'nfe' (Non-Finnish European) subpopulation, AC=11, AN=1,111,980, AF=9.9e-6 (which IS less than 0.00004), but 'sas' (South Asian) and 'eas' (East Asian) have higher AFs.",
+      "reasoning": "Step 1: The variant is not absent from gnomAD (AC=247), so proceed to Step 2. Step 2: Total allele count (AC=247) is not less than 6, so proceed to Step 3. Step 3: Allele frequency in at least one gnomAD subpopulation is less than 0.00004 (nfe = 9.9e-6), so PM2_Supporting applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The Popmax FAF (Filtering Allele Frequency) for this variant in gnomAD is 0.00225 (0.225%) in the EAS population, which is below the 1% (0.01) BA1 threshold.",
+      "reasoning": "According to the ACMG BA1 rule, this criterion applies when the Popmax FAF is greater than or equal to 0.01 (1%). The Popmax FAF for this variant is only 0.00225 (0.225%), which is well below the required threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF (gnomAD) is 0.00224772; total homozygotes = 3; BA1 does not apply (FAF < 0.01); FAF is >0.002 and <0.01.",
+      "reasoning": "BA1 does not apply because FAF is less than 0.01. The popmax FAF of 0.00224772 is greater than 0.002 and less than 0.01, which meets the threshold for BS1_Strong via the FAF route (Step 3). Therefore, BS1 applies at benign_strong strength. BS1_Supporting does not apply, as the FAF exceeds that threshold's upper bound. Previous reasoning incorrectly justified benign_strong via Step 2; the correct justification is via Step 3 (FAF route).",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change (p.Arg218Trp) in ACVRL1 at residue position 218. It is not reported to be within any critical region defined for PM1 (glycine-rich loop: 209-216; phosphate anchor: 229; E242; catalytic loop: 329-335; metal-binding loop: 348-351; BMP10 cluster: 40,54,56,57,58,59,66,71,72,73,75,76,78,79,80,82,83,84,85,87).",
+      "reasoning": "PM1 only applies if the protein residue is in a specifically enumerated region or position. Residue 218 is not within any of the specified PM1 critical regions, nor is it listed in the BMP10 cluster. Therefore, PM1 does not apply based on the provided rule set and variant position.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: no SCV available or no proband count; ERepo: not queried; LOVD: 1 proband observed; PubMed: 0 articles found",
+      "reasoning": "Only one proband with a consistent HHT phenotype is reported in LOVD. There are no ClinVar HHT VCEP SCV submissions giving proband count, and no additional probands in other sources. By PS4 rules, a single proband supports application of PS4 at the 'supporting' strength (provided PM2_Supporting is also met, as assumed).",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "LOVD for NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty for codon 218 in ACVRL1; no other missense variants causing a different amino acid change at this codon are classified as P/LP for HHT.",
+      "reasoning": "According to the HHT VCEP PM5 rules, PM5 applies only if there is at least one pathogenic/likely pathogenic missense variant (for a different amino acid change) at the same codon. Here, different_aa_classifications is empty, so PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 218",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "Two functional experiments (PMID: 27625857) assessed the variant using BMP9-induced SMAD1/5/8 phosphorylation and transcriptional reporter activation in cell systems. Both showed loss of ALK1 function compared to wild type, but both assays fall under the 'intracellular signalling/BMP9-TGF-beta' category. No mRNA splicing or additional assay types were tested.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: Both experiments are eligible as intracellular signalling/BMP9-TGF-beta functional assays (but are not in different assay categories). Step 3: Both experiments are functionally abnormal based on effect_direction and authors' conclusions. Step 4: According to the explicit rules, at least two different eligible abnormal assay types (not two within a single category) are required for PS3 at strong strength; one non-splicing assay category (with concordant abnormal results) does not meet the threshold for PS3 (which can be applied as 'supporting' only, but the system allows only 'strong'). Final: Because only one category is represented, PS3 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is not available due to an error. SpliceAI scores are all below 0.2 (max 0.1). In the _computed.verdicts, PP3 REVEL is N/A, PP3 SpliceAI does not fire (all scores < 0.2).",
+      "reasoning": "According to the _computed.verdicts, neither the REVEL score nor the SpliceAI scores meet the threshold required for PP3. For this (likely missense) variant, both independent triggers (REVEL >= 0.644 or SpliceAI >= 0.2) are absent. Therefore, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI verdict: BP4 SpliceAI (all scores <= 0.1): PASSES. REVEL verdict: BP4 REVEL HHT threshold (<= 0.15): N/A (REVEL not available).",
+      "reasoning": "This is a missense variant, so BP4 requires BOTH 'BP4 REVEL HHT threshold (<= 0.15): PASSES' AND 'BP4 SpliceAI (all scores <= 0.1): PASSES'. In this case, the REVEL verdict is N/A due to missing data, so the first condition fails. Therefore, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51914465-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty; there are no established pathogenic variants with the same amino acid change as NM_000020.3:c.652C>T. Only a different amino acid change (p.Arg218Pro) from a distinct variant (NM_000020.3:c.653_654inv) has a pathogenic classification, but this is not the same amino acid change as required for PS1.",
+      "reasoning": "According to the rules, PS1 applies only if there is a pathogenic or likely pathogenic variant with the identical amino acid change in 'same_aa_classifications'. The evidence shows that this list is empty, so there are no such variants. Therefore, criterion PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 218",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Two experiments (PMID: 27625857) evaluated the function of ALK1-R218W with assays for BMP9-induced SMAD1/5/8 phosphorylation and transcriptional activation. Both reported loss of signaling relative to wild type (functionally abnormal). Appropriate controls were used.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: Both experiments use eligible HHT-relevant functional assays (intracellular signaling: BMP9 stimulation, transcriptional activation). Step 3: Both show clear functionally abnormal results: loss of phosphorylation/signaling relative to wild type, with appropriate controls and authors' conclusions supporting a loss-of-function interpretation. Step 4: Presence of any functionally abnormal experiments means BS3 does NOT apply. No functionally normal experiment is reported. Therefore, the criterion does not apply, per BS3 rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.652C>T",
+      "disease": "HHT"
+    }
+  ]
+}

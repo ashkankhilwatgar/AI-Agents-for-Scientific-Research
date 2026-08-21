@@ -1,0 +1,156 @@
+{
+  "variant": "NM_001114753.3:c.572G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_204522",
+  "classification": "Benign",
+  "rule_matched": "BA1 stand-alone",
+  "scoring": {
+    "classification": "Benign",
+    "rule_matched": "BA1 stand-alone",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 1,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "BA1": "benign_stand_alone",
+      "BS3": "benign_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "BA1",
+      "BS3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD with total AC=22210. In all examined subpopulations, the lowest observed AF is in the East Asian exome group: AC=1, AN=38902, AF=0.0000257 (~0.003%). Several other subpopulations have AFs much higher than 0.00004. Decision triggered at Step 3: the East Asian (exome) subpopulation AF=0.0000257 is less than 0.00004.",
+      "reasoning": "Per PM2_SUPPORTING rules, if ANY gnomAD subpopulation has an AF < 0.00004, the criterion applies. Although the overall allele count is high (AC=22210), in the East Asian (exome) subpopulation, the AF=0.0000257 (<0.00004), so Step 3 is satisfied and PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The gnomAD popmax FAF for this variant is 0.01702266 (1.70%).",
+      "reasoning": "According to the BA1 rule, the criterion applies if the popmax FAF is greater than or equal to 0.01 (1%). The popmax FAF here is 0.01702266, which is above the threshold. Therefore, BA1 applies.",
+      "applies": true,
+      "applied_strength": "benign_stand_alone",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.017 (1.7%), which is greater than the BA1 threshold of 0.01 (1%). There are 180 homozygotes for this variant.",
+      "reasoning": "The gnomAD popmax FAF for this variant (0.017) exceeds the BA1 threshold (0.01), so the BA1 criterion should apply, not BS1. According to the rules, if BA1 is met, BS1 must NOT be applied, even though the frequency is also higher than needed for BS1_Strong. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant c.572G>A (p.Gly191Asp) is a missense variant in ENG at protein position 191. The residue is glycine, not cysteine, and is not in one of the explicitly listed critical residues or BMP9 binding sites.",
+      "reasoning": "PM1 applies only if the variant affects one of the specified residues: BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), or critical disulfide-bond cysteines (350, 394). The variant is at position 191, which is not in any of these categories. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband_count=2, classification=Benign, comment describes 2 patients with an alternate molecular basis for disease; ERepo: not queried; LOVD: not queried; PubMed: not queried (fallback not necessary as ClinVar HHT VCEP has explicit proband count).",
+      "reasoning": "ClinVar HHT VCEP SCV reports 2 probands with the c.572G>A variant, but both individuals also carry a pathogenic variant in another HHT gene (ACVRL1), meaning these are not independent cases implicating this variant in HHT. Furthermore, the variant meets BA1 (common in general population), implying it is not likely pathogenic, regardless of the number of probands. PS4 is not applicable if BA1 applies, and the counting of probands is vitiated because these individuals are not sole variant carriers attributable to the disease in question. Thus, PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.572G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No variants with a different amino acid at codon 191 in ENG have been classified as LP/P for HHT per HHT VCEP rules. The 'different_aa_classifications' list is empty.",
+      "reasoning": "PM5 applies only if there are one or more different missense (different alt amino acid) LP/P variants at the same codon. As the 'different_aa_classifications' list is empty, there is no qualifying PM5 evidence at this codon. Therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 191",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "One eligible experiment (PMID: 27260700): Minigene splicing assay in COS-7 cells using ENG exon minigene constructs. Both wild type and c.572G>A showed the same single RT-PCR band; no aberrant or abnormal splicing observed. Controls were valid. Authors conclude the variant does not affect splicing.",
+      "reasoning": "STEP 1: The experiments list is not empty. STEP 2: The experiment is an eligible mRNA splicing assay for HHT. STEP 3: The result is functionally_normal, as the readout and authors' conclusion both confirm no splicing abnormality compared to wild type, with valid controls. STEP 4: There are no functionally_abnormal results. Since all eligible results are normal, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score not available (request failed). SpliceAI scores: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0. _computed.verdicts says: PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE; PP3 REVEL (>= 0.644): N/A.",
+      "reasoning": "According to the _computed.verdicts, the PP3 criterion does not fire for either REVEL (not available) or SpliceAI (maximum score is 0.05, which is below the 0.2 threshold). Thus, according to the decision rules for PP3, the criterion does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI scores: DS_AG=0.0500, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000; PP3 SpliceAI: DOES NOT FIRE (max=0.05); BP4 SpliceAI: PASSES (all scores <= 0.1, max=0.05); REVEL score: N/A; BP4 REVEL HHT threshold: N/A.",
+      "reasoning": "The variant is a missense variant. According to the rules, both 'BP4 REVEL HHT threshold (<= 0.15): PASSES' and 'BP4 SpliceAI (all scores <= 0.1): PASSES' must be true for BP4 to apply. In this case, 'BP4 REVEL HHT threshold: N/A', so the first condition fails, meaning BP4 does NOT apply. This strictly follows the instructions for missense variants requiring AND logic.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The tool returned: same_aa_classifications = [], i.e., there are no other variants reported with the *identical* amino acid change as the query. All other fields are irrelevant for PS1 when same_aa_classifications is empty.",
+      "reasoning": "The PS1 criterion requires at least one prior variant with the same amino acid change as the query, classified as pathogenic/likely pathogenic. The evidence shows that there are NO such variants (same_aa_classifications is empty), so PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 191",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "Two experiments were identified: (1) immunofluorescence localization in CHO-K1 cells (PMID: 25080347) showing endoglin membrane localization and SN6 antibody recognition for the variant comparable to wild-type; (2) minigene splicing assay in COS-7 cells (PMID: 27260700) demonstrating identical transcript profiles between variant and wild-type with no evidence of aberrant splicing. Both used relevant controls and appropriate comparators, with authors concluding normal function for both assays.",
+      "reasoning": "There are two eligible functional experiments for HHT: a subcellular localization/trafficking assay and a validated mRNA splicing assay. Both show functionally normal results for the variant in comparison to wild-type (clear membrane localization, normal SN6 recognition, and normal splicing patterns) with appropriate controls. No functionally abnormal or ambiguous results are reported. According to the ACMG/BS3 rules, the presence of at least one functionally normal result in an appropriate assay supports applying BS3 at 'benign_supporting' strength. The correction requested is to use the proper strength label ('benign_supporting').",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT",
+      "judge_warning": "Judge agent exceeded retry limit (5); output returned as-is with unresolved reasoning concerns"
+    }
+  ]
+}

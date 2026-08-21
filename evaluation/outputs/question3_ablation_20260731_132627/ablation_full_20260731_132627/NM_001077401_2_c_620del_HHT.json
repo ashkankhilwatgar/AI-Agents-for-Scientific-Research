@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260731_141111",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001077401.2:c.620del was not found in gnomAD. Total allele count (AC)=0. Absent from all populations.",
+      "reasoning": "According to the rules, if a variant is absent from gnomAD entirely, PM2_Supporting applies. The variant is not present in gnomAD (AC=0). Therefore, criterion PM2_Supporting applies based on Step 1.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001077401.2:c.620del is absent from gnomAD (total AC=0, popmax FAF=0.0).",
+      "reasoning": "BA1 applies only when the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since the variant is absent from gnomAD and has popmax FAF=0.0, it does NOT meet the threshold for BA1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF is 0.0, total allele count is 0, and homozygote count is 0.",
+      "reasoning": "BS1 requires Popmax FAF to be between >0.0008 and <0.01. The variant is totally absent from gnomAD (FAF=0.0, AC=0), so it does not meet any threshold for BS1. No evidence supports applying BS1. It also does not meet criteria for BA1. The absence actually supports rarity (PM2) but not high population frequency (BS1).",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count in comment; ERepo: No case-level data found; LOVD: No entries for this variant; PubMed: 0 articles found with case reports for this variant.",
+      "reasoning": "The PS4 criterion requires an explicit proband count with a diagnosis of HHT who does NOT meet PP4_Moderate, documented in trusted sources (ClinVar HHT VCEP SCV comment, ERepo records, LOVD, or published case reports in PubMed). Here, the VCEP Pathogenic classification does NOT guarantee the existence of a documented proband (per curation rules and previous feedback). No explicit proband count is found in the ClinVar SCV or ERepo. LOVD does not list this variant, and PubMed yields zero case reports for this variant with a relevant phenotype. Thus, the proband count for PS4 = 0 and the criterion does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant is a frameshift_variant at codon 207 in ACVRL1. LOF is a known disease mechanism for ACVRL1, with frameshifts established as pathogenic. Codon 207 is before the NMD cutoff of codon 442.",
+      "reasoning": "This is a frameshift variant in ACVRL1, where LOF is an established pathogenic mechanism for HHT. The variant occurs at codon 207, before the NMD boundary (codon 442), so it is predicted to undergo NMD. According to the ACVRL1 PVS1 Decision Tree, this warrants PVS1 (Very Strong) strength. Therefore, PVS1 applies at very strong strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    }
+  ]
+}

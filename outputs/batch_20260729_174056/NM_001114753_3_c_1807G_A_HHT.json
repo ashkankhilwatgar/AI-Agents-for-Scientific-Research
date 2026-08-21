@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.1807G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_181505",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + \u22652 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + \u22652 Supporting",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PP3": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PP3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1807G>A (9-127815988-C-T) is absent from gnomAD (total AC = 0, AN = 1,456,206).",
+      "reasoning": "According to Step 1 of the PM2_SUPPORTING classification rules, if the variant is absent from gnomAD entirely, PM2_SUPPORTING applies. Since the variant has a total allele count of 0 in gnomAD, it is completely absent, and therefore the PM2_SUPPORTING criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A (9-127815988-C-T) is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax FAF is >= 0.01 (1%). Since the variant is absent from gnomAD and has a Popmax FAF of 0.0, which is less than 0.01, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A is absent from gnomAD (total AC = 0, Popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "To apply BS1, the Popmax FAF must be greater than 0.0008 (for BS1_Supporting) or greater than 0.002 (for BS1_Strong). Since the variant is absent from gnomAD (Popmax FAF = 0.0, homozygote count = 0), it does not meet any of the thresholds for BS1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1807G>A (p.Gly603Arg) is located at codon position 603 of the ENG protein.",
+      "reasoning": "According to the ENG-specific PM1 rules, PM1 applies if the variant residue is in BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), or disulfide-bond cysteines (350, 394). The variant is at position 603, which is not among these critical residues. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 4 probands; ERepo: N/A; LOVD: N/A; PubMed: N/A",
+      "reasoning": "The ClinVar HHT VCEP submission reports 4 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia (HHT). The variant also meets PM2_Supporting as it is absent from gnomAD. According to the HHT VCEP specifications, a proband count of 4 or more meets the threshold for PS4 at a strong strength level.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications found at codon 603 of ENG.",
+      "reasoning": "The tool returned an empty list for different_aa_classifications at codon 603. According to the HHT VCEP rules for PM5, at least one different pathogenic or likely pathogenic missense variant at the same codon is required to apply PM5. Since there are no such variants, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1807G>A.",
+      "reasoning": "The experiments list is empty. According to Step 1 of the PS3 classification rules, if the experiments list is empty, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI score DS_AG=0.2800 triggers PP3 (threshold >= 0.2). REVEL score was not available due to a timeout error.",
+      "reasoning": "According to the pre-computed verdicts, the SpliceAI score DS_AG of 0.2800 meets the threshold of >= 0.2 for PP3 ('PP3 SpliceAI (any score >= 0.2): FIRES'). Therefore, the criterion applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815988-C-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP request failed: HTTPSConnectionPool(host='rest.ensembl.org', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty, indicating no established pathogenic variants with the same amino acid change at codon 603.",
+      "reasoning": "According to the PS1 classification rules, the criterion only applies if there is at least one established pathogenic or likely pathogenic variant with the identical amino acid change (same_aa_classifications). Since the same_aa_classifications list is empty, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 603",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_001114753.3:c.1807G>A.",
+      "reasoning": "The experiments list is empty, meaning there is no functional evidence available to evaluate BS3. According to Step 1 of the classification rules, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1807G>A",
+      "disease": "HHT"
+    }
+  ]
+}

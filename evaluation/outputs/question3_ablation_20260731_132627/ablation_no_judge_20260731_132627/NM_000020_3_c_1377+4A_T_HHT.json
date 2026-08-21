@@ -1,0 +1,96 @@
+{
+  "variant": "NM_000020.3:c.1377+4A>T",
+  "disease": "HHT",
+  "timestamp": "20260731_150051",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is absent from gnomAD: not found in database, total AC = 0, all subpopulation AF = 0.0.",
+      "reasoning": "Step 1 triggers the application of PM2_SUPPORTING because the variant is completely absent from gnomAD (not found in the database, AC=0, AF=0.0 for all populations). According to the criterion, if the variant is absent from gnomAD, PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD (total_ac = 0, popmax_faf = 0.0).",
+      "reasoning": "BA1 applies only if Popmax FAF >= 0.01 (1%). Here, the variant's popmax_faf is 0.0, indicating it is absent or extremely rare in gnomAD. This does NOT meet the BA1 (benign) frequency threshold.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD: popmax FAF is 0.0, homozygote count is 0.",
+      "reasoning": "The variant is not found in gnomAD, with a Popmax FAF of 0.0 and 0 homozygotes. For BS1 to apply, Popmax FAF must be >0.0008. Since the FAF is 0.0, none of the BS1 thresholds are met, so BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.1377+4A>T HHT",
+      "disease": "HHT",
+      "status": "error",
+      "error": "PubMed esearch failed after 3 retries: HTTPSConnectionPool(host='eutils.ncbi.nlm.nih.gov', port=443): Max retries exceeded with url: /entrez/eutils/esearch.fcgi?db=pubmed&term=ACVRL1+c.1377%2B4A%3ET+HHT&retmax=10&retmode=json&email=akhilwat%40hamilton.edu&api_key=cfe8c362c0505fe8ea3f0f9893d80c3f8208 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No experiments were found in the functional_evidence for NM_000020.3:c.1377+4A>T.",
+      "reasoning": "According to the rules, since the experiments list is empty, there is no functional data available to assess the impact of this variant in eligible HHT assays. Therefore, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional evidence was retrieved; the experiments list is empty.",
+      "reasoning": "Step 1: The experiments list in the evidence is empty. According to the BS3 application rules, if there are no functional experiments available, BS3 does not apply and evaluation stops at this step.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT"
+    }
+  ]
+}

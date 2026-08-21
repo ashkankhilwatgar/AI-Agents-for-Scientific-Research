@@ -1,0 +1,151 @@
+{
+  "variant": "NM_001114753.3:c.1961C>G",
+  "disease": "HHT",
+  "timestamp": "20260729_211128",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_001114753.3:c.1961C>G is completely absent from gnomAD: total allele count (AC)=0, popmax_faf=0.0, no observations in any population.",
+      "reasoning": "Step 1 of the PM2_SUPPORTING rules applies: the variant is absent from gnomAD. According to the guidelines, if a variant is completely absent, PM2_SUPPORTING applies. No need to evaluate further steps.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD (popmax FAF = 0.0).",
+      "reasoning": "Criterion BA1 requires popmax FAF >= 0.01 (1%) in gnomAD. This variant is absent from gnomAD, with popmax FAF = 0.0, which is less than 1%. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.1961C>G is absent from gnomAD (total allele count = 0, popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "Per ACMG rules for BS1, the criterion applies only if the popmax FAF is >0.0008. Here, popmax FAF is 0.0, which is below the required threshold. Also, there are no homozygotes and the variant is absent, so none of the routes to apply BS1_Strong or BS1_Supporting are met. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change (p.Thr654Ser) at codon 654 in ENG (NM_001114753.3). The position is not in any specified critical residue list for PM1 per GN136 (BMP9 binding sites at 278, 282; LP/P cysteines at 207, 363, 382, 412, 549; disulfide-bond cysteines at 350, 394).",
+      "reasoning": "PM1 requires that the variant affects a residue at a specific position: 278, 282, 207, 363, 382, 412, 549, 350, or 394. The variant is at position 654, which is not one of these positions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No entries found; ERepo: No entries found; LOVD: No entries found; PubMed: 0 articles found",
+      "reasoning": "No probands with HHT and the variant c.1961C>G in the ENG gene were identified in ClinVar (including HHT VCEP submissions), ERepo, LOVD, or in the PubMed literature. As a result, there are zero documented probands, and PS4 does not apply per the specified rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG (c.1961C>G OR p.Thr654Ser OR p.T654S) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications is empty\u2014no classified missense variants with a different amino acid change at codon 654 in ENG were found according to erepo.",
+      "reasoning": "PM5 applies when there are pathogenic/likely pathogenic missense variants with a different amino acid change at the same codon. Here, different_aa_classifications is empty, so there are no such reported variants at this codon. Therefore, PM5 does not apply to this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 654",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The experiments list retrieved from the tool is empty: no functional experiments are reported for NM_001114753.3:c.1961C>G related to HHT.",
+      "reasoning": "According to Step 1 of the provided rules, if the experiments list is empty, PS3 does not apply. There is no functional data to evaluate for support of a damaging effect relevant to HHT. Therefore, no further steps are needed and the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI verdict: 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0000, all < 0.2)'. REVEL verdict: 'PP3 REVEL (>= 0.644): N/A (REVEL not available)'.",
+      "reasoning": "According to the _computed.verdicts field, neither the SpliceAI nor the REVEL threshold for PP3 is met: SpliceAI does not fire (all scores are well below 0.2) and REVEL is not available. Therefore, per the classification rules, PP3 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score is unavailable due to a request error. SpliceAI scores are all 0.0. From _computed.verdicts: 'BP4 REVEL HHT threshold (<= 0.15): N/A' and 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "For missense variants, both REVEL and SpliceAI must pass their respective thresholds for BP4 to apply. However, _computed.verdicts indicates REVEL is 'N/A' (not available) for this variant, so Step 1 for Branch A fails. Therefore, BP4 does NOT apply according to the specified decision rules for missense variants: failing either the REVEL or SpliceAI condition fails BP4.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty; there are no reported variants with the identical amino acid change as the query (NM_001114753.3:c.1961C>G) according to ClinVar or HHT VCEP.",
+      "reasoning": "Per PS1 guidance, for this criterion to apply, there must be at least one variant in the 'same_aa_classifications' field. In this case, the field is empty, so no established pathogenic variant exists with the identical amino acid change. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 654",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.1961C>G related to HHT.",
+      "reasoning": "According to the rules, if the 'experiments' list is empty for the variant, BS3 does not apply. No functional data relevant to HHT (e.g., splicing, signaling, binding, trafficking) was found for this variant, so there is no basis to consider BS3.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    }
+  ]
+}

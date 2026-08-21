@@ -233,7 +233,6 @@ def build_evaluation_df(pred_df: pd.DataFrame, gold_df: pd.DataFrame) -> tuple:
         num_criterion_errors, num_no_gold_label, num_unmatched_variants).
     """
     gold_applied_lookup = gold_df["gold_applied"].to_dict()
-    gold_not_met_lookup = gold_df["gold_not_met"].to_dict()
 
     gold_applies = []
     unmatched_variant = []

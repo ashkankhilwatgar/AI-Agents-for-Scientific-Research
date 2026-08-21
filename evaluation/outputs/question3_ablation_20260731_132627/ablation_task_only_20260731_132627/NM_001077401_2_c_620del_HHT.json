@@ -1,0 +1,111 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260731_152249",
+  "classification": "Pathogenic",
+  "rule_matched": "PVS1 + \u22652 Supporting",
+  "scoring": {
+    "classification": "Pathogenic",
+    "rule_matched": "PVS1 + \u22652 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 2,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Supporting": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Supporting",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is absent from gnomAD: total allele count = 0, all subpopulation AFs = 0.0, not observed in any population.",
+      "reasoning": "Step 1 applies: The variant is entirely absent from gnomAD (total AC = 0), which meets the criteria for PM2_SUPPORTING. No need to proceed to further steps. The absence of the variant from a large control population supports its rarity.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD; Popmax FAF = 0.0.",
+      "reasoning": "The BA1 criterion requires that the Popmax Filtering Allele Frequency (FAF) in gnomAD is greater than or equal to 0.01 (1%). For this variant, the Popmax FAF is 0.0, as the variant is not present in gnomAD. Therefore, BA1 does not apply according to the rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001077401.2:c.620del is absent from gnomAD; Popmax FAF = 0.0, homozygote count = 0.",
+      "reasoning": "BS1 requires Popmax FAF >0.0008. This variant is absent from gnomAD (Popmax FAF = 0.0) and has 0 homozygotes, so neither the strong nor supporting thresholds for BS1 are met. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 1 proband inferred from VCEP classification (ClinGen ERepo); ERepo: Proband count inferable (\u22651 for P/LP), not exact in notes; LOVD: not queried in evidence; PubMed: not queried as ClinVar data sufficient.",
+      "reasoning": "The ClinVar HHT VCEP expert panel submission infers at least 1 proband with HHT for this variant, which meets the threshold for PS4_Supporting (1 proband) per instructions. Additional sources (LOVD, PubMed) are not needed since the proband count is available in ClinVar via the VCEP SCV. PM2_Supporting is assumed to have been previously confirmed. Therefore, PS4 applies at supporting strength.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_001077401.2:c.620del in ACVRL1 is a frameshift variant at codon 207. Loss of function is a known disease mechanism for ACVRL1, including HHT. Codon 207 is well before the NMD boundary (codon 442).",
+      "reasoning": "Per the gene-specific rule, loss-of-function (LOF) is the established mechanism for HHT with ACVRL1. This variant is a frameshift at codon 207, which is before the NMD boundary (codon 442), predicting that the transcript will undergo nonsense-mediated decay (NMD). According to the ACVRL1 PVS1 specification, frameshifts leading to NMD at codon 442 or earlier get the full PVS1 (very strong) strength.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    }
+  ]
+}

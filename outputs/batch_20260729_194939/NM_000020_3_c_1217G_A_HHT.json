@@ -1,0 +1,110 @@
+{
+  "variant": "NM_000020.3:c.1217G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_220406",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is absent from gnomAD: total allele count (AC) = 0, allele frequency in all subpopulations = 0.0.",
+      "reasoning": "According to the classification rules, if a variant is entirely absent from gnomAD (total AC = 0), PM2_SUPPORTING applies immediately. The evidence shows the variant is not found in gnomAD (AC = 0), triggering Step 1.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916204-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_000020.3:c.1217G>A is absent from gnomAD; popmax FAF = 0.0.",
+      "reasoning": "BA1 applies only when the Popmax FAF is greater than or equal to 0.01 (1%). Here, the variant is not present in gnomAD and the Popmax FAF is 0.0, which is well below the threshold. Therefore, the BA1 criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916204-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_000020.3:c.1217G>A is absent from gnomAD, with Popmax FAF = 0.0 and 0 homozygotes.",
+      "reasoning": "According to the BS1 rules, the variant must have a Popmax FAF above 0.0008 to apply BS1_Supporting, or above 0.002 to apply BS1_Strong. Here, the Popmax FAF is 0.0, and there are no homozygotes. Therefore, neither BS1_Supporting nor BS1_Strong applies. Additionally, BA1 does not apply as the Popmax FAF is far below 0.01. Because the FAF is zero, BS1 does not apply at any strength.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51916204-G-A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband count not explicitly reported; ERepo: pathogenic classification without explicit proband count; LOVD: not queried; PubMed: not queried.",
+      "reasoning": "The ClinVar HHT VCEP SCV for NM_000020.3:c.1217G>A does not explicitly provide a count of unrelated probands with HHT. The ERepo lists a pathogenic classification but also lacks explicit proband data. According to PS4 rules, a minimum of one clearly documented, unrelated proband is required, as inferred or implied counts do not qualify. Since neither the SCV comment nor any other listed source provides direct evidence of such probands, the current proband count is considered zero, and PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_000020.3:c.1217G>A",
+      "disease": "HHT",
+      "judge_warning": "Judge agent exceeded retry limit (5); output returned as-is with unresolved reasoning concerns"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_000020.3:c.1217G>A in ACVRL1 is a nonsense (stop_gained) variant at codon 406 (p.Trp406Ter), producing protein truncation well before the NMD boundary (codon 442). LOF is a known disease mechanism for ACVRL1 causing HHT type 2.",
+      "reasoning": "The variant is a nonsense (stop-gained) mutation at codon 406, which is before the NMD threshold (codon 442) for ACVRL1. According to the rules, such variants are predicted to undergo NMD, and LOF is an established mechanism of disease in ACVRL1 for HHT. Therefore, the criterion PVS1 applies at very strong strength per the detailed gene-specific guidelines.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.1217G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The evidence retrieved contains an empty experiments list for NM_000020.3:c.1217G>A.",
+      "reasoning": "According to the rules for PS3, if the experiments list is empty, then no relevant functional evidence is available to consider. Therefore, PS3 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1217G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The evidence dict contains an empty 'experiments' list for NM_000020.3:c.1217G>A relating to HHT.",
+      "reasoning": "As per the rules for BS3, step 1 requires that if the 'experiments' list is empty, BS3 does not apply. Since there are no functional assay results to assess, no eligible HHT assay evidence is available for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1217G>A",
+      "disease": "HHT"
+    }
+  ]
+}

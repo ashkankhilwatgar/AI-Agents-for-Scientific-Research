@@ -1,0 +1,118 @@
+{
+  "variant": "NM_001114753.3:c.1312-3C>G",
+  "disease": "HHT",
+  "timestamp": "20260729_133217",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD. Total allele count (AC) = 0, allele frequencies in all subpopulations = 0.0. Variant is completely absent from gnomAD.",
+      "reasoning": "According to PM2_SUPPORTING rules, if a variant is entirely absent from gnomAD (AC = 0), the criterion applies. Here, the variant is absent (AC = 0), so PM2_SUPPORTING applies (Step 1).",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD. Popmax FAF = 0.0.",
+      "reasoning": "BA1 applies only if Popmax FAF is greater than or equal to 0.01 (1%). Since the variant is absent from gnomAD, the Popmax FAF is 0.0, which is below the threshold. Therefore, BA1 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD: total AC = 0, popmax FAF = 0.0, homozygotes = 0.",
+      "reasoning": "The variant is absent from gnomAD, with popmax FAF = 0.0 and zero homozygotes. This is below all defined BS1 thresholds. BA1 does not apply, so we continue, but none of the BS1 criteria thresholds are met (popmax FAF not in supporting range, and no homozygotes are seen). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No submission or proband count found for NM_001114753.3:c.1312-3C>G; ERepo: No evidence found; LOVD: No evidence found; PubMed: 10+ articles found, but none provide a confirmed individual-level proband count for ENG c.1312-3C>G in HHT.",
+      "reasoning": "Extensive search via all required sources (ClinVar HHT VCEP SCV, LOVD, ERepo, PubMed) did not yield any documented proband count specifically for the ENG c.1312-3C>G variant in individuals with HHT. The queried PubMed articles discuss HHT and ENG but do not mention this specific variant with a count of confirmed HHT probands. Without at least one documented, qualifying proband, the threshold for PS4 is not met. All database and literature search requirements have been fulfilled as instructed.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG c.1312-3C>G HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No experiments were retrieved for this variant (experiments list is empty).",
+      "reasoning": "According to the rules, if the experiments list is empty (Step 1), PS3 does not apply. There is no functional evidence available to assess.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP returned 400: {\"error\":\"request for consequence of [G] matches reference [G]\"}"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818835-C-G",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP returned 400: {\"error\":\"request for consequence of [G] matches reference [G]\"}"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The evidence retrieved contains an empty dictionary; no experiments are reported for this variant.",
+      "reasoning": "Per Step 1 of the BS3 rules, because the 'experiments' list is empty (i.e., no functional data is available for this variant), BS3 does not apply. Functional evidence is required to consider this criterion; absence of such evidence means we cannot assess functional normality.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1312-3C>G",
+      "disease": "HHT"
+    }
+  ]
+}

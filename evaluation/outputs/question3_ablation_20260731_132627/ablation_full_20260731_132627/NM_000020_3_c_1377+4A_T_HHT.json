@@ -1,0 +1,96 @@
+{
+  "variant": "NM_000020.3:c.1377+4A>T",
+  "disease": "HHT",
+  "timestamp": "20260731_140649",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD. Total allele count (AC) = 0; absent from all subpopulations.",
+      "reasoning": "According to Step 1 of the rules, if the variant is absent from gnomAD entirely, PM2_SUPPORTING applies. The evidence shows the variant is not present in gnomAD (AC=0). Therefore, PM2_SUPPORTING applies based on Step 1.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD. Popmax FAF = 0.0%.",
+      "reasoning": "BA1 applies only if the popmax FAF is greater than or equal to 1%. In this case, the variant is absent from gnomAD and the popmax FAF is 0.0%, which is well below the threshold. According to the rules, BA1 does not apply when the frequency is low or the variant is not present in gnomAD.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_000020.3:c.1377+4A>T is absent from gnomAD. Popmax FAF = 0.0000, homozygote count = 0.",
+      "reasoning": "Step 1: BA1 does not apply (Popmax FAF < 0.01). Step 2: BS1_Strong via homozygote route does not apply (Popmax FAF not in supporting range and 0 homs). Step 3: BS1_Strong via FAF route does not apply (Popmax FAF \u2264 0.002). Step 4: BS1_Supporting does not apply (Popmax FAF \u2264 0.0008). Since all thresholds for BS1 are not met, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51919119-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No evidence of SCV or explicit proband count for NM_000020.3:c.1377+4A>T; ERepo: Not queried; LOVD: Not queried; PubMed: 10 articles found, but none specifically report ACVRL1 c.1377+4A>T with phenotype-confirmed HHT probands or enumerate case counts for this specific variant.",
+      "reasoning": "Per instructions, PS4 is applied based on the number of independent, phenotype-confirmed HHT probands for this exact variant as reported by ClinVar HHT VCEP (preferred) or failing that, in published case reports. The provided ClinVar and PubMed evidence review yielded 0 probands specifically reported for ACVRL1 c.1377+4A>T; no case-level data or proband count meeting ACMG criteria was demonstrable for this variant in the sources provided. No fallback sources (ERepo, LOVD) were available/queried. Thus, by the rule: 0 probands means PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.1377+4A>T HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for this variant (experiments list is empty).",
+      "reasoning": "Step 1 of the PS3 classification rules states that if no experiments are present in the evidence (experiments list is empty), PS3 does not apply. No further steps are necessary.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were found for NM_000020.3:c.1377+4A>T in the evidence retrieved (experiments list is empty).",
+      "reasoning": "Following BS3 instructions, if there are no functional experiments available (experiments list is empty), BS3 does not apply. There is no functional evidence to support a benign effect for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.1377+4A>T",
+      "disease": "HHT"
+    }
+  ]
+}

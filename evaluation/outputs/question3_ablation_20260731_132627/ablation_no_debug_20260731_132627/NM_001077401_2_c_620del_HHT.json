@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260731_144052",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001077401.2:c.620del was not found in gnomAD. The total AC is 0 and the variant is absent from all subpopulations.",
+      "reasoning": "According to the PM2_SUPPORTING classification rules, Step 1 asks whether the variant is completely absent from gnomAD. Because this variant is not found in gnomAD (total AC=0, absent in all subpopulations), Step 1 is satisfied and PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD; popmax FAF is 0.0, with total allele count 0.",
+      "reasoning": "According to the criteria, BA1 applies only if the popmax FAF is >= 0.01 (1%). Here, the popmax FAF is 0.0 (the variant is absent from gnomAD). Therefore, BA1 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001077401.2:c.620del is absent from gnomAD (popmax FAF = 0.0, homozygotes = 0).",
+      "reasoning": "The variant is not present in gnomAD; popmax FAF is 0.0 and there are no observed homozygotes. Step 1: BA1 does not apply (FAF < 0.01). Step 2: Not in BS1_Supporting range and no homozygotes. Step 3: FAF not in BS1_Strong range. Step 4: FAF not in BS1_Supporting range. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count reported in expert panel SCV comment; ERepo: 1 proband inferred by expert panel's P/LP requirement but not explicitly stated; LOVD: Not available; PubMed: No articles found with individual-level counts.",
+      "reasoning": "The instructions require an explicit documented proband count in the ClinVar HHT VCEP expert panel SCV comment, or, as fallback, in ERepo, LOVD, or PubMed. In this case, the ClinVar SCV comment does not provide an explicit proband count. The panel's pathogenic classification cannot substitute for direct evidence of proband count per the rules. Likewise, ERepo only infers at least one proband based on their process for classifying as P/LP but does not provide an explicit number; this is insufficient. No further evidence in LOVD or PubMed. Therefore, the explicit requirements of PS4 are not met and it does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "Variant is a frameshift (frameshift_variant) in ACVRL1 at codon position 207. ACVRL1 loss-of-function (LOF) causes HHT via haploinsufficiency. Frameshift, nonsense, and splice variants are well-established pathogenic mechanisms. Codon 207 is before the NMD threshold (codon 442).",
+      "reasoning": "The variant is a frameshift in ACVRL1 at codon 207, and LOF is a known disease mechanism. According to the ACVRL1-specific PVS1 decision tree, a frameshift at codon <=442 is predicted to undergo NMD, which qualifies for PVS1 at very strong strength. All prerequisites and gene-specific criteria are met.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    }
+  ]
+}

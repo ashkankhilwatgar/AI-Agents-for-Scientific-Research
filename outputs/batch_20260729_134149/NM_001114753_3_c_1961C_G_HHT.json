@@ -1,0 +1,151 @@
+{
+  "variant": "NM_001114753.3:c.1961C>G",
+  "disease": "HHT",
+  "timestamp": "20260729_152505",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.1961C>G is absent from gnomAD: total allele count (AC)=0, no subpopulation frequencies.",
+      "reasoning": "Per Step 1, the variant is completely absent from gnomAD. The PM2_SUPPORTING criterion is triggered when the variant is not found in gnomAD. Neither total AC nor subpopulation AF thresholds need to be checked further.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.1961C>G is absent from gnomAD; Popmax FAF is 0.0.",
+      "reasoning": "BA1 requires Popmax FAF >= 1% for application. The variant is absent from gnomAD and its Popmax FAF is 0.0, which is much less than the 1% threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF is 0.0, total allele count is 0, and homozygote count is 0.",
+      "reasoning": "BA1 does not apply, as Popmax FAF is 0.0. For BS1, all population FAF and homozygote counts are below thresholds: Popmax FAF is not above 0.0008, so neither BS1_Supporting nor BS1_Strong are triggered. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is ENG p.Thr654Ser (position 654), not in any of the listed PM1 critical residues (278, 282, 207, 363, 382, 412, 549, 350, 394); in_critical_region is false; pm1_region_name is null.",
+      "reasoning": "PM1 applies only if the variant affects one of the hard-coded critical residues (BMP9 binding sites or specified cysteines/disulfide bonds). The altered residue (654) is not included in these lists, and the tool does not flag it as being in a critical region. Therefore, PM1 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 0 probands found; ERepo: not queried; LOVD: not queried; PubMed: 0 articles found",
+      "reasoning": "ClinVar was queried for this variant and did not yield any reports or expert panel submissions mentioning proband counts for HHT. No PubMed articles were found reporting this variant in affected probands. Since no evidence was retrieved from these principal sources, the proband count is zero, which does not meet the minimum threshold for applying PS4. All required sources were queried and none revealed observations of the variant in HHT probands.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ENG (c.1961C>G OR p.Thr654Ser OR p.T654S) HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "different_aa_classifications list is empty; there are no known pathogenic or likely pathogenic missense variants affecting a different amino acid at codon 654 of ENG (c.1961C>G) according to the tool.",
+      "reasoning": "PM5 requires at least one P/LP missense variant at the same codon but with a different amino acid change. Here, the different_aa_classifications list is empty, meaning no such variants exist. Therefore, PM5 does not apply for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 654",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The experiments list retrieved for the variant NM_001114753.3:c.1961C>G in the context of HHT is empty (\"experiments\": []). No functional assays are available.",
+      "reasoning": "According to the rules for PS3, if the experiments list is empty, the criterion does not apply. There are no functional data available to support PS3 application for this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP request failed: HTTPSConnectionPool(host='rest.ensembl.org', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score unavailable (N/A). MyVariant.info request failed. SpliceAI scores all 0.0 (DS_AG=0.0, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0). In '_computed.verdicts': 'BP4 REVEL HHT threshold (<= 0.15): N/A', 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "For a missense variant, both REVEL (<=0.15) and SpliceAI (<=0.1) thresholds must be met in '_computed.verdicts' for BP4 to apply. In this case, 'BP4 REVEL HHT threshold (<= 0.15): N/A' due to unavailable REVEL data, while SpliceAI criteria is passed. According to the rules, if either criterion fails or is not available for a missense variant, BP4 does not apply. Therefore, BP4 cannot be applied here.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127815698-G-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "same_aa_classifications is empty: no known ENG variants with the IDENTICAL amino acid change reported as Pathogenic or Likely Pathogenic in ClinVar or HHT VCEP.",
+      "reasoning": "Step 1: same_aa_classifications is empty. There are no variants with the identical amino acid change classified as Pathogenic or Likely Pathogenic. Therefore, PS1 does not apply and evaluation stops at this step.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 654",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for NM_001114753.3:c.1961C>G (experiments list is empty).",
+      "reasoning": "Step 1 of the BS3 rules asks whether the experiments list is empty. Here, the experiments list is empty. Therefore, there is no functional evidence to support application of BS3. According to the rules, BS3 does NOT apply if there are no experiments.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1961C>G",
+      "disease": "HHT"
+    }
+  ]
+}

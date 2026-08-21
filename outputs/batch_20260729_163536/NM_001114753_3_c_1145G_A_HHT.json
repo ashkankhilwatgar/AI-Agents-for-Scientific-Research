@@ -1,0 +1,155 @@
+{
+  "variant": "NM_001114753.3:c.1145G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_165218",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PM1": "moderate",
+      "PS4": "strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PM1",
+      "PS4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant NM_001114753.3:c.1145G>A is absent from gnomAD (total allele count = 0, no subpopulation AFs).",
+      "reasoning": "Step 1 of the PM2_SUPPORTING rules applies: the variant is entirely absent from gnomAD (total AC=0). According to the rules, PM2_Supporting should be applied if the variant is absent.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820027-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant NM_001114753.3:c.1145G>A is absent from gnomAD; popmax FAF is 0.0.",
+      "reasoning": "According to the ACMG BA1 criterion, BA1 applies only if the popmax FAF is greater than or equal to 1% (0.01). Here, the variant is absent from gnomAD and the popmax FAF is 0.0, which is below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820027-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant NM_001114753.3:c.1145G>A is absent from gnomAD: Popmax FAF = 0.0, homozygote count = 0.",
+      "reasoning": "BS1 requires popmax FAF to be >0.0008 (0.08%) to <=0.01 (1%) for supporting or strong application. This variant is absent from gnomAD, so FAF = 0.0 (well below thresholds) and there are no homozygotes. Therefore, BS1 does NOT apply per the provided rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127820027-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change at position 382 (p.Cys382Tyr) in the ENG gene. Position 382 is a cysteine residue and is listed among LP/P-classified cysteines by HHT VCEP as a critical residue for ENG function.",
+      "reasoning": "According to the hardcoded rules for PM1, the criterion applies if the variant affects one of several specified critical residues, including cysteine 382. The evidence confirms the variant is p.Cys382Tyr at position 382, which is specifically listed in the LP/P-classified cysteines by HHT VCEP. Therefore, PM1 applies to this variant.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1145G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband count 4, PM2_Supporting met per comment; ERepo: not queried; LOVD: not queried; PubMed: not queried (ClinVar had sufficient data).",
+      "reasoning": "The ClinVar HHT VCEP expert panel submission reports at least 4 probands with a phenotype consistent with HHT, not qualifying for PP4_Moderate. Because 4+ probands are reported and PM2_Supporting is explicitly confirmed as met by the expert panel, PS4_Strong applies. There is no need to fall back to other sources as ClinVar provides sufficient data. Strength is set to strong based on threshold rules provided.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1145G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "For codon 382 of ENG (variant NM_001114753.3:c.1145G>A), erepo found no LP/P missense variants involving a different amino acid substitution (different_aa_classifications=[]).",
+      "reasoning": "According to the PM5 criteria, only variants in different_aa_classifications count. Since different_aa_classifications is empty, there are no known pathogenic or likely pathogenic missense substitutions at this codon with a different amino acid change; therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 382",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "One experiment (PMID: 30763665) using transfection of expression vectors into human cultured cells, analyzed by Western blot, shows a 'marked reduction' in Endoglin protein levels for the c.1145G>A variant compared to wild-type. The assay used wild-type Endoglin as a control. No quantitative values reported. Authors concluded this supports a pathogenic role by reducing protein expression.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: The assay is protein-level analysis (Western blot) for abundance/expression, which per the rules is not one of the eligible functional assay types for HHT (such as mRNA splicing, intracellular signaling, binding, localization, or morphogenesis). No other eligible experiment is present. Step 3: Not applicable since no eligible assays remain. Therefore, per the rules, PS3 does not apply since only protein expression was measured and this is explicitly excluded.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1145G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "From _computed.verdicts: PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0000, all < 0.2); PP3 REVEL (>= 0.644): N/A (REVEL not available).",
+      "reasoning": "Following the classification rules for PP3: For this missense variant, the verdicts state that PP3 does not fire for SpliceAI (all scores <0.2), and REVEL PP3 status is not applicable due to missing data. Therefore, neither SpliceAI nor REVEL trigger PP3, so the criterion does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127820027-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI scores: DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000. REVEL score is not available. Verdict: BP4 SpliceAI passes, BP4 REVEL HHT threshold not available.",
+      "reasoning": "For this missense variant, both BP4 REVEL HHT threshold and BP4 SpliceAI verdicts are required to be 'PASSES'. The REVEL score is unavailable, and the verdict states that BP4 REVEL HHT threshold is not available. According to the provided rules, if either condition fails or is not available for missense variants, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127820027-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The 'same_aa_classifications' list is empty; only 'different_aa_classifications' are present (p.Cys382Trp as Likely pathogenic, p.Cys382Ter as Pathogenic). No known pathogenic or likely pathogenic variants cause the same amino acid change as the variant queried.",
+      "reasoning": "Per the rules for PS1, only 'same_aa_classifications' is relevant. Since this list is empty, there is no evidence of a previously classified pathogenic or likely pathogenic variant with the identical amino acid change. Therefore, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 382",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "One experiment (PMID: 30763665) tested the variant (p.Cys382Tyr, c.1145G>A) by transient transfection of Endoglin expression vectors in human cultured cells, analyzing Endoglin protein levels. The result was a 'marked reduction' of Endoglin protein versus wild type. Appropriate wild-type controls were used. The authors concluded the variant markedly impairs Endoglin expression, supporting pathogenicity.",
+      "reasoning": "Step 1: The experiments list is NOT empty (one experiment present). Step 2: The experiment tests only protein abundance (expression) after transfection, without assessment of mRNA splicing, signaling, binding, localization, or cytoskeletal/morphology effects. According to the instructions, 'normal protein expression or abundance ALONE is not eligible' for BS3. Since this assay only measures protein levels/abundance after expression, it is not an eligible assay for BS3. Step 3: No eligible experiments remain. Step 4: As no eligible experiments remain, BS3 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1145G>A",
+      "disease": "HHT"
+    }
+  ]
+}

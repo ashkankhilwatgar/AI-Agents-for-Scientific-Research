@@ -34,6 +34,7 @@ from agents.check_agent import run_check
 from pipeline import (
     _safe_variant_name,
     run_pipeline,
+    save_results as save_pipeline_results,
     PerCriterionState,
 )
 from data.planrag import query
@@ -136,6 +137,7 @@ def process_criterion_ablation(state: PerCriterionState, mode: str):
 # ── Run pipeline with a given ablation mode ───────────────────────────────────
 
 def run_pipeline_ablation(variant: str, disease: str, mode: str):
+    """Run one variant and retain both criterion and classification outputs."""
     import pipeline as pipeline_module
 
     def patched_process_criterion(state):
@@ -144,7 +146,7 @@ def run_pipeline_ablation(variant: str, disease: str, mode: str):
     with patch.object(pipeline_module, "process_criterion", patched_process_criterion):
         results_list, scoring_result = run_pipeline(variant, disease)
 
-    return scoring_result
+    return results_list, scoring_result
 
 
 # ── Load data ─────────────────────────────────────────────────────────────────
@@ -191,29 +193,142 @@ def compute_metrics(y_true, y_pred):
 
 # ── Main evaluation loop ──────────────────────────────────────────────────────
 
-def run_single_mode(gold_df: pd.DataFrame, mode: str) -> list:
-    """Run one ablation mode over the whole gold_df and return its preds list."""
+def _write_batch_summary(
+    batch_summary_path: Path,
+    gold_csv_path: str,
+    total: int,
+    completed: int,
+    results: list,
+) -> None:
+    """Write the same summary shape used by ``pipeline.run_batch``."""
+    with open(batch_summary_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "csv": gold_csv_path,
+                "total": total,
+                "completed": completed,
+                "results": results,
+            },
+            f,
+            indent=2,
+        )
+
+
+def run_single_mode(
+    gold_df: pd.DataFrame,
+    mode: str,
+    mode_output_dir: str | Path,
+    gold_csv_path: str,
+) -> list:
+    """Run one ablation mode and save pipeline-compatible batch artifacts.
+
+    The mode directory contains one full criterion-level JSON file per variant,
+    plus an incrementally updated ``batch_summary.json``. This mirrors
+    ``pipeline.run_batch`` so ``evaluation/question1.py`` can score the mode by
+    pointing it at that summary file.
+    """
     print(f"\n{'='*60}")
     print(f"ABLATION MODE: {mode.upper()}")
     print(f"{'='*60}")
-    preds = []
 
-    for _, row in gold_df.iterrows():
+    mode_output_dir = Path(mode_output_dir)
+    mode_output_dir.mkdir(parents=True, exist_ok=True)
+    batch_summary_path = mode_output_dir / "batch_summary.json"
+
+    preds = []
+    batch_results = []
+    total = len(gold_df)
+
+    for completed, (_, row) in enumerate(gold_df.iterrows(), start=1):
         variant = row["variant"]
         disease = row.get("disease", "HHT")
         gold = normalize(row["gold_classification_short"])
+        safe_variant = _safe_variant_name(variant)
+        target = mode_output_dir / f"{safe_variant}_{disease}.json"
 
         print(f"\n  [{mode}] {variant}...")
-        try:
-            scoring = run_pipeline_ablation(variant, disease, mode)
-            pred = normalize(scoring.get("classification", "ERROR"))
-        except Exception as e:
-            print(f"  ERROR: {e}")
-            pred = "ERROR"
+        if target.exists():
+            # Match pipeline.run_batch's resumable behavior. Read the saved
+            # classification so the ablation metrics remain reproducible.
+            try:
+                with open(target, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                pred = normalize(existing.get("classification", "ERROR"))
+                batch_result = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "skipped_existing",
+                    "classification": existing.get("classification"),
+                    "rule_matched": existing.get("rule_matched"),
+                    "file": str(target),
+                }
+            except (OSError, json.JSONDecodeError) as e:
+                # A corrupt result is not a completed variant; report it as an
+                # isolated failure instead of silently using it for metrics.
+                target_error = f"{type(e).__name__}: {e}"
+                print(f"  ERROR reading existing result: {target_error}")
+                pred = "ERROR"
+                batch_result = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "error",
+                    "error": target_error,
+                    "file": str(target),
+                }
+        else:
+            try:
+                criterion_results, scoring = run_pipeline_ablation(variant, disease, mode)
+                result_path = save_pipeline_results(
+                    variant,
+                    disease,
+                    criterion_results,
+                    scoring,
+                    output_dir=str(mode_output_dir),
+                    timestamped=False,
+                )
+                pred = normalize((scoring or {}).get("classification", "ERROR"))
+                batch_result = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "ok",
+                    "classification": (scoring or {}).get("classification"),
+                    "rule_matched": (scoring or {}).get("rule_matched"),
+                    "file": result_path,
+                }
+            except (Exception, SystemExit) as e:
+                # Isolate a failed variant so the rest of the mode still runs,
+                # consistent with pipeline.run_batch.
+                error = f"{type(e).__name__}: {e}"
+                print(f"  ERROR: {error}")
+                pred = "ERROR"
+                batch_result = {
+                    "variant": variant,
+                    "disease": disease,
+                    "status": "error",
+                    "error": error,
+                }
+                error_path = mode_output_dir / f"{safe_variant}_{disease}.error.json"
+                with open(error_path, "w", encoding="utf-8") as f:
+                    json.dump(batch_result, f, indent=2)
+                batch_result["file"] = str(error_path)
 
+        batch_results.append(batch_result)
         preds.append({"variant": variant, "gold": gold, "pred": pred})
+        _write_batch_summary(
+            batch_summary_path,
+            gold_csv_path,
+            total,
+            completed,
+            batch_results,
+        )
         print(f"  gold={gold}  pred={pred}")
 
+    # pipeline.run_batch only reaches its incremental write inside the loop;
+    # explicitly create a valid summary for an empty filtered data set too.
+    if total == 0:
+        _write_batch_summary(batch_summary_path, gold_csv_path, 0, 0, [])
+
+    print(f"\nBatch artifacts for mode '{mode}' saved to {mode_output_dir}")
     return preds
 
 
@@ -254,10 +369,10 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
     """
     Runs one or more ablation modes and saves results.
 
-    If `modes` is a single mode (list of length 1), this saves a per-mode raw
-    JSON file (ablation_raw_<mode>_<run_id>.json) instead of the combined
-    summary table, so that separate invocations (one per mode) can later be
-    merged with merge_ablation_results.py.
+    Every mode is stored in ``ablation_<mode>_<run_id>/`` with one full JSON
+    result per variant and a ``batch_summary.json``. If `modes` is a single
+    mode, its raw classification output can later be combined with the other
+    modes using ``merge_ablation_results.py``.
     """
     modes = modes or ABLATION_MODES
     gold_df = load_gold_df(gold_csv_path)
@@ -270,8 +385,16 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
     run_id = run_id or datetime.now().strftime("%Y%m%d_%H%M%S")
 
     all_results = {}
+    mode_output_dirs = {}
     for mode in modes:
-        all_results[mode] = run_single_mode(gold_df, mode)
+        mode_output_dir = Path(output_dir) / f"ablation_{mode}_{run_id}"
+        mode_output_dirs[mode] = str(mode_output_dir)
+        all_results[mode] = run_single_mode(
+            gold_df,
+            mode,
+            mode_output_dir=mode_output_dir,
+            gold_csv_path=gold_csv_path,
+        )
 
     if len(modes) < len(ABLATION_MODES):
         # Partial run (single mode, run individually) — save a per-mode file
@@ -281,8 +404,13 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
         with open(raw_path, "w") as f:
             json.dump(all_results, f, indent=2)
         print(f"\nRaw results for mode '{mode}' saved to {raw_path}")
+        print(f"Criterion-level batch output saved to {mode_output_dirs[mode]}")
         print(f"Run ID: {run_id}  (use this with merge_ablation_results.py once all 4 modes are done)")
-        return
+        return {
+            "run_id": run_id,
+            "raw_results": str(raw_path),
+            "mode_output_dirs": mode_output_dirs,
+        }
 
     # Full run (all modes in one process) — original combined behavior.
     raw_path = Path(output_dir) / f"ablation_raw_{run_id}.json"
@@ -294,8 +422,26 @@ def run_question3_evaluation(gold_csv_path: str, variant_ids: list, output_dir: 
 
     summary_path = Path(output_dir) / f"ablation_summary_{run_id}.json"
     with open(summary_path, "w") as f:
-        json.dump({"timestamp": run_id, "modes": summary}, f, indent=2)
+        json.dump(
+            {
+                "timestamp": run_id,
+                "modes": summary,
+                "mode_output_dirs": mode_output_dirs,
+                "mode_batch_summaries": {
+                    mode: str(Path(path) / "batch_summary.json")
+                    for mode, path in mode_output_dirs.items()
+                },
+            },
+            f,
+            indent=2,
+        )
     print(f"\nSummary saved to {summary_path}")
+    return {
+        "run_id": run_id,
+        "raw_results": str(raw_path),
+        "summary": str(summary_path),
+        "mode_output_dirs": mode_output_dirs,
+    }
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -330,4 +476,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

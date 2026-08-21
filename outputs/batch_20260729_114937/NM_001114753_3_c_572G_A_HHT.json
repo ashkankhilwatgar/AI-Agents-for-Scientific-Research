@@ -1,0 +1,148 @@
+{
+  "variant": "NM_001114753.3:c.572G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_124738",
+  "classification": "Benign",
+  "rule_matched": "BA1 stand-alone",
+  "scoring": {
+    "classification": "Benign",
+    "rule_matched": "BA1 stand-alone",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 1,
+      "bs": 1,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "BA1": "benign_stand_alone",
+      "BS3": "benign_strong"
+    },
+    "applied_criteria": [
+      "BA1",
+      "BS3"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant is present in gnomAD with a total allele count (AC) of 22210, and all subpopulation allele frequencies are well above the 0.00004 threshold required for PM2_Supporting. No subpopulation AF is <0.00004 and the variant is not absent from gnomAD.",
+      "reasoning": "According to the PM2_Supporting rules: Step 1: The variant is not absent from gnomAD. Step 2: The total AC is 22210, which is greater than 6. Step 3: All subpopulation AFs are above 0.00004. Therefore, PM2_Supporting does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The gnomAD Popmax FAF for this variant is 0.01702266 (1.70%), which is greater than the 0.01 (1%) threshold for BA1. The variant is present in gnomAD with 22,210 total alleles and 180 homozygotes.",
+      "reasoning": "BA1 applies when the popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). In this case, the variant's popmax FAF is 0.01702266, which exceeds the threshold. Therefore, BA1 applies and this is stand-alone benign evidence.",
+      "applies": true,
+      "applied_strength": "benign_stand_alone",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF is 0.017, total homozygote count is 180. BA1 threshold for HHT is FAF \u2265 0.01.",
+      "reasoning": "According to the HHT rules, when Popmax FAF is \u2265 0.01, BA1 must be applied (not BS1), and BA1 supersedes BS1. Therefore, BS1 does not apply regardless of population frequency or homozygote count.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.572G>A results in a missense change at protein position 191 (p.Gly191Asp) in ENG. The position is not in any of the hardcoded critical residue lists for PM1: BMP9 binding sites (278, 282), VCEP-classified critical cysteines (207, 363, 382, 412, 549), or disulfide-bond cysteines (350, 394).",
+      "reasoning": "The variant affects protein position 191, which is not among the critical residues specifically defined by the ACMG PM1 rules for ENG in HHT (positions 207, 278, 282, 350, 363, 382, 394, 412, 549). Therefore, PM1 does not apply according to the rule set.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No variants with a different amino acid substitution (different_aa_classifications) at codon 191 of ENG classified as likely pathogenic or pathogenic were found in the evidence.",
+      "reasoning": "According to the rules, PM5 only applies if there is at least one likely pathogenic or pathogenic missense variant with a different amino acid at the same codon (different_aa_classifications). Here, different_aa_classifications is empty, therefore PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 191",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "One eligible functional assay (PMID: 27260700): Minigene splicing assay in COS-7 cells using ENG exon constructs. The mutant c.572G>A showed an identical transcript to wild-type with no aberrant splicing seen. Controls were valid, and authors conclude this variant does not affect ENG pre-mRNA splicing.",
+      "reasoning": "Step 1: The experiments list is not empty. Step 2: The assay (minigene splicing) is eligible for PS3. Step 3: The experiment is interpretable and clearly functionally_normal as the mutant transcript matched wild-type, with valid controls and a clear conclusion. Step 4: There are no functionally_abnormal results, only functionally_normal. Thus, by the decision rules, PS3 does NOT apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "REVEL score is not available (N/A). SpliceAI maximum score is 0.0500, all scores are below 0.2. Verdict: 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE'.",
+      "reasoning": "According to the ground truth rules and the _computed.verdicts summary, neither REVEL nor SpliceAI trigger the PP3 criterion for this variant. Specifically, REVEL is unavailable and SpliceAI does not reach the required threshold (>=0.2) for PP3 to apply. Therefore, PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI: DS_AG=0.05, DS_AL=0.0, DS_DG=0.0, DS_DL=0.0; SpliceAI verdict: BP4 PASSES (all scores <= 0.1); REVEL not available; BP4 REVEL HHT threshold: N/A.",
+      "reasoning": "According to the classification rules, for a missense variant, both 'BP4 REVEL HHT threshold' must pass and 'BP4 SpliceAI' must pass. In this case, 'BP4 SpliceAI (all scores <= 0.1): PASSES', but 'BP4 REVEL HHT threshold (<= 0.15)' is N/A (not available). Because both conditions are required (AND logic), BP4 does NOT apply for missense variants if either is missing or fails.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127825812-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The 'same_aa_classifications' list returned by the tool is empty. No variants with the identical amino acid change as the query were found in ClinVar or by HHT VCEP.",
+      "reasoning": "Step 1 of the PS1 rules requires a non-empty 'same_aa_classifications' list for PS1 to apply, as this indicates the presence of a previously classified pathogenic variant with the same amino acid change. Since the list is empty, there is no evidence to support application of PS1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 191",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "A minigene splicing assay (PMID: 27260700) in COS-7 cells tested NM_001114753.3:c.572G>A. RT-PCR and sequencing showed that the mutant construct produced the same single transcript as wild type, with no additional splice products, and experiments were performed in duplicate with validated controls.",
+      "reasoning": "The experiment is an eligible functional assay for HHT (mRNA splicing), with wild-type control and duplicate testing confirming validity. The result (no new splice product, transcript profile identical to wild type) is functionally normal, directly supporting lack of abnormal splicing. There is no conflicting or ambiguous evidence and no functionally abnormal result reported. Per ACMG guidance and HHT VCEP rules, a single normal, well-controlled, eligible assay justifies BS3 at supporting strength only.",
+      "applies": true,
+      "applied_strength": "benign_strong",
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.572G>A",
+      "disease": "HHT",
+      "judge_warning": "Judge agent exceeded retry limit (5); output returned as-is with unresolved reasoning concerns"
+    }
+  ]
+}

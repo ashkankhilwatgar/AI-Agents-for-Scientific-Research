@@ -1,0 +1,141 @@
+{
+  "variant": "NM_001114753.3:c.1762G>A",
+  "disease": "HHT",
+  "timestamp": "20260729_181801",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 0,
+      "sup": 0,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {},
+    "applied_criteria": [],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "gnomAD total AC is 231 (exome AC = 220, genome AC = 11). Subpopulation allele frequencies include NFE (AF = 0.0001665), FIN (AF = 0.000286), ASJ (AF = 0.000307), and AFR (AF = 0.0000598).",
+      "reasoning": "The variant is present in gnomAD with a total allele count of 231, which is >= 6. Additionally, multiple subpopulations have an allele frequency >= 0.00004 (e.g., NFE AF = 0.0001665, FIN AF = 0.000286, ASJ AF = 0.000307, AFR AF = 0.0000598). Since the allele frequency is not less than 0.00004 across all subpopulations, the variant does not meet the rarity threshold, and PM2_SUPPORTING does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127816033-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD popmax FAF is 0.00014659 (0.0147%).",
+      "reasoning": "The BA1 criterion requires a Popmax Filtering Allele Frequency (FAF) of >= 0.01 (1%). The observed popmax FAF for this variant in gnomAD is 0.00014659, which is well below the 1% threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127816033-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "gnomAD popmax FAF is 0.00014659 (0.0147%) and total homozygote count is 0.",
+      "reasoning": "The popmax FAF of 0.00014659 is below the threshold for BS1_Supporting (>0.0008) and BS1_Strong (>0.002). Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127816033-C-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_001114753.3:c.1762G>A (p.Val588Ile) in ENG is located at codon position 588.",
+      "reasoning": "According to the ENG-specific PM1 rules, the critical positions are BMP9 binding sites (278, 282), LP/P-classified cysteines (207, 363, 382, 412, 549), and disulfide-bond cysteines (350, 394). The variant residue is at position 588, which does not match any of these critical positions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1762G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "status": "skipped",
+      "reason": "PM2_SUPPORTING did not apply \u2014 PS4 requires it"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications found at codon 588 of the ENG gene.",
+      "reasoning": "The different_aa_classifications list is empty, indicating there are no pathogenic or likely pathogenic missense variants at the same codon (588) with a different amino acid change. Therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 588",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The experiments list is empty.",
+      "reasoning": "According to Step 1 of the PS3 classification rules, if the experiments list is empty, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1762G>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127816033-C-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP request failed: HTTPSConnectionPool(host='rest.ensembl.org', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127816033-C-T",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Both REVEL and SpliceAI lookups failed. REVEL: MyVariant.info request failed: HTTPSConnectionPool(host='myvariant.info', port=443): Read timed out. (read timeout=10). SpliceAI: Ensembl VEP request failed: HTTPSConnectionPool(host='rest.ensembl.org', port=443): Read timed out. (read timeout=15)"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty, indicating no established pathogenic variants with the same amino acid change at codon 588 of ENG.",
+      "reasoning": "According to the PS1 classification rules, the criterion applies only if there is a non-empty list of same amino acid classifications (same_aa_classifications) containing at least one Pathogenic or Likely Pathogenic variant. Since same_aa_classifications is empty, PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 588",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The experiments list is empty.",
+      "reasoning": "According to Step 1 of the classification rules, because the experiments list is empty, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1762G>A",
+      "disease": "HHT"
+    }
+  ]
+}

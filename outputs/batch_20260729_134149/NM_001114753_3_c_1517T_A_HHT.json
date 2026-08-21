@@ -1,0 +1,153 @@
+{
+  "variant": "NM_001114753.3:c.1517T>A",
+  "disease": "HHT",
+  "timestamp": "20260729_135214",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Moderate": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Moderate"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant is present in gnomAD with total AC=1, which is less than 6. Subpopulation max AF is 7.9e-05. Decision triggered at Step 2 (AC<6).",
+      "reasoning": "According to PM2_SUPPORTING rules: Step 1 does not apply since the variant is present in gnomAD. In Step 2, the total AC is 1, which is less than 6, meaning PM2_SUPPORTING applies, per the specified rules.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "gnomAD popmax FAF for this variant is 0.0 (i.e., 0%).",
+      "reasoning": "BA1 requires a popmax FAF >= 0.01 (1%) to apply. This variant has a popmax FAF of 0.0, which is far below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Popmax FAF = 0.0; total allele count = 1; homozygotes = 0; found only in Ashkenazi Jewish population with allele count = 1 and no homozygotes.",
+      "reasoning": "Per the provided rules, BS1 is considered if Popmax FAF > 0.0008. Here, the Popmax FAF is 0.0, which is below any supporting cutoff for BS1. Therefore, BS1 does not apply. Both the FAF and homozygote count are too low for either supporting or strong BS1.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant is a missense change at codon 506 (Leu506His) in ENG. It is not located in any of the PM1 critical residues (278, 282, 207, 363, 382, 412, 549, 350, 394). The critical PM1 region is not implicated.",
+      "reasoning": "According to the rules, PM1 applies only if the missense variant alters one of the hardcoded critical residues. The protein position affected here is 506, which is not in the list of BMP9 binding sites, LP/P-classified cysteines, or function-critical disulfide bond cysteines. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband_count=2 reported; ERepo: not queried; LOVD: not queried; PubMed: not queried (not needed as requirement met in ClinVar).",
+      "reasoning": "The ClinVar HHT Variant Curation Expert Panel submission comment reports 2 probands with a phenotype consistent with HHT, which falls into the PS4_Moderate threshold (2-3 probands) according to ACMG/ClinGen specifications. PM2_Supporting has been confirmed as met in the same submission, so only the proband count is relevant for PS4 strength assignment. No additional querying was required as the primary source (ClinVar VCEP SCV) provided sufficient evidence.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No variants with a different amino acid substitution at codon 506 (ENG) have been classified as LP/P for HHT according to HHT VCEP rules (different_aa_classifications is empty).",
+      "reasoning": "PM5 requires at least one known pathogenic or likely pathogenic missense variant with a different amino acid substitution at the same codon. Since 'different_aa_classifications' is empty, there is no qualifying evidence. Therefore, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 506",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were retrieved for variant NM_001114753.3:c.1517T>A related to HHT.",
+      "reasoning": "According to the rules for PS3, the first step is to check whether the experiments list is empty. The evidence retrieved contains an empty set of experiments. Therefore, there is no functional assay evidence to consider for this variant, and PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "_computed.verdicts states: 'PP3 REVEL (>= 0.644): N/A (REVEL not available)', 'PP3 SpliceAI (any score >= 0.2): DOES NOT FIRE (max score=0.0000, all < 0.2)'.",
+      "reasoning": "According to the classification rules, for a missense variant, PP3 applies if either REVEL >=0.644 fires or SpliceAI >=0.2 fires. The verdicts indicate that REVEL data is not available, and SpliceAI does not reach the threshold (all scores <0.2). Therefore, neither condition is met and PP3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "REVEL score was not available due to a retrieval error. SpliceAI scores were DS_AG=0.0000, DS_AL=0.0000, DS_DG=0.0000, DS_DL=0.0000. The computed verdicts state: 'BP4 REVEL HHT threshold (<= 0.15): N/A' and 'BP4 SpliceAI (all scores <= 0.1): PASSES'.",
+      "reasoning": "This is a missense variant. For missense BP4 to apply, both REVEL (<=0.15) and SpliceAI (<=0.1) conditions must pass. The SpliceAI condition passes, but the REVEL verdict is not available ('N/A'), which means one required condition fails. Therefore, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "9-127818289-A-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty; only different_aa_classifications has an entry (NM_001114753.3(ENG):c.1517T>C (p.Leu506Pro)), classified as Pathogenic/Likely pathogenic in ClinVar. No identical amino acid change matches were found.",
+      "reasoning": "Step 1 of the PS1 guidelines states to check if same_aa_classifications is non-empty. In this evidence, same_aa_classifications is empty, so PS1 does not apply. We ignore different_aa_classifications per the rules.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ENG position 506",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were reported for variant NM_001114753.3:c.1517T>A in HHT (experiments list is empty).",
+      "reasoning": "According to the criteria, if the experiments list is empty, BS3 does not apply. No eligible or ineligible assays are available for interpretation; therefore, the criterion cannot be met.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.1517T>A",
+      "disease": "HHT"
+    }
+  ]
+}

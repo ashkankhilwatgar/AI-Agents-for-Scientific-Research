@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.620del",
+  "disease": "HHT",
+  "timestamp": "20260729_221020",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "PVS1 + 1 Supporting",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "PVS1 + 1 Supporting",
+    "buckets": {
+      "vs": 1,
+      "s": 0,
+      "m": 0,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PVS1": "very_strong"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PVS1"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant absent from gnomAD: total allele count = 0, all subpopulation AF = 0.0.",
+      "reasoning": "Step 1: The variant NM_001077401.2:c.620del is not found in gnomAD, indicating absence (total AC=0, all subpopulation AF=0.0). According to the provided rules, if the variant is entirely absent from gnomAD, PM2_Supporting applies. No further steps are needed.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD, Popmax FAF = 0.0, total AC = 0.",
+      "reasoning": "BA1 requires Popmax FAF >= 0.01 (1%). This variant is absent from gnomAD and has Popmax FAF = 0.0, which is well below the required threshold. Therefore, BA1 does NOT apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD. Popmax FAF = 0.0; total homozygotes = 0. BA1 does not apply. BS1 thresholds not met.",
+      "reasoning": "BS1 requires popmax FAF >0.0008. This variant is completely absent from gnomAD (popmax FAF = 0.0), with 0 homozygotes observed, which does not meet any of the BS1 thresholds for either benign_strong or benign_supporting. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51914067-TG-T",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No explicit proband count stated in submission comment; ERepo: 1 proband inferred from P/LP classification but NOT used (no direct statement); LOVD: No additional data; PubMed: No case reports found for this variant.",
+      "reasoning": "PS4 requires an explicit proband count from the HHT VCEP ClinVar SCV comment or from primary literature. The ERepo classification cannot be used to infer a proband count. No direct statement of a unique HHT proband carrying this variant is present in any queried source. Therefore, per ACMG rules, PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ERepo for NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant is a frameshift variant at codon position 207 in the ACVRL1 gene, which acts via loss-of-function (LoF) and haploinsufficiency. Frameshift and nonsense variants are known pathogenic mechanisms, and LoF is an established disease mechanism for ACVRL1. Codon 207 is before the NMD threshold of codon 442.",
+      "reasoning": "This is a frameshift variant (disrupts reading frame), located at codon 207, which is before the NMD threshold (<=442), indicating that the transcript is predicted to undergo nonsense-mediated decay. Based on the ACVRL1 gene-specific PVS1 guidelines, such variants meet the criteria for PVS1 at very strong strength, as LoF is a known mechanism for HHT via ACVRL1 and variant type/position fits the decision tree.",
+      "applies": true,
+      "applied_strength": "very_strong",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.620del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.620del"
+    }
+  ]
+}

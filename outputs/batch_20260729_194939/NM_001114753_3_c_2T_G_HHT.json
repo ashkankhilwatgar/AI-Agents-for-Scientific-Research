@@ -1,0 +1,111 @@
+{
+  "variant": "NM_001114753.3:c.2T>G",
+  "disease": "HHT",
+  "timestamp": "20260729_205030",
+  "classification": "Likely Pathogenic",
+  "rule_matched": "1 Strong + 1 Moderate",
+  "scoring": {
+    "classification": "Likely Pathogenic",
+    "rule_matched": "1 Strong + 1 Moderate",
+    "buckets": {
+      "vs": 0,
+      "s": 1,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4": "strong",
+      "PVS1_Moderate": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4",
+      "PVS1_Moderate"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant not found in gnomAD; total AC = 0; all subpopulation AF = 0.",
+      "reasoning": "The variant is completely absent from gnomAD (total allele count = 0, AF = 0). According to Step 1, this triggers PM2_Supporting to apply immediately.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant is absent from gnomAD. Popmax FAF is 0.0%.",
+      "reasoning": "According to ACMG rule BA1, the criterion applies only if the Popmax FAF is greater than or equal to 1% (0.01). This variant is absent from gnomAD with a Popmax FAF of 0.0%, which is below the threshold. Therefore, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD; Popmax FAF = 0.0; homozygote count = 0.",
+      "reasoning": "The variant is absent from gnomAD, with Popmax FAF = 0.0 and 0 homozygotes. BA1 does not apply (FAF < 0.01). For BS1, the Popmax FAF does not meet any of the required thresholds (>0.0008) for either benign_strong or benign_supporting. Thus, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "9-127854354-A-C",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: proband_count=4; ERepo: not queried; LOVD: not queried; PubMed: not queried (no additional review required since ClinVar VCEP provides necessary data and meets threshold).",
+      "reasoning": "The ClinVar HHT VCEP submission explicitly reports 4 probands with HHT consistent phenotypes for the variant NM_001114753.3:c.2T>G, satisfying the threshold for PS4_Strong per rules (>4 probands). The comment specifies that at least one proband meets Curacao Criteria, but only those not qualifying for PP4_Moderate are counted; since 4 is given after accounting for this as per the SCV, the proper threshold for strong is met. PM2_Supporting has already been confirmed as met, so it is not re-evaluated. No additional sources (ERepo, LOVD, PubMed) needed due to sufficient VCEP evidence.",
+      "applies": true,
+      "applied_strength": "strong",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PVS1",
+      "evidence": "The variant NM_001114753.3:c.2T>G in ENG is a start_lost (initiation codon) change (p.Met1Arg). LOF is a known mechanism for ENG in HHT. There is no known alternative start codon in other ENG transcripts.",
+      "reasoning": "This is an initiation codon variant in a gene (ENG) where LOF is a known disease mechanism (haploinsufficiency established). According to the ENG PVS1 decision tree, for initiation codon variants where no known alternative start exists, the rule is to apply PVS1 at Moderate strength. The variant consequence and location (start_lost at codon 1) fit these criteria. Therefore, PVS1 applies at moderate strength.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "The evidence retrieved indicates that the 'experiments' list is empty: [].",
+      "reasoning": "According to the PS3 rules, if the experiments list is empty, PS3 does not apply and no further steps are necessary. There are no functional studies available to assess for a damaging effect of this variant.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "The experiments list retrieved for this variant is empty: no functional studies available.",
+      "reasoning": "According to Step 1 of the BS3 rules, if the experiments list is empty, there is no functional evidence to support or refute normal function of the variant. Therefore, BS3 does not apply in this case.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001114753.3:c.2T>G",
+      "disease": "HHT"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "variant": "NM_000020.3:c.151T>G",
+  "disease": "HHT",
+  "timestamp": "20260729_175008",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PS4_Moderate": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PS4_Moderate"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "The variant NM_000020.3:c.151T>G is absent from gnomAD (total allele count = 0).",
+      "reasoning": "According to Step 1 of the PM2_SUPPORTING classification rules, if the variant is absent from gnomAD entirely, the criterion applies. Since the variant was not found in gnomAD (absent_from_gnomad is true, total AC = 0), PM2_SUPPORTING applies.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "The variant NM_000020.3:c.151T>G is absent from gnomAD (total allele count = 0, popmax FAF = 0.0).",
+      "reasoning": "According to the BA1 classification rules, the criterion applies if the Popmax Filtering Allele Frequency (FAF) is greater than or equal to 0.01 (1%). Since the variant is absent from gnomAD and has a popmax FAF of 0.0, which is less than 0.01, BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "The variant NM_000020.3:c.151T>G is absent from gnomAD (Popmax FAF = 0.0, homozygote count = 0).",
+      "reasoning": "According to the BS1 classification rules, BS1 requires a Popmax FAF > 0.0008. Since the variant is absent from gnomAD (Popmax FAF = 0.0, ac_hom = 0), it does not meet the threshold for BS1_Supporting or BS1_Strong. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM1",
+      "evidence": "The variant NM_000020.3:c.151T>G results in the protein change p.Cys51Gly (position 51) in ACVRL1.",
+      "reasoning": "The variant residue is at position 51. According to the PM1 rules for ACVRL1, the critical regions are G209-V216, K229, E242, R329-N335, D348-L351, and the BMP10 cluster {40, 54, 56, 57, 58, 59, 66, 71, 72, 73, 75, 76, 78, 79, 80, 82, 83, 84, 85, 87}. Position 51 is not within any of these specified critical regions. Therefore, PM1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: 2 probands reported; ERepo: not queried; LOVD: not queried; PubMed: 0 articles found",
+      "reasoning": "The ClinVar HHT VCEP SCV comment reports that the NM_000020.3:c.151T>G (p.Cys51Gly) variant has been observed in 2 probands with a phenotype consistent with Hereditary Hemorrhagic Telangiectasia. The variant also meets PM2_Supporting as it is absent from gnomAD. Based on the classification rules, a proband count of 2 maps to PS4_Moderate.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ClinVar VCEP SCV for NM_000020.3:c.151T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PM5",
+      "evidence": "No different amino acid classifications were found at codon 51 of the ACVRL1 gene (different_aa_classifications is empty).",
+      "reasoning": "According to the PM5 classification rules, the criterion applies if there is at least one different pathogenic or likely pathogenic missense variant at the same codon (different_aa_classifications). Since the list of different amino acid classifications is empty, PM5 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 51",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": "No functional experiments were found in the retrieved tool output.",
+      "reasoning": "The experiments list is empty, which means there is no functional evidence available to evaluate PS3. According to Step 1 of the classification rules, PS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PP3",
+      "evidence": "SpliceAI max score is 0.0900 (threshold >= 0.2). REVEL score is not available (N/A).",
+      "reasoning": "Based on the pre-computed verdicts, SpliceAI does not fire for PP3 (max score of 0.0900 is below the 0.2 threshold) and REVEL is not available. Therefore, neither Branch A nor Branch B triggers PP3.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BP4",
+      "evidence": "SpliceAI scores: DS_AG=0.0, DS_AL=0.0, DS_DG=0.09, DS_DL=0.0 (SpliceAI <= 0.1 passes). REVEL score is unavailable (N/A) due to a MyVariant.info request timeout.",
+      "reasoning": "The variant NM_000020.3:c.151T>G is a missense variant, which requires evaluating Branch A (both REVEL and SpliceAI thresholds must be met). While the SpliceAI score passes the BP4 threshold (all scores <= 0.1), the REVEL score is unavailable (N/A) and thus does not pass the HHT threshold (<= 0.15). Since both conditions must be met for a missense variant, BP4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "revel_spliceai",
+      "tool_input": "12-51913188-T-G",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS1",
+      "evidence": "The same_aa_classifications list is empty, indicating there are no established pathogenic or likely pathogenic variants with the identical amino acid change as the query variant.",
+      "reasoning": "According to the PS1 classification rules, the criterion requires a non-empty 'same_aa_classifications' list containing at least one Pathogenic or Likely Pathogenic variant. Since 'same_aa_classifications' is empty, Step 1 is not met, and PS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "erepo",
+      "tool_input": "ACVRL1 position 51",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": "No functional experiments were retrieved for the variant NM_000020.3:c.151T>G.",
+      "reasoning": "The experiments list is empty, indicating that no functional assay data is available for this variant. According to Step 1 of the classification rules, BS3 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_000020.3:c.151T>G",
+      "disease": "HHT"
+    }
+  ]
+}

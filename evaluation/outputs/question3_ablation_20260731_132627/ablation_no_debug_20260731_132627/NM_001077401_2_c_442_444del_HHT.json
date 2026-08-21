@@ -1,0 +1,109 @@
+{
+  "variant": "NM_001077401.2:c.442_444del",
+  "disease": "HHT",
+  "timestamp": "20260731_143903",
+  "classification": "Variant of Uncertain Significance (VUS)",
+  "rule_matched": "No combining criteria rule was satisfied",
+  "scoring": {
+    "classification": "Variant of Uncertain Significance (VUS)",
+    "rule_matched": "No combining criteria rule was satisfied",
+    "buckets": {
+      "vs": 0,
+      "s": 0,
+      "m": 1,
+      "sup": 1,
+      "ba": 0,
+      "bs": 0,
+      "bsup": 0
+    },
+    "bucket_detail": {
+      "PM2_SUPPORTING": "supporting",
+      "PM4": "moderate"
+    },
+    "applied_criteria": [
+      "PM2_SUPPORTING",
+      "PM4"
+    ],
+    "incompatibility_notes": [],
+    "unrecognised_criteria": []
+  },
+  "results": [
+    {
+      "criterion": "PM2_SUPPORTING",
+      "evidence": "Variant absent from gnomAD: total allele count (AC)=0, not found in any subpopulation.",
+      "reasoning": "Step 1 applies: The variant is completely absent from gnomAD (AC=0), which is an explicit trigger for PM2_SUPPORTING per the rules. No further steps are required, and the criterion applies because the variant's rarity supports pathogenicity.",
+      "applies": true,
+      "applied_strength": "supporting",
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BA1",
+      "evidence": "Variant not found in gnomAD; Popmax FAF = 0.0.",
+      "reasoning": "BA1 requires Popmax FAF to be >= 0.01 (1%). In this case, the variant is absent from gnomAD (Popmax FAF is 0.0). Therefore, the threshold is not met and BA1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS1",
+      "evidence": "Variant absent from gnomAD. Popmax FAF = 0.0. Homozygote count = 0.",
+      "reasoning": "BS1 requires Popmax FAF > 0.0008. This variant is completely absent (FAF = 0.0), so it does not meet the BS1 Supporting or Strong thresholds. Therefore, BS1 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "gnomad",
+      "tool_input": "12-51913685-AGGAG-AG",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS4",
+      "evidence": "ClinVar HHT VCEP SCV: No entries found for this variant (total_found: 0); ERepo: Not queried; LOVD: Not queried; PubMed: 0 articles found.",
+      "reasoning": "No reports of the variant in ClinVar, and no published case reports in PubMed. Therefore, there are zero documented probands with phenotype consistent with HHT for this variant. According to PS4 rules, a proband count of 0 means PS4 does not apply.",
+      "applies": false,
+      "applied_strength": null,
+      "status": "complete",
+      "tool_used": "clinvar",
+      "tool_input": "ACVRL1 c.442_444del HHT",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "PS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.442_444del"
+    },
+    {
+      "criterion": "PM4",
+      "evidence": "VEP consequence: inframe_deletion; overlaps_repeat_region: false.",
+      "reasoning": "The variant consequence is 'inframe_deletion', which meets the threshold for further consideration of PM4. The variant does NOT overlap a repeat region. According to the PM4 rules for inframe deletions not in repeat regions, PM4 applies at Moderate strength.",
+      "applies": true,
+      "applied_strength": "moderate",
+      "status": "complete",
+      "tool_used": "vep",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT"
+    },
+    {
+      "criterion": "BS3",
+      "evidence": null,
+      "reasoning": null,
+      "applies": null,
+      "tool_used": "functional_evidence",
+      "tool_input": "NM_001077401.2:c.442_444del",
+      "disease": "HHT",
+      "status": "error",
+      "error": "Functional evidence analysis failed: No rsid available for the variant NM_001077401.2:c.442_444del"
+    }
+  ]
+}
